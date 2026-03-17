@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ListDirect — List Your Home Free</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#0a0f0d;--bg2:#111810;--card:#141c16;--border:#1f2d22;--green:#3ef07a;--green2:#27c45e;--greenlow:rgba(62,240,122,0.08);--text:#e8f0e9;--muted:#7a9480;--white:#fff;--gold:#f5c842;--red:#e85454;--radius:16px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;font-size:16px;line-height:1.6;min-height:100vh}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:16px 48px;background:rgba(10,15,13,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:"Playfair Display",serif;font-size:1.5rem;font-weight:900;color:var(--white);letter-spacing:-1px;text-decoration:none}
+.nav-logo span{color:var(--green)}
+.nav-back{background:none;border:1px solid var(--border);color:var(--muted);padding:8px 18px;border-radius:50px;font-size:0.86rem;font-weight:600;cursor:pointer;font-family:"DM Sans",sans-serif;transition:all 0.2s;text-decoration:none;display:flex;align-items:center;gap:6px}
+.nav-back:hover{border-color:var(--green);color:var(--green)}
+
+.page-wrap{max-width:740px;margin:0 auto;padding:100px 24px 80px}
+
+/* PROGRESS */
+.progress-bar{display:flex;align-items:center;gap:0;margin-bottom:48px;position:relative}
+.progress-bar::before{content:"";position:absolute;top:14px;left:14px;right:14px;height:2px;background:var(--border);z-index:0}
+.prog-fill{position:absolute;top:14px;left:14px;height:2px;background:var(--green);z-index:1;transition:width 0.4s ease}
+.step-dot{display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;position:relative;z-index:2}
+.sd-circle{width:28px;height:28px;border-radius:50%;background:var(--border);color:var(--muted);font-size:0.72rem;font-weight:700;display:flex;align-items:center;justify-content:center;transition:all 0.3s;border:2px solid transparent}
+.sd-label{font-size:0.68rem;color:var(--muted);text-align:center;font-weight:500}
+.step-dot.active .sd-circle{background:var(--green);color:var(--bg);border-color:var(--green);box-shadow:0 0 0 4px rgba(62,240,122,0.2)}
+.step-dot.done .sd-circle{background:var(--green2);color:var(--white);border-color:var(--green2)}
+.step-dot.active .sd-label{color:var(--green);font-weight:700}
+.step-dot.done .sd-label{color:var(--green2)}
+
+/* STEP PAGES */
+.step-page{display:none;animation:fadeIn 0.3s ease}
+.step-page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.step-header{margin-bottom:32px}
+.step-tag{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:var(--green);margin-bottom:10px}
+.step-title{font-family:"Playfair Display",serif;font-size:clamp(1.8rem,4vw,2.6rem);font-weight:900;color:var(--white);line-height:1.1;margin-bottom:10px}
+.step-sub{color:var(--muted);font-size:0.95rem;line-height:1.65}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:0}
+.form-grid.cols1{grid-template-columns:1fr}
+.ff{display:flex;flex-direction:column;gap:7px}
+.ff.full{grid-column:1/-1}
+.ff label{font-size:0.74rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted)}
+.ff input,.ff select,.ff textarea{background:var(--card);border:1px solid var(--border);color:var(--text);padding:13px 16px;border-radius:12px;font-size:0.95rem;font-family:"DM Sans",sans-serif;outline:none;transition:border-color 0.2s,box-shadow 0.2s;width:100%;resize:vertical}
+.ff input:focus,.ff select:focus,.ff textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(62,240,122,0.1)}
+.ff input::placeholder,.ff textarea::placeholder{color:#3a4e3e}
+.ff select option{background:var(--card)}
+.char-count{font-size:0.72rem;color:var(--muted);text-align:right;margin-top:4px}
+
+/* NAV BUTTONS */
+.step-nav{display:flex;gap:12px;margin-top:28px;align-items:center}
+.btn-back{background:none;border:1px solid var(--border);color:var(--muted);padding:13px 24px;border-radius:50px;font-weight:600;font-size:0.92rem;cursor:pointer;font-family:"DM Sans",sans-serif;transition:all 0.2s}
+.btn-back:hover{border-color:var(--green);color:var(--green)}
+.btn-next{background:var(--green);color:var(--bg);border:none;padding:13px 32px;border-radius:50px;font-weight:700;font-size:0.95rem;cursor:pointer;font-family:"DM Sans",sans-serif;transition:all 0.15s;flex:1}
+.btn-next:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(62,240,122,0.4)}
+.btn-next:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none}
+
+/* PHOTO UPLOAD */
+.photo-zone{border:2px dashed var(--border);border-radius:16px;padding:40px 24px;text-align:center;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden}
+.photo-zone:hover,.photo-zone.drag-over{border-color:var(--green);background:var(--greenlow)}
+.pz-icon{font-size:2.4rem;margin-bottom:12px}
+.pz-title{font-weight:700;color:var(--white);margin-bottom:6px}
+.pz-sub{font-size:0.85rem;color:var(--muted)}
+.pz-sub strong{color:var(--green)}
+.photo-previews{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.photo-thumb{width:90px;height:70px;border-radius:10px;background-size:cover;background-position:center;border:1px solid var(--border);position:relative;flex-shrink:0}
+.photo-thumb .pt-remove{position:absolute;top:-6px;right:-6px;width:20px;height:20px;background:var(--red);border-radius:50%;border:none;cursor:pointer;color:white;font-size:0.7rem;display:flex;align-items:center;justify-content:center}
+.photo-thumb.cover-photo::after{content:"Cover";position:absolute;bottom:4px;left:4px;background:var(--green);color:var(--bg);font-size:0.6rem;font-weight:700;padding:2px 6px;border-radius:4px}
+
+/* AI DESCRIPTION BOX */
+.ai-desc-box{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:20px}
+.ai-desc-header{background:var(--greenlow);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+.ai-desc-header-left{display:flex;align-items:center;gap:10px}
+.ai-icon{width:32px;height:32px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem}
+.ai-desc-header h4{font-size:0.9rem;font-weight:700;color:var(--white)}
+.ai-desc-header p{font-size:0.72rem;color:var(--muted)}
+.ai-desc-body{padding:20px}
+.ai-desc-text{font-size:0.92rem;color:var(--text);line-height:1.75;white-space:pre-wrap;min-height:80px}
+.ai-desc-text.streaming::after{content:"▋";animation:blink 0.7s infinite;color:var(--green)}
+.ai-desc-text.placeholder{color:var(--muted);font-style:italic}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.ai-desc-actions{display:flex;gap:8px;padding:0 20px 16px;flex-wrap:wrap}
+.ai-action-btn{background:var(--bg2);border:1px solid var(--border);color:var(--muted);padding:7px 14px;border-radius:50px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:"DM Sans",sans-serif;transition:all 0.2s}
+.ai-action-btn:hover{border-color:var(--green);color:var(--green)}
+.ai-spinner-row{display:flex;align-items:center;gap:8px;padding:20px;color:var(--muted);font-size:0.85rem}
+.ai-spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* TONE SELECTOR */
+.tone-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:0}
+.tone-card{background:var(--card);border:2px solid var(--border);border-radius:12px;padding:14px 16px;cursor:pointer;transition:all 0.2s;text-align:center}
+.tone-card:hover{border-color:rgba(62,240,122,0.3)}
+.tone-card.active{border-color:var(--green);background:var(--greenlow)}
+.tone-icon{font-size:1.5rem;margin-bottom:6px}
+.tone-name{font-size:0.82rem;font-weight:700;color:var(--white);margin-bottom:2px}
+.tone-desc{font-size:0.72rem;color:var(--muted)}
+
+/* PREVIEW CARD */
+.listing-preview{background:var(--card);border:1px solid rgba(62,240,122,0.3);border-radius:20px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.4)}
+.lp-img{height:240px;background:var(--bg2);background-size:cover;background-position:center;position:relative}
+.lp-img-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--muted);font-size:0.9rem;gap:8px}
+.lp-img-placeholder .lp-ph-icon{font-size:2.5rem}
+.lp-verified{position:absolute;bottom:12px;left:12px;background:var(--green);color:var(--bg);font-size:0.7rem;font-weight:800;padding:4px 12px;border-radius:50px}
+.lp-body{padding:22px 24px}
+.lp-price{font-family:"Playfair Display",serif;font-size:2rem;font-weight:900;color:var(--white);margin-bottom:4px}
+.lp-addr{color:var(--muted);font-size:0.88rem;margin-bottom:14px}
+.lp-specs{display:flex;gap:20px;margin-bottom:14px;flex-wrap:wrap}
+.lp-spec{font-size:0.85rem;color:var(--muted)}
+.lp-spec strong{color:var(--text);font-weight:700}
+.lp-desc{font-size:0.9rem;color:var(--muted);line-height:1.7;border-top:1px solid var(--border);padding-top:14px;margin-top:4px}
+.lp-badge{display:inline-flex;align-items:center;gap:6px;background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);padding:8px 16px;border-radius:50px;font-size:0.8rem;color:var(--green);font-weight:600;margin-bottom:14px}
+
+/* SUCCESS */
+.success-wrap{text-align:center;padding:24px 0}
+.success-icon{font-size:4rem;margin-bottom:20px}
+.success-title{font-family:"Playfair Display",serif;font-size:2.2rem;font-weight:900;color:var(--white);margin-bottom:12px}
+.success-sub{color:var(--muted);font-size:1rem;line-height:1.7;max-width:480px;margin:0 auto 28px}
+.success-banner{background:var(--greenlow);border:1px solid rgba(62,240,122,0.25);border-radius:14px;padding:20px 24px;margin-bottom:28px;font-size:0.9rem;color:var(--green)}
+.success-banner strong{font-weight:700}
+.success-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn-primary{background:var(--green);color:var(--bg);padding:14px 32px;border-radius:50px;font-weight:700;font-size:0.95rem;cursor:pointer;border:none;font-family:"DM Sans",sans-serif;transition:all 0.15s;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(62,240,122,0.4)}
+.btn-outline{background:transparent;color:var(--text);padding:14px 32px;border-radius:50px;font-weight:600;font-size:0.95rem;cursor:pointer;border:1px solid var(--border);font-family:"DM Sans",sans-serif;transition:all 0.2s;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.btn-outline:hover{border-color:var(--green);color:var(--green)}
+
+/* VALIDATION */
+.field-error{font-size:0.75rem;color:var(--red);margin-top:4px;display:none}
+.ff.has-error input,.ff.has-error select,.ff.has-error textarea{border-color:var(--red)}
+.ff.has-error .field-error{display:block}
+
+@media(max-width:640px){.form-grid{grid-template-columns:1fr}nav{padding:14px 18px}.page-wrap{padding:80px 16px 60px}}
+
+/* ── PATH CHOICE MODAL ── */
+.path-modal-overlay{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.25s}
+.path-modal-overlay.open{opacity:1;pointer-events:all}
+.path-modal{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:40px 36px;max-width:600px;width:100%;position:relative;transform:translateY(20px);transition:transform 0.25s;max-height:90vh;overflow-y:auto}
+.path-modal-overlay.open .path-modal{transform:translateY(0)}
+.path-modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer;transition:color 0.2s;line-height:1}
+.path-modal-close:hover{color:var(--white)}
+.path-modal-tag{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:var(--green);margin-bottom:10px}
+.path-modal-title{font-family:"Playfair Display",serif;font-size:1.8rem;font-weight:900;color:var(--white);line-height:1.1;margin-bottom:8px}
+.path-modal-sub{font-size:0.9rem;color:var(--muted);margin-bottom:28px;line-height:1.6}
+.path-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.path-choice-card{background:var(--bg2);border:2px solid var(--border);border-radius:18px;padding:26px 22px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;text-align:left}
+.path-choice-card:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,0.4)}
+.path-choice-card.ai-card{border-color:rgba(62,240,122,0.4);background:linear-gradient(135deg,rgba(62,240,122,0.06) 0%,var(--bg2) 60%)}
+.path-choice-card.ai-card:hover{border-color:var(--green);box-shadow:0 12px 40px rgba(62,240,122,0.2)}
+.path-choice-card.agent-card:hover{border-color:rgba(245,200,66,0.4);box-shadow:0 12px 40px rgba(245,200,66,0.1)}
+.pc-best{position:absolute;top:14px;right:14px;background:var(--green);color:var(--bg);font-size:0.62rem;font-weight:800;padding:3px 10px;border-radius:50px;letter-spacing:0.04em;text-transform:uppercase}
+.pc-icon{font-size:2rem;margin-bottom:12px}
+.pc-title{font-family:"Playfair Display",serif;font-size:1.2rem;font-weight:900;color:var(--white);margin-bottom:4px}
+.pc-tagline{font-size:0.78rem;color:var(--muted);margin-bottom:16px;font-weight:500}
+.pc-features{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+.pc-features li{display:flex;align-items:flex-start;gap:8px;font-size:0.82rem;color:var(--text);line-height:1.4}
+.pc-features li .pf-check{color:var(--green);font-weight:700;flex-shrink:0;font-size:0.85rem}
+.pc-features li .pf-check.gold{color:var(--gold)}
+.pc-savings{background:rgba(62,240,122,0.1);border:1px solid rgba(62,240,122,0.2);border-radius:12px;padding:12px 14px;margin-bottom:18px}
+.pc-savings-label{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:4px}
+.pc-savings-num{font-family:"Playfair Display",serif;font-size:1.6rem;font-weight:900;color:var(--green);line-height:1}
+.pc-savings-note{font-size:0.7rem;color:var(--muted);margin-top:2px}
+.pc-savings.gold-savings{background:rgba(245,200,66,0.08);border-color:rgba(245,200,66,0.2)}
+.pc-savings.gold-savings .pc-savings-num{color:var(--gold)}
+.pc-btn{width:100%;padding:12px;border-radius:50px;font-weight:700;font-size:0.9rem;cursor:pointer;border:none;font-family:"DM Sans",sans-serif;transition:all 0.15s}
+.pc-btn.green-btn{background:var(--green);color:var(--bg)}
+.pc-btn.green-btn:hover{box-shadow:0 4px 20px rgba(62,240,122,0.4);transform:translateY(-1px)}
+.pc-btn.gold-btn{background:transparent;border:1px solid rgba(245,200,66,0.4);color:var(--gold)}
+.pc-btn.gold-btn:hover{background:rgba(245,200,66,0.1);transform:translateY(-1px)}
+.path-modal-note{font-size:0.75rem;color:var(--muted);text-align:center;line-height:1.55}
+.path-modal-note a{color:var(--muted);text-decoration:underline}
+@media(max-width:520px){.path-cards{grid-template-columns:1fr}.path-modal{padding:28px 20px}}
+
+</style>
+<script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">List<span>Direct</span></a>
+  <a href="index.html" class="nav-back">← Back to Home</a>
+</nav>
+
+<div class="page-wrap">
+
+  <!-- PROGRESS BAR -->
+  <div class="progress-bar" id="progress-bar">
+    <div class="prog-fill" id="prog-fill" style="width:0%"></div>
+    <div class="step-dot active" id="dot-1"><div class="sd-circle">1</div><div class="sd-label">Your Info</div></div>
+    <div class="step-dot" id="dot-2"><div class="sd-circle">2</div><div class="sd-label">Property</div></div>
+    <div class="step-dot" id="dot-3"><div class="sd-circle">3</div><div class="sd-label">AI Listing</div></div>
+    <div class="step-dot" id="dot-4"><div class="sd-circle">4</div><div class="sd-label">Photos</div></div>
+    <div class="step-dot" id="dot-5"><div class="sd-circle">5</div><div class="sd-label">Review</div></div>
+    <div class="step-dot" id="dot-6"><div class="sd-circle">🎉</div><div class="sd-label">Live!</div></div>
+  </div>
+
+  <!-- STEP 1: CONTACT INFO -->
+  <div class="step-page active" id="step-1">
+    <div class="step-header">
+      <div class="step-tag">Step 1 of 5</div>
+      <h1 class="step-title">Let's get you started</h1>
+      <p class="step-sub">Create your free listing. We need your contact info so buyers can reach you directly.</p>
+    </div>
+    <div class="form-grid cols1">
+      <div class="ff" id="ff-name">
+        <label>Full Name</label>
+        <input type="text" id="s1-name" placeholder="Jane Smith"/>
+        <span class="field-error">Please enter your name</span>
+      </div>
+      <div class="ff" id="ff-email">
+        <label>Email Address</label>
+        <input type="email" id="s1-email" placeholder="jane@example.com"/>
+        <span class="field-error">Please enter a valid email</span>
+      </div>
+      <div class="ff">
+        <label>Phone Number</label>
+        <input type="tel" id="s1-phone" placeholder="(555) 000-0000"/>
+      </div>
+      <div class="ff" id="ff-country">
+        <label>Country</label>
+        <select id="s1-country">
+          <option value="us">🇺🇸 United States</option>
+          <option value="ca">🇨🇦 Canada</option>
+        </select>
+      </div>
+      <div class="ff">
+        <label>How would you like to sell?</label>
+        <select id="s1-path">
+          <option value="direct">🚀 List Direct — AI-powered, 1% fee, no agent</option>
+          <option value="agent">🤝 Agent Assisted — certified agent + guaranteed cashback</option>
+        </select>
+      </div>
+    </div>
+    <div class="step-nav">
+      <button class="btn-next" onclick="goNext(1)">Continue → Property Details</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: PROPERTY DETAILS -->
+  <div class="step-page" id="step-2">
+    <div class="step-header">
+      <div class="step-tag">Step 2 of 5</div>
+      <h1 class="step-title">Tell us about<br>your property</h1>
+      <p class="step-sub">The more detail you give, the better your AI-generated listing will be.</p>
+    </div>
+    <div class="form-grid">
+      <div class="ff full" id="ff-addr">
+        <label>Street Address</label>
+        <input type="text" id="s2-addr" placeholder="123 Oak Street"/>
+        <span class="field-error">Please enter your address</span>
+      </div>
+      <div class="ff" id="ff-city">
+        <label>City</label>
+        <input type="text" id="s2-city" placeholder="e.g. Austin or Toronto"/>
+        <span class="field-error">Please enter your city</span>
+      </div>
+      <div class="ff">
+        <label>State / Province</label>
+        <input type="text" id="s2-state" placeholder="e.g. TX or ON"/>
+      </div>
+      <div class="ff">
+        <label>ZIP / Postal Code</label>
+        <input type="text" id="s2-zip" placeholder="78701 or M5V 2T6"/>
+      </div>
+      <div class="ff">
+        <label>Asking Price</label>
+        <input type="text" id="s2-price" placeholder="$389,000"/>
+      </div>
+      <div class="ff">
+        <label>Property Type</label>
+        <select id="s2-type">
+          <option>Single Family Home</option>
+          <option>Condo</option>
+          <option>Townhome</option>
+          <option>Semi-Detached</option>
+          <option>Detached</option>
+          <option>Multi-Family</option>
+        </select>
+      </div>
+      <div class="ff">
+        <label>Bedrooms</label>
+        <select id="s2-beds">
+          <option>1</option><option>2</option><option selected>3</option>
+          <option>4</option><option>5</option><option>6+</option>
+        </select>
+      </div>
+      <div class="ff">
+        <label>Bathrooms</label>
+        <select id="s2-baths">
+          <option>1</option><option selected>2</option><option>2.5</option>
+          <option>3</option><option>4</option><option>5+</option>
+        </select>
+      </div>
+      <div class="ff">
+        <label>Square Footage</label>
+        <input type="number" id="s2-sqft" placeholder="1,850"/>
+      </div>
+      <div class="ff">
+        <label>Year Built</label>
+        <input type="number" id="s2-year" placeholder="2005"/>
+      </div>
+      <div class="ff">
+        <label>Garage Spaces</label>
+        <select id="s2-garage">
+          <option value="0">No Garage</option>
+          <option value="1">1 Car</option>
+          <option value="2" selected>2 Car</option>
+          <option value="3">3 Car</option>
+          <option value="4">4+ Car</option>
+        </select>
+      </div>
+      <div class="ff">
+        <label>Condition</label>
+        <select id="s2-condition">
+          <option>Needs Work</option>
+          <option>Fair</option>
+          <option selected>Good</option>
+          <option>Updated</option>
+          <option>Like New</option>
+        </select>
+      </div>
+      <div class="ff full">
+        <label>Key Features & Upgrades</label>
+        <textarea id="s2-features" rows="3" placeholder="e.g. Renovated kitchen with quartz counters, hardwood floors throughout, private backyard, new roof 2022, finished basement, close to top-rated schools, walking distance to parks…"></textarea>
+      </div>
+    </div>
+    <div class="step-nav">
+      <button class="btn-back" onclick="goBack(2)">← Back</button>
+      <button class="btn-next" onclick="goNext(2)">Continue → AI Listing</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: AI LISTING DESCRIPTION -->
+  <div class="step-page" id="step-3">
+    <div class="step-header">
+      <div class="step-tag">Step 3 of 5</div>
+      <h1 class="step-title">Your AI listing<br><em style="font-style:normal;color:var(--green)">is being written</em></h1>
+      <p class="step-sub">Our AI writes your professional listing description. Edit it, regenerate it, or change the tone — it's yours.</p>
+    </div>
+
+    <div style="margin-bottom:20px">
+      <div class="ff">
+        <label>Choose a tone for your listing</label>
+      </div>
+      <div class="tone-grid" id="tone-grid">
+        <div class="tone-card active" data-tone="Professional & Polished" onclick="selectTone(this)"><div class="tone-icon">🏢</div><div class="tone-name">Professional</div><div class="tone-desc">Clean & credible</div></div>
+        <div class="tone-card" data-tone="Warm & Inviting" onclick="selectTone(this)"><div class="tone-icon">🏡</div><div class="tone-name">Warm</div><div class="tone-desc">Friendly & homey</div></div>
+        <div class="tone-card" data-tone="Luxury & Upscale" onclick="selectTone(this)"><div class="tone-icon">✨</div><div class="tone-name">Luxury</div><div class="tone-desc">Premium feel</div></div>
+        <div class="tone-card" data-tone="Family-Focused" onclick="selectTone(this)"><div class="tone-icon">👨‍👩‍👧</div><div class="tone-name">Family</div><div class="tone-desc">Great for families</div></div>
+        <div class="tone-card" data-tone="Modern & Minimalist" onclick="selectTone(this)"><div class="tone-icon">⬜</div><div class="tone-name">Modern</div><div class="tone-desc">Sleek & simple</div></div>
+      </div>
+    </div>
+
+    <div class="ai-desc-box">
+      <div class="ai-desc-header">
+        <div class="ai-desc-header-left">
+          <div class="ai-icon">🤖</div>
+          <div><h4>AI Listing Description</h4><p>Powered by Claude AI · Edit anytime</p></div>
+        </div>
+      </div>
+      <div id="ai-body">
+        <div class="ai-spinner-row" id="ai-spinner"><div class="ai-spinner"></div>Writing your listing description…</div>
+      </div>
+      <div class="ai-desc-actions" id="ai-actions" style="display:none">
+        <button class="ai-action-btn" onclick="regenerateDesc()">🔄 Regenerate</button>
+        <button class="ai-action-btn" onclick="makeEditable()">✏️ Edit Description</button>
+        <button class="ai-action-btn" onclick="copyDesc()">📋 Copy</button>
+      </div>
+    </div>
+
+    <div class="step-nav">
+      <button class="btn-back" onclick="goBack(3)">← Back</button>
+      <button class="btn-next" id="btn-step3-next" onclick="goNext(3)" disabled>Continue → Add Photos</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: PHOTOS -->
+  <div class="step-page" id="step-4">
+    <div class="step-header">
+      <div class="step-tag">Step 4 of 5</div>
+      <h1 class="step-title">Add your photos</h1>
+      <p class="step-sub">Listings with photos get 4x more inquiries. First photo becomes your cover image. You can add up to 20 photos.</p>
+    </div>
+
+    <div class="photo-zone" id="photo-zone" onclick="openCloudinaryUpload()">
+      <div class="pz-icon">📸</div>
+      <div class="pz-title" id="photo-zone-title">Tap to add photos</div>
+      <div class="pz-sub"><strong>JPG, PNG</strong> · Up to 20 photos · Stored securely</div>
+    </div>
+    <div class="photo-previews" id="photo-previews"></div>
+    <input type="hidden" id="photo-urls" name="photo-urls" value=""/>
+
+    <div style="margin-top:20px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 20px;font-size:0.85rem;color:var(--muted)">
+      💡 <strong style="color:var(--text)">Tips for great photos:</strong> Natural light, clean spaces, shoot from corners to show room size. Front exterior first.
+    </div>
+
+    <div class="step-nav">
+      <button class="btn-back" onclick="goBack(4)">← Back</button>
+      <button class="btn-next" onclick="goNext(4)" id="btn-step4-next">Continue → Review Listing</button>
+    </div>
+  </div>
+
+  <!-- STEP 5: REVIEW -->
+  <div class="step-page" id="step-5">
+    <div class="step-header">
+      <div class="step-tag">Step 5 of 5</div>
+      <h1 class="step-title">Review your<br><em style="font-style:normal;color:var(--green)">listing</em></h1>
+      <p class="step-sub">This is exactly how buyers will see your home. Looks good? Submit and go live.</p>
+    </div>
+
+    <div class="listing-preview" id="listing-preview">
+      <div class="lp-img" id="lp-img">
+        <div class="lp-img-placeholder"><div class="lp-ph-icon">📸</div><span>Your photos will appear here</span></div>
+        <div class="lp-verified">👑 ListDirect Verified</div>
+      </div>
+      <div class="lp-body">
+        <div class="lp-badge">🚀 List Direct · 1% platform fee</div>
+        <div class="lp-price" id="lp-price">$—</div>
+        <div class="lp-addr" id="lp-addr">📍 Your address</div>
+        <div class="lp-specs">
+          <div class="lp-spec"><strong id="lp-beds">—</strong> beds</div>
+          <div class="lp-spec"><strong id="lp-baths">—</strong> baths</div>
+          <div class="lp-spec"><strong id="lp-sqft">—</strong> sq ft</div>
+          <div class="lp-spec">Built <strong id="lp-year">—</strong></div>
+        </div>
+        <div class="lp-desc" id="lp-desc">Your AI description will appear here.</div>
+      </div>
+    </div>
+
+    <div style="margin-top:24px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 24px">
+      <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:12px">What happens next</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:flex-start;gap:10px;font-size:0.9rem;color:var(--text)"><span style="color:var(--green);font-weight:700;flex-shrink:0">✓</span> Your listing goes live within 24 hours after our quick review</div>
+        <div style="display:flex;align-items:flex-start;gap:10px;font-size:0.9rem;color:var(--text)"><span style="color:var(--green);font-weight:700;flex-shrink:0">✓</span> You appear first in every search for your city with a Verified badge</div>
+        <div style="display:flex;align-items:flex-start;gap:10px;font-size:0.9rem;color:var(--text)"><span style="color:var(--green);font-weight:700;flex-shrink:0">✓</span> Buyers contact you directly — no agent in the middle</div>
+        <div style="display:flex;align-items:flex-start;gap:10px;font-size:0.9rem;color:var(--text)"><span style="color:var(--green);font-weight:700;flex-shrink:0">✓</span> 1% platform fee collected only when you close — $0 upfront</div>
+      </div>
+    </div>
+
+    <form name="new-listing" id="listing-form">
+      <input type="hidden" name="form-name" value="new-listing"/>
+      <input type="hidden" name="seller-name" id="hf-name"/>
+      <input type="hidden" name="seller-email" id="hf-email"/>
+      <input type="hidden" name="seller-phone" id="hf-phone"/>
+      <input type="hidden" name="country" id="hf-country"/>
+      <input type="hidden" name="sell-path" id="hf-path"/>
+      <input type="hidden" name="address" id="hf-addr"/>
+      <input type="hidden" name="city" id="hf-city"/>
+      <input type="hidden" name="state" id="hf-state"/>
+      <input type="hidden" name="zip" id="hf-zip"/>
+      <input type="hidden" name="price" id="hf-price"/>
+      <input type="hidden" name="property-type" id="hf-type"/>
+      <input type="hidden" name="bedrooms" id="hf-beds"/>
+      <input type="hidden" name="bathrooms" id="hf-baths"/>
+      <input type="hidden" name="sqft" id="hf-sqft"/>
+      <input type="hidden" name="year-built" id="hf-year"/>
+      <input type="hidden" name="features" id="hf-features"/>
+      <input type="hidden" name="description" id="hf-desc"/>
+      <p style="display:none"><input name="bot-field"/></p>
+      <div class="step-nav">
+        <button type="button" class="btn-back" onclick="goBack(5)">← Edit</button>
+        <button type="submit" class="btn-next" id="btn-submit">🚀 Submit My Listing — Go Live!</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- STEP 6: SUCCESS -->
+  <div class="step-page" id="step-6">
+    <div class="success-wrap">
+      <div class="success-icon">🎉</div>
+      <h1 class="success-title">You're listed!</h1>
+      <p class="success-sub">Your listing has been submitted and will be live within 24 hours. You'll appear first in every search for <strong id="success-city" style="color:var(--white)">your city</strong> with a ListDirect Verified badge.</p>
+      <div class="success-banner">
+        👑 <strong>Priority placement confirmed.</strong> Buyers searching your area will see your home first — above all market listings.
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin-bottom:28px;text-align:left">
+        <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:12px">While you wait, try these free AI tools</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <a href="listdirect-tools.html?tool=pricing" style="display:flex;align-items:center;gap:10px;color:var(--text);text-decoration:none;font-size:0.9rem;padding:10px;border-radius:10px;transition:background 0.2s" onmouseover="this.style.background='var(--greenlow)'" onmouseout="this.style.background=''">📊 <span><strong>AI Pricing Tool</strong> — Confirm your asking price is on point</span></a>
+          <a href="listdirect-tools.html?tool=offer" style="display:flex;align-items:center;gap:10px;color:var(--text);text-decoration:none;font-size:0.9rem;padding:10px;border-radius:10px;transition:background 0.2s" onmouseover="this.style.background='var(--greenlow)'" onmouseout="this.style.background=''">📝 <span><strong>Offer Analyzer</strong> — Be ready when offers come in</span></a>
+          <a href="listdirect-tools.html?tool=contract" style="display:flex;align-items:center;gap:10px;color:var(--text);text-decoration:none;font-size:0.9rem;padding:10px;border-radius:10px;transition:background 0.2s" onmouseover="this.style.background='var(--greenlow)'" onmouseout="this.style.background=''">⚖️ <span><strong>Contract Helper</strong> — Understand your paperwork</span></a>
+        </div>
+      </div>
+      <div class="success-actions">
+        <a href="listdirect-search.html" class="btn-primary">Browse Listings</a>
+        <a href="index.html" class="btn-outline">Back to Home</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const CLAUDE_MODEL = 'claude-haiku-4-5-20251001';
+let currentStep = 1;
+let aiDescription = '';
+let selectedTone = 'Professional & Polished';
+let photoFiles = [];
+const TOTAL_STEPS = 5;
+
+// ── STEP NAVIGATION ──
+function updateProgress(step) {
+  const pct = ((step - 1) / TOTAL_STEPS) * 100;
+  document.getElementById('prog-fill').style.width = pct + '%';
+  for (let i = 1; i <= 6; i++) {
+    const dot = document.getElementById('dot-' + i);
+    if (!dot) continue;
+    dot.className = 'step-dot' + (i === step ? ' active' : i < step ? ' done' : '');
+  }
+}
+
+function showStep(n) {
+  document.querySelectorAll('.step-page').forEach(p => p.classList.remove('active'));
+  const el = document.getElementById('step-' + n);
+  if (el) el.classList.add('active');
+  updateProgress(n);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  currentStep = n;
+}
+
+function goBack(from) { showStep(from - 1); }
+
+function goNext(from) {
+  if (from === 1) {
+    const name = document.getElementById('s1-name').value.trim();
+    const email = document.getElementById('s1-email').value.trim();
+    const nameFF = document.getElementById('ff-name');
+    const emailFF = document.getElementById('ff-email');
+    nameFF.classList.toggle('has-error', !name);
+    emailFF.classList.toggle('has-error', !email || !email.includes('@'));
+    if (!name || !email || !email.includes('@')) return;
+    showStep(2);
+  } else if (from === 2) {
+    const addr = document.getElementById('s2-addr').value.trim();
+    const city = document.getElementById('s2-city').value.trim();
+    document.getElementById('ff-addr').classList.toggle('has-error', !addr);
+    document.getElementById('ff-city').classList.toggle('has-error', !city);
+    if (!addr || !city) return;
+    showStep(3);
+    generateListing();
+  } else if (from === 3) {
+    showStep(4);
+  } else if (from === 4) {
+    populateReview();
+    showStep(5);
+  }
+}
+
+// ── TONE SELECTION ──
+function selectTone(card) {
+  document.querySelectorAll('.tone-card').forEach(c => c.classList.remove('active'));
+  card.classList.add('active');
+  selectedTone = card.dataset.tone;
+}
+
+// ── AI DESCRIPTION GENERATOR ──
+async function generateListing() {
+  const isCA = document.getElementById('s1-country').value === 'ca';
+  const city = document.getElementById('s2-city').value;
+  const addr = document.getElementById('s2-addr').value;
+  const price = document.getElementById('s2-price').value || 'Not specified';
+  const type = document.getElementById('s2-type').value;
+  const beds = document.getElementById('s2-beds').value;
+  const baths = document.getElementById('s2-baths').value;
+  const sqft = document.getElementById('s2-sqft').value || 'Not specified';
+  const year = document.getElementById('s2-year').value || 'Not specified';
+  const features = document.getElementById('s2-features').value || 'Not specified';
+  const condition = document.getElementById('s2-condition').value;
+
+  document.getElementById('ai-body').innerHTML = '<div class="ai-spinner-row"><div class="ai-spinner"></div>Writing your listing description…</div>';
+  document.getElementById('ai-actions').style.display = 'none';
+  document.getElementById('btn-step3-next').disabled = true;
+
+  const system = isCA
+    ? 'You are a professional real estate copywriter for Canada. Write compelling 150-200 word MLS listing descriptions using Canadian terminology: detached home, crescent, double car garage, ensuite, finished basement, backyard. No bullet points. Flowing prose.'
+    : 'You are a professional real estate copywriter for the United States. Write compelling 150-200 word MLS listing descriptions. No bullet points. Flowing prose.';
+
+  const prompt = 'Write a ' + selectedTone + ' MLS listing description for:\n\nProperty: ' + addr + ', ' + city + '\nType: ' + type + ' | Price: ' + price + '\nBeds: ' + beds + ' | Baths: ' + baths + ' | Sqft: ' + sqft + ' | Year: ' + year + '\nCondition: ' + condition + '\nFeatures: ' + features + '\n\nStart with a strong hook. End with a clear call to action. No bullet points. 150-200 words.';
+
+  try {
+    const r = await fetch('/api/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 400, system, messages: [{ role: 'user', content: prompt }] })
+    });
+    if (!r.ok) throw new Error('API ' + r.status);
+    const d = await r.json();
+    aiDescription = d.content?.filter(b => b.type === 'text').map(b => b.text).join('') || '';
+    if (!aiDescription) throw new Error('Empty');
+
+    document.getElementById('ai-body').innerHTML = '<div class="ai-desc-body"><div class="ai-desc-text" id="ai-desc-text"></div></div>';
+    const el = document.getElementById('ai-desc-text');
+    const words = aiDescription.split(' ');
+    let i = 0;
+    const ti = setInterval(() => {
+      el.textContent += (i > 0 ? ' ' : '') + words.slice(i, i + 5).join(' ');
+      i += 5;
+      if (i >= words.length) { clearInterval(ti); el.textContent = aiDescription; document.getElementById('ai-actions').style.display = 'flex'; document.getElementById('btn-step3-next').disabled = false; }
+    }, 30);
+  } catch (e) {
+    document.getElementById('ai-body').innerHTML = '<div class="ai-desc-body"><div class="ai-desc-text" id="ai-desc-text">Could not generate description. Please check your connection and try again.</div></div>';
+    document.getElementById('ai-actions').style.display = 'flex';
+    document.getElementById('btn-step3-next').disabled = false;
+  }
+}
+
+function regenerateDesc() { generateListing(); }
+
+function makeEditable() {
+  const body = document.getElementById('ai-body');
+  body.innerHTML = '<div class="ai-desc-body"><textarea id="ai-desc-text" rows="8" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:16px;border-radius:10px;font-size:0.92rem;font-family:DM Sans,sans-serif;outline:none;line-height:1.75;resize:vertical">' + aiDescription + '</textarea></div>';
+  document.getElementById('ai-desc-text').addEventListener('input', function() { aiDescription = this.value; });
+  document.getElementById('ai-actions').style.display = 'flex';
+}
+
+function copyDesc() {
+  navigator.clipboard.writeText(aiDescription).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = orig, 1800);
+  });
+}
+
+// ── PHOTOS ──
+// ── CLOUDINARY PHOTO UPLOAD ──
+let uploadedPhotoUrls = [];
+
+function openCloudinaryUpload() {
+  // Use Cloudinary unsigned upload preset
+  // Replace 'listdirect_unsigned' with your actual preset name from Cloudinary dashboard
+  if (typeof cloudinary === 'undefined') {
+    // Fallback to file input if Cloudinary not loaded
+    const input = document.createElement('input');
+    input.type = 'file'; input.multiple = true; input.accept = 'image/*';
+    input.onchange = function() { handleLocalPhotos(this.files); };
+    input.click(); return;
+  }
+  const widget = cloudinary.createUploadWidget({
+    cloudName: 'listdirect',
+    uploadPreset: 'listdirect_homes',
+    multiple: true,
+    maxFiles: 20,
+    maxFileSize: 20000000,
+    clientAllowedFormats: ['jpg','jpeg','png','webp'],
+    sources: ['local','camera'],
+    showAdvancedOptions: false,
+    cropping: false,
+    styles: {
+      palette: { window: '#141c16', windowBorder: '#1f2d22', tabIcon: '#3ef07a', menuIcons: '#7a9480', textDark: '#0a0f0d', textLight: '#e8f0e9', link: '#3ef07a', action: '#3ef07a', inactiveTabIcon: '#7a9480', error: '#e85454', inProgress: '#3ef07a', complete: '#27c45e', sourceBg: '#111810' }
+    }
+  }, function(error, result) {
+    if (!error && result && result.event === 'success') {
+      uploadedPhotoUrls.push(result.info.secure_url);
+      renderCloudinaryPreviews();
+      document.getElementById('photo-urls').value = uploadedPhotoUrls.join(',');
+    }
+  });
+  widget.open();
+}
+
+function handleLocalPhotos(files) {
+  // Local fallback — preview only, no permanent storage
+  photoFiles = Array.from(files).slice(0, 20);
+  renderLocalPreviews();
+}
+
+function renderCloudinaryPreviews() {
+  const container = document.getElementById('photo-previews');
+  container.innerHTML = '';
+  document.getElementById('photo-zone-title').textContent = uploadedPhotoUrls.length + ' photo' + (uploadedPhotoUrls.length !== 1 ? 's' : '') + ' uploaded ✓ — tap to add more';
+  uploadedPhotoUrls.forEach((url, idx) => {
+    const div = document.createElement('div');
+    div.className = 'photo-thumb' + (idx === 0 ? ' cover-photo' : '');
+    div.style.backgroundImage = 'url(' + url + ')';
+    const btn = document.createElement('button');
+    btn.className = 'pt-remove';
+    btn.innerHTML = '✕';
+    btn.onclick = (e) => { e.stopPropagation(); uploadedPhotoUrls.splice(idx, 1); renderCloudinaryPreviews(); document.getElementById('photo-urls').value = uploadedPhotoUrls.join(','); };
+    div.appendChild(btn);
+    container.appendChild(div);
+  });
+  // Update lp-img in review with first photo
+  if (uploadedPhotoUrls.length > 0) {
+    const lpImg = document.getElementById('lp-img');
+    if (lpImg) { lpImg.style.backgroundImage = 'url(' + uploadedPhotoUrls[0] + ')'; const ph = lpImg.querySelector('.lp-img-placeholder'); if (ph) ph.style.display = 'none'; }
+  }
+}
+
+function renderLocalPreviews() {
+  const container = document.getElementById('photo-previews');
+  container.innerHTML = '';
+  photoFiles.forEach((file, idx) => {
+    const url = URL.createObjectURL(file);
+    const div = document.createElement('div');
+    div.className = 'photo-thumb' + (idx === 0 ? ' cover-photo' : '');
+    div.style.backgroundImage = 'url(' + url + ')';
+    container.appendChild(div);
+  });
+}
+
+function dragOver(e) { e.preventDefault(); document.getElementById('photo-zone').classList.add('drag-over'); }
+function dragLeave() { document.getElementById('photo-zone').classList.remove('drag-over'); }
+function dropPhotos(e) { e.preventDefault(); dragLeave(); }
+
+// ── POPULATE REVIEW ──
+function populateReview() {
+  const city = document.getElementById('s2-city').value;
+  const state = document.getElementById('s2-state').value;
+  const addr = document.getElementById('s2-addr').value;
+  const price = document.getElementById('s2-price').value;
+  const beds = document.getElementById('s2-beds').value;
+  const baths = document.getElementById('s2-baths').value;
+  const sqft = document.getElementById('s2-sqft').value;
+  const year = document.getElementById('s2-year').value;
+  const path = document.getElementById('s1-path').value;
+
+  document.getElementById('lp-price').textContent = price || '—';
+  document.getElementById('lp-addr').textContent = '📍 ' + addr + (city ? ', ' + city : '') + (state ? ', ' + state : '');
+  document.getElementById('lp-beds').textContent = beds;
+  document.getElementById('lp-baths').textContent = baths;
+  document.getElementById('lp-sqft').textContent = sqft ? parseInt(sqft).toLocaleString() : '—';
+  document.getElementById('lp-year').textContent = year || '—';
+  document.getElementById('lp-desc').textContent = aiDescription || 'Your listing description will appear here.';
+
+  const badge = document.querySelector('.lp-badge');
+  if (badge) badge.textContent = path === 'agent' ? '🤝 Agent Assisted · Guaranteed cashback' : '🚀 List Direct · 1% platform fee';
+
+  if (photoFiles.length > 0) {
+    const url = URL.createObjectURL(photoFiles[0]);
+    const img = document.getElementById('lp-img');
+    img.style.backgroundImage = 'url(' + url + ')';
+    img.querySelector('.lp-img-placeholder').style.display = 'none';
+  }
+
+  // Populate hidden form fields
+  document.getElementById('hf-name').value = document.getElementById('s1-name').value;
+  document.getElementById('hf-email').value = document.getElementById('s1-email').value;
+  document.getElementById('hf-phone').value = document.getElementById('s1-phone').value;
+  document.getElementById('hf-country').value = document.getElementById('s1-country').value;
+  document.getElementById('hf-path').value = path;
+  document.getElementById('hf-addr').value = addr;
+  document.getElementById('hf-city').value = city;
+  document.getElementById('hf-state').value = state;
+  document.getElementById('hf-zip').value = document.getElementById('s2-zip').value;
+  document.getElementById('hf-price').value = price;
+  document.getElementById('hf-type').value = document.getElementById('s2-type').value;
+  document.getElementById('hf-beds').value = beds;
+  document.getElementById('hf-baths').value = baths;
+  document.getElementById('hf-sqft').value = sqft;
+  document.getElementById('hf-year').value = year;
+  document.getElementById('hf-features').value = document.getElementById('s2-features').value;
+  document.getElementById('hf-desc').value = aiDescription;
+}
+
+// ── FORM SUBMISSION ──
+document.getElementById('listing-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('btn-submit');
+  btn.textContent = 'Submitting…';
+  btn.disabled = true;
+  try {
+    await fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(new FormData(this)).toString() });
+    const city = document.getElementById('s2-city').value;
+    document.getElementById('success-city').textContent = city || 'your city';
+    showStep(6);
+    updateProgress(6);
+  } catch (err) {
+    btn.textContent = '🚀 Submit My Listing — Go Live!';
+    btn.disabled = false;
+    alert('Submission failed. Please try again.');
+  }
+});
+
+
+// ── AUTO-SELECT PATH FROM URL ──
+(function(){
+  const params = new URLSearchParams(location.search);
+  const path = params.get('path');
+  if(path === 'agent') {
+    // Pre-select agent path in the dropdown
+    const sel = document.getElementById('s1-path');
+    if(sel) sel.value = 'agent';
+    // Show a banner
+    const banner = document.createElement('div');
+    banner.style.cssText = 'background:rgba(245,200,66,0.08);border:1px solid rgba(245,200,66,0.2);border-radius:12px;padding:14px 18px;margin-bottom:20px;font-size:0.88rem;color:var(--gold);display:flex;align-items:center;gap:10px';
+    banner.innerHTML = '<span style="font-size:1.2rem">🤝</span><span><strong>Agent Assisted path selected.</strong> A certified agent will reach out after you submit. Minimum 1% cashback guaranteed at closing.</span>';
+    const stepHeader = document.querySelector('#step-1 .step-header');
+    if(stepHeader) stepHeader.insertAdjacentElement('afterend', banner);
+  }
+})();
+
+// ── PATH CHOICE MODAL ──
+function openPathModal(){
+  document.getElementById('path-modal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closePathModal(){
+  document.getElementById('path-modal').classList.remove('open');
+  document.body.style.overflow='';
+}
+function chooseAI(){
+  closePathModal();
+  window.location.href='listdirect-list.html';
+}
+function chooseAgent(){
+  closePathModal();
+  window.location.href='listdirect-search.html#agents';
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closePathModal();});
+
+</script>
+
+<p style="text-align:center;font-size:0.72rem;color:#3d5240;padding:20px 24px;border-top:1px solid #162a19;margin-top:40px">ListDirect is a technology platform, not a licensed real estate brokerage. AI-generated descriptions are for informational purposes. Always verify listing details before publishing. © 2025 ListDirect, Inc.</p>
+
+
+<!-- PATH CHOICE MODAL -->
+<div class="path-modal-overlay" id="path-modal" onclick="if(event.target===this)closePathModal()">
+  <div class="path-modal">
+    <button class="path-modal-close" onclick="closePathModal()">✕</button>
+    <div class="path-modal-tag">Choose Your Path</div>
+    <h2 class="path-modal-title">How would you like to sell?</h2>
+    <p class="path-modal-sub">Both paths save you thousands vs. a traditional agent. Pick what fits you best.</p>
+    <div class="path-cards">
+
+      <div class="path-choice-card ai-card" onclick="chooseAI()">
+        <div class="pc-best">Most Popular</div>
+        <div class="pc-icon">🤖</div>
+        <div class="pc-title">AI Agent</div>
+        <div class="pc-tagline">Do it yourself · AI does the heavy lifting</div>
+        <ul class="pc-features">
+          <li><span class="pf-check">✓</span> AI writes your listing description</li>
+          <li><span class="pf-check">✓</span> AI prices your home with market data</li>
+          <li><span class="pf-check">✓</span> AI explains every offer you receive</li>
+          <li><span class="pf-check">✓</span> You negotiate &amp; close directly</li>
+          <li><span class="pf-check">✓</span> Priority placement in every search</li>
+        </ul>
+        <div class="pc-savings">
+          <div class="pc-savings-label">💰 You save vs. traditional agent</div>
+          <div class="pc-savings-num" id="ai-savings-num">$22,500</div>
+          <div class="pc-savings-note">On a $450k home · Only 1% platform fee</div>
+        </div>
+        <button class="pc-btn green-btn">Start with AI Agent →</button>
+      </div>
+
+      <div class="path-choice-card agent-card" onclick="chooseAgent()">
+        <div class="pc-icon">🤝</div>
+        <div class="pc-title">Real Agent</div>
+        <div class="pc-tagline">Certified agent · Guaranteed cashback</div>
+        <ul class="pc-features">
+          <li><span class="pf-check gold">✓</span> Local expert handles everything</li>
+          <li><span class="pf-check gold">✓</span> Minimum 1% cashback at closing</li>
+          <li><span class="pf-check gold">✓</span> Full MLS &amp; open house support</li>
+          <li><span class="pf-check gold">✓</span> Agents compete for your listing</li>
+          <li><span class="pf-check gold">✓</span> AI tools still included</li>
+        </ul>
+        <div class="pc-savings gold-savings">
+          <div class="pc-savings-label">💰 Guaranteed cashback</div>
+          <div class="pc-savings-num" id="agent-savings-num">Min. $4,500</div>
+          <div class="pc-savings-note">On a $450k home · Agent fee minus rebate</div>
+        </div>
+        <button class="pc-btn gold-btn">Browse Certified Agents →</button>
+      </div>
+
+    </div>
+    <p class="path-modal-note">Not sure? <a href="index.html#paths">Compare both paths in detail</a> · No commitment required · Free to start</p>
+  </div>
+</div>
+
+</body>
+</html>

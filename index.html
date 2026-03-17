@@ -1,0 +1,2795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ListDirect — AI Home Selling, Reimagined</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:#0a0f0d; --bg2:#111810; --card:#141c16; --card2:#192019;
+  --border:#1f2d22; --green:#3ef07a; --green2:#27c45e;
+  --greenlow:rgba(62,240,122,0.08); --greenmid:rgba(62,240,122,0.15);
+  --text:#e8f0e9; --muted:#7a9480; --white:#fff;
+  --gold:#f5c842; --goldlow:rgba(245,200,66,0.08);
+  --red:#e85454; --radius:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:16px;line-height:1.6;overflow-x:hidden}
+
+/* ═══ SCROLLBAR ═══ */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* ═══ NAV ═══ */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:18px 48px;background:rgba(10,15,13,0.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);transition:padding 0.3s}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;color:var(--white);letter-spacing:-1px;cursor:pointer}
+.nav-logo span{color:var(--green)}
+.nav-links{display:flex;gap:32px;list-style:none}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:0.88rem;font-weight:500;transition:color 0.2s}
+.nav-links a:hover{color:var(--green)}
+.nav-right{display:flex;align-items:center;gap:12px}
+.nav-login{background:none;border:1px solid var(--border);color:var(--text);padding:9px 20px;border-radius:50px;font-size:0.88rem;font-weight:600;cursor:pointer;transition:border-color 0.2s,color 0.2s;font-family:'DM Sans',sans-serif}
+.nav-login:hover{border-color:var(--green);color:var(--green)}
+.nav-cta{background:var(--green);color:var(--bg);padding:10px 24px;border-radius:50px;font-weight:700;font-size:0.88rem;cursor:pointer;border:none;transition:transform 0.15s,box-shadow 0.15s;font-family:'DM Sans',sans-serif}
+.nav-cta:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(62,240,122,0.4)}
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px}
+.hamburger span{display:block;width:22px;height:2px;background:var(--text);border-radius:2px;transition:all 0.3s}
+.mobile-menu{display:none;position:fixed;top:0;right:0;bottom:0;width:280px;background:var(--bg2);border-left:1px solid var(--border);padding:108px 0 120px;z-index:198;flex-direction:column;gap:2px;overflow-y:scroll;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;transform:translateX(100%);transition:transform 0.3s ease;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.mobile-menu::-webkit-scrollbar{width:4px}
+.mobile-menu::-webkit-scrollbar-track{background:transparent}
+.mobile-menu::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.mobile-menu.open{display:flex;transform:translateX(0)}
+.mobile-menu-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:197;backdrop-filter:blur(4px)}
+.mobile-menu-overlay.open{display:block}
+.mobile-menu a{color:var(--text);text-decoration:none;padding:13px 24px;font-weight:500;transition:background 0.2s,color 0.2s;display:flex;align-items:center;gap:10px;font-size:0.95rem}
+.mobile-menu a:hover{background:var(--greenlow);color:var(--green)}
+.mobile-menu-btns{display:flex;flex-direction:column;gap:10px;padding:16px 20px;border-top:1px solid var(--border);margin-top:8px}
+.mobile-menu-close{position:absolute;top:18px;right:18px;background:var(--card);border:1px solid var(--border);color:var(--muted);width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;transition:all 0.2s}
+.mobile-menu-close:hover{border-color:var(--green);color:var(--green)}
+.mobile-menu-handle{position:absolute;top:50%;left:-12px;transform:translateY(-50%);width:12px;height:48px;background:var(--border);border-radius:6px 0 0 6px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.mobile-menu-handle::after{content:'‹';color:var(--muted);font-size:1rem;margin-left:2px}
+
+/* ═══ HERO ═══ */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse 60% 50% at 50% 20%,rgba(62,240,122,0.09) 0%,transparent 70%),radial-gradient(ellipse 40% 40% at 80% 80%,rgba(39,196,94,0.06) 0%,transparent 60%)}
+.hero-grid{position:absolute;inset:0;z-index:0;background-image:linear-gradient(rgba(62,240,122,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(62,240,122,0.04) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 30%,transparent 100%)}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);padding:7px 18px;border-radius:50px;margin-bottom:28px;font-size:0.82rem;font-weight:500;color:var(--green);position:relative;z-index:1;animation:fadeUp 0.7s ease both}
+.dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(1.4)}}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2.8rem,7vw,6rem);font-weight:900;line-height:1.05;color:var(--white);max-width:900px;position:relative;z-index:1;animation:fadeUp 0.8s 0.1s ease both}
+.hero h1 em{font-style:normal;color:var(--green)}
+.hero-sub{margin-top:24px;font-size:1.15rem;color:var(--muted);max-width:560px;line-height:1.7;position:relative;z-index:1;animation:fadeUp 0.8s 0.2s ease both}
+.hero-actions{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:40px;position:relative;z-index:1;animation:fadeUp 0.8s 0.3s ease both}
+.btn-primary{background:var(--green);color:var(--bg);padding:15px 36px;border-radius:50px;font-weight:700;font-size:1rem;cursor:pointer;border:none;transition:transform 0.15s,box-shadow 0.15s;font-family:'DM Sans',sans-serif}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(62,240,122,0.4)}
+.btn-outline{background:transparent;color:var(--text);padding:15px 36px;border-radius:50px;font-weight:600;font-size:1rem;cursor:pointer;border:1px solid var(--border);transition:border-color 0.2s,color 0.2s;font-family:'DM Sans',sans-serif}
+.btn-outline:hover{border-color:var(--green);color:var(--green)}
+.savings-pill{margin-top:36px;position:relative;z-index:1;display:inline-flex;align-items:center;gap:10px;background:var(--goldlow);border:1px solid rgba(245,200,66,0.2);padding:10px 22px;border-radius:50px;font-size:0.88rem;color:var(--gold);animation:fadeUp 0.8s 0.4s ease both}
+.trust-row{display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;margin-top:28px;position:relative;z-index:1;animation:fadeUp 0.8s 0.5s ease both}
+.trust-badge{display:flex;align-items:center;gap:7px;font-size:0.78rem;color:var(--muted);font-weight:500}
+.trust-badge .tb-icon{font-size:1rem}
+
+/* ═══ STATS ═══ */
+.stats{display:flex;justify-content:center;flex-wrap:wrap;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--bg2)}
+.stat-item{flex:1;min-width:180px;max-width:260px;padding:40px 32px;text-align:center;border-right:1px solid var(--border);opacity:0;transform:translateY(20px);transition:opacity 0.5s,transform 0.5s}
+.stat-item.visible{opacity:1;transform:translateY(0)}
+.stat-item:last-child{border-right:none}
+.stat-num{font-family:'Playfair Display',serif;font-size:2.6rem;font-weight:900;color:var(--green)}
+.stat-label{font-size:0.85rem;color:var(--muted);margin-top:4px}
+
+/* ═══ SEARCH SECTION ═══ */
+.search-section{background:var(--bg2);padding:80px 0;border-bottom:1px solid var(--border)}
+.search-inner{max-width:1100px;margin:0 auto;padding:0 24px}
+.search-section .section-tag{display:inline-block;font-size:0.75rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--green);margin-bottom:12px}
+.search-section h2{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3vw,2.6rem);font-weight:900;color:var(--white);margin-bottom:28px}
+.search-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px 28px 20px}
+.search-top-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.search-input-wrap{position:relative;flex:2;min-width:200px}
+.search-input-wrap .s-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:1rem;pointer-events:none}
+.search-input-wrap input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:13px 16px 13px 40px;border-radius:12px;font-size:0.95rem;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s}
+.search-input-wrap input:focus{border-color:var(--green)}
+.search-select{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:13px 16px;border-radius:12px;font-size:0.92rem;font-family:'DM Sans',sans-serif;outline:none;cursor:pointer;flex:1;min-width:130px;transition:border-color 0.2s}
+.search-select:focus{border-color:var(--green)}
+.search-btn{background:var(--green);color:var(--bg);padding:13px 28px;border-radius:12px;font-weight:700;font-size:0.95rem;border:none;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;font-family:'DM Sans',sans-serif;white-space:nowrap}
+.search-btn:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(62,240,122,0.35)}
+.filter-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.filter-chip{background:var(--bg);border:1px solid var(--border);color:var(--muted);padding:7px 16px;border-radius:50px;font-size:0.82rem;font-weight:500;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif}
+.filter-chip:hover,.filter-chip.active{background:var(--greenlow);border-color:rgba(62,240,122,0.3);color:var(--green)}
+.filter-label{font-size:0.8rem;color:var(--muted);font-weight:600;margin-right:4px}
+.results-header{display:flex;align-items:center;justify-content:space-between;margin:32px 0 20px;flex-wrap:wrap;gap:12px}
+.results-count{font-size:0.9rem;color:var(--muted)}
+.results-count strong{color:var(--white)}
+.sort-select{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:10px;font-size:0.85rem;font-family:'DM Sans',sans-serif;outline:none;cursor:pointer}
+
+/* ═══ LISTING CARDS ═══ */
+.listings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+.listing-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:transform 0.2s,border-color 0.2s,box-shadow 0.2s;opacity:0;transform:translateY(20px)}
+.listing-card.visible{opacity:1;transform:translateY(0)}
+.listing-card:hover{transform:translateY(-4px);border-color:rgba(62,240,122,0.3);box-shadow:0 12px 40px rgba(0,0,0,0.4)}
+.listing-card.ld-verified{border-color:rgba(62,240,122,0.5);box-shadow:0 0 0 1px rgba(62,240,122,0.15)}
+.listing-card.ld-verified:hover{box-shadow:0 12px 40px rgba(62,240,122,0.2)}
+.listing-card.ai-market{border-color:rgba(255,255,255,0.06);opacity:0.88}
+.listing-img{position:relative;height:200px;overflow:hidden}
+.listing-img-bg{width:100%;height:100%;background-size:cover;background-position:center;transition:transform 0.4s}
+.listing-card:hover .listing-img-bg{transform:scale(1.05)}
+.listing-tag{position:absolute;top:12px;left:12px;padding:5px 12px;border-radius:50px;font-size:0.72rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase}
+.tag-direct{background:var(--green);color:var(--bg)}
+.tag-agent{background:var(--gold);color:#1a1200}
+.tag-market{background:rgba(30,40,32,0.92);color:var(--muted);border:1px solid var(--border)}
+.listing-fav{position:absolute;top:12px;right:12px;background:rgba(0,0,0,0.5);border:none;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;transition:background 0.2s;backdrop-filter:blur(4px)}
+.listing-fav:hover{background:rgba(62,240,122,0.3)}
+.listing-fav.faved{color:#e85454}
+.verified-crown{position:absolute;bottom:10px;left:12px;background:var(--green);color:var(--bg);font-size:0.68rem;font-weight:800;padding:3px 10px;border-radius:50px;letter-spacing:0.05em;display:flex;align-items:center;gap:4px}
+.listing-body{padding:18px 20px}
+.listing-price{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;color:var(--white);margin-bottom:4px}
+.listing-addr{font-size:0.85rem;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:5px}
+.listing-specs{display:flex;gap:16px;margin-bottom:14px}
+.listing-spec{display:flex;align-items:center;gap:5px;font-size:0.82rem;color:var(--muted)}
+.listing-spec strong{color:var(--text);font-weight:600}
+.listing-footer{display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid var(--border)}
+.match-score{display:flex;align-items:center;gap:6px;font-size:0.78rem;font-weight:600}
+.match-score .ms-bar{width:50px;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.match-score .ms-fill{height:100%;border-radius:3px;background:var(--green)}
+.listing-days{font-size:0.78rem;color:var(--muted)}
+.listing-cashback{font-size:0.75rem;color:var(--gold);font-weight:600;display:flex;align-items:center;gap:4px}
+.view-all-row{text-align:center;margin-top:32px}
+
+/* ═══ COUNTRY TOGGLE ═══ */
+.search-country-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.country-btn{background:var(--bg);border:1px solid var(--border);color:var(--muted);padding:8px 18px;border-radius:50px;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.country-btn:hover{border-color:rgba(62,240,122,0.3);color:var(--text)}
+.country-btn.active{background:var(--greenlow);border-color:rgba(62,240,122,0.4);color:var(--green)}
+.country-hint{font-size:0.75rem;color:var(--muted);margin-left:4px}
+.search-state-banner{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 20px;margin-bottom:20px;display:none;align-items:center;gap:12px;font-size:0.88rem}
+.search-state-banner.visible{display:flex}
+.ssb-icon{font-size:1.4rem;flex-shrink:0}
+.ssb-text{color:var(--muted);flex:1}
+.ssb-text strong{color:var(--white)}
+.ssb-action{background:var(--green);color:var(--bg);border:none;padding:8px 18px;border-radius:50px;font-weight:700;font-size:0.8rem;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;flex-shrink:0}
+.search-loading{display:none;text-align:center;padding:48px;grid-column:1/-1}
+.search-loading.visible{display:block}
+.search-loading-inner{display:flex;flex-direction:column;align-items:center;gap:16px}
+.sl-spinner{width:44px;height:44px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sl-text{color:var(--muted);font-size:0.9rem}
+.sl-text strong{color:var(--green)}
+.section-divider{grid-column:1/-1;display:flex;align-items:center;gap:14px;margin:8px 0}
+.section-divider span{font-size:0.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;white-space:nowrap}
+.section-divider::before,.section-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ═══ LEAD CAPTURE MODAL (non-LD homes) ═══ */
+.lead-modal .modal{max-width:460px}
+.lead-home-preview{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;display:flex;gap:14px;align-items:center;margin-bottom:24px}
+.lead-home-img{width:70px;height:55px;border-radius:8px;background-size:cover;background-position:center;flex-shrink:0}
+.lead-home-info .lhi-price{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:900;color:var(--white)}
+.lead-home-info .lhi-addr{font-size:0.8rem;color:var(--muted);margin-top:2px}
+.lead-home-info .lhi-specs{font-size:0.78rem;color:var(--muted);margin-top:4px}
+.lead-value-props{display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
+.lvp-item{display:flex;align-items:center;gap:10px;font-size:0.85rem;color:var(--text)}
+.lvp-icon{font-size:1rem;flex-shrink:0}
+
+/* ═══ SUBMIT LISTING MODAL ═══ */
+.submit-modal .modal{max-width:560px}
+.submit-steps{display:flex;gap:0;margin-bottom:28px;position:relative}
+.submit-steps::before{content:'';position:absolute;top:14px;left:14px;right:14px;height:2px;background:var(--border);z-index:0}
+.submit-step-dot{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;position:relative;z-index:1}
+.ssd-circle{width:28px;height:28px;border-radius:50%;background:var(--border);color:var(--muted);font-size:0.75rem;font-weight:700;display:flex;align-items:center;justify-content:center;transition:all 0.3s}
+.ssd-label{font-size:0.7rem;color:var(--muted);text-align:center}
+.submit-step-dot.active .ssd-circle{background:var(--green);color:var(--bg)}
+.submit-step-dot.done .ssd-circle{background:var(--green2);color:var(--white)}
+.submit-step-dot.active .ssd-label{color:var(--green)}
+.submit-page{display:none}
+.submit-page.active{display:block}
+.submit-nav{display:flex;justify-content:space-between;margin-top:20px;gap:10px}
+.submit-back{background:none;border:1px solid var(--border);color:var(--muted);padding:11px 22px;border-radius:50px;font-weight:600;font-size:0.9rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.submit-back:hover{border-color:var(--green);color:var(--green)}
+.submit-next{background:var(--green);color:var(--bg);border:none;padding:11px 28px;border-radius:50px;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;flex:1}
+.submit-next:hover{box-shadow:0 4px 20px rgba(62,240,122,0.4)}
+.photo-upload-area{border:2px dashed var(--border);border-radius:14px;padding:32px;text-align:center;cursor:pointer;transition:border-color 0.2s,background 0.2s;margin-bottom:16px}
+.photo-upload-area:hover{border-color:var(--green);background:var(--greenlow)}
+.photo-upload-area .pu-icon{font-size:2rem;margin-bottom:8px}
+.photo-upload-area p{color:var(--muted);font-size:0.88rem}
+.photo-upload-area strong{color:var(--green)}
+.priority-badge-preview{background:var(--greenlow);border:1px solid rgba(62,240,122,0.3);border-radius:14px;padding:20px;margin-top:16px;text-align:center}
+.pbp-crown{font-size:2rem;margin-bottom:8px}
+.pbp-title{font-weight:700;color:var(--green);margin-bottom:4px}
+.pbp-sub{font-size:0.82rem;color:var(--muted)}
+
+/* ═══ SHARED SECTION STYLES ═══ */
+section{padding:100px 24px;max-width:1200px;margin:0 auto}
+.section-tag{display:inline-block;font-size:0.75rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--green);margin-bottom:16px}
+.section-title{font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,3rem);font-weight:900;color:var(--white);line-height:1.1;margin-bottom:16px}
+.section-sub{font-size:1.05rem;color:var(--muted);max-width:560px;line-height:1.7}
+
+/* ═══ HOW IT WORKS ═══ */
+.how-section{background:var(--bg2);padding:100px 0}
+.how-inner{max-width:1200px;margin:0 auto;padding:0 24px}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:2px;margin-top:60px}
+.step{background:var(--card);padding:40px 32px;border:1px solid var(--border);position:relative;opacity:0;transform:translateY(24px);transition:opacity 0.5s,transform 0.5s,border-color 0.2s}
+.step.visible{opacity:1;transform:translateY(0)}
+.step:hover{border-color:rgba(62,240,122,0.3)}
+.step-num{font-family:'Playfair Display',serif;font-size:3rem;font-weight:900;color:rgba(62,240,122,0.12);line-height:1;margin-bottom:20px}
+.step-icon{font-size:1.8rem;margin-bottom:14px}
+.step h3{font-size:1.1rem;font-weight:600;color:var(--white);margin-bottom:10px}
+.step p{font-size:0.92rem;color:var(--muted);line-height:1.65}
+
+/* ═══ SAVINGS CALCULATOR ═══ */
+.calc-section{padding:80px 0;background:var(--bg2);border-bottom:1px solid var(--border)}
+.calc-inner{max-width:860px;margin:0 auto;padding:0 24px}
+.calc-headline{margin-bottom:0}
+.calc-box{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:44px 44px 36px;opacity:0;transform:translateY(24px);transition:opacity 0.6s,transform 0.6s}
+.calc-box.visible{opacity:1;transform:translateY(0)}
+.calc-price-label{font-size:0.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;text-align:center;margin-bottom:10px}
+.calc-slider-row{margin-bottom:16px}
+.calc-price-display{font-family:'Playfair Display',serif;font-size:3.6rem;font-weight:900;color:var(--white);text-align:center;margin-bottom:16px;letter-spacing:-2px;transition:all 0.15s}
+.calc-slider-ticks{display:flex;justify-content:space-between;font-size:0.7rem;color:var(--muted);margin-top:6px;padding:0 2px}
+.calc-slider-label{display:flex;justify-content:space-between;font-size:0.72rem;color:var(--muted);margin-top:6px}
+input[type=range]{width:100%;-webkit-appearance:none;height:6px;background:linear-gradient(to right,var(--green) 0%,var(--green) var(--pct,19%),var(--border) var(--pct,19%));border-radius:3px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;background:var(--green);border-radius:50%;cursor:pointer;box-shadow:0 0 0 5px rgba(62,240,122,0.18);transition:box-shadow 0.2s}
+input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 0 8px rgba(62,240,122,0.25)}
+
+/* presets */
+.calc-presets{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:20px 0 28px}
+.calc-preset{background:var(--bg2);border:1px solid var(--border);color:var(--muted);padding:7px 16px;border-radius:50px;font-size:0.8rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.18s}
+.calc-preset:hover{border-color:rgba(62,240,122,0.4);color:var(--text)}
+.calc-preset.active{background:var(--greenlow);border-color:rgba(62,240,122,0.5);color:var(--green)}
+
+/* comparison bars */
+.calc-bars{display:flex;flex-direction:column;gap:18px;margin-bottom:28px}
+.calc-bar-row{}
+.calc-bar-meta{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px}
+.cbm-label{font-size:0.85rem;color:var(--text);font-weight:600}
+.cbm-pct{color:var(--muted);font-weight:400;font-size:0.78rem}
+.cbm-val{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:900}
+.cbm-val.red{color:var(--red)}
+.cbm-val.gold{color:var(--gold)}
+.cbm-val.green{color:var(--green)}
+.calc-bar-track{height:12px;background:var(--bg2);border-radius:6px;overflow:hidden;margin-bottom:4px}
+.calc-bar-fill{height:100%;border-radius:6px;transition:width 0.5s cubic-bezier(0.4,0,0.2,1)}
+.cb-red{background:linear-gradient(90deg,#e85454,#c43434)}
+.cb-gold{background:linear-gradient(90deg,#f5c842,#d4a820)}
+.cb-green{background:linear-gradient(90deg,#3ef07a,#27c45e)}
+.cbm-note{font-size:0.73rem;color:var(--muted)}
+
+/* big payoff */
+.calc-payoff{display:flex;align-items:center;justify-content:space-between;background:var(--greenlow);border:1px solid rgba(62,240,122,0.25);border-radius:16px;padding:24px 28px;margin-bottom:20px;gap:20px;flex-wrap:wrap}
+.calc-payoff-label{font-size:1rem;font-weight:700;color:var(--white);margin-bottom:4px}
+.calc-payoff-sub{font-size:0.82rem;color:var(--muted)}
+.calc-payoff-sub em{font-style:normal;color:var(--green)}
+.calc-payoff-right{display:flex;flex-direction:column;align-items:flex-end;gap:12px}
+.calc-payoff-num{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:900;color:var(--green);line-height:1;transition:all 0.2s}
+.calc-list-btn{background:var(--green);color:var(--bg);border:none;padding:11px 24px;border-radius:50px;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:transform 0.15s,box-shadow 0.15s;white-space:nowrap}
+.calc-list-btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(62,240,122,0.4)}
+
+/* what if */
+.calc-whatif{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px 20px}
+.cwi-label{font-size:0.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.09em;margin-bottom:12px}
+.cwi-items{display:flex;flex-wrap:wrap;gap:8px}
+.cwi-item{background:var(--card);border:1px solid var(--border);border-radius:50px;padding:6px 14px;font-size:0.8rem;color:var(--text);display:flex;align-items:center;gap:6px}
+.cwi-item .cwi-icon{font-size:0.95rem}
+@media(max-width:600px){.calc-box{padding:28px 20px}.calc-price-display{font-size:2.6rem}.calc-payoff{flex-direction:column;align-items:flex-start}.calc-payoff-right{align-items:flex-start}}
+
+/* ═══ PATHS ═══ */
+.path-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:56px}
+@media(max-width:700px){.path-grid{grid-template-columns:1fr}}
+.path-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:44px 36px;position:relative;overflow:hidden;opacity:0;transform:translateY(24px);transition:opacity 0.5s,transform 0.5s,border-color 0.25s}
+.path-card.visible{opacity:1;transform:translateY(0)}
+.path-card:hover{border-color:rgba(62,240,122,0.4)}
+.path-card.featured{border-color:rgba(62,240,122,0.3)}
+.path-card.featured::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at top left,rgba(62,240,122,0.06) 0%,transparent 60%)}
+.path-best{display:inline-block;background:var(--green);color:var(--bg);font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:4px 12px;border-radius:50px;margin-bottom:20px}
+.path-icon{font-size:2.4rem;margin-bottom:16px}
+.path-card h3{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:var(--white);margin-bottom:8px}
+.path-card .tagline{color:var(--green);font-size:0.88rem;font-weight:600;margin-bottom:16px}
+.path-card p{color:var(--muted);font-size:0.92rem;line-height:1.65;margin-bottom:24px}
+.path-features{list-style:none;margin-bottom:32px;display:flex;flex-direction:column;gap:10px}
+.path-features li{display:flex;align-items:flex-start;gap:10px;font-size:0.9rem;color:var(--text)}
+.path-features li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0;margin-top:1px}
+.path-fee{font-size:1.8rem;font-weight:700;color:var(--white);margin-bottom:4px}
+.path-fee span{font-size:0.88rem;color:var(--muted);font-weight:400}
+.path-fee-note{font-size:0.8rem;color:var(--muted);margin-bottom:28px}
+.btn-path{width:100%;padding:14px;border-radius:50px;font-weight:700;font-size:0.95rem;cursor:pointer;border:1px solid var(--border);transition:all 0.2s;background:transparent;color:var(--text);font-family:'DM Sans',sans-serif}
+.btn-path:hover{background:var(--green);color:var(--bg);border-color:var(--green)}
+.btn-path.primary{background:var(--green);color:var(--bg);border-color:var(--green)}
+.btn-path.primary:hover{box-shadow:0 6px 28px rgba(62,240,122,0.4);transform:translateY(-1px)}
+
+/* ═══ AGENT CASHBACK ═══ */
+.cashback-section{background:var(--bg2);padding:100px 0}
+.cashback-inner{max-width:1200px;margin:0 auto;padding:0 24px}
+.cashback-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;margin-top:60px}
+@media(max-width:800px){.cashback-grid{grid-template-columns:1fr}}
+.cashback-visual{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:40px;opacity:0;transform:translateX(-24px);transition:opacity 0.6s,transform 0.6s}
+.cashback-visual.visible{opacity:1;transform:translateX(0)}
+.cb-home-price{font-size:0.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px}
+.cb-price-val{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:900;color:var(--white);margin-bottom:28px}
+.cb-bar-row{margin-bottom:16px}
+.cb-bar-label{display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:6px}
+.cb-bar-label span:first-child{color:var(--muted)}
+.cb-bar-label span:last-child{font-weight:600;color:var(--white)}
+.cb-bar{height:10px;background:var(--border);border-radius:5px;overflow:hidden}
+.cb-bar-fill{height:100%;border-radius:5px;transition:width 1s ease 0.5s;width:0}
+.cb-bar-fill.red{background:var(--red)}
+.cb-bar-fill.green{background:var(--green)}
+.cb-bar-fill.gold{background:var(--gold)}
+.cb-divider{border:none;border-top:1px solid var(--border);margin:24px 0}
+.cb-save-row{display:flex;align-items:center;justify-content:space-between;background:var(--greenlow);border-radius:10px;padding:16px 20px}
+.cb-save-label{font-size:0.9rem;color:var(--green);font-weight:600}
+.cb-save-val{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:var(--green)}
+.cashback-text{opacity:0;transform:translateX(24px);transition:opacity 0.6s,transform 0.6s}
+.cashback-text.visible{opacity:1;transform:translateX(0)}
+.cashback-rules{list-style:none;margin-top:28px;display:flex;flex-direction:column;gap:16px}
+.cashback-rules li{display:flex;align-items:flex-start;gap:14px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 20px;font-size:0.9rem;color:var(--muted);line-height:1.55}
+.cashback-rules li .rule-icon{font-size:1.3rem;flex-shrink:0}
+
+/* ═══ AGENT DIRECTORY ═══ */
+.agents-section{background:var(--bg);padding:100px 0}
+.agents-inner{max-width:1200px;margin:0 auto;padding:0 24px}
+.agents-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;margin-top:48px}
+.agent-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:28px 24px;opacity:1;transform:translateY(0);transition:opacity 0.5s,transform 0.5s,border-color 0.2s;cursor:pointer}
+.agent-card.visible{opacity:1;transform:translateY(0)}
+.agent-card:hover{border-color:rgba(62,240,122,0.3)}
+.agent-top{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.agent-avatar{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;background:var(--bg2);border:2px solid var(--border);flex-shrink:0}
+.agent-info h4{font-size:1rem;font-weight:700;color:var(--white);margin-bottom:2px}
+.agent-info .agent-loc{font-size:0.8rem;color:var(--muted)}
+.agent-stars{color:var(--gold);font-size:0.85rem;letter-spacing:1px;margin-bottom:2px}
+.agent-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.agent-stat{background:var(--bg2);border-radius:10px;padding:10px 12px;text-align:center}
+.agent-stat-val{font-size:1rem;font-weight:700;color:var(--white);margin-bottom:2px}
+.agent-stat-lbl{font-size:0.72rem;color:var(--muted)}
+.agent-cashback-badge{background:var(--goldlow);border:1px solid rgba(245,200,66,0.25);border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.acb-label{font-size:0.78rem;color:var(--muted);font-weight:600}
+.acb-val{font-size:1rem;font-weight:700;color:var(--gold)}
+.btn-agent{width:100%;padding:11px;border-radius:50px;font-weight:700;font-size:0.88rem;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text);transition:all 0.2s;font-family:'DM Sans',sans-serif}
+.btn-agent:hover{background:var(--green);color:var(--bg);border-color:var(--green)}
+.agent-verified{display:inline-flex;align-items:center;gap:4px;font-size:0.72rem;color:var(--green);font-weight:600;margin-top:8px}
+
+/* ═══ AI FEATURES ═══ */
+.ai-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:56px}
+.ai-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:32px 28px;opacity:0;transform:translateY(20px);transition:opacity 0.5s,transform 0.5s,border-color 0.2s}
+.ai-card.visible{opacity:1;transform:translateY(0)}
+.ai-card:hover{border-color:rgba(62,240,122,0.25)}
+.ai-card-icon{font-size:2rem;margin-bottom:14px}
+.ai-card h3{font-size:1.05rem;font-weight:600;color:var(--white);margin-bottom:8px}
+.ai-card p{font-size:0.88rem;color:var(--muted);line-height:1.6}
+
+/* ═══ MORTGAGE CALCULATOR ═══ */
+.mortgage-section{background:var(--bg2);padding:100px 0}
+.mortgage-inner{max-width:1000px;margin:0 auto;padding:0 24px}
+.mortgage-box{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:52px 48px;opacity:0;transform:translateY(24px);transition:opacity 0.6s,transform 0.6s}
+.mortgage-box.visible{opacity:1;transform:translateY(0)}
+.mortgage-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:36px}
+@media(max-width:700px){.mortgage-grid{grid-template-columns:1fr}}
+.m-field{margin-bottom:20px}
+.m-field label{display:block;font-size:0.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px}
+.m-field input,.m-field select{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:12px 16px;border-radius:10px;font-size:0.95rem;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s}
+.m-field input:focus,.m-field select:focus{border-color:var(--green)}
+.m-results{display:flex;flex-direction:column;gap:14px;justify-content:center}
+.m-result-main{background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:14px;padding:24px;text-align:center}
+.m-result-main .mrl{font-size:0.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}
+.m-result-main .mrv{font-family:'Playfair Display',serif;font-size:2.6rem;font-weight:900;color:var(--green)}
+.m-result-main .mrs{font-size:0.8rem;color:var(--muted);margin-top:4px}
+.m-result-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.m-result-item{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.m-result-item .mrl{font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px}
+.m-result-item .mrv{font-size:1.05rem;font-weight:700;color:var(--white)}
+
+/* ═══ FAQ ═══ */
+.faq-section{padding:100px 0;background:var(--bg)}
+.faq-inner{max-width:780px;margin:0 auto;padding:0 24px}
+.faq-list{margin-top:48px;display:flex;flex-direction:column;gap:12px}
+.faq-item{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;opacity:0;transform:translateY(16px);transition:opacity 0.4s,transform 0.4s,border-color 0.2s}
+.faq-item.visible{opacity:1;transform:translateY(0)}
+.faq-item.open{border-color:rgba(62,240,122,0.3)}
+.faq-q{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;cursor:pointer;gap:16px}
+.faq-q span{font-weight:600;font-size:0.95rem;color:var(--white)}
+.faq-arrow{width:28px;height:28px;background:var(--bg2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:var(--muted);flex-shrink:0;transition:transform 0.3s,background 0.2s}
+.faq-item.open .faq-arrow{transform:rotate(180deg);background:var(--greenlow);color:var(--green)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height 0.35s ease,padding 0.3s}
+.faq-item.open .faq-a{max-height:300px}
+.faq-a p{padding:0 24px 20px;font-size:0.9rem;color:var(--muted);line-height:1.7}
+
+/* ═══ TESTIMONIALS ═══ */
+.testi-section{background:var(--bg2);padding:100px 0}
+.testi-inner{max-width:1200px;margin:0 auto;padding:0 24px}
+.testi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:56px}
+.testi-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:32px 28px;opacity:0;transform:translateY(20px);transition:opacity 0.5s,transform 0.5s}
+.testi-card.visible{opacity:1;transform:translateY(0)}
+.testi-stars{color:var(--gold);font-size:1rem;margin-bottom:14px;letter-spacing:2px}
+.testi-quote{font-size:0.95rem;color:var(--text);line-height:1.65;margin-bottom:20px;font-style:italic}
+.testi-author{display:flex;align-items:center;gap:12px}
+.testi-avatar{width:40px;height:40px;border-radius:50%;background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.testi-name{font-weight:600;font-size:0.9rem;color:var(--white)}
+.testi-loc{font-size:0.78rem;color:var(--muted)}
+.testi-saved{font-size:0.78rem;color:var(--green);font-weight:600;margin-top:2px}
+
+/* ═══ CTA ═══ */
+.cta-section{padding:120px 24px;text-align:center;position:relative;overflow:hidden;background:var(--bg)}
+.cta-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 50%,rgba(62,240,122,0.08) 0%,transparent 70%)}
+.cta-section h2{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,5vw,4rem);font-weight:900;color:var(--white);line-height:1.1;max-width:700px;margin:0 auto 20px;position:relative;z-index:1}
+.cta-section h2 em{font-style:normal;color:var(--green)}
+.cta-section p{color:var(--muted);font-size:1.05rem;margin-bottom:40px;position:relative;z-index:1}
+.cta-buttons{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1}
+
+/* ═══ FOOTER ═══ */
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48px 32px}
+.footer-top{display:flex;gap:60px;flex-wrap:wrap;margin-bottom:48px}
+.footer-brand{flex:2;min-width:220px}
+.footer-logo{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;color:var(--white)}
+.footer-logo span{color:var(--green)}
+.footer-brand p{color:var(--muted);font-size:0.88rem;margin-top:10px;line-height:1.6;max-width:300px}
+.footer-trust{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.ftb{display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--border);padding:6px 12px;border-radius:8px;font-size:0.75rem;color:var(--muted)}
+.footer-col{flex:1;min-width:130px}
+.footer-col h4{font-size:0.8rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:16px}
+.footer-col ul{list-style:none;display:flex;flex-direction:column;gap:10px}
+.footer-col ul li a{color:var(--muted);font-size:0.88rem;text-decoration:none;transition:color 0.2s}
+.footer-col ul li a:hover{color:var(--green)}
+.footer-bottom{border-top:1px solid var(--border);padding-top:24px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:0.8rem;color:var(--muted)}
+.footer-bottom a{color:var(--muted);text-decoration:none}
+.footer-bottom a:hover{color:var(--green)}
+
+/* ═══ CHAT WIDGET ═══ */
+.chat-widget{position:fixed;bottom:28px;right:28px;z-index:300}
+.chat-btn{width:58px;height:58px;background:var(--green);border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:0 4px 20px rgba(62,240,122,0.4);transition:transform 0.2s,box-shadow 0.2s}
+.chat-btn:hover{transform:scale(1.1);box-shadow:0 6px 30px rgba(62,240,122,0.5)}
+.chat-popup{position:absolute;bottom:72px;right:0;width:320px;background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.5);opacity:0;transform:translateY(10px) scale(0.95);pointer-events:none;transition:opacity 0.25s,transform 0.25s;transform-origin:bottom right}
+.chat-popup.open{opacity:1;transform:translateY(0) scale(1);pointer-events:all}
+.chat-header{background:var(--greenlow);border-bottom:1px solid var(--border);padding:16px 18px;display:flex;align-items:center;justify-content:space-between}
+.chat-header-left{display:flex;align-items:center;gap:10px}
+.chat-avatar{width:34px;height:34px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem}
+.chat-header h4{font-size:0.9rem;font-weight:700;color:var(--white)}
+.chat-header p{font-size:0.72rem;color:var(--green)}
+.chat-close-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;transition:color 0.2s}
+.chat-close-btn:hover{color:var(--white)}
+.chat-messages{height:240px;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+.chat-msg{max-width:85%;padding:10px 14px;border-radius:14px;font-size:0.85rem;line-height:1.5}
+.chat-msg.ai{background:var(--bg2);color:var(--text);border-bottom-left-radius:4px;align-self:flex-start}
+.chat-msg.user{background:var(--green);color:var(--bg);border-bottom-right-radius:4px;align-self:flex-end;font-weight:500}
+.chat-msg.typing{display:flex;gap:4px;align-items:center;padding:14px}
+.chat-msg.typing span{width:6px;height:6px;background:var(--muted);border-radius:50%;animation:bounce 1.2s infinite}
+.chat-msg.typing span:nth-child(2){animation-delay:0.2s}
+.chat-msg.typing span:nth-child(3){animation-delay:0.4s}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+.chat-quick{display:flex;gap:6px;flex-wrap:wrap;padding:0 16px 10px}
+.chat-quick-btn{background:var(--bg2);border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:50px;font-size:0.75rem;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif}
+.chat-quick-btn:hover{border-color:var(--green);color:var(--green)}
+.chat-input-row{display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--border)}
+.chat-input{flex:1;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:50px;font-size:0.85rem;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s}
+.chat-input:focus{border-color:var(--green)}
+.chat-send{background:var(--green);border:none;color:var(--bg);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:0.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform 0.15s}
+.chat-send:hover{transform:scale(1.1)}
+.chat-msg.ai{white-space:pre-wrap}
+.chat-msg.streaming{white-space:pre-wrap}
+
+/* ═══ AI TOOLS PANEL ═══ */
+.ai-tools-section{background:var(--bg);padding:100px 0;border-top:1px solid var(--border)}
+.ai-tools-inner{max-width:1100px;margin:0 auto;padding:0 24px}
+.ai-tool-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:36px 0 28px}
+.ai-tool-tab{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:10px 20px;border-radius:50px;font-size:0.88rem;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:8px}
+.ai-tool-tab:hover{border-color:rgba(62,240,122,0.3);color:var(--text)}
+.ai-tool-tab.active{background:var(--greenlow);border-color:rgba(62,240,122,0.4);color:var(--green)}
+.ai-tool-panel{display:none;background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden}
+.ai-tool-panel.active{display:block}
+.ai-tool-header{background:var(--greenlow);border-bottom:1px solid var(--border);padding:20px 28px;display:flex;align-items:center;gap:14px}
+.ai-tool-header-icon{width:44px;height:44px;background:var(--green);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.ai-tool-header h3{font-size:1.1rem;font-weight:700;color:var(--white);margin-bottom:2px}
+.ai-tool-header p{font-size:0.82rem;color:var(--muted)}
+.ai-tool-body{padding:28px}
+.ai-tool-form{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+@media(max-width:640px){.ai-tool-form{grid-template-columns:1fr}}
+.ai-tool-form.single{grid-template-columns:1fr}
+.atf-field label{display:block;font-size:0.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:7px}
+.atf-field input,.atf-field select,.atf-field textarea{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:12px 16px;border-radius:10px;font-size:0.92rem;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s;resize:vertical}
+.atf-field input:focus,.atf-field select:focus,.atf-field textarea:focus{border-color:var(--green)}
+.atf-field.full{grid-column:1/-1}
+.ai-run-btn{background:var(--green);color:var(--bg);border:none;padding:13px 32px;border-radius:50px;font-weight:700;font-size:0.95rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:transform 0.15s,box-shadow 0.15s;display:flex;align-items:center;gap:8px}
+.ai-run-btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(62,240,122,0.4)}
+.ai-run-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none;box-shadow:none}
+.ai-result-box{margin-top:20px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px;min-height:80px;display:none}
+.ai-result-box.active{display:block}
+.ai-result-label{font-size:0.72rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.ai-result-label .pulse-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 1.5s infinite}
+.ai-result-text{font-size:0.92rem;color:var(--text);line-height:1.75;white-space:pre-wrap}
+.ai-result-text.streaming::after{content:'▋';animation:blink 0.7s infinite;color:var(--green)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.ai-spinner{display:inline-flex;gap:4px;align-items:center}
+.ai-spinner span{width:5px;height:5px;background:var(--bg);border-radius:50%;animation:bounce 1.1s infinite}
+.ai-spinner span:nth-child(2){animation-delay:0.15s}
+.ai-spinner span:nth-child(3){animation-delay:0.3s}
+.ai-result-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.ai-copy-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:8px 16px;border-radius:50px;font-size:0.8rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.ai-copy-btn:hover{border-color:var(--green);color:var(--green)}
+
+/* ═══ MODAL ═══ */
+.modal-overlay{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.25s;padding:20px}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:48px 40px;max-width:480px;width:100%;transform:translateY(20px);transition:transform 0.25s;position:relative;max-height:90vh;overflow-y:auto}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-close{position:absolute;top:20px;right:20px;background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;transition:color 0.2s}
+.modal-close:hover{color:var(--white)}
+.modal h2{font-family:'Playfair Display',serif;font-size:1.7rem;color:var(--white);margin-bottom:8px}
+.modal p{color:var(--muted);font-size:0.92rem;margin-bottom:28px}
+.modal-tabs{display:flex;gap:0;margin-bottom:28px;background:var(--bg);border-radius:50px;padding:4px}
+.modal-tab{flex:1;padding:10px;border-radius:50px;background:none;border:none;color:var(--muted);font-size:0.88rem;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif}
+.modal-tab.active{background:var(--green);color:var(--bg)}
+.form-field{margin-bottom:16px}
+.form-field label{display:block;font-size:0.78rem;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em}
+.form-field input,.form-field select{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:12px 16px;border-radius:10px;font-size:0.95rem;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s}
+.form-field input:focus,.form-field select:focus{border-color:var(--green)}
+.form-field select option{background:var(--card)}
+.modal-submit{width:100%;background:var(--green);color:var(--bg);padding:14px;border-radius:50px;border:none;font-weight:700;font-size:1rem;cursor:pointer;margin-top:8px;transition:transform 0.15s,box-shadow 0.15s;font-family:'DM Sans',sans-serif}
+.modal-submit:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(62,240,122,0.4)}
+
+/* ═══ LISTING DETAIL MODAL ═══ */
+.listing-modal .modal{max-width:680px}
+.lm-imgs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:24px;border-radius:12px;overflow:hidden}
+.lm-imgs .lm-main{grid-column:1/2;grid-row:1/3;height:280px;background-size:cover;background-position:center}
+.lm-imgs .lm-thumb{height:136px;background-size:cover;background-position:center}
+.lm-price{font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:900;color:var(--white);margin-bottom:4px}
+.lm-addr{color:var(--muted);margin-bottom:16px}
+.lm-specs-row{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.lm-spec{display:flex;align-items:center;gap:6px;font-size:0.9rem;color:var(--text)}
+.lm-desc{font-size:0.92rem;color:var(--muted);line-height:1.7;margin-bottom:20px}
+.lm-btns{display:flex;gap:12px}
+.lm-btns button{flex:1;padding:13px;border-radius:50px;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.lm-btn-primary{background:var(--green);color:var(--bg);border:none}
+.lm-btn-primary:hover{box-shadow:0 4px 20px rgba(62,240,122,0.4)}
+.lm-btn-outline{background:transparent;color:var(--text);border:1px solid var(--border)}
+.lm-btn-outline:hover{border-color:var(--green);color:var(--green)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+/* AI Tools nav highlight */
+.nav-ai-link{background:var(--greenlow) !important;border:1px solid rgba(62,240,122,0.3);color:var(--green) !important;padding:6px 14px;border-radius:50px;font-weight:700 !important;transition:all 0.2s !important}
+.nav-ai-link:hover{background:var(--greenmid) !important;box-shadow:0 0 16px rgba(62,240,122,0.2)}
+/* Hero AI shortcut strip */
+.hero-ai-strip{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:20px;position:relative;z-index:1;animation:fadeUp 0.8s 0.45s ease both}
+.hero-ai-chip{background:rgba(10,15,13,0.7);border:1px solid rgba(62,240,122,0.25);color:var(--text);padding:8px 16px;border-radius:50px;font-size:0.8rem;font-weight:600;cursor:pointer;backdrop-filter:blur(8px);transition:all 0.2s;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px}
+.hero-ai-chip:hover{background:var(--greenlow);border-color:rgba(62,240,122,0.5);color:var(--green)}
+.hero-ai-chip-label{font-size:0.72rem;color:var(--muted);font-weight:500}
+@media(max-width:900px){nav{padding:14px 16px}.nav-links{display:none}.hamburger{display:flex}.nav-login{display:none}}
+@media(max-width:600px){footer{padding:40px 20px 24px}.mortgage-box,.calc-box{padding:32px 24px}.modal{padding:32px 24px}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo" onclick="scrollTo(0,0)">List<span>Direct</span></div>
+  <ul class="nav-links">
+    <li><a href="#search-section">Search Homes</a></li>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#paths">Your Path</a></li>
+    <li><a href="#agents-section">Agents</a></li>
+    <li><a href="#calculator">Savings Calc</a></li>
+    <li><a href="#faq">FAQ</a></li>
+    <li><a href="#ai-tools" class="nav-ai-link">🤖 AI Tools</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="nav-login" onclick="openModal('login')">Log In</button>
+    <button class="nav-cta" onclick="openPM()">Get Started Free</button>
+    <button class="hamburger" onclick="toggleMenu()" id="ham">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+<div class="mobile-menu-overlay" id="menu-overlay" onclick="toggleMenu()"></div>
+
+<div class="mobile-menu" id="mobile-menu">
+  <button class="mobile-menu-close" onclick="toggleMenu()">✕</button>
+  <div class="mobile-menu-handle" onclick="toggleMenu()"></div>
+  <a href="#" onclick="window.scrollTo(0,0);toggleMenu()" style="font-weight:700;color:var(--white)">🏠 Home</a>
+  <a href="#search-section" onclick="toggleMenu()">🔍 Search Homes</a>
+  <a href="#ai-tools" onclick="toggleMenu()" style="color:var(--green);font-weight:700;background:var(--greenlow)">🤖 AI Tools — Free to Use</a>
+  <a href="#how" onclick="toggleMenu()">📋 How It Works</a>
+  <a href="#paths" onclick="toggleMenu()">🚀 Your Path</a>
+  <a href="#agents-section" onclick="toggleMenu()">🤝 Agents</a>
+  <a href="#calculator" onclick="toggleMenu()">💰 Savings Calculator</a>
+  <a href="#mortgage" onclick="toggleMenu()">🏦 Mortgage Calculator</a>
+  <a href="#faq" onclick="toggleMenu()">❓ FAQ</a>
+  <a href="#testimonials" onclick="toggleMenu()">⭐ Success Stories</a>
+  <a href="#cashback" onclick="toggleMenu()">💸 Agent Cashback</a>
+  <div class="mobile-menu-btns">
+    <button class="nav-cta" style="width:100%;padding:13px;font-size:0.95rem;" onclick="openModal('login');toggleMenu()">Log In</button>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-badge"><div class="dot"></div> AI-Powered Home Selling Platform</div>
+  <h1>Sell Your Home.<br><em>Keep Your Money.</em></h1>
+  <p class="hero-sub">ListDirect connects sellers and buyers directly — no middleman, no 6% commission. Our AI agent does the heavy lifting so you don't have to.</p>
+  <div class="hero-actions">
+    <button class="btn-primary" onclick="openPM()">List My Home Free</button>
+    <button class="btn-outline" style="border-color:rgba(62,240,122,0.4);color:var(--green)" onclick="document.getElementById('calculator').scrollIntoView({behavior:'smooth'})">💰 See My Savings</button>
+    <button class="btn-outline" onclick="document.getElementById('search-section').scrollIntoView({behavior:'smooth'})">🏠 Browse Homes</button>
+    <button class="btn-outline" style="border-color:rgba(62,240,122,0.4);color:var(--green)" onclick="document.getElementById('ai-tools').scrollIntoView({behavior:'smooth'})">🤖 Try AI Tools</button>
+  </div>
+  <div class="hero-ai-strip">
+    <span class="hero-ai-chip-label">Free AI tools:</span>
+    <button class="hero-ai-chip" onclick="jumpToTool('pricing')">📊 Price My Home</button>
+    <button class="hero-ai-chip" onclick="jumpToTool('listing')">✍️ Write My Listing</button>
+    <button class="hero-ai-chip" onclick="jumpToTool('offer')">📝 Review an Offer</button>
+    <button class="hero-ai-chip" onclick="jumpToTool('contract')">⚖️ Explain a Contract</button>
+    <button class="hero-ai-chip" onclick="jumpToTool('mortgage')">🏦 Mortgage Calc</button>
+  </div>
+  <div class="savings-pill">💰 <strong>Average seller saves $18,400</strong> compared to traditional agents</div>
+  <div class="trust-row">
+    <div class="trust-badge"><span class="tb-icon">🔒</span> SSL Secured</div>
+    <div class="trust-badge"><span class="tb-icon">⚡</span> AI-Powered</div>
+    <div class="trust-badge"><span class="tb-icon">🇺🇸</span> USA & Canada</div>
+  </div>
+</div>
+
+<!-- ══ SAVINGS CALCULATOR — RIGHT AFTER HERO ══ -->
+<div class="calc-section" id="calculator">
+  <div class="calc-inner">
+    <div class="calc-headline">
+      <div class="section-tag" style="display:block;text-align:center">💰 Savings Calculator</div>
+      <h2 class="section-title" style="text-align:center;margin-bottom:6px">See exactly how much<br><em style="font-style:normal;color:var(--green)">you'll keep</em></h2>
+      <p style="text-align:center;color:var(--muted);font-size:1rem;margin-bottom:32px">Drag to your home's price. Watch what a traditional agent would take — vs. what you keep with ListDirect.</p>
+    </div>
+    <div class="calc-box">
+      <!-- Price display -->
+      <div class="calc-slider-row">
+        <div class="calc-price-label">Your Home's Sale Price</div>
+        <div class="calc-price-display" id="calc-price-display">$450,000</div>
+        <input type="range" id="home-price-slider" min="100000" max="10000000" step="25000" value="450000" oninput="updateCalc()"/>
+        <!-- Fixed tick marks with correct labels -->
+        <div class="calc-slider-ticks">
+          <span>$100k</span>
+          <span>$1M</span>
+          <span>$2.5M</span>
+          <span>$5M</span>
+          <span>$7.5M</span>
+          <span>$10M</span>
+        </div>
+      </div>
+      <!-- Quick preset buttons -->
+      <div class="calc-presets">
+        <button class="calc-preset" onclick="setCalcPrice(300000,this)">$300k</button>
+        <button class="calc-preset" onclick="setCalcPrice(500000,this)">$500k</button>
+        <button class="calc-preset active" onclick="setCalcPrice(450000,this)">$450k</button>
+        <button class="calc-preset" onclick="setCalcPrice(750000,this)">$750k</button>
+        <button class="calc-preset" onclick="setCalcPrice(1000000,this)">$1M</button>
+        <button class="calc-preset" onclick="setCalcPrice(2500000,this)">$2.5M</button>
+        <button class="calc-preset" onclick="setCalcPrice(5000000,this)">$5M</button>
+        <button class="calc-preset" onclick="setCalcPrice(10000000,this)">$10M</button>
+      </div>
+      <!-- Comparison bars -->
+      <div class="calc-bars">
+        <div class="calc-bar-row">
+          <div class="calc-bar-meta">
+            <span class="cbm-label">Traditional Agent <span class="cbm-pct">(6%)</span></span>
+            <span class="cbm-val red" id="bar-trad-val">$27,000</span>
+          </div>
+          <div class="calc-bar-track"><div class="calc-bar-fill cb-red" id="bar-trad" style="width:100%"></div></div>
+          <div class="cbm-note">❌ Gone forever. You pay this to an agent.</div>
+        </div>
+        <div class="calc-bar-row">
+          <div class="calc-bar-meta">
+            <span class="cbm-label">Our Certified Agent <span class="cbm-pct">(net cost)</span></span>
+            <span class="cbm-val gold" id="bar-agent-val">$18,000</span>
+          </div>
+          <div class="calc-bar-track"><div class="calc-bar-fill cb-gold" id="bar-agent" style="width:67%"></div></div>
+          <div class="cbm-note" id="bar-agent-note-text">Agent charges ~4% · You get 1% cashback back · Net cost ~5%</div>
+        </div>
+        <div class="calc-bar-row">
+          <div class="calc-bar-meta">
+            <span class="cbm-label">ListDirect AI Agent <span class="cbm-pct">(1%)</span></span>
+            <span class="cbm-val green" id="bar-direct-val">$4,500</span>
+          </div>
+          <div class="calc-bar-track"><div class="calc-bar-fill cb-green" id="bar-direct" style="width:17%"></div></div>
+          <div class="cbm-note">✅ Our platform fee only — that's it. Nothing else.</div>
+        </div>
+      </div>
+      <!-- Cashback callout -->
+      <div style="background:rgba(245,200,66,0.07);border:1px solid rgba(245,200,66,0.2);border-radius:12px;padding:14px 18px;margin-bottom:16px;font-size:0.85rem;color:var(--muted);display:flex;align-items:center;gap:10px">
+        <span style="font-size:1.2rem;flex-shrink:0">💰</span>
+        <span>With <strong style="color:var(--gold)">Our Certified Agent</strong>, you get <strong style="color:var(--gold)" id="cashback-amount">$4,500</strong> cash back after closing — versus $0 from a traditional agent.</span>
+      </div>
+      <!-- The big payoff -->
+      <div class="calc-payoff">
+        <div class="calc-payoff-left">
+          <div class="calc-payoff-label">💰 Go AI Direct and keep your equity</div>
+          <div class="calc-payoff-sub">Only 1% platform fee — you keep almost everything</div>
+        </div>
+        <div class="calc-payoff-right">
+          <div class="calc-payoff-num" id="calc-savings">$22,500</div>
+          <button class="calc-list-btn" onclick="openPM()">Start Saving →</button>
+        </div>
+      </div>
+      <!-- What could you do with the savings -->
+      <div class="calc-whatif">
+        <div class="cwi-label">With that savings you could…</div>
+        <div class="cwi-items" id="cwi-items"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat-item"><div class="stat-num">$0</div><div class="stat-label">Listing fee to get started</div></div>
+  <div class="stat-item"><div class="stat-num">1%</div><div class="stat-label">Platform fee on close</div></div>
+  <div class="stat-item"><div class="stat-num">47K+</div><div class="stat-label">Homes sold direct</div></div>
+  <div class="stat-item"><div class="stat-num">18 days</div><div class="stat-label">Average time to offer</div></div>
+</div>
+
+<!-- SEARCH SECTION -->
+<div class="search-section" id="search-section">
+  <div class="search-inner">
+    <div class="section-tag">Property Search</div>
+    <h2>Search Any City.<br><em style="font-style:normal;color:var(--green)">ListDirect Sellers Rise to the Top.</em></h2>
+    <div class="search-box">
+      <!-- Country toggle -->
+      <div class="search-country-row">
+        <button class="country-btn active" id="btn-us" onclick="setCountry('us',this)">🇺🇸 United States</button>
+        <button class="country-btn" id="btn-ca" onclick="setCountry('ca',this)">🇨🇦 Canada</button>
+        <span class="country-hint" id="country-hint">Searching US cities & ZIP codes</span>
+      </div>
+      <div class="search-top-row">
+        <div class="search-input-wrap" style="flex:3">
+          <span class="s-icon">📍</span>
+          <input type="text" id="search-input" placeholder="City, ZIP, or neighborhood…" onkeydown="if(event.key==='Enter')runSearch()"/>
+        </div>
+        <select class="search-select" id="filter-beds" onchange="runSearch()">
+          <option value="">Any Beds</option>
+          <option value="2">2+ Beds</option>
+          <option value="3">3+ Beds</option>
+          <option value="4">4+ Beds</option>
+        </select>
+        <select class="search-select" id="filter-price" onchange="runSearch()">
+          <option value="">Any Price</option>
+          <option value="300000" id="price-opt-300">Under $300k</option>
+          <option value="500000" id="price-opt-500">Under $500k</option>
+          <option value="750000" id="price-opt-750">Under $750k</option>
+          <option value="1000000" id="price-opt-1m">Under $1M</option>
+        </select>
+        <button class="search-btn" onclick="runSearch()">Search</button>
+      </div>
+      <div class="filter-row">
+        <span class="filter-label">Type:</span>
+        <button class="filter-chip active" data-type="all" onclick="setTypeFilter(this,'all')">All</button>
+        <button class="filter-chip" data-type="house" onclick="setTypeFilter(this,'house')">🏠 House</button>
+        <button class="filter-chip" data-type="condo" onclick="setTypeFilter(this,'condo')">🏢 Condo</button>
+        <button class="filter-chip" data-type="townhome" onclick="setTypeFilter(this,'townhome')">🏘 Townhome</button>
+        <span class="filter-label" style="margin-left:12px">Show:</span>
+        <button class="filter-chip active" data-listing="all" onclick="setListingFilter(this,'all')">All Homes</button>
+        <button class="filter-chip" data-listing="verified" onclick="setListingFilter(this,'verified')">⭐ ListDirect Only</button>
+      </div>
+    </div>
+
+    <!-- State banners -->
+    <div class="search-state-banner" id="banner-ai-results">
+      <div class="ssb-icon">🤖</div>
+      <div class="ssb-text">Showing <strong>AI-generated market listings</strong> for your search. <strong style="color:var(--green)">ListDirect Verified</strong> homes are pinned to the top. Results update in real time.</div>
+    </div>
+    <div class="search-state-banner" id="banner-list-yours">
+      <div class="ssb-icon">🚀</div>
+      <div class="ssb-text">Is your home in this area? <strong>List it on ListDirect</strong> and it'll appear first in every search for your city — with a Verified badge.</div>
+      <button class="ssb-action" onclick="openPM()">List My Home →</button>
+    </div>
+
+    <div class="results-header">
+      <div class="results-count"><strong id="result-count">12</strong> homes found <span id="search-city-label"></span></div>
+      <select class="sort-select" id="sort-select" onchange="renderCurrentResults()">
+        <option value="match">Best Match</option>
+        <option value="price-asc">Price: Low to High</option>
+        <option value="price-desc">Price: High to Low</option>
+        <option value="newest">Newest</option>
+      </select>
+    </div>
+
+    <div class="search-loading" id="search-loading">
+      <div class="search-loading-inner">
+        <div class="sl-spinner"></div>
+        <div class="sl-text" id="search-loading-text">Searching listings and generating <strong>AI market data</strong> for your area…</div>
+      </div>
+    </div>
+
+    <div class="listings-grid" id="listings-grid"></div>
+    <div class="view-all-row" id="view-all-row">
+      <button class="btn-outline" onclick="openPM()" style="display:inline-flex;gap:8px;align-items:center;margin-right:12px">🏠 List My Home — Get Top Placement</button>
+      <button class="btn-outline" onclick="openModal('buy')" style="display:inline-flex;gap:8px;align-items:center">See All Results →</button>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="how-section" id="how">
+  <div class="how-inner">
+    <div class="section-tag">The Process</div>
+    <h2 class="section-title">From listing to closing in<br>four simple steps</h2>
+    <p class="section-sub">Our AI handles pricing, marketing, and matching — you just approve and close.</p>
+    <div class="steps">
+      <div class="step"><div class="step-num">01</div><div class="step-icon">🏠</div><h3>List Your Property</h3><p>Upload photos, enter details, and our AI instantly creates a professional listing with optimized descriptions and pricing analysis.</p></div>
+      <div class="step"><div class="step-num">02</div><div class="step-icon">🤖</div><h3>AI Matches Buyers</h3><p>Our algorithm surfaces your listing to verified buyers who match your home's profile — location, size, price range, and lifestyle fit.</p></div>
+      <div class="step"><div class="step-num">03</div><div class="step-icon">💬</div><h3>Connect Directly with Buyers</h3><p>Message buyers, schedule tours, and communicate through our secure platform — no middleman, no delays. You stay in full control of your sale.</p></div>
+      <div class="step"><div class="step-num">04</div><div class="step-icon">🔑</div><h3>Close & Save</h3><p>We handle digital paperwork, connect you with a closing attorney, and you keep the savings. Simple as that.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- PATHS -->
+<section id="paths">
+  <div class="section-tag">Choose Your Path</div>
+  <h2 class="section-title">Go direct, or go<br>with a vetted agent</h2>
+  <p class="section-sub">You're in control. Skip the agent and maximize savings, or choose a ListDirect-certified agent committed to giving you cash back.</p>
+  <div class="path-grid">
+    <div class="path-card featured">
+      <div class="path-best">Most Popular</div>
+      <div class="path-icon">🚀</div>
+      <h3>List Direct</h3>
+      <div class="tagline">AI-assisted · No agent needed</div>
+      <p>Use our AI platform to price, market, and sell your home yourself. We provide the tools — you close the deal and keep your equity.</p>
+      <ul class="path-features">
+        <li>AI-powered pricing & market analysis</li>
+        <li>Professional listing on MLS, Zillow & Realtor.com</li>
+        <li>Verified buyer matching algorithm</li>
+        <li>Digital offer management & negotiation tools</li>
+        <li>E-signature & secure document vault</li>
+        <li>Dedicated closing support team</li>
+      </ul>
+      <div class="path-fee">1% <span>of sale price</span></div>
+      <div class="path-fee-note">On a $400k home, that's just $4,000 vs. $24,000 with a traditional agent</div>
+      <button class="btn-path primary" onclick="window.location.href='listdirect-list.html'">Start Listing Free →</button>
+    </div>
+    <div class="path-card">
+      <div class="path-icon">🤝</div>
+      <h3>Agent Assisted</h3>
+      <div class="tagline">Certified agent · Guaranteed cashback</div>
+      <p>Prefer a human touch? Every ListDirect-certified agent is contractually required to give you a cash rebate at closing — minimum 1%.</p>
+      <ul class="path-features">
+        <li>Minimum 1% cash rebate at closing — guaranteed</li>
+        <li>Agents bid for your listing (you choose)</li>
+        <li>Full MLS access & open house support</li>
+        <li>AI tools + human expertise combined</li>
+        <li>Agent performance ratings & reviews</li>
+        <li>Dispute resolution if rebate isn't honored</li>
+      </ul>
+      <div class="path-fee">Agent fee <span>varies</span></div>
+      <div class="path-fee-note">Agents compete for your listing — see their rebate offer upfront before choosing</div>
+      <button class="btn-path" onclick="document.getElementById('agents-section').scrollIntoView({behavior:'smooth'})">Browse Agents →</button>
+    </div>
+  </div>
+</section>
+
+<!-- AGENT CASHBACK -->
+<div class="cashback-section" id="cashback">
+  <div class="cashback-inner">
+    <div class="section-tag">Agent Cashback Program</div>
+    <h2 class="section-title">Every agent. Every time.<br><span style="color:var(--green)">Cash back guaranteed.</span></h2>
+    <p class="section-sub" style="text-align:center;max-width:580px;margin:0 auto 52px">Our agents don't just offer cashback — they're contractually required to. Here's exactly how the program works and how we protect you.</p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-bottom:48px">
+
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px 24px">
+        <div style="font-size:2rem;margin-bottom:14px">📋</div>
+        <div style="font-weight:700;color:var(--white);font-size:1rem;margin-bottom:10px">Legally Binding Agreement</div>
+        <p style="font-size:0.88rem;color:var(--muted);line-height:1.65">Every agent in our network signs a legal cashback agreement before joining. Minimum 1% back at closing — no fine print, no exceptions.</p>
+      </div>
+
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px 24px">
+        <div style="font-size:2rem;margin-bottom:14px">🏆</div>
+        <div style="font-weight:700;color:var(--white);font-size:1rem;margin-bottom:10px">Agents Compete For You</div>
+        <p style="font-size:0.88rem;color:var(--muted);line-height:1.65">Post your home and agents bid for your listing — showing you their cashback offer upfront. You pick the best deal before committing to anyone.</p>
+      </div>
+
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px 24px">
+        <div style="font-size:2rem;margin-bottom:14px">🛡️</div>
+        <div style="font-weight:700;color:var(--white);font-size:1rem;margin-bottom:10px">You're Protected</div>
+        <p style="font-size:0.88rem;color:var(--muted);line-height:1.65">If an agent doesn't honor their cashback commitment, our guarantee fund covers you and the agent is immediately removed from the platform.</p>
+      </div>
+
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px 24px">
+        <div style="font-size:2rem;margin-bottom:14px">⭐</div>
+        <div style="font-weight:700;color:var(--white);font-size:1rem;margin-bottom:10px">Verified Reviews Only</div>
+        <p style="font-size:0.88rem;color:var(--muted);line-height:1.65">Every review on our platform comes from a completed, verified transaction. Real outcomes from real sellers — not handpicked testimonials.</p>
+      </div>
+
+    </div>
+
+    <div style="background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:16px;padding:28px 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;max-width:700px;margin:0 auto">
+      <div>
+        <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:6px">Ready to find your agent?</div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--white)">Browse agents competing for your listing</div>
+        <div style="font-size:0.85rem;color:var(--muted);margin-top:4px">See their cashback offer before you decide — no commitment required</div>
+      </div>
+      <button onclick="document.getElementById('agents-section').scrollIntoView({behavior:'smooth'})" style="background:var(--green);color:var(--bg);border:none;padding:13px 28px;border-radius:50px;font-weight:700;font-size:0.92rem;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;flex-shrink:0">Browse Agents →</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- AGENT DIRECTORY -->
+<div class="agents-section" id="agents-section">
+  <div class="agents-inner">
+    <div class="section-tag">Agent Directory</div>
+    <h2 class="section-title">Browse certified agents<br>competing for <em style="font-style:normal;color:var(--green)">your listing</em></h2>
+    <p class="section-sub">Every agent below has agreed to our cashback terms. See their rebate offer, rating, and sales history before you decide.</p>
+    <div class="agents-grid" id="agents-grid"></div>
+    <div class="view-all-row" style="margin-top:32px">
+      <button class="btn-outline" onclick="openModal('buy')" style="display:inline-flex">View All 240+ Agents →</button>
+    </div>
+  </div>
+</div>
+
+<!-- AI TOOLS — LIVE -->
+<div class="ai-tools-section" id="ai-tools">
+  <div class="ai-tools-inner">
+    <div class="section-tag" style="display:block">Live AI Tools</div>
+    <h2 class="section-title">Your AI real estate<br><em style="font-style:normal;color:var(--green)">agent, right now</em></h2>
+    <p class="section-sub">These tools run on real AI — covering both <strong style="color:var(--white)">US and Canadian</strong> markets. Not pre-written answers. Try them and see the difference.</p>
+
+    <div class="ai-tool-tabs">
+      <button class="ai-tool-tab active" onclick="switchTool('pricing',this)">📊 Home Pricer</button>
+      <button class="ai-tool-tab" onclick="switchTool('listing',this)">✍️ Listing Writer</button>
+      <button class="ai-tool-tab" onclick="switchTool('offer',this)">📝 Offer Review</button>
+      <button class="ai-tool-tab" onclick="switchTool('contract',this)">⚖️ Contract Helper</button>
+      <button class="ai-tool-tab" onclick="switchTool('mortgage',this)">🏦 Mortgage Calc</button>
+    </div>
+
+    <!-- PRICING TOOL -->
+    <div class="ai-tool-panel active" id="tool-pricing">
+      <div class="ai-tool-header">
+        <div class="ai-tool-header-icon">📊</div>
+        <div><h3>AI Home Pricing Tool</h3><p>Enter your home details and get an AI-powered price recommendation with full market reasoning</p></div>
+      </div>
+      <div class="ai-tool-body">
+        <div class="ai-tool-form">
+          <div class="atf-field"><label>Country / Market</label>
+            <select id="p-country">
+              <option value="United States">🇺🇸 United States (USD)</option>
+              <option value="Canada">🇨🇦 Canada (CAD)</option>
+            </select>
+          </div>
+          <div class="atf-field"><label>City & State / Province</label><input type="text" id="p-city" placeholder="e.g. Austin, TX or Toronto, ON"/></div>
+          <div class="atf-field"><label>Street Address</label><input type="text" id="p-addr" placeholder="e.g. 123 Oak Street"/></div>
+          <div class="atf-field"><label>Bedrooms</label><select id="p-beds"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6+</option></select></div>
+          <div class="atf-field"><label>Bathrooms</label><select id="p-baths"><option>1</option><option selected>2</option><option>2.5</option><option>3</option><option>4</option><option>5+</option></select></div>
+          <div class="atf-field"><label>Square Footage</label><input type="number" id="p-sqft" placeholder="e.g. 1850"/></div>
+          <div class="atf-field"><label>Year Built</label><input type="number" id="p-year" placeholder="e.g. 2005"/></div>
+          <div class="atf-field"><label>Property Type</label><select id="p-type"><option>Single Family Home</option><option>Condo</option><option>Townhome</option><option>Semi-Detached</option><option>Detached</option><option>Multi-Family</option></select></div>
+          <div class="atf-field"><label>Condition</label><select id="p-cond"><option>Needs Work</option><option>Fair</option><option selected>Good</option><option>Updated</option><option>Like New</option></select></div>
+          <div class="atf-field full"><label>Notable Features (optional)</label><input type="text" id="p-features" placeholder="e.g. pool, renovated kitchen, new roof, finished basement…"/></div>
+        </div>
+        <button class="ai-run-btn" id="price-btn" onclick="runPricingTool()">
+          <span>Get AI Price Estimate</span>
+        </button>
+        <div class="ai-result-box" id="price-result">
+          <div class="ai-result-label"><div class="pulse-dot"></div> AI Analysis</div>
+          <div class="ai-result-text" id="price-output"></div>
+          <div class="ai-result-actions"><button class="ai-copy-btn" onclick="copyResult('price-output')">📋 Copy Analysis</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LISTING WRITER -->
+    <div class="ai-tool-panel" id="tool-listing">
+      <div class="ai-tool-header">
+        <div class="ai-tool-header-icon">✍️</div>
+        <div><h3>AI Listing Description Writer</h3><p>Turn your home's details into a compelling, MLS-ready listing description that attracts buyers</p></div>
+      </div>
+      <div class="ai-tool-body">
+        <div class="ai-tool-form">
+          <div class="atf-field"><label>Property Address / City</label><input type="text" id="l-addr" placeholder="e.g. 2847 Maple Creek Dr, Austin, TX"/></div>
+          <div class="atf-field"><label>Listing Price</label><input type="text" id="l-price" placeholder="e.g. $389,000"/></div>
+          <div class="atf-field"><label>Beds / Baths / Sq Ft</label><input type="text" id="l-specs" placeholder="e.g. 3 bed / 2 bath / 1,820 sq ft"/></div>
+          <div class="atf-field"><label>Year Built</label><input type="text" id="l-year" placeholder="e.g. 2004"/></div>
+          <div class="atf-field full"><label>Key Features & Upgrades</label><textarea id="l-features" rows="3" placeholder="e.g. Updated kitchen with granite, open floor plan, large backyard, 2-car garage, new HVAC 2022, walking distance to schools…"></textarea></div>
+          <div class="atf-field"><label>Tone / Style</label><select id="l-tone"><option>Professional & Polished</option><option>Warm & Inviting</option><option>Luxury & Upscale</option><option>Modern & Minimalist</option><option>Family-Focused</option></select></div>
+          <div class="atf-field"><label>Target Buyer</label><select id="l-buyer"><option>Families</option><option>First-Time Buyers</option><option>Investors</option><option>Downsizers</option><option>Young Professionals</option></select></div>
+        </div>
+        <button class="ai-run-btn" id="listing-btn" onclick="runListingTool()">
+          <span>Generate Listing Description</span>
+        </button>
+        <div class="ai-result-box" id="listing-result">
+          <div class="ai-result-label"><div class="pulse-dot"></div> AI-Generated Listing</div>
+          <div class="ai-result-text" id="listing-output"></div>
+          <div class="ai-result-actions">
+            <button class="ai-copy-btn" onclick="copyResult('listing-output')">📋 Copy Listing</button>
+            <button class="ai-copy-btn" onclick="runListingTool()">🔄 Regenerate</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OFFER ANALYZER -->
+    <div class="ai-tool-panel" id="tool-offer">
+      <div class="ai-tool-header">
+        <div class="ai-tool-header-icon">📝</div>
+        <div><h3>AI Offer Review</h3><p>Paste in your offer details and get a plain-English breakdown of the terms — for informational purposes only. Always consult a licensed attorney before deciding.</p></div>
+      </div>
+      <div class="ai-tool-body">
+        <div class="ai-tool-form">
+          <div class="atf-field"><label>Your Listing Price</label><input type="text" id="o-list" placeholder="e.g. $389,000"/></div>
+          <div class="atf-field"><label>Offer Price</label><input type="text" id="o-offer" placeholder="e.g. $375,000"/></div>
+          <div class="atf-field"><label>Down Payment</label><input type="text" id="o-down" placeholder="e.g. 20% / $75,000"/></div>
+          <div class="atf-field"><label>Financing Type</label><select id="o-finance"><option>Conventional</option><option>FHA</option><option>VA</option><option>Cash</option><option>USDA</option></select></div>
+          <div class="atf-field"><label>Closing Date Requested</label><input type="text" id="o-close" placeholder="e.g. 30 days / specific date"/></div>
+          <div class="atf-field"><label>Earnest Money</label><input type="text" id="o-earnest" placeholder="e.g. $5,000"/></div>
+          <div class="atf-field full"><label>Contingencies & Special Terms</label><textarea id="o-terms" rows="3" placeholder="e.g. Home inspection contingency, appraisal contingency, seller to leave appliances, $3k in closing costs, sale of buyer's current home…"></textarea></div>
+        </div>
+        <button class="ai-run-btn" id="offer-btn" onclick="runOfferTool()">
+          <span>Review This Offer</span>
+        </button>
+        <div class="ai-result-box" id="offer-result">
+          <div class="ai-result-label"><div class="pulse-dot"></div> Offer Analysis</div>
+          <div class="ai-result-text" id="offer-output"></div>
+          <div class="ai-result-actions"><button class="ai-copy-btn" onclick="copyResult('offer-output')">📋 Copy Analysis</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTRACT HELPER -->
+    <div class="ai-tool-panel" id="tool-contract">
+      <div class="ai-tool-header">
+        <div class="ai-tool-header-icon">⚖️</div>
+        <div><h3>AI Contract Helper</h3><p>Paste any real estate contract clause and get a plain-English explanation of what it means and what to watch out for</p></div>
+      </div>
+      <div class="ai-tool-body">
+        <div class="ai-tool-form single">
+          <div class="atf-field full"><label>Paste Contract Language or Ask a Question</label><textarea id="c-text" rows="6" placeholder="Paste a clause, e.g: 'Seller shall have the right to continue to offer the Property for sale and to accept any other offer prior to removal of the contingency. Buyer shall have 72 hours after receipt of written notice to remove this contingency or the contract shall be terminated...'
+
+Or ask a question like: 'What does an appraisal gap clause mean for me as a seller?'"></textarea></div>
+          <div class="atf-field"><label>Your Role</label><select id="c-role"><option>Seller</option><option>Buyer</option><option>Both / General</option></select></div>
+          <div class="atf-field"><label>Focus</label><select id="c-focus"><option>Explain in plain English</option><option>What are my risks?</option><option>Is this standard or unusual?</option><option>What questions should I ask my attorney?</option></select></div>
+        </div>
+        <button class="ai-run-btn" id="contract-btn" onclick="runContractTool()">
+          <span>Explain This</span>
+        </button>
+        <div class="ai-result-box" id="contract-result">
+          <div class="ai-result-label"><div class="pulse-dot"></div> Contract Explanation</div>
+          <div class="ai-result-text" id="contract-output"></div>
+          <div class="ai-result-actions"><button class="ai-copy-btn" onclick="copyResult('contract-output')">📋 Copy Explanation</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MORTGAGE PANEL -->
+    <div class="ai-tool-panel" id="tool-mortgage">
+      <div class="ai-tool-header">
+        <div class="ai-tool-header-icon">🏦</div>
+        <div><h3>Mortgage Calculator</h3><p>Know exactly what your monthly payment will be before you make an offer</p></div>
+      </div>
+      <div class="ai-tool-body">
+        <div class="mortgage-grid" style="margin-top:0">
+          <div>
+            <div class="m-field"><label>Home Price</label><input type="text" id="m-price" value="450,000" oninput="fmtInput(this);updateMortgage()" placeholder="450,000"/></div>
+            <div class="m-field"><label>Down Payment ($)</label><input type="text" id="m-down" value="90,000" oninput="fmtInput(this);updateMortgage()" placeholder="90,000"/></div>
+            <div class="m-field"><label>Interest Rate (%)</label><input type="number" id="m-rate" value="6.8" step="0.1" oninput="updateMortgage()" placeholder="6.8"/></div>
+            <div class="m-field"><label>Loan Term</label>
+              <select id="m-term" onchange="updateMortgage()">
+                <option value="30">30 Years</option>
+                <option value="20">20 Years</option>
+                <option value="15">15 Years</option>
+                <option value="10">10 Years</option>
+              </select>
+            </div>
+            <div class="m-field"><label>Property Tax (annual %)</label><input type="number" id="m-tax" value="1.2" step="0.1" oninput="updateMortgage()" placeholder="1.2"/></div>
+          </div>
+          <div class="m-results">
+            <div class="m-result-main">
+              <div class="mrl">Monthly Payment</div>
+              <div class="mrv" id="m-monthly">$2,841</div>
+              <div class="mrs">Principal + Interest + Taxes</div>
+            </div>
+            <div class="m-result-row">
+              <div class="m-result-item"><div class="mrl">Loan Amount</div><div class="mrv2" id="m-loan">$360,000</div></div>
+              <div class="m-result-item"><div class="mrl">Down Payment</div><div class="mrv2" id="m-down-pct">20%</div></div>
+            </div>
+            <div class="m-result-row">
+              <div class="m-result-item"><div class="mrl">Total Interest</div><div class="mrv2" id="m-interest">$278,400</div></div>
+              <div class="m-result-item"><div class="mrl">Total Cost</div><div class="mrv2" id="m-total">$638,400</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<div style="display:none" id="mortgage-old">
+  <div class="mortgage-inner">
+    <div class="section-tag" style="text-align:center;display:block">Mortgage Calculator</div>
+    <h2 class="section-title" style="text-align:center">Know what you can afford<br><em style="font-style:normal;color:var(--green)">before you fall in love</em></h2>
+    <div class="mortgage-box">
+      <div class="mortgage-grid">
+        <div>
+          <div class="m-field"><label>Home Price</label><input type="text" id="m-price" value="450,000" oninput="fmtInput(this);updateMortgage()" placeholder="450,000"/></div>
+          <div class="m-field"><label>Down Payment ($)</label><input type="text" id="m-down" value="90,000" oninput="fmtInput(this);updateMortgage()" placeholder="90,000"/></div>
+          <div class="m-field"><label>Interest Rate (%)</label><input type="number" id="m-rate" value="6.8" step="0.1" oninput="updateMortgage()" placeholder="6.8"/></div>
+          <div class="m-field"><label>Loan Term</label>
+            <select id="m-term" onchange="updateMortgage()">
+              <option value="30">30 Years</option>
+              <option value="20">20 Years</option>
+              <option value="15">15 Years</option>
+              <option value="10">10 Years</option>
+            </select>
+          </div>
+          <div class="m-field"><label>Property Tax (annual %)</label><input type="number" id="m-tax" value="1.2" step="0.1" oninput="updateMortgage()" placeholder="1.2"/></div>
+        </div>
+        <div class="m-results">
+          <div class="m-result-main">
+            <div class="mrl">Monthly Payment</div>
+            <div class="mrv" id="m-monthly">$2,841</div>
+            <div class="mrs">Principal + Interest + Taxes</div>
+          </div>
+          <div class="m-result-row">
+            <div class="m-result-item"><div class="mrl">Loan Amount</div><div class="mrv" id="m-loan">$360,000</div></div>
+            <div class="m-result-item"><div class="mrl">Down Payment</div><div class="mrv" id="m-down-pct">20%</div></div>
+          </div>
+          <div class="m-result-row">
+            <div class="m-result-item"><div class="mrl">Total Interest</div><div class="mrv" id="m-interest">$278,000</div></div>
+            <div class="m-result-item"><div class="mrl">Total Cost</div><div class="mrv" id="m-total">$638,000</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ -->
+<div class="faq-section" id="faq">
+  <div class="faq-inner">
+    <div class="section-tag" style="text-align:center;display:block">FAQ</div>
+    <h2 class="section-title" style="text-align:center">Questions we get<br>all the time</h2>
+    <div class="faq-list" id="faq-list"></div>
+  </div>
+</div>
+
+<!-- TESTIMONIALS -->
+<div class="testi-section">
+  <div class="testi-inner">
+    <div class="section-tag">Real Stories</div>
+    <h2 class="section-title">Sellers who kept their equity</h2>
+    <div class="testi-grid">
+      <div class="testi-card"><div class="testi-stars">★★★★★</div><p class="testi-quote">"The AI pricing tool nailed it. We listed Tuesday and had 8 offers by Friday. Closed in 22 days and saved over $21,000."</p><div class="testi-author"><div class="testi-avatar">👩</div><div><div class="testi-name">Maria T.</div><div class="testi-loc">Austin, TX</div><div class="testi-saved">Saved $21,400</div></div></div></div>
+      <div class="testi-card"><div class="testi-stars">★★★★★</div><p class="testi-quote">"We used the Agent Assisted option and our agent gave us $6,800 cash back at closing. Never knew this was even possible."</p><div class="testi-author"><div class="testi-avatar">👨</div><div><div class="testi-name">James & Keisha R.</div><div class="testi-loc">Charlotte, NC</div><div class="testi-saved">$6,800 cashback received</div></div></div></div>
+      <div class="testi-card"><div class="testi-stars">★★★★★</div><p class="testi-quote">"As a first-time seller I was nervous. The offer review tool helped me understand every detail. I ended up getting $14k above asking."</p><div class="testi-author"><div class="testi-avatar">🧑</div><div><div class="testi-name">Devon L.</div><div class="testi-loc">Denver, CO</div><div class="testi-saved">Saved $17,200</div></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-section">
+  <h2>Ready to sell smarter<br>and save <em>big</em>?</h2>
+  <p>Join 47,000+ homeowners who've taken control of their sale.</p>
+  <div class="cta-buttons">
+    <button class="btn-primary" onclick="openPM()">List My Home Free</button>
+    <button class="btn-outline" onclick="openModal('buy')">Search Homes</button>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="footer-logo">List<span>Direct</span></div>
+      <p>AI-powered home selling that connects buyers and sellers directly — saving everyone money.</p>
+      <div class="footer-trust">
+        <div class="ftb">🔒 SSL Secured</div>
+        <div class="ftb">⚡ AI-Powered</div>
+        <div class="ftb">🏛️ Licensed Nationwide</div>
+      </div>
+    </div>
+    <div class="footer-col"><h4>Sellers</h4><ul><li><a href="#">List My Home</a></li><li><a href="#">AI Pricing Tool</a></li><li><a href="#">How It Works</a></li><li><a href="#">Success Stories</a></li></ul></div>
+    <div class="footer-col"><h4>Buyers</h4><ul><li><a href="#">Search Listings</a></li><li><a href="#">Buyer Guide</a></li><li><a href="#">Get Pre-Qualified</a></li><li><a href="#">Buyer Match</a></li></ul></div>
+    <div class="footer-col"><h4>Agents</h4><ul><li><a href="#">Join Network</a></li><li><a href="#">Cashback Program</a></li><li><a href="#">Agent Resources</a></li><li><a href="#">Agent Login</a></li></ul></div>
+    <div class="footer-col"><h4>Company</h4><ul><li><a href="#">About Us</a></li><li><a href="#">Press</a></li><li><a href="#">Careers</a></li><li><a href="#">Contact</a></li></ul></div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 ListDirect, Inc. All rights reserved.</span>
+    <span><a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Licenses</a> · <a href="#">Sitemap</a></span>
+  </div>
+</footer>
+
+<!-- AI CHAT WIDGET — REAL CLAUDE -->
+<div class="chat-widget">
+  <div class="chat-popup" id="chat-popup">
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <div class="chat-avatar">🤖</div>
+        <div><h4>ListDirect AI</h4><p id="chat-status">● Powered by Claude AI</p></div>
+      </div>
+      <button class="chat-close-btn" onclick="toggleChat()">✕</button>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+      <div class="chat-msg ai">Hi! I'm the ListDirect AI assistant — powered by real AI. Ask me anything about buying, selling, fees, the cashback program, or how the platform works. 🏠</div>
+    </div>
+    <div class="chat-quick" id="chat-quick">
+      <button class="chat-quick-btn" onclick="quickAsk('What are your fees and how does pricing work?')">💰 Fees</button>
+      <button class="chat-quick-btn" onclick="quickAsk('How do I list my home on ListDirect?')">📋 List home</button>
+      <button class="chat-quick-btn" onclick="quickAsk('How does the agent cashback guarantee work?')">🤝 Cashback</button>
+      <button class="chat-quick-btn" onclick="quickAsk('What makes ListDirect different from Zillow or Redfin?')">🆚 vs Others</button>
+    </div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="chat-input" type="text" placeholder="Ask me anything…" onkeydown="if(event.key==='Enter')sendChat()"/>
+      <button class="chat-send" id="chat-send-btn" onclick="sendChat()">➤</button>
+    </div>
+  </div>
+  <button class="chat-btn" onclick="toggleChat()" id="chat-toggle-btn" title="Chat with ListDirect AI">💬</button>
+</div>
+
+<!-- SIGN UP / LOGIN MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2 id="modal-title">Get Started</h2>
+    <p id="modal-sub">Create your free account to begin.</p>
+    <div class="modal-tabs" id="modal-tabs">
+      <button class="modal-tab active" onclick="switchTab('sell',this)">Selling</button>
+      <button class="modal-tab" onclick="switchTab('buy',this)">Buying</button>
+      <button class="modal-tab" onclick="switchTab('agent',this)">Agent</button>
+    </div>
+    <div id="modal-form">
+      <div class="form-field"><label>Full Name</label><input type="text" placeholder="Jane Smith"/></div>
+      <div class="form-field"><label>Email</label><input type="email" placeholder="jane@example.com"/></div>
+      <div class="form-field" id="field-phone"><label>Phone</label><input type="tel" placeholder="(555) 000-0000"/></div>
+      <div class="form-field" id="field-zip"><label id="zip-label">Property ZIP Code</label><input type="text" placeholder="78701"/></div>
+      <div class="form-field" id="field-price" style="display:none"><label>Price Range</label><select><option>Under $300k</option><option>$300k–$500k</option><option selected>$500k–$750k</option><option>$750k–$1M</option><option>$1M+</option></select></div>
+      <div class="form-field" id="field-license" style="display:none"><label>License Number</label><input type="text" placeholder="State license #"/></div>
+      <div class="form-field" id="field-rebate" style="display:none"><label>Your Cashback Offer (%)</label><input type="number" placeholder="e.g. 1.5" min="1" step="0.25"/></div>
+      <div class="form-field" id="field-password"><label>Password</label><input type="password" placeholder="Create a password"/></div>
+    </div>
+    <button class="modal-submit" id="modal-btn" onclick="handleSubmit()">Create Free Account →</button>
+  </div>
+</div>
+
+<!-- LISTING DETAIL MODAL -->
+<div class="modal-overlay listing-modal" id="listing-modal" onclick="closeListingModalOutside(event)">
+  <div class="modal" style="max-width:680px">
+    <button class="modal-close" onclick="closeListingModal()">✕</button>
+    <div id="listing-modal-content"></div>
+  </div>
+</div>
+
+<!-- LEAD CAPTURE MODAL (for non-ListDirect homes) -->
+<div class="modal-overlay lead-modal" id="lead-modal" onclick="if(event.target===this)closeLeadModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeLeadModal()">✕</button>
+    <h2 id="lead-modal-title">Interested in this home?</h2>
+    <p id="lead-modal-sub">This home isn't listed on ListDirect yet. We'll reach out to the seller on your behalf — and if they list with us, you could save thousands.</p>
+    <div class="lead-home-preview" id="lead-home-preview"></div>
+    <div class="lead-value-props">
+      <div class="lvp-item"><span class="lvp-icon">📩</span> We contact the seller and let them know you're interested</div>
+      <div class="lvp-item"><span class="lvp-icon">💰</span> If they list with ListDirect, you avoid a buyer's agent fee</div>
+      <div class="lvp-item"><span class="lvp-icon">🔔</span> You get notified the moment it's available on our platform</div>
+      <div class="lvp-item"><span class="lvp-icon">🛡️</span> No obligation. Free for buyers.</div>
+    </div>
+    <div class="form-field"><label>Your Name</label><input type="text" id="lead-name" placeholder="Jane Smith"/></div>
+    <div class="form-field"><label>Email</label><input type="email" id="lead-email" placeholder="jane@example.com"/></div>
+    <div class="form-field"><label>Phone (optional)</label><input type="tel" id="lead-phone" placeholder="(555) 000-0000"/></div>
+    <button class="modal-submit" onclick="submitLead()">Contact Seller on My Behalf →</button>
+  </div>
+</div>
+
+<!-- SUBMIT LISTING MODAL -->
+<div class="modal-overlay submit-modal" id="submit-modal" onclick="if(event.target===this)closeSubmitListing()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeSubmitListing()">✕</button>
+    <h2>List Your Home</h2>
+    <p>Get top placement in every search for your city — free to list, 1% at closing.</p>
+
+    <div class="submit-steps" id="submit-steps">
+      <div class="submit-step-dot active" id="sdot-1"><div class="ssd-circle">1</div><div class="ssd-label">Location</div></div>
+      <div class="submit-step-dot" id="sdot-2"><div class="ssd-circle">2</div><div class="ssd-label">Details</div></div>
+      <div class="submit-step-dot" id="sdot-3"><div class="ssd-circle">3</div><div class="ssd-label">Photos</div></div>
+      <div class="submit-step-dot" id="sdot-4"><div class="ssd-circle">4</div><div class="ssd-label">You're Live</div></div>
+    </div>
+
+    <!-- Page 1: Location -->
+    <div class="submit-page active" id="spage-1">
+      <div class="form-field"><label>Street Address</label><input type="text" id="sl-addr" placeholder="123 Oak Street"/></div>
+      <div class="form-field"><label>City</label><input type="text" id="sl-city" placeholder="e.g. Austin"/></div>
+      <div class="form-field"><label>State</label><input type="text" id="sl-state" placeholder="e.g. TX"/></div>
+      <div class="form-field"><label>ZIP Code</label><input type="text" id="sl-zip" placeholder="e.g. 78701"/></div>
+      <div class="submit-nav"><button class="submit-next" onclick="submitNext(1)">Next: Home Details →</button></div>
+    </div>
+
+    <!-- Page 2: Details -->
+    <div class="submit-page" id="spage-2">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-field"><label>Asking Price</label><input type="text" id="sl-price" placeholder="$389,000"/></div>
+        <div class="form-field"><label>Property Type</label><select id="sl-type"><option>Single Family Home</option><option>Condo</option><option>Townhome</option><option>Multi-Family</option></select></div>
+        <div class="form-field"><label>Bedrooms</label><select id="sl-beds"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6+</option></select></div>
+        <div class="form-field"><label>Bathrooms</label><select id="sl-baths"><option>1</option><option selected>2</option><option>2.5</option><option>3</option><option>4</option><option>5+</option></select></div>
+        <div class="form-field"><label>Square Footage</label><input type="number" id="sl-sqft" placeholder="1,850"/></div>
+        <div class="form-field"><label>Year Built</label><input type="number" id="sl-year" placeholder="2005"/></div>
+      </div>
+      <div class="form-field"><label>Key Features</label><input type="text" id="sl-features" placeholder="Pool, renovated kitchen, new roof, 2-car garage…"/></div>
+      <div class="form-field"><label>Path</label><select id="sl-path"><option>List Direct (1% fee, AI-powered)</option><option>Agent Assisted (agent bids, cashback guaranteed)</option></select></div>
+      <div class="submit-nav">
+        <button class="submit-back" onclick="submitBack(2)">← Back</button>
+        <button class="submit-next" onclick="submitNext(2)">Next: Photos →</button>
+      </div>
+    </div>
+
+    <!-- Page 3: Photos -->
+    <div class="submit-page" id="spage-3">
+      <div class="photo-upload-area" onclick="document.getElementById('photo-input').click()">
+        <div class="pu-icon">📸</div>
+        <p><strong>Click to upload photos</strong><br>JPG, PNG up to 20MB each. First photo = cover image.</p>
+        <input type="file" id="photo-input" multiple accept="image/*" style="display:none" onchange="handlePhotos(this)"/>
+      </div>
+      <div id="photo-preview" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px"></div>
+      <div class="priority-badge-preview">
+        <div class="pbp-crown">👑</div>
+        <div class="pbp-title">You'll get Priority Placement</div>
+        <div class="pbp-sub">Your listing appears at the top of every search in your city with a ListDirect Verified badge — above all market listings.</div>
+      </div>
+      <div class="submit-nav">
+        <button class="submit-back" onclick="submitBack(3)">← Back</button>
+        <button class="submit-next" onclick="submitNext(3)">Submit My Listing →</button>
+      </div>
+    </div>
+
+    <!-- Page 4: Success -->
+    <div class="submit-page" id="spage-4" style="text-align:center;padding:20px 0">
+      <div style="font-size:3rem;margin-bottom:16px">🎉</div>
+      <h3 style="font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--white);margin-bottom:10px">You're on the list!</h3>
+      <p style="color:var(--muted);margin-bottom:24px">Your home has been submitted. Our team will review it and get it live within 24 hours — with top placement in your city's search results.</p>
+      <div style="background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:12px;padding:16px;margin-bottom:24px;font-size:0.88rem;color:var(--green)">
+        👑 <strong>Priority placement confirmed.</strong> Your listing will appear first in every search for <span id="success-city">your city</span>.
+      </div>
+      <button class="modal-submit" onclick="closeSubmitListing()">Done →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════
+// (Verified listings now in LD_VERIFIED above — AI generates market listings dynamically)
+
+const AGENTS = [
+  {
+    name:"Sarah Mitchell",
+    loc:"Austin, TX",
+    rating:"4.9",
+    reviews:142,
+    sales:87,
+    cashback:"1.5%",
+    years:9,
+    photo:"https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&h=200&fit=crop&crop=face",
+    verified:true,
+    specialty:"Residential & Luxury",
+    license:"TX-547821",
+    bio:"Specializing in Austin's booming market, Sarah has closed over $42M in sales in the past 3 years alone. Former top producer at Keller Williams with a reputation for getting sellers above asking price.",
+    languages:"English, Spanish",
+    designations:"ABR, CRS, GRI"
+  },
+  {
+    name:"Marcus Johnson",
+    loc:"Charlotte, NC",
+    rating:"4.8",
+    reviews:98,
+    sales:64,
+    cashback:"2%",
+    years:7,
+    photo:"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face",
+    verified:true,
+    specialty:"First-Time Buyers",
+    license:"NC-289045",
+    bio:"Marcus built his reputation helping first-time buyers and sellers navigate the Charlotte market confidently. Known for patient communication and expert negotiation that consistently delivers results.",
+    languages:"English",
+    designations:"ABR, SRS"
+  },
+  {
+    name:"Lisa Chen",
+    loc:"Denver, CO",
+    rating:"5.0",
+    reviews:211,
+    sales:130,
+    cashback:"1.25%",
+    years:14,
+    photo:"https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&h=200&fit=crop&crop=face",
+    verified:true,
+    specialty:"Investment & Condos",
+    license:"CO-FA100092847",
+    bio:"With 14 years in Denver real estate and a perfect 5-star rating, Lisa is the go-to agent for investment properties and downtown condos. She's personally invested in Denver real estate and knows the market inside out.",
+    languages:"English, Mandarin",
+    designations:"CRS, GRI, CCIM"
+  },
+  {
+    name:"David Torres",
+    loc:"Atlanta, GA",
+    rating:"4.7",
+    reviews:76,
+    sales:51,
+    cashback:"1.75%",
+    years:6,
+    photo:"https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face",
+    verified:true,
+    specialty:"Townhomes & New Construction",
+    license:"GA-394721",
+    bio:"David's background in residential construction gives him a unique edge — he knows exactly what to look for and what to negotiate. Specializes in new construction and townhome communities across greater Atlanta.",
+    languages:"English, Spanish",
+    designations:"CSP, SRS"
+  },
+  {
+    name:"Priya Patel",
+    loc:"Seattle, WA",
+    rating:"4.9",
+    reviews:163,
+    sales:104,
+    cashback:"1%",
+    years:11,
+    photo:"https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=200&h=200&fit=crop&crop=face",
+    verified:true,
+    specialty:"Tech Corridor Specialist",
+    license:"WA-24197",
+    bio:"Priya has worked with hundreds of tech professionals relocating to and from Seattle. She understands the pace and expectations of tech buyers and sellers — quick, data-driven, and always responsive.",
+    languages:"English, Hindi, Gujarati",
+    designations:"ABR, CRS"
+  },
+  {
+    name:"James Whitfield",
+    loc:"Chicago, IL",
+    rating:"4.8",
+    reviews:188,
+    sales:117,
+    cashback:"1.5%",
+    years:13,
+    photo:"https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop&crop=face",
+    verified:true,
+    specialty:"Luxury & Waterfront",
+    license:"IL-471.023841",
+    bio:"James has sold some of Chicago's most prestigious lakefront properties. With $85M+ in luxury sales and a deep network of high-net-worth buyers, he delivers premium results for premium homes.",
+    languages:"English, French",
+    designations:"CRS, CLHMS, GRI"
+  }
+];
+
+const FAQS = [
+  {q:"Is ListDirect legal? Do I need an attorney?",a:"Yes, ListDirect is fully legal in all 50 states. We recommend using a real estate closing attorney or title company for the final closing — we connect you with licensed professionals. In states that require a buyer's agent, our platform handles that as well."},
+  {q:"What happens if a buyer backs out?",a:"Our platform includes a digitally signed purchase agreement. If a buyer backs out without a valid contingency, you keep their earnest money deposit. Our transaction support team walks you through every scenario."},
+  {q:"How does the 1% fee work? Are there hidden costs?",a:"Our platform fee is 1% of the final sale price, collected at closing — so there's no upfront cost to list. The only other cost is your closing attorney or title company (typically $1,000–$2,000). No hidden fees, ever."},
+  {q:"How is ListDirect different from Zillow or Redfin?",a:"Zillow and Redfin are primarily listing aggregators — they still route you to agents who charge full commissions. ListDirect is a true direct-to-buyer platform. Our AI does the work agents charge for, and we take only 1%."},
+  {q:"What if I want an agent but also want cashback?",a:"That's exactly what our Agent Assisted path is for. Agents in our certified network agree to a minimum 1% cashback at closing as a condition of joining. They compete for your listing by offering you their best rebate."},
+  {q:"How does the AI pricing tool work?",a:"Our pricing engine analyzes hundreds of data points: recent comparable sales within 1 mile, days-on-market trends, seasonal adjustments, school ratings, walkability scores, and neighborhood appreciation rates. It recommends a price band and explains the reasoning."},
+  {q:"Can I list if I still have a mortgage?",a:"Absolutely. The vast majority of sellers have an existing mortgage. When your home closes, the mortgage is paid off from the sale proceeds at closing — our attorney partners coordinate this automatically."},
+  {q:"What states do you operate in?",a:"ListDirect is active in all 50 states. Our agent network currently has the deepest coverage in TX, FL, CA, NC, GA, CO, WA, IL, AZ, TN, and OH — with 240+ certified agents nationwide."}
+];
+
+// (Chat responses now powered by real Claude AI)
+
+// ═══════════════════════════════════════════
+// SEARCH ENGINE — TIER SYSTEM
+// ═══════════════════════════════════════════
+// Tier 1: ListDirect Verified (real sellers, pinned top)
+// Tier 2: AI-generated market listings (fill any city search)
+
+let typeFilter = 'all', listingFilter = 'all';
+let currentResults = [];
+let isSearching = false;
+
+// Seed ListDirect verified homes (real platform sellers)
+const LD_VERIFIED = [
+  {id:'ld1',verified:true,price:389000,addr:"2847 Maple Creek Dr",city:"Austin, TX",zip:"78701",beds:3,baths:2,sqft:1820,type:"house",listing:"direct",match:98,days:3,img:"https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=600&q=80",img2:"https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&q=80",img3:"https://images.unsplash.com/photo-1554995207-c18c203602cb?w=600&q=80",desc:"Charming 3-bed ranch in the heart of Austin. Updated kitchen with granite counters, open floor plan, large backyard perfect for entertaining.",cashback:null,garage:2,year:2004},
+  {id:'ld2',verified:true,price:549000,addr:"104 Riverside Blvd",city:"Charlotte, NC",zip:"28201",beds:4,baths:3,sqft:2450,type:"house",listing:"agent",match:96,days:7,img:"https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?w=600&q=80",img2:"https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=600&q=80",img3:"https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?w=600&q=80",desc:"Gorgeous 4-bedroom colonial with hardwood floors, chef's kitchen, master suite with spa bath. Top school district.",cashback:"1.5%",garage:2,year:2011},
+  {id:'ld3',verified:true,price:299000,addr:"512 Harbor View Ct",city:"Denver, CO",zip:"80201",beds:2,baths:2,sqft:1200,type:"condo",listing:"direct",match:95,days:12,img:"https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&q=80",img2:"https://images.unsplash.com/photo-1576941089067-2de3c901e126?w=600&q=80",img3:"https://images.unsplash.com/photo-1484154218962-a197022b5858?w=600&q=80",desc:"Modern downtown condo with mountain views, rooftop deck access, and secure underground parking.",cashback:null,garage:1,year:2018},
+  {id:'ld4',verified:true,price:724000,addr:"39 Willow Creek Way",city:"Seattle, WA",zip:"98101",beds:5,baths:4,sqft:3200,type:"house",listing:"direct",match:97,days:2,img:"https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&q=80",img2:"https://images.unsplash.com/photo-1600210492493-0946911123ea?w=600&q=80",img3:"https://images.unsplash.com/photo-1600607686527-6fb886090705?w=600&q=80",desc:"Stunning Pacific Northwest craftsman on a large wooded lot. 5 bedrooms, home office, chef's kitchen, 3-car garage.",cashback:null,garage:3,year:2016},
+  {id:'ld5',verified:true,price:425000,addr:"7821 Peachtree St",city:"Atlanta, GA",zip:"30301",beds:3,baths:2,sqft:2100,type:"townhome",listing:"agent",match:94,days:18,img:"https://images.unsplash.com/photo-1571939228382-b2f2b585ce15?w=600&q=80",img2:"https://images.unsplash.com/photo-1565182999561-18d7dc61c393?w=600&q=80",img3:"https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&q=80",desc:"End-unit townhome in Buckhead. Rooftop terrace, 2-car garage, open concept. HOA includes pool and fitness center.",cashback:"2%",garage:2,year:2020},
+  {id:'ld6',verified:true,price:875000,addr:"1205 Lakeview Blvd",city:"Chicago, IL",zip:"60601",beds:4,baths:3,sqft:2900,type:"house",listing:"agent",match:93,days:5,img:"https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=600&q=80",img2:"https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=600&q=80",img3:"https://images.unsplash.com/photo-1572120360610-d971b9d7767c?w=600&q=80",desc:"Elegant Lincoln Park greystone on a tree-lined street. Chef's kitchen, finished basement, private backyard.",cashback:"1.25%",garage:2,year:2008},
+];
+
+// Home images pool for AI-generated listings
+const IMG_POOL = [
+  {a:"https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&q=80",b:"https://images.unsplash.com/photo-1600210492493-0946911123ea?w=600&q=80",c:"https://images.unsplash.com/photo-1600607686527-6fb886090705?w=600&q=80"},
+  {a:"https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=600&q=80",b:"https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&q=80",c:"https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&q=80"},
+  {a:"https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=600&q=80",b:"https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=600&q=80",c:"https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&q=80"},
+  {a:"https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=600&q=80",b:"https://images.unsplash.com/photo-1505693314120-0d443867891c?w=600&q=80",c:"https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&q=80"},
+  {a:"https://images.unsplash.com/photo-1571939228382-b2f2b585ce15?w=600&q=80",b:"https://images.unsplash.com/photo-1565182999561-18d7dc61c393?w=600&q=80",c:"https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&q=80"},
+  {a:"https://images.unsplash.com/photo-1560184897-ae75f418493e?w=600&q=80",b:"https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=600&q=80",c:"https://images.unsplash.com/photo-1556909172-54557c7e4fb7?w=600&q=80"},
+  {a:"https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&q=80",b:"https://images.unsplash.com/photo-1576941089067-2de3c901e126?w=600&q=80",c:"https://images.unsplash.com/photo-1484154218962-a197022b5858?w=600&q=80"},
+  {a:"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80",b:"https://images.unsplash.com/photo-1523217582562-09d0def993a6?w=600&q=80",c:"https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?w=600&q=80"},
+];
+
+// Seeded random (consistent per search)
+function seededRand(seed) {
+  let s = seed;
+  return function() { s = (s * 1664525 + 1013904223) & 0xffffffff; return (s >>> 0) / 0xffffffff; };
+}
+
+// ═══════════════════════════════════════════
+// AI MARKET LISTING GENERATOR
+// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════
+// COUNTRY TOGGLE
+// ═══════════════════════════════════════════
+let searchCountry = 'us';
+
+function setCountry(code, btn) {
+  searchCountry = code;
+  document.querySelectorAll('.country-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const hint = document.getElementById('country-hint');
+  const input = document.getElementById('search-input');
+  if (code === 'us') {
+    hint.textContent = 'Searching US cities & ZIP codes';
+    input.placeholder = 'City, ZIP code, or neighborhood…';
+    // Update price labels to USD
+    document.getElementById('price-opt-300').textContent = 'Under $300k USD';
+    document.getElementById('price-opt-500').textContent = 'Under $500k USD';
+    document.getElementById('price-opt-750').textContent = 'Under $750k USD';
+    document.getElementById('price-opt-1m').textContent = 'Under $1M USD';
+  } else {
+    hint.textContent = 'Searching Canadian cities & postal codes';
+    input.placeholder = 'City, postal code, or neighbourhood…';
+    // Update price labels to CAD
+    document.getElementById('price-opt-300').textContent = 'Under $300k CAD';
+    document.getElementById('price-opt-500').textContent = 'Under $500k CAD';
+    document.getElementById('price-opt-750').textContent = 'Under $750k CAD';
+    document.getElementById('price-opt-1m').textContent = 'Under $1M CAD';
+  }
+}
+
+// ═══════════════════════════════════════════
+// AI MARKET LISTING GENERATOR — FIXED
+// ═══════════════════════════════════════════
+async function generateAIListings(city, beds, maxPrice) {
+  const seed = city.split('').reduce((a,c) => a + c.charCodeAt(0), 0);
+  const rng = seededRand(seed);
+  const cityName = city.trim().split(',')[0].trim();
+  const isCanada = searchCountry === 'ca';
+  const currency = isCanada ? 'CAD' : 'USD';
+
+  // Price anchors — US cities (USD)
+  const usPriceMap = {
+    'new york':900000,'san francisco':1100000,'los angeles':850000,'miami':650000,
+    'boston':750000,'seattle':700000,'austin':450000,'denver':520000,
+    'nashville':420000,'charlotte':400000,'phoenix':380000,'dallas':410000,
+    'atlanta':390000,'chicago':500000,'houston':370000,'portland':490000,
+    'tampa':440000,'orlando':380000,'las vegas':420000,'san diego':780000,
+    'minneapolis':430000,'detroit':280000,'cleveland':260000,'pittsburgh':310000,
+    'richmond':380000,'raleigh':430000,'jacksonville':360000,'memphis':280000,
+  };
+
+  // Price anchors — Canadian cities (CAD)
+  const caPriceMap = {
+    'toronto':1150000,'vancouver':1350000,'calgary':600000,'edmonton':480000,
+    'montreal':650000,'ottawa':680000,'winnipeg':420000,'quebec':380000,
+    'hamilton':820000,'kitchener':780000,'london':680000,'halifax':520000,
+    'victoria':980000,'kelowna':820000,'brampton':980000,'mississauga':1050000,
+    'surrey':1100000,'burnaby':1200000,'markham':1150000,'richmond hill':1100000,
+  };
+
+  const priceMap = isCanada ? caPriceMap : usPriceMap;
+  const baseKey = Object.keys(priceMap).find(k => cityName.toLowerCase().includes(k));
+  const defaultPrice = isCanada ? 650000 : 420000;
+  const basePrice = priceMap[baseKey] || defaultPrice + Math.floor(rng() * 200000);
+
+  // Canadian street name patterns
+  const caStreets = ['Maple','Birch','Cedar','Pine','Oak','Elm','Willow','Spruce','Aspen','Poplar','Heritage','Lakeview','Ridgewood','Parkview','Hillcrest','Meadowvale','Thornwood','Bayview','Rosedale','Queensway'];
+  const caStreetTypes = ['Ave','Blvd','Cres','Dr','Rd','St','Way','Pl','Ct','Lane'];
+  const usStreets = ['Oak','Maple','Elm','Cedar','Pine','Birch','Willow','River','Lake','Hill','Valley','Spring','Garden','Park','Summit','Ridge','Creek','Meadow','Stone','Sunset'];
+  const usStreetTypes = ['St','Ave','Blvd','Dr','Ln','Ct','Way','Pl','Rd','Cir'];
+  const streets = isCanada ? caStreets : usStreets;
+  const streetTypes = isCanada ? caStreetTypes : usStreetTypes;
+
+  const usDescs = [
+    'Beautifully maintained home in a quiet neighborhood. Updated kitchen, hardwood floors, and a large backyard.',
+    'Bright open floor plan with modern finishes. Spacious master suite, gourmet kitchen, and covered patio.',
+    'Charming property with contemporary updates. Mature trees, private yard, and a 2-car garage.',
+    'Stunning curb appeal with a welcoming interior. New roof, updated HVAC, and renovated bathrooms.',
+    'Spacious family home on a corner lot. Vaulted ceilings, fireplace, and chef\'s kitchen. Near top schools.',
+    'Turnkey property with premium upgrades. Quartz counters, stainless appliances, and a backyard oasis.',
+    'Light-filled home with soaring ceilings. Island kitchen, spa-like primary bath, and 3-car garage.',
+    'Impeccably updated in a walkable neighborhood. Hardwoods, designer kitchen, and a landscaped yard.',
+  ];
+  const caDescs = [
+    'Stunning detached home on a quiet crescent. Updated eat-in kitchen, hardwood floors, and a finished basement.',
+    'Bright open concept with high-end finishes throughout. Chef\'s kitchen with quartz counters, primary suite with ensuite.',
+    'Charming semi-detached with modern updates. Mature trees, private backyard, and a double car garage.',
+    'Exceptional curb appeal with a welcoming interior. New roof (2023), updated furnace, and renovated bathrooms.',
+    'Spacious family home minutes from GO Train. Vaulted ceilings, gas fireplace, and a fully fenced yard.',
+    'Move-in ready with premium upgrades throughout. Stainless appliances, smart home features, and a double garage.',
+    'Sun-filled home with open concept main floor. Island kitchen, spa ensuite, and a professionally landscaped lot.',
+    'Well-maintained property in a sought-after neighbourhood. Updated throughout, close to top-rated schools and transit.',
+  ];
+  const descs = isCanada ? caDescs : usDescs;
+
+  const types = isCanada
+    ? ['house','house','house','condo','townhome','house']
+    : ['house','house','house','condo','townhome'];
+
+  // Ask AI for realistic addresses — using reliable non-streaming call
+  let aiAddresses = null;
+  try {
+    const countryLabel = isCanada ? `${cityName}, Canada` : `${cityName}, USA`;
+    const resp = await fetch('/api/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: CLAUDE_MODEL,
+        max_tokens: 700,
+        system: 'You are a real estate data generator. Return ONLY a raw JSON array — absolutely no markdown fences, no explanations, no extra text before or after. Just the JSON array.',
+        messages: [{
+          role: 'user',
+          content: `Return ONLY a JSON array of 8 objects for real home listings in ${countryLabel}. Format: [{"addr":"123 Maple Ave","desc":"One sentence about this home under 15 words"}]. Use real street names from ${cityName}. Return the raw JSON array only.`
+        }]
+      })
+    });
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data.content && data.content[0]?.type === 'text') {
+        let raw = data.content[0].text.trim();
+        // Strip any accidental markdown fences
+        raw = raw.replace(/^```[\w]*\n?/,'').replace(/\n?```$/,'').trim();
+        // Find the JSON array
+        const start = raw.indexOf('[');
+        const end = raw.lastIndexOf(']');
+        if (start !== -1 && end !== -1) {
+          aiAddresses = JSON.parse(raw.slice(start, end + 1));
+        }
+      }
+    }
+  } catch(e) {
+    console.log('AI address gen fallback to local data:', e.message);
+    aiAddresses = null;
+  }
+
+  // Build listings
+  const listings = [];
+  for (let i = 0; i < 8; i++) {
+    const typeKey = types[Math.floor(rng() * types.length)];
+    const bedCount = 2 + Math.floor(rng() * 3);
+    const bathCount = bedCount === 2 ? (rng() > 0.5 ? 1 : 2) : Math.floor(rng() * 2) + 2;
+    const sqft = typeKey === 'condo'
+      ? (isCanada ? 600 + Math.floor(rng() * 700) : 800 + Math.floor(rng() * 800))
+      : 1200 + Math.floor(rng() * 2000);
+    const priceVariance = 0.65 + rng() * 0.85;
+    let price = Math.round(basePrice * priceVariance / 1000) * 1000;
+    if (typeKey === 'condo') price = Math.round(price * (isCanada ? 0.55 : 0.65));
+    if (typeKey === 'townhome') price = Math.round(price * 0.82);
+    if (maxPrice && price > maxPrice) price = maxPrice - Math.floor(rng() * 50000);
+    if (beds && bedCount < beds) continue;
+
+    const imgs = IMG_POOL[i % IMG_POOL.length];
+    const sNum = 100 + Math.floor(rng() * 8900);
+    const fallbackAddr = `${sNum} ${streets[Math.floor(rng()*streets.length)]} ${streetTypes[Math.floor(rng()*streetTypes.length)]}`;
+    const addr = aiAddresses?.[i]?.addr || fallbackAddr;
+    const desc = aiAddresses?.[i]?.desc || descs[i % descs.length];
+    const daysAgo = 1 + Math.floor(rng() * 45);
+    const garage = typeKey === 'condo' ? (rng() > 0.5 ? 1 : 0) : 1 + Math.floor(rng() * 2);
+    const yearBuilt = 1970 + Math.floor(rng() * 54);
+    const cityDisplay = isCanada ? `${cityName}, Canada` : cityName;
+
+    // Generate postal/ZIP code
+    const zipCode = isCanada
+      ? `${String.fromCharCode(65+Math.floor(rng()*26))}${Math.floor(rng()*9+1)}${String.fromCharCode(65+Math.floor(rng()*26))} ${Math.floor(rng()*9+1)}${String.fromCharCode(65+Math.floor(rng()*26))}${Math.floor(rng()*9+1)}`
+      : String(10000 + Math.floor(rng() * 89999));
+
+    listings.push({
+      id: `ai_${city}_${i}`,
+      verified: false,
+      aiGenerated: true,
+      price,
+      currency,
+      addr,
+      city: cityDisplay,
+      zip: zipCode,
+      beds: bedCount,
+      baths: bathCount,
+      sqft,
+      type: typeKey,
+      listing: 'market',
+      match: 60 + Math.floor(rng() * 30),
+      days: daysAgo,
+      img: imgs.a, img2: imgs.b, img3: imgs.c,
+      desc,
+      cashback: null,
+      garage,
+      year: yearBuilt,
+    });
+  }
+  return listings;
+}
+
+// ═══════════════════════════════════════════
+// MAIN SEARCH FUNCTION
+// ═══════════════════════════════════════════
+async function runSearch() {
+  if (isSearching) return;
+  const query = document.getElementById('search-input').value.trim();
+  const beds = parseInt(document.getElementById('filter-beds').value) || 0;
+  const maxPrice = parseInt(document.getElementById('filter-price').value) || 0;
+
+  if (!query) { renderCurrentResults(); return; }
+
+  const countryLabel = searchCountry === 'ca' ? '🇨🇦 Canada' : '🇺🇸 United States';
+  const currencyLabel = searchCountry === 'ca' ? 'CAD' : 'USD';
+
+  isSearching = true;
+  document.getElementById('search-loading').classList.add('visible');
+  document.getElementById('search-loading-text').innerHTML = `Searching ${countryLabel} listings and generating <strong>AI market data</strong> for <strong>${query}</strong>…`;
+  document.getElementById('listings-grid').innerHTML = '';
+  document.getElementById('banner-ai-results').classList.remove('visible');
+  document.getElementById('banner-list-yours').classList.remove('visible');
+
+  // Filter verified listings that match
+  const verifiedMatches = LD_VERIFIED.filter(l => {
+    const q = query.toLowerCase();
+    if (!l.city.toLowerCase().includes(q) && !l.addr.toLowerCase().includes(q) && !l.zip.includes(q)) return false;
+    if (beds && l.beds < beds) return false;
+    if (maxPrice && l.price > maxPrice) return false;
+    if (typeFilter !== 'all' && l.type !== typeFilter) return false;
+    return true;
+  });
+
+  // Generate AI market listings
+  const aiListings = await generateAIListings(query, beds, maxPrice);
+
+  document.getElementById('search-loading').classList.remove('visible');
+  isSearching = false;
+
+  const all = [...verifiedMatches, ...aiListings.filter(l => {
+    if (typeFilter !== 'all' && l.type !== typeFilter) return false;
+    if (listingFilter === 'verified') return false;
+    return true;
+  })];
+
+  currentResults = all;
+
+  document.getElementById('search-city-label').textContent = `in "${query}" (${countryLabel}, prices in ${currencyLabel})`;
+  document.getElementById('banner-ai-results').classList.add('visible');
+  document.getElementById('banner-list-yours').classList.add('visible');
+
+  renderCurrentResults();
+}
+
+function renderCurrentResults() {
+  const sort = document.getElementById('sort-select').value;
+  let list = [...currentResults];
+
+  // Always keep verified on top within sort
+  const verified = list.filter(l => l.verified);
+  const market = list.filter(l => !l.verified);
+
+  const sortFn = (a,b) => {
+    if (sort === 'price-asc') return a.price - b.price;
+    if (sort === 'price-desc') return b.price - a.price;
+    if (sort === 'newest') return a.days - b.days;
+    return b.match - a.match;
+  };
+
+  verified.sort(sortFn);
+  market.sort(sortFn);
+
+  // Apply listing filter
+  let final = listingFilter === 'verified'
+    ? verified
+    : [...verified, ...market];
+
+  renderListings(final);
+}
+
+function renderListings(list) {
+  const grid = document.getElementById('listings-grid');
+  grid.innerHTML = '';
+  document.getElementById('result-count').textContent = list.length;
+
+  if (!list.length) {
+    grid.innerHTML = '<p style="color:var(--muted);padding:32px;grid-column:1/-1;text-align:center">No homes match your search. Try a different city or adjust your filters.</p>';
+    return;
+  }
+
+  let shownVerified = false, shownMarket = false;
+
+  list.forEach((l, i) => {
+    // Section dividers
+    if (l.verified && !shownVerified) {
+      shownVerified = true;
+      if (list.some(x => x.verified)) {
+        const div = document.createElement('div');
+        div.className = 'section-divider';
+        div.innerHTML = '<span>👑 ListDirect Verified — Priority Listings</span>';
+        grid.appendChild(div);
+      }
+    }
+    if (!l.verified && !shownMarket) {
+      shownMarket = true;
+      const div = document.createElement('div');
+      div.className = 'section-divider';
+      div.innerHTML = '<span>🏘 Market Listings — AI Estimated Data</span>';
+      grid.appendChild(div);
+    }
+
+    const card = document.createElement('div');
+    card.className = 'listing-card' + (l.verified ? ' ld-verified' : ' ai-market');
+    card.style.transitionDelay = (i * 40) + 'ms';
+
+    const tagHTML = l.verified
+      ? (l.listing === 'direct' ? '<div class="listing-tag tag-direct">🚀 Direct</div>' : '<div class="listing-tag tag-agent">🤝 Agent</div>')
+      : '<div class="listing-tag tag-market">📊 Market Est.</div>';
+
+    const crownHTML = l.verified ? '<div class="verified-crown">👑 ListDirect Verified</div>' : '';
+
+    card.innerHTML = `
+      <div class="listing-img">
+        <div class="listing-img-bg" style="background-image:url('${l.img}')"></div>
+        ${tagHTML}
+        <button class="listing-fav" onclick="toggleFav(event,this)" title="Save">♡</button>
+        ${crownHTML}
+      </div>
+      <div class="listing-body">
+        <div class="listing-price">$${l.price.toLocaleString()}<span style="font-size:0.6rem;font-weight:500;color:var(--muted);margin-left:4px">${l.currency||'USD'}</span></div>
+        <div class="listing-addr">📍 ${l.addr}, ${l.city}</div>
+        <div class="listing-specs">
+          <div class="listing-spec"><strong>${l.beds}</strong> beds</div>
+          <div class="listing-spec"><strong>${l.baths}</strong> baths</div>
+          <div class="listing-spec"><strong>${l.sqft.toLocaleString()}</strong> sq ft</div>
+        </div>
+        <div class="listing-footer">
+          <div class="match-score">
+            <div class="ms-bar"><div class="ms-fill" style="width:${l.match}%"></div></div>
+            <span style="font-size:0.78rem;color:${l.verified?'var(--green)':'var(--muted)'};font-weight:700">${l.match}% match</span>
+          </div>
+          ${l.cashback ? `<div class="listing-cashback">💰 ${l.cashback} cashback</div>` : `<div class="listing-days">${l.days}d ago</div>`}
+        </div>
+      </div>`;
+
+    card.addEventListener('click', e => {
+      if (e.target.closest('.listing-fav')) return;
+      if (l.verified) openListingModal(l);
+      else openLeadModal(l);
+    });
+
+    grid.appendChild(card);
+    setTimeout(() => card.classList.add('visible'), 30 + i * 50);
+  });
+}
+
+function setTypeFilter(btn, val) {
+  document.querySelectorAll('[data-type]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active'); typeFilter = val;
+  if (currentResults.length) renderCurrentResults();
+  else filterDefaultListings();
+}
+function setListingFilter(btn, val) {
+  document.querySelectorAll('[data-listing]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active'); listingFilter = val;
+  if (currentResults.length) renderCurrentResults();
+  else filterDefaultListings();
+}
+function filterDefaultListings() {
+  let list = LD_VERIFIED.filter(l => {
+    if (typeFilter !== 'all' && l.type !== typeFilter) return false;
+    return true;
+  });
+  renderListings(list);
+}
+function toggleFav(e, btn) {
+  e.stopPropagation();
+  btn.classList.toggle('faved');
+  btn.textContent = btn.classList.contains('faved') ? '♥' : '♡';
+}
+
+// ═══════════════════════════════════════════
+// LISTING DETAIL MODAL (verified homes)
+// ═══════════════════════════════════════════
+function openListingModal(l) {
+  const content = document.getElementById('listing-modal-content');
+  content.innerHTML = `
+    <div class="lm-imgs">
+      <div class="lm-main" style="background-image:url('${l.img}')"></div>
+      <div class="lm-thumb" style="background-image:url('${l.img2}')"></div>
+      <div class="lm-thumb" style="background-image:url('${l.img3}')"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+      <div class="lm-price" style="margin:0">$${l.price.toLocaleString()}</div>
+      <div style="background:var(--green);color:var(--bg);font-size:0.7rem;font-weight:800;padding:4px 12px;border-radius:50px">👑 ListDirect Verified</div>
+    </div>
+    <div class="lm-addr">📍 ${l.addr}, ${l.city} ${l.zip}</div>
+    <div class="lm-specs-row">
+      <div class="lm-spec">🛏 <strong>${l.beds}</strong> Beds</div>
+      <div class="lm-spec">🚿 <strong>${l.baths}</strong> Baths</div>
+      <div class="lm-spec">📐 <strong>${l.sqft.toLocaleString()}</strong> sq ft</div>
+      <div class="lm-spec">🚗 <strong>${l.garage}</strong> Garage</div>
+      <div class="lm-spec">📅 Built <strong>${l.year}</strong></div>
+    </div>
+    <p class="lm-desc">${l.desc}</p>
+    ${l.cashback
+      ? `<div style="background:var(--goldlow);border:1px solid rgba(245,200,66,0.25);border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:0.88rem;color:var(--gold);font-weight:600">💰 Agent Cashback: ${l.cashback} rebate at closing — guaranteed</div>`
+      : `<div style="background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:0.88rem;color:var(--green);font-weight:600">🚀 Direct Listing — 1% platform fee, no agent commission</div>`}
+    <div class="lm-btns">
+      <button class="lm-btn-primary" onclick="closeListingModal();openModal('buy')">Schedule Tour</button>
+      <button class="lm-btn-outline" onclick="closeListingModal();openModal('buy')">Make an Offer</button>
+    </div>`;
+  document.getElementById('listing-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeListingModal() {
+  document.getElementById('listing-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function closeListingModalOutside(e) {
+  if (e.target === document.getElementById('listing-modal')) closeListingModal();
+}
+
+// ═══════════════════════════════════════════
+// LEAD CAPTURE (non-verified/market homes)
+// ═══════════════════════════════════════════
+function openLeadModal(l) {
+  document.getElementById('lead-modal-title').textContent = 'Interested in this home?';
+  document.getElementById('lead-home-preview').innerHTML = `
+    <div class="lead-home-img" style="background-image:url('${l.img}')"></div>
+    <div class="lead-home-info">
+      <div class="lhi-price">$${l.price.toLocaleString()}</div>
+      <div class="lhi-addr">📍 ${l.addr}, ${l.city}</div>
+      <div class="lhi-specs">${l.beds} bed · ${l.baths} bath · ${l.sqft.toLocaleString()} sq ft</div>
+    </div>`;
+  document.getElementById('lead-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLeadModal() {
+  document.getElementById('lead-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function submitLead() {
+  const btn = document.querySelector('#lead-modal .modal-submit');
+  btn.textContent = '✓ Request Sent!';
+  btn.style.background = '#27c45e';
+  setTimeout(closeLeadModal, 1500);
+  setTimeout(() => { btn.textContent = 'Contact Seller on My Behalf →'; btn.style.background = ''; }, 2200);
+}
+
+// ═══════════════════════════════════════════
+// SUBMIT LISTING WIZARD
+// ═══════════════════════════════════════════
+let submitCurrentPage = 1;
+function openSubmitListing() {
+  submitCurrentPage = 1;
+  updateSubmitStep(1);
+  document.getElementById('submit-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeSubmitListing() {
+  document.getElementById('submit-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function submitNext(page) {
+  if (page < 3) {
+    submitCurrentPage = page + 1;
+    updateSubmitStep(page + 1);
+  } else {
+    // Final submit
+    const city = document.getElementById('sl-city').value || 'your city';
+    document.getElementById('success-city').textContent = city;
+    submitCurrentPage = 4;
+    updateSubmitStep(4);
+    // Add as verified listing to the top
+    const price = parseInt((document.getElementById('sl-price').value || '400000').replace(/\D/g,'')) || 400000;
+    const newListing = {
+      id: 'user_' + Date.now(),
+      verified: true,
+      price,
+      addr: document.getElementById('sl-addr').value || '123 My Street',
+      city: `${document.getElementById('sl-city').value}, ${document.getElementById('sl-state').value}`,
+      zip: document.getElementById('sl-zip').value || '00000',
+      beds: parseInt(document.getElementById('sl-beds').value) || 3,
+      baths: parseFloat(document.getElementById('sl-baths').value) || 2,
+      sqft: parseInt(document.getElementById('sl-sqft').value) || 1800,
+      type: (document.getElementById('sl-type').value || 'house').toLowerCase().split(' ')[0],
+      listing: 'direct',
+      match: 99,
+      days: 0,
+      img: IMG_POOL[0].a, img2: IMG_POOL[0].b, img3: IMG_POOL[0].c,
+      desc: `Brand new listing in ${document.getElementById('sl-city').value}. ${document.getElementById('sl-features').value || 'Contact for details.'}`,
+      cashback: null,
+      garage: 2,
+      year: parseInt(document.getElementById('sl-year').value) || 2010,
+    };
+    LD_VERIFIED.unshift(newListing);
+    currentResults.unshift(newListing);
+    if (currentResults.length) renderCurrentResults();
+  }
+}
+function submitBack(page) {
+  submitCurrentPage = page - 1;
+  updateSubmitStep(page - 1);
+}
+function updateSubmitStep(page) {
+  for (let i = 1; i <= 4; i++) {
+    const dot = document.getElementById('sdot-' + i);
+    const pg = document.getElementById('spage-' + i);
+    if (!dot || !pg) continue;
+    dot.className = 'submit-step-dot' + (i === page ? ' active' : i < page ? ' done' : '');
+    pg.className = 'submit-page' + (i === page ? ' active' : '');
+  }
+}
+function handlePhotos(input) {
+  const preview = document.getElementById('photo-preview');
+  preview.innerHTML = '';
+  Array.from(input.files).slice(0,6).forEach(file => {
+    const url = URL.createObjectURL(file);
+    const div = document.createElement('div');
+    div.style.cssText = 'width:80px;height:60px;border-radius:8px;background-size:cover;background-position:center;border:1px solid var(--border)';
+    div.style.backgroundImage = `url('${url}')`;
+    preview.appendChild(div);
+  });
+}
+
+// ═══════════════════════════════════════════
+// AGENTS
+// ═══════════════════════════════════════════
+function renderAgents() {
+  const grid = document.getElementById('agents-grid');
+  AGENTS.forEach((a, i) => {
+    const card = document.createElement('div');
+    card.className = 'agent-card';
+    card.style.transitionDelay = (i*70)+'ms';
+    card.innerHTML = `
+      <div class="agent-top">
+        <div class="agent-avatar" style="background-image:url('${a.photo}');background-size:cover;background-position:center;border:2px solid var(--border)"></div>
+        <div class="agent-info">
+          <div class="agent-stars">${'★'.repeat(Math.round(parseFloat(a.rating)))} <span style="color:var(--muted);font-size:0.75rem">(${a.reviews})</span></div>
+          <h4>${a.name}</h4>
+          <div class="agent-loc">📍 ${a.loc}</div>
+          <div style="font-size:0.72rem;color:var(--green);font-weight:600;margin-top:2px">${a.specialty}</div>
+        </div>
+      </div>
+      <p style="font-size:0.82rem;color:var(--muted);line-height:1.6;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:14px">${a.bio}</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+        <div style="background:var(--bg2);border-radius:8px;padding:10px;text-align:center">
+          <div style="font-size:1rem;font-weight:700;color:var(--white)">${a.sales}</div>
+          <div style="font-size:0.68rem;color:var(--muted)">Homes Sold</div>
+        </div>
+        <div style="background:var(--bg2);border-radius:8px;padding:10px;text-align:center">
+          <div style="font-size:1rem;font-weight:700;color:var(--white)">${a.years} yrs</div>
+          <div style="font-size:0.68rem;color:var(--muted)">Experience</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;font-size:0.78rem;color:var(--muted)">
+        <div>🪪 <strong style="color:var(--text)">License:</strong> ${a.license}</div>
+        <div>🗣️ <strong style="color:var(--text)">Languages:</strong> ${a.languages}</div>
+        <div>🏅 <strong style="color:var(--text)">Designations:</strong> ${a.designations}</div>
+      </div>
+      <div class="agent-cashback-badge">
+        <div class="acb-label">💰 Cashback Offer</div>
+        <div class="acb-val">${a.cashback} at closing</div>
+      </div>
+      <button class="btn-agent" onclick="window.location.href='listdirect-agents.html?agent=${i}'">Request This Agent →</button>
+      ${a.verified ? '<div class="agent-verified">✅ ListDirect Certified & Verified</div>' : ''}`;
+    grid.appendChild(card);
+  });
+}
+
+// ═══════════════════════════════════════════
+// FAQ
+// ═══════════════════════════════════════════
+function renderFAQ() {
+  const list = document.getElementById('faq-list');
+  FAQS.forEach((f,i) => {
+    const item = document.createElement('div');
+    item.className = 'faq-item';
+    item.style.transitionDelay = (i*50)+'ms';
+    item.innerHTML = `
+      <div class="faq-q" onclick="toggleFaq(this.parentElement)">
+        <span>${f.q}</span>
+        <div class="faq-arrow">▼</div>
+      </div>
+      <div class="faq-a"><p>${f.a}</p></div>`;
+    list.appendChild(item);
+  });
+}
+function toggleFaq(item) {
+  const wasOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(fi => fi.classList.remove('open'));
+  if (!wasOpen) item.classList.add('open');
+}
+
+// ═══════════════════════════════════════════
+// SAVINGS CALCULATOR — UPGRADED
+// ═══════════════════════════════════════════
+const WHATIF = [
+  {icon:'🏖️', label:'Year of vacations', cost:8000},
+  {icon:'🚗', label:'New car, cash', cost:35000},
+  {icon:'🎓', label:'College tuition year', cost:22000},
+  {icon:'🏠', label:'Home renovation', cost:40000},
+  {icon:'📈', label:'Invested at 7%/yr', cost:1},
+  {icon:'💳', label:'Pay off debt', cost:15000},
+  {icon:'👶', label:'College fund start', cost:10000},
+  {icon:'🛳️', label:'Dream cruise', cost:12000},
+  {icon:'🌎', label:'Round-the-world trip', cost:20000},
+  {icon:'🔑', label:'Down payment on a rental', cost:50000},
+  {icon:'⚡', label:'Tesla Model 3', cost:42000},
+  {icon:'🏋️', label:'Home gym', cost:5000},
+];
+
+function updateCalc() {
+  const slider = document.getElementById('home-price-slider');
+  const price = parseInt(slider.value);
+
+  // Sync active preset button to match slider value
+  const presetMap = {300000:'$300k',500000:'$500k',450000:'$450k',750000:'$750k',1000000:'$1M',2500000:'$2.5M',5000000:'$5M',10000000:'$10M'};
+  document.querySelectorAll('.calc-preset').forEach(b => {
+    b.classList.toggle('active', b.textContent.trim() === (presetMap[price] || ''));
+  });
+
+  // Update slider gradient fill
+  const pct = ((price - 100000) / (10000000 - 100000)) * 100;
+  slider.style.setProperty('--pct', pct + '%');
+  slider.style.background = `linear-gradient(to right, var(--green) 0%, var(--green) ${pct}%, var(--border) ${pct}%)`;
+
+  // Calculations — showing what you PAY for each option
+  const trad = Math.round(price * 0.06);        // Traditional: 6% full commission
+  const agentGross = Math.round(price * 0.06);  // Agent charges ~6%
+  const agentCashback = Math.round(price * 0.01); // You get 1% back
+  const agentNet = agentGross - agentCashback;   // Net cost = ~5%
+  const direct = Math.round(price * 0.01);       // AI Direct: just 1%
+  const savings = trad - direct;                 // Savings vs traditional
+
+  // Format numbers
+  const fmt = n => {
+    if (n >= 10000000) return '$' + (n/1000000).toFixed(0) + 'M';
+    if (n >= 1000000) return '$' + (n/1000000).toFixed(n % 1000000 === 0 ? 0 : 2).replace(/\.?0+$/,'') + 'M';
+    return '$' + n.toLocaleString();
+  };
+
+  // Update price display with animation
+  document.getElementById('calc-price-display').textContent = fmt(price);
+
+  // Update bar values — showing what you PAY
+  document.getElementById('bar-trad-val').textContent = fmt(trad);
+  document.getElementById('bar-agent-val').textContent = fmt(agentNet);
+  document.getElementById('bar-direct-val').textContent = fmt(direct);
+
+  // Update bar widths (trad = 100% reference)
+  document.getElementById('bar-trad').style.width = '100%';
+  document.getElementById('bar-agent').style.width = Math.round((agentNet / trad) * 100) + '%';
+  document.getElementById('bar-direct').style.width = Math.round((direct / trad) * 100) + '%';
+
+  // Update cashback callout
+  var cbAmt = document.getElementById('cashback-amount');
+  if(cbAmt) cbAmt.textContent = fmt(agentCashback);
+  var agNote = document.getElementById('bar-agent-note-text');
+  if(agNote) agNote.textContent = 'Agent charges 6% · You get ' + fmt(agentCashback) + ' cashback · Net cost ' + fmt(agentNet);
+
+  // Big savings number
+  document.getElementById('calc-savings').textContent = fmt(savings);
+  // Sync path modal numbers
+  var pmAI=document.getElementById('pm-ai-num'); if(pmAI) pmAI.textContent=fmt(Math.round(price*0.05));
+  var pmAg=document.getElementById('pm-agent-num'); if(pmAg) pmAg.textContent=fmt(Math.round(price*0.01));
+  var pmAINote=document.getElementById('pm-ai-note'); if(pmAINote) pmAINote.textContent='On a '+fmt(price)+' home \u00b7 Only 1% platform fee';
+  var pmAgNote=document.getElementById('pm-agent-note'); if(pmAgNote) pmAgNote.textContent='On a '+fmt(price)+' home \u00b7 1% cashback minimum';
+
+  // What-if items
+  const items = document.getElementById('cwi-items');
+  items.innerHTML = '';
+  const matches = WHATIF.filter(w => w.cost === 1 || savings >= w.cost * 0.7);
+  const show = matches.slice(0, 6);
+  if (show.length === 0) {
+    const any = WHATIF.filter(w => w.cost < savings * 3).slice(0, 3);
+    any.forEach(w => {
+      const div = document.createElement('div');
+      div.className = 'cwi-item';
+      div.innerHTML = `<span class="cwi-icon">${w.icon}</span>${w.label}`;
+      items.appendChild(div);
+    });
+  } else {
+    show.forEach(w => {
+      const div = document.createElement('div');
+      div.className = 'cwi-item';
+      const label = w.cost === 1 ? `Invest & grow to ${fmt(Math.round(savings * 1.96))} in 10 yrs` : w.label;
+      div.innerHTML = `<span class="cwi-icon">${w.icon}</span>${label}`;
+      items.appendChild(div);
+    });
+  }
+}
+
+function setCalcPrice(val, btn) {
+  document.getElementById('home-price-slider').value = val;
+  document.querySelectorAll('.calc-preset').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  updateCalc();
+}
+
+// ═══════════════════════════════════════════
+// MORTGAGE CALCULATOR
+// ═══════════════════════════════════════════
+// Format number input with commas as user types
+function fmtInput(el) {
+  var raw = el.value.replace(/[^0-9]/g, '');
+  if (raw) el.value = parseInt(raw).toLocaleString();
+}
+
+function updateMortgage() {
+  const price = parseFloat((document.getElementById('m-price').value || '0').replace(/,/g, '')) || 0;
+  const down = parseFloat((document.getElementById('m-down').value || '0').replace(/,/g, '')) || 0;
+  const rate = parseFloat(document.getElementById('m-rate').value) / 100 / 12 || 0;
+  const term = parseInt(document.getElementById('m-term').value) * 12;
+  const taxRate = parseFloat(document.getElementById('m-tax').value) / 100 || 0;
+  const loan = Math.max(price - down, 0);
+  let pi = 0;
+  if (rate > 0 && term > 0 && loan > 0) {
+    pi = loan * (rate * Math.pow(1+rate, term)) / (Math.pow(1+rate, term) - 1);
+  }
+  const monthlyTax = (price * taxRate) / 12;
+  const monthly = pi + monthlyTax;
+  const totalPaid = pi * term;
+  const totalInterest = totalPaid - loan;
+  document.getElementById('m-monthly').textContent = '$' + Math.round(monthly).toLocaleString();
+  document.getElementById('m-loan').textContent = '$' + Math.round(loan).toLocaleString();
+  document.getElementById('m-down-pct').textContent = price > 0 ? Math.round((down/price)*100) + '%' : '0%';
+  document.getElementById('m-interest').textContent = '$' + Math.round(totalInterest).toLocaleString();
+  document.getElementById('m-total').textContent = '$' + Math.round(totalPaid + down).toLocaleString();
+}
+
+// ═══════════════════════════════════════════
+// MOBILE MENU
+// ═══════════════════════════════════════════
+function toggleMenu() {
+  const menu = document.getElementById('mobile-menu');
+  const overlay = document.getElementById('menu-overlay');
+  const ham = document.getElementById('ham');
+  const isOpen = menu.classList.contains('open');
+  menu.classList.toggle('open');
+  if (overlay) overlay.classList.toggle('open');
+  document.body.style.overflow = isOpen ? '' : 'hidden';
+  const spans = ham.querySelectorAll('span');
+  if (!isOpen) {
+    spans[0].style.transform = 'rotate(45deg) translate(5px,5px)';
+    spans[1].style.opacity = '0';
+    spans[2].style.transform = 'rotate(-45deg) translate(5px,-5px)';
+  } else {
+    spans.forEach(s => { s.style.transform=''; s.style.opacity=''; });
+  }
+}
+
+// ═══════════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════════
+function openModal(tab) {
+  const tabs = document.getElementById('modal-tabs');
+  tabs.style.display = tab === 'login' ? 'none' : '';
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  if (tab && tab !== 'login') switchTabByName(tab);
+  else if (tab === 'login') {
+    document.getElementById('modal-title').textContent = 'Welcome Back';
+    document.getElementById('modal-sub').textContent = 'Log in to your ListDirect account.';
+    document.getElementById('modal-btn').textContent = 'Log In →';
+    ['field-zip','field-phone','field-price','field-license','field-rebate'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    document.getElementById('field-password').style.display = '';
+  }
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function closeModalOutside(e) { if (e.target === document.getElementById('modal')) closeModal(); }
+function switchTab(tab, btn) {
+  document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  switchTabByName(tab);
+}
+function switchTabByName(tab) {
+  ['field-price','field-license','field-rebate'].forEach(id => { document.getElementById(id).style.display='none'; });
+  document.getElementById('field-zip').style.display = '';
+  document.getElementById('field-password').style.display = '';
+  if (tab==='sell') {
+    document.getElementById('modal-title').textContent = 'List Your Home';
+    document.getElementById('modal-sub').textContent = 'Start for free — no credit card required.';
+    document.getElementById('modal-btn').textContent = 'Start My Free Listing →';
+    document.getElementById('zip-label').textContent = 'Property ZIP Code';
+  } else if (tab==='buy') {
+    document.getElementById('modal-title').textContent = 'Find Your Home';
+    document.getElementById('modal-sub').textContent = 'Get matched with homes that fit your needs.';
+    document.getElementById('modal-btn').textContent = 'Browse Listings →';
+    document.getElementById('zip-label').textContent = 'Search ZIP Code';
+    document.getElementById('field-price').style.display = '';
+  } else {
+    document.getElementById('modal-title').textContent = 'Join Agent Network';
+    document.getElementById('modal-sub').textContent = 'Agree to our cashback terms and receive qualified leads.';
+    document.getElementById('modal-btn').textContent = 'Apply to Join →';
+    document.getElementById('field-license').style.display = '';
+    document.getElementById('field-rebate').style.display = '';
+  }
+}
+function handleSubmit() {
+  const btn = document.getElementById('modal-btn');
+  const orig = btn.textContent;
+  btn.textContent = '✓ You\'re in!';
+  btn.style.background = '#27c45e';
+  setTimeout(closeModal, 1400);
+  setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 2000);
+}
+document.addEventListener('keydown', e => { if (e.key==='Escape') { closeModal(); closeListingModal(); } });
+
+// ═══════════════════════════════════════════
+// AI TOOLS — SWITCH TABS
+// ═══════════════════════════════════════════
+function switchTool(name, btn) {
+  document.querySelectorAll('.ai-tool-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.ai-tool-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tool-' + name).classList.add('active');
+}
+
+function jumpToTool(name) {
+  // Scroll to AI tools section
+  document.getElementById('ai-tools').scrollIntoView({behavior:'smooth'});
+  // Small delay to let scroll settle, then switch tab
+  setTimeout(() => {
+    const btn = document.querySelector(`.ai-tool-tab[onclick*="'${name}'"]`);
+    if (btn) switchTool(name, btn);
+  }, 600);
+}
+
+// ═══════════════════════════════════════════
+// CORE AI CALL — STREAMING
+// ═══════════════════════════════════════════
+const CLAUDE_MODEL = 'claude-haiku-4-5-20251001';
+
+async function streamClaude(systemPrompt, userPrompt, outputEl, btnEl, resultBoxId) {
+  btnEl.disabled = true;
+  const origHTML = btnEl.innerHTML;
+  btnEl.innerHTML = '<div class="ai-spinner"><span></span><span></span><span></span></div> Analyzing…';
+
+  const resultBox = document.getElementById(resultBoxId);
+  resultBox.classList.add('active');
+  outputEl.textContent = '';
+  outputEl.classList.remove('streaming');
+
+  try {
+    const resp = await fetch('/api/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: CLAUDE_MODEL,
+        max_tokens: 1024,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userPrompt }]
+      })
+    });
+
+    if (!resp.ok) {
+      const errText = await resp.text();
+      throw new Error(`API returned ${resp.status}: ${errText}`);
+    }
+
+    const data = await resp.json();
+
+    // Extract text from response — handle all content block types
+    let text = '';
+    if (data.content && Array.isArray(data.content)) {
+      text = data.content
+        .filter(block => block.type === 'text')
+        .map(block => block.text)
+        .join('');
+    } else if (typeof data.content === 'string') {
+      text = data.content;
+    }
+
+    if (!text) throw new Error('No text in response');
+
+    // Simulate a smooth typewriter reveal instead of streaming
+    outputEl.textContent = '';
+    const words = text.split(' ');
+    let i = 0;
+    const reveal = setInterval(() => {
+      const chunk = words.slice(i, i + 8).join(' ');
+      outputEl.textContent += (i > 0 ? ' ' : '') + chunk;
+      i += 8;
+      if (i >= words.length) {
+        clearInterval(reveal);
+        outputEl.textContent = text; // ensure full text shown
+        btnEl.disabled = false;
+        btnEl.innerHTML = origHTML;
+      }
+    }, 40);
+    return; // early return — btn re-enabled in interval
+
+  } catch (err) {
+    console.error('AI Tool error:', err);
+    outputEl.textContent = '⚠️ Could not get a response. Please check your connection and try again.\n\nDetails: ' + err.message;
+    btnEl.disabled = false;
+    btnEl.innerHTML = origHTML;
+  }
+}
+
+// ═══════════════════════════════════════════
+// PRICING TOOL
+// ═══════════════════════════════════════════
+async function runPricingTool() {
+  const addr = document.getElementById('p-addr').value || 'Not provided';
+  const city = document.getElementById('p-city').value || 'Not provided';
+  const beds = document.getElementById('p-beds').value;
+  const baths = document.getElementById('p-baths').value;
+  const sqft = document.getElementById('p-sqft').value || 'Not provided';
+  const year = document.getElementById('p-year').value || 'Not provided';
+  const type = document.getElementById('p-type').value;
+  const cond = document.getElementById('p-cond').value;
+  const features = document.getElementById('p-features').value || 'None specified';
+
+  const system = `You are ListDirect's expert AI home pricing analyst covering both the United States and Canada. You provide realistic, data-informed home price estimates based on the details given. Always give a specific price range in the correct currency (USD for US cities, CAD for Canadian cities — always note which currency). Explain your reasoning with local market factors, seasonal considerations, and comparable home analysis. Be concise but thorough. Format your response with clear sections using plain text. Use dollar amounts and be direct. For Canadian cities, reference current CAD market conditions and note the USD equivalent approximately.`;
+
+  const country = document.getElementById('p-country').value;
+  const prompt = `Please analyze this home and provide a pricing recommendation:
+
+Country/Market: ${country}
+Address: ${addr}
+City/State or Province: ${city}
+Property Type: ${type}
+Bedrooms: ${beds} | Bathrooms: ${baths}
+Square Footage: ${sqft} sq ft
+Year Built: ${year}
+Condition: ${cond}
+Notable Features: ${features}
+
+Provide:
+1. Recommended listing price range (in correct local currency — USD or CAD)
+2. Price per square foot analysis vs. local market average
+3. Key factors driving value up or down
+4. Current market context for this city/region
+5. ListDirect strategy recommendation (list price, expected sale price, days on market)
+6. If Canadian: approximate USD equivalent at current exchange rate`;
+
+  await streamClaude(system, prompt,
+    document.getElementById('price-output'),
+    document.getElementById('price-btn'),
+    'price-result'
+  );
+}
+
+// ═══════════════════════════════════════════
+// LISTING WRITER TOOL
+// ═══════════════════════════════════════════
+async function runListingTool() {
+  const addr = document.getElementById('l-addr').value || 'Property address';
+  const price = document.getElementById('l-price').value || 'Price upon request';
+  const specs = document.getElementById('l-specs').value || 'Not specified';
+  const year = document.getElementById('l-year').value || 'Not specified';
+  const features = document.getElementById('l-features').value || 'No additional features listed';
+  const tone = document.getElementById('l-tone').value;
+  const buyer = document.getElementById('l-buyer').value;
+
+  const system = `You are ListDirect's expert real estate copywriter covering both the United States and Canada. You write compelling, MLS-ready listing descriptions that are accurate, emotionally resonant, and optimized to attract qualified buyers. Your descriptions are vivid but honest. For Canadian listings, use appropriate Canadian real estate terminology (e.g. "detached home", "finished basement", "double car garage", province names). Write in flowing prose, no bullet points. Keep it 150-200 words. Match the requested tone perfectly.`;
+
+  const prompt = `Write a professional listing description for this property:
+
+Address: ${addr}
+Price: ${price}
+Specs: ${specs}
+Year Built: ${year}
+Features & Upgrades: ${features}
+Tone: ${tone}
+Target Buyer: ${buyer}
+
+Write a compelling 150-200 word MLS listing description. Start with a strong opening hook. Do not use bullet points. End with a clear call to action.`;
+
+  await streamClaude(system, prompt,
+    document.getElementById('listing-output'),
+    document.getElementById('listing-btn'),
+    'listing-result'
+  );
+}
+
+// ═══════════════════════════════════════════
+// OFFER ANALYZER TOOL
+// ═══════════════════════════════════════════
+async function runOfferTool() {
+  const list = document.getElementById('o-list').value || 'Not provided';
+  const offer = document.getElementById('o-offer').value || 'Not provided';
+  const down = document.getElementById('o-down').value || 'Not provided';
+  const finance = document.getElementById('o-finance').value;
+  const close = document.getElementById('o-close').value || 'Not specified';
+  const earnest = document.getElementById('o-earnest').value || 'Not specified';
+  const terms = document.getElementById('o-terms').value || 'None listed';
+
+  const system = `You are an educational real estate information tool. You help sellers understand the terms and components of a purchase offer for informational purposes only — this is NOT legal or real estate advice. Always remind users to consult a licensed real estate attorney or agent before making decisions. Summarize the offer terms, explain what each component means, highlight any unusual clauses, and note general market context. Do not recommend accepting, rejecting, or specific counter terms. Use plain text with clear labeled sections.`;
+
+  const prompt = `Analyze this purchase offer from the seller's perspective:
+
+Your Listing Price: ${list}
+Offer Price: ${offer}
+Down Payment: ${down}
+Financing: ${finance}
+Requested Closing Date: ${close}
+Earnest Money: ${earnest}
+Contingencies & Terms: ${terms}
+
+Provide:
+1. OVERALL ASSESSMENT — strength rating and summary
+2. STRENGTHS — what's favorable for the seller
+3. RISKS & CONCERNS — what could go wrong
+4. FINANCIAL BREAKDOWN — net to seller after estimated costs
+5. COUNTER-OFFER STRATEGY — specific recommended counter terms if warranted
+6. BOTTOM LINE — accept, counter, or decline recommendation`;
+
+  await streamClaude(system, prompt,
+    document.getElementById('offer-output'),
+    document.getElementById('offer-btn'),
+    'offer-result'
+  );
+}
+
+// ═══════════════════════════════════════════
+// CONTRACT HELPER TOOL
+// ═══════════════════════════════════════════
+async function runContractTool() {
+  const text = document.getElementById('c-text').value;
+  const role = document.getElementById('c-role').value;
+  const focus = document.getElementById('c-focus').value;
+
+  if (!text.trim()) {
+    const out = document.getElementById('contract-output');
+    document.getElementById('contract-result').classList.add('active');
+    out.textContent = 'Please paste a contract clause or ask a question above.';
+    return;
+  }
+
+  const system = `You are ListDirect's real estate contract expert covering both the United States and Canada. You explain contract language in plain English that any homeowner can understand. You are clear, practical, and always note important risks. For Canadian contracts, you understand OREA forms, BC contracts of purchase and sale, Alberta purchase contracts, and provincial differences. You always clarify that your explanations are educational and not legal advice. Use clear labeled sections with plain text.`;
+
+  const prompt = `Explain this real estate contract language for a ${role}. Focus: "${focus}"
+
+CONTRACT TEXT / QUESTION:
+${text}
+
+Provide:
+1. PLAIN ENGLISH SUMMARY — what this actually means in simple terms
+2. WHY IT MATTERS — practical impact on the ${role}
+3. WATCH OUT FOR — specific risks or red flags
+4. IS THIS STANDARD? — typical or unusual in most transactions
+5. QUESTIONS TO ASK — things to clarify with your attorney or agent
+
+Note: This is educational guidance, not legal advice. Always consult a licensed real estate attorney for binding legal questions.`;
+
+  await streamClaude(system, prompt,
+    document.getElementById('contract-output'),
+    document.getElementById('contract-btn'),
+    'contract-result'
+  );
+}
+
+function copyResult(id) {
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = orig, 1800);
+  });
+}
+
+// ═══════════════════════════════════════════
+// CHAT WIDGET — REAL CLAUDE
+// ═══════════════════════════════════════════
+let chatHistory = [];
+let chatLocked = false;
+
+const CHAT_SYSTEM = `You are ListDirect's friendly and knowledgeable AI assistant. ListDirect is an AI-powered home selling platform that connects buyers and sellers directly, skipping traditional real estate agents to save money.
+
+Key facts about ListDirect:
+- Platform fee: 1% of sale price at closing (no upfront cost)
+- Direct listing: seller handles the sale with AI tools, pays only 1%
+- Agent Assisted path: choose a certified agent who is contractually required to give at least 1% cashback at closing
+- AI tools available: pricing engine, listing writer, offer review tool, contract helper, buyer matching
+- Listings appear on MLS, Zillow, Realtor.com
+- Average savings vs traditional 6% agent: $18,400+
+- 47,000+ homes sold on the platform
+- Average time to offer: 18 days
+- Available in all 50 states
+
+Be helpful, conversational, and concise. Keep responses under 120 words unless a detailed answer is truly needed. Use the occasional emoji. Never make up specific numbers not listed above. If asked about legal or financial specifics, recommend consulting a professional.`;
+
+function toggleChat() {
+  document.getElementById('chat-popup').classList.toggle('open');
+}
+
+async function quickAsk(q) {
+  document.getElementById('chat-quick').style.display = 'none';
+  await sendChatMessage(q);
+}
+
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg || chatLocked) return;
+  input.value = '';
+  await sendChatMessage(msg);
+}
+
+async function sendChatMessage(msg) {
+  if (chatLocked) return;
+  chatLocked = true;
+
+  const sendBtn = document.getElementById('chat-send-btn');
+  sendBtn.disabled = true;
+
+  addChatBubble(msg, 'user');
+  chatHistory.push({ role: 'user', content: msg });
+
+  // Show typing indicator
+  const typingDiv = addChatBubble('', 'ai typing');
+  typingDiv.innerHTML = '<span></span><span></span><span></span>';
+
+  try {
+    const resp = await fetch('/api/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: CLAUDE_MODEL,
+        max_tokens: 350,
+        system: CHAT_SYSTEM,
+        messages: chatHistory
+      })
+    });
+
+    if (!resp.ok) throw new Error('API error ' + resp.status);
+
+    const data = await resp.json();
+    const reply = data.content?.filter(b => b.type === 'text').map(b => b.text).join('') || '';
+
+    if (!reply) throw new Error('Empty response');
+
+    typingDiv.remove();
+    chatHistory.push({ role: 'assistant', content: reply });
+
+    // Typewriter effect for chat
+    const aiDiv = addChatBubble('', 'ai');
+    let i = 0;
+    const chars = reply.split('');
+    const typer = setInterval(() => {
+      aiDiv.textContent += chars.slice(i, i + 4).join('');
+      i += 4;
+      document.getElementById('chat-messages').scrollTop = 9999;
+      if (i >= chars.length) {
+        clearInterval(typer);
+        aiDiv.textContent = reply;
+        chatLocked = false;
+        sendBtn.disabled = false;
+      }
+    }, 20);
+    return;
+
+  } catch (err) {
+    typingDiv.remove();
+    addChatBubble('⚠️ Connection issue — please try again.', 'ai');
+    console.error('Chat error:', err);
+  }
+
+  chatLocked = false;
+  sendBtn.disabled = false;
+}
+
+function addChatBubble(text, cls) {
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'chat-msg ' + cls;
+  div.textContent = text;
+  msgs.appendChild(div);
+  msgs.scrollTop = 9999;
+  return div;
+}
+
+// ═══════════════════════════════════════════
+// SCROLL ANIMATIONS
+// ═══════════════════════════════════════════
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const siblings = Array.from(e.target.parentElement?.children || []);
+      const delay = siblings.indexOf(e.target) * 80;
+      setTimeout(() => e.target.classList.add('visible'), delay);
+      e.target.querySelectorAll('.cb-bar-fill').forEach(bar => { bar.style.width = bar.dataset.width; });
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.stat-item,.step,.path-card,.ai-card,.testi-card,.cashback-visual,.cashback-text,.calc-box,.mortgage-box,.faq-item,.agent-card').forEach(el => observer.observe(el));
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+currentResults = [...LD_VERIFIED];
+renderListings(LD_VERIFIED);
+renderAgents();
+renderFAQ();
+updateCalc();
+updateMortgage();
+</script>
+<!-- PATH CHOICE MODAL -->
+<style>
+#pm-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.88);z-index:9999;align-items:center;justify-content:center;padding:16px;box-sizing:border-box}
+#pm-box{background:#141c16;border:1px solid #1f2d22;border-radius:20px;padding:36px 28px;max-width:580px;width:100%;max-height:90vh;overflow-y:auto;position:relative}
+#pm-close-btn{position:absolute;top:14px;right:16px;background:none;border:none;color:#7a9480;font-size:1.4rem;cursor:pointer;line-height:1}
+.pm-tag{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#3ef07a;margin-bottom:8px}
+.pm-title{font-family:'Playfair Display',serif;font-size:1.7rem;font-weight:900;color:#fff;margin-bottom:6px}
+.pm-sub{font-size:0.88rem;color:#7a9480;margin-bottom:24px;line-height:1.6}
+.pm-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+.pm-card{border-radius:16px;padding:22px 18px;cursor:pointer;position:relative;text-align:left;width:100%;font-family:'DM Sans',sans-serif;transition:transform 0.15s;border:2px solid transparent;display:block}
+.pm-card:hover{transform:translateY(-3px)}
+.pm-card-ai{background:rgba(62,240,122,0.07);border-color:rgba(62,240,122,0.45)}
+.pm-card-agent{background:rgba(245,200,66,0.05);border-color:rgba(245,200,66,0.25)}
+.pm-popular{background:#3ef07a;color:#0a0f0d;font-size:0.62rem;font-weight:800;padding:3px 10px;border-radius:50px;position:absolute;top:12px;right:12px}
+.pm-icon{font-size:1.8rem;margin-bottom:10px;display:block}
+.pm-name{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:900;color:#fff;margin-bottom:3px;display:block}
+.pm-desc{font-size:0.76rem;color:#7a9480;margin-bottom:14px;display:block}
+.pm-list{list-style:none;margin-bottom:16px;padding:0}
+.pm-list li{font-size:0.8rem;color:#e8f0e9;margin-bottom:6px;display:flex;gap:7px;align-items:flex-start}
+.pm-check-g{color:#3ef07a;font-weight:700;flex-shrink:0}
+.pm-check-y{color:#f5c842;font-weight:700;flex-shrink:0}
+.pm-save-box{border-radius:10px;padding:12px;margin-bottom:16px}
+.pm-save-ai{background:rgba(62,240,122,0.1);border:1px solid rgba(62,240,122,0.2)}
+.pm-save-ag{background:rgba(245,200,66,0.08);border:1px solid rgba(245,200,66,0.2)}
+.pm-slabel{font-size:0.66rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#7a9480;margin-bottom:3px}
+.pm-snum-ai{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;color:#3ef07a;line-height:1;display:block}
+.pm-snum-ag{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;color:#f5c842;line-height:1;display:block}
+.pm-snote{font-size:0.68rem;color:#7a9480;margin-top:2px;display:block}
+.pm-btn-ai{width:100%;background:#3ef07a;color:#0a0f0d;border:none;padding:11px;border-radius:50px;font-weight:700;font-size:0.88rem;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:4px}
+.pm-btn-ag{width:100%;background:transparent;color:#f5c842;border:1px solid rgba(245,200,66,0.4);padding:11px;border-radius:50px;font-weight:700;font-size:0.88rem;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:4px}
+.pm-note{font-size:0.73rem;color:#7a9480;text-align:center}
+@media(max-width:500px){.pm-cards{grid-template-columns:1fr}.pm-card{padding:18px 14px}}
+</style>
+
+<div id="pm-overlay" onclick="if(event.target.id==='pm-overlay')closePM()">
+  <div id="pm-box">
+    <button id="pm-close-btn" onclick="closePM()">✕</button>
+    <div class="pm-tag">Choose Your Path</div>
+    <div class="pm-title">How would you like to sell?</div>
+    <div class="pm-sub">Both paths save you thousands vs. a traditional 6% agent. Choose how involved you want to be.</div>
+    <div class="pm-cards">
+      <div class="pm-card pm-card-ai" onclick="window.location.href='listdirect-list.html'">
+        <div class="pm-popular">Most Popular</div>
+        <span class="pm-icon">🤖</span>
+        <span class="pm-name">AI Agent</span>
+        <span class="pm-desc">Do it yourself · AI does the heavy lifting</span>
+        <ul class="pm-list">
+          <li><span class="pm-check-g">✓</span><span>AI writes your listing description</span></li>
+          <li><span class="pm-check-g">✓</span><span>AI prices your home with market data</span></li>
+          <li><span class="pm-check-g">✓</span><span>AI explains every offer you receive</span></li>
+          <li><span class="pm-check-g">✓</span><span>Priority placement in every search</span></li>
+          <li><span class="pm-check-g">✓</span><span>Only 1% fee at closing</span></li>
+        </ul>
+        <div class="pm-save-box pm-save-ai">
+          <div class="pm-slabel">💰 You save vs. traditional agent</div>
+          <span class="pm-snum-ai" id="pm-ai-num">$22,500</span>
+          <span class="pm-snote" id="pm-ai-note">On a $450k home · Only 1% platform fee</span>
+        </div>
+        <button class="pm-btn-ai" onclick="event.stopPropagation();window.location.href='listdirect-list.html'">Start with AI Agent →</button>
+      </div>
+      <div class="pm-card pm-card-agent" onclick="window.location.href='listdirect-agents.html'">
+        <span class="pm-icon">🤝</span>
+        <span class="pm-name">Our Certified Agents</span>
+        <span class="pm-desc">Local expert · Guaranteed cashback</span>
+        <ul class="pm-list">
+          <li><span class="pm-check-y">✓</span><span>Local expert handles everything</span></li>
+          <li><span class="pm-check-y">✓</span><span>Minimum 1% cashback at closing</span></li>
+          <li><span class="pm-check-y">✓</span><span>Full MLS &amp; open house support</span></li>
+          <li><span class="pm-check-y">✓</span><span>Agents compete for your listing</span></li>
+          <li><span class="pm-check-y">✓</span><span>All AI tools still included</span></li>
+        </ul>
+        <div class="pm-save-box pm-save-ag">
+          <div class="pm-slabel">💰 Guaranteed cash back at closing</div>
+          <span class="pm-snum-ag" id="pm-agent-num">$5,000</span>
+          <span class="pm-snote" id="pm-agent-note">On a $500k home · 1% cashback minimum</span>
+        </div>
+        <button class="pm-btn-ag" onclick="event.stopPropagation();window.location.href='listdirect-agents.html'">Browse Certified Agents →</button>
+      </div>
+    </div>
+    <div class="pm-note">No commitment required · Free to start</div>
+  </div>
+</div>
+
+<script>
+function openPM(){document.getElementById('pm-overlay').style.display='flex';document.body.style.overflow='hidden';}
+function closePM(){document.getElementById('pm-overlay').style.display='none';document.body.style.overflow='';}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closePM();});
+</script>
+
+</body>
+</html>
