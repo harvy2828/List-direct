@@ -983,7 +983,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
           <div class="atf-field"><label>Street Address</label><input type="text" id="p-addr" placeholder="e.g. 123 Oak Street"/></div>
           <div class="atf-field"><label>Bedrooms</label><select id="p-beds"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6+</option></select></div>
           <div class="atf-field"><label>Bathrooms</label><select id="p-baths"><option>1</option><option selected>2</option><option>2.5</option><option>3</option><option>4</option><option>5+</option></select></div>
-          <div class="atf-field"><label>Square Footage</label><input type="number" id="p-sqft" placeholder="e.g. 1850"/></div>
+          <div class="atf-field"><label>Square Footage</label><input type="text" id="p-sqft" placeholder="e.g. 1,850" oninput="formatSqftInput(this)" inputmode="numeric"/></div>
           <div class="atf-field"><label>Year Built</label><input type="number" id="p-year" placeholder="e.g. 2005"/></div>
           <div class="atf-field"><label>Property Type</label><select id="p-type"><option>Single Family Home</option><option>Condo</option><option>Townhome</option><option>Semi-Detached</option><option>Detached</option><option>Multi-Family</option></select></div>
           <div class="atf-field"><label>Condition</label><select id="p-cond"><option>Needs Work</option><option>Fair</option><option selected>Good</option><option>Updated</option><option>Like New</option></select></div>
@@ -1009,7 +1009,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
       <div class="ai-tool-body">
         <div class="ai-tool-form">
           <div class="atf-field"><label>Property Address / City</label><input type="text" id="l-addr" placeholder="e.g. 2847 Maple Creek Dr, Austin, TX"/></div>
-          <div class="atf-field"><label>Listing Price</label><input type="text" id="l-price" placeholder="e.g. $389,000"/></div>
+          <div class="atf-field"><label>Listing Price</label><input type="text" id="l-price" placeholder="e.g. $389,000" oninput="formatPriceInput(this)" inputmode="numeric"/></div>
           <div class="atf-field"><label>Beds / Baths / Sq Ft</label><input type="text" id="l-specs" placeholder="e.g. 3 bed / 2 bath / 1,820 sq ft"/></div>
           <div class="atf-field"><label>Year Built</label><input type="text" id="l-year" placeholder="e.g. 2004"/></div>
           <div class="atf-field full"><label>Key Features & Upgrades</label><textarea id="l-features" rows="3" placeholder="e.g. Updated kitchen with granite, open floor plan, large backyard, 2-car garage, new HVAC 2022, walking distance to schools…"></textarea></div>
@@ -1038,12 +1038,12 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
       </div>
       <div class="ai-tool-body">
         <div class="ai-tool-form">
-          <div class="atf-field"><label>Your Listing Price</label><input type="text" id="o-list" placeholder="e.g. $389,000"/></div>
-          <div class="atf-field"><label>Offer Price</label><input type="text" id="o-offer" placeholder="e.g. $375,000"/></div>
+          <div class="atf-field"><label>Your Listing Price</label><input type="text" id="o-list" placeholder="e.g. $389,000" oninput="formatPriceInput(this)" inputmode="numeric"/></div>
+          <div class="atf-field"><label>Offer Price</label><input type="text" id="o-offer" placeholder="e.g. $375,000" oninput="formatPriceInput(this)" inputmode="numeric"/></div>
           <div class="atf-field"><label>Down Payment</label><input type="text" id="o-down" placeholder="e.g. 20% / $75,000"/></div>
           <div class="atf-field"><label>Financing Type</label><select id="o-finance"><option>Conventional</option><option>FHA</option><option>VA</option><option>Cash</option><option>USDA</option></select></div>
           <div class="atf-field"><label>Closing Date Requested</label><input type="text" id="o-close" placeholder="e.g. 30 days / specific date"/></div>
-          <div class="atf-field"><label>Earnest Money</label><input type="text" id="o-earnest" placeholder="e.g. $5,000"/></div>
+          <div class="atf-field"><label>Earnest Money</label><input type="text" id="o-earnest" placeholder="e.g. $5,000" oninput="formatPriceInput(this)" inputmode="numeric"/></div>
           <div class="atf-field full"><label>Contingencies & Special Terms</label><textarea id="o-terms" rows="3" placeholder="e.g. Home inspection contingency, appraisal contingency, seller to leave appliances, $3k in closing costs, sale of buyer's current home…"></textarea></div>
         </div>
         <button class="ai-run-btn" id="offer-btn" onclick="runOfferTool()">
@@ -1326,11 +1326,11 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
     <!-- Page 2: Details -->
     <div class="submit-page" id="spage-2">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div class="form-field"><label>Asking Price</label><input type="text" id="sl-price" placeholder="$389,000"/></div>
+        <div class="form-field"><label>Asking Price</label><input type="text" id="sl-price" placeholder="$389,000" oninput="formatPriceInput(this)" inputmode="numeric"/></div>
         <div class="form-field"><label>Property Type</label><select id="sl-type"><option>Single Family Home</option><option>Condo</option><option>Townhome</option><option>Multi-Family</option></select></div>
         <div class="form-field"><label>Bedrooms</label><select id="sl-beds"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6+</option></select></div>
         <div class="form-field"><label>Bathrooms</label><select id="sl-baths"><option>1</option><option selected>2</option><option>2.5</option><option>3</option><option>4</option><option>5+</option></select></div>
-        <div class="form-field"><label>Square Footage</label><input type="number" id="sl-sqft" placeholder="1,850"/></div>
+        <div class="form-field"><label>Square Footage</label><input type="text" id="sl-sqft" placeholder="1,850" oninput="formatSqftInput(this)" inputmode="numeric"/></div>
         <div class="form-field"><label>Year Built</label><input type="number" id="sl-year" placeholder="2005"/></div>
       </div>
       <div class="form-field"><label>Key Features</label><input type="text" id="sl-features" placeholder="Pool, renovated kitchen, new roof, 2-car garage…"/></div>
@@ -1373,6 +1373,18 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
   </div>
 </div>
 
+
+// ── Number Formatting Helpers ─────────────────────────────────
+function formatPriceInput(el) {
+  let raw = el.value.replace(/[^0-9]/g, '');
+  if (!raw) { el.value = ''; return; }
+  el.value = '$' + parseInt(raw).toLocaleString();
+}
+function formatSqftInput(el) {
+  let raw = el.value.replace(/[^0-9]/g, '');
+  if (!raw) { el.value = ''; return; }
+  el.value = parseInt(raw).toLocaleString();
+}
 <script>
 // ═══════════════════════════════════════════
 // DATA
