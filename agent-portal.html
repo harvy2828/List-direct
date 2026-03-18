@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ListDirect — Agent Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0a0f0d;--bg2:#111810;--card:#141c16;--card2:#192019;
+  --border:#1f2d22;--green:#3ef07a;--green2:#27c45e;
+  --greenlow:rgba(62,240,122,0.08);--greenmid:rgba(62,240,122,0.15);
+  --text:#e8f0e9;--muted:#7a9480;--white:#fff;
+  --gold:#f5c842;--goldlow:rgba(245,200,66,0.08);
+  --red:#e85454;--redlow:rgba(232,84,84,0.08);--radius:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:16px;line-height:1.6;min-height:100vh}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:16px 48px;background:rgba(10,15,13,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;color:var(--white);letter-spacing:-1px;text-decoration:none}
+.nav-logo span{color:var(--green)}
+.nav-badge{background:var(--goldlow);border:1px solid rgba(245,200,66,0.3);color:var(--gold);padding:5px 14px;border-radius:50px;font-size:0.75rem;font-weight:700;letter-spacing:0.08em}
+.nav-back{background:none;border:1px solid var(--border);color:var(--muted);padding:8px 18px;border-radius:50px;font-size:0.86rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;text-decoration:none}
+.nav-back:hover{border-color:var(--green);color:var(--green)}
+@media(max-width:600px){nav{padding:14px 16px}.nav-badge{display:none}}
+
+/* AUTH */
+.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:100px 24px 60px}
+.auth-box{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:48px 40px;max-width:500px;width:100%}
+@media(max-width:500px){.auth-box{padding:32px 20px}}
+.auth-logo{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:var(--white);text-align:center;margin-bottom:4px}
+.auth-logo span{color:var(--green)}
+.auth-badge{text-align:center;margin-bottom:8px}
+.auth-sub{text-align:center;color:var(--muted);font-size:0.9rem;margin-bottom:28px;line-height:1.6}
+.auth-tabs{display:flex;background:var(--bg);border-radius:50px;padding:4px;margin-bottom:24px}
+.auth-tab{flex:1;padding:10px;border-radius:50px;background:none;border:none;color:var(--muted);font-size:0.88rem;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif}
+.auth-tab.active{background:var(--gold);color:#1a1200}
+.ff{margin-bottom:14px}
+.ff label{display:block;font-size:0.74rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:6px}
+.ff input,.ff select,.ff textarea{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:12px 16px;border-radius:12px;font-size:0.95rem;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s}
+.ff input:focus,.ff select:focus,.ff textarea:focus{border-color:var(--gold)}
+.ff input::placeholder,.ff textarea::placeholder{color:#3a4e3e}
+.ff select option{background:var(--card)}
+.btn-gold{width:100%;background:var(--gold);color:#1a1200;padding:14px;border-radius:50px;border:none;font-weight:700;font-size:1rem;cursor:pointer;margin-top:8px;transition:all 0.15s;font-family:'DM Sans',sans-serif}
+.btn-gold:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(245,200,66,0.4)}
+.btn-gold:disabled{opacity:0.6;cursor:not-allowed;transform:none;box-shadow:none}
+.auth-error{background:var(--redlow);border:1px solid rgba(232,84,84,0.3);border-radius:10px;padding:12px 16px;font-size:0.88rem;color:var(--red);margin-bottom:14px;display:none}
+.auth-error.show{display:block}
+.auth-success{background:var(--greenlow);border:1px solid rgba(62,240,122,0.3);border-radius:10px;padding:12px 16px;font-size:0.88rem;color:var(--green);margin-bottom:14px;display:none}
+.auth-success.show{display:block}
+.benefits-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:20px}
+.benefits-box h4{font-size:0.82rem;font-weight:700;color:var(--gold);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.08em}
+.benefit-item{display:flex;align-items:center;gap:8px;font-size:0.83rem;color:var(--muted);margin-bottom:6px}
+.benefit-item:last-child{margin-bottom:0}
+.bi-icon{color:var(--gold);font-weight:700;flex-shrink:0}
+
+/* DASHBOARD */
+.dash-wrap{padding:80px 24px 60px;max-width:1200px;margin:0 auto}
+.dash-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:16px}
+.dash-greeting{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,3vw,2.2rem);font-weight:900;color:var(--white);margin-bottom:4px}
+.dash-greeting span{color:var(--gold)}
+.dash-sub{color:var(--muted);font-size:0.9rem}
+.verified-badge{display:inline-flex;align-items:center;gap:6px;background:var(--greenlow);border:1px solid rgba(62,240,122,0.3);color:var(--green);padding:6px 14px;border-radius:50px;font-size:0.75rem;font-weight:700}
+.dash-grid{display:grid;grid-template-columns:260px 1fr;gap:24px}
+@media(max-width:900px){.dash-grid{grid-template-columns:1fr}}
+
+/* SIDEBAR */
+.sidebar{display:flex;flex-direction:column;gap:6px}
+.agent-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:8px;text-align:center}
+.agent-avatar{width:70px;height:70px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:700;color:#1a1200;margin:0 auto 12px;font-family:'Playfair Display',serif;overflow:hidden}
+.agent-avatar img{width:100%;height:100%;object-fit:cover}
+.agent-name{font-weight:700;color:var(--white);margin-bottom:2px;font-size:1rem}
+.agent-loc{font-size:0.78rem;color:var(--muted);margin-bottom:6px}
+.agent-rating{color:var(--gold);font-size:0.9rem;margin-bottom:8px}
+.agent-role-badge{display:inline-block;background:var(--goldlow);border:1px solid rgba(245,200,66,0.3);color:var(--gold);font-size:0.7rem;font-weight:700;padding:3px 12px;border-radius:50px;text-transform:uppercase;letter-spacing:0.08em}
+.nav-item{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:12px;cursor:pointer;transition:all 0.2s;color:var(--muted);font-weight:500;font-size:0.9rem;border:none;background:none;font-family:'DM Sans',sans-serif;width:100%;text-align:left}
+.nav-item:hover{background:var(--greenlow);color:var(--text)}
+.nav-item.active{background:var(--goldlow);color:var(--gold);border:1px solid rgba(245,200,66,0.2)}
+.nav-item .ni-icon{font-size:1rem;flex-shrink:0}
+.nav-item .ni-badge{background:var(--red);color:white;font-size:0.65rem;font-weight:700;padding:2px 6px;border-radius:50px;margin-left:auto}
+
+/* PANELS */
+.panel{display:none}
+.panel.active{display:block}
+.panel-title{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;color:var(--white);margin-bottom:4px}
+.panel-sub{color:var(--muted);font-size:0.88rem;margin-bottom:24px}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;text-align:center}
+.stat-num{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:var(--gold);margin-bottom:2px}
+.stat-num.green{color:var(--green)}
+.stat-num.red{color:var(--red)}
+.stat-label{font-size:0.75rem;color:var(--muted)}
+
+/* LEADS */
+.leads-list{display:flex;flex-direction:column;gap:12px}
+.lead-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;transition:border-color 0.2s}
+.lead-card:hover{border-color:rgba(245,200,66,0.3)}
+.lead-card.new{border-color:rgba(62,240,122,0.4)}
+.lead-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.lead-name{font-weight:700;color:var(--white);margin-bottom:2px}
+.lead-contact{font-size:0.82rem;color:var(--muted)}
+.lead-badge{font-size:0.7rem;font-weight:700;padding:3px 10px;border-radius:50px;flex-shrink:0}
+.badge-new{background:var(--greenlow);color:var(--green);border:1px solid rgba(62,240,122,0.3)}
+.badge-contacted{background:var(--goldlow);color:var(--gold);border:1px solid rgba(245,200,66,0.3)}
+.badge-closed{background:var(--greenmid);color:var(--green);border:1px solid rgba(62,240,122,0.4)}
+.badge-lost{background:var(--redlow);color:var(--red);border:1px solid rgba(232,84,84,0.3)}
+.lead-property{background:var(--bg2);border-radius:10px;padding:12px;margin-bottom:12px;font-size:0.85rem}
+.lead-property strong{color:var(--white)}
+.lead-actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn-sm{padding:7px 16px;border-radius:50px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;border:none}
+.btn-gold-sm{background:var(--gold);color:#1a1200}
+.btn-gold-sm:hover{box-shadow:0 3px 12px rgba(245,200,66,0.4)}
+.btn-outline-sm{background:none;border:1px solid var(--border);color:var(--muted)}
+.btn-outline-sm:hover{border-color:var(--green);color:var(--green)}
+.btn-red-sm{background:var(--redlow);border:1px solid rgba(232,84,84,0.3);color:var(--red)}
+
+/* EARNINGS */
+.earnings-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px}
+.earnings-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.earnings-title{font-weight:700;color:var(--white)}
+.earnings-period{font-size:0.8rem;color:var(--muted)}
+.earning-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)}
+.earning-row:last-child{border-bottom:none}
+.er-left .er-desc{font-size:0.88rem;color:var(--text)}
+.er-left .er-date{font-size:0.75rem;color:var(--muted);margin-top:2px}
+.er-amount{font-weight:700;font-family:'Playfair Display',serif;font-size:1.1rem}
+.er-amount.green{color:var(--green)}
+.er-amount.red{color:var(--red)}
+.er-amount.gold{color:var(--gold)}
+.referral-box{background:var(--redlow);border:1px solid rgba(232,84,84,0.2);border-radius:12px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.rb-label{font-size:0.85rem;color:var(--text);font-weight:600}
+.rb-sub{font-size:0.75rem;color:var(--muted);margin-top:2px}
+.rb-amount{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;color:var(--red)}
+
+/* PROFILE */
+.profile-form{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px}
+.profile-section{margin-bottom:28px;padding-bottom:28px;border-bottom:1px solid var(--border)}
+.profile-section:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.profile-section h3{font-size:1rem;font-weight:700;color:var(--white);margin-bottom:16px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr}}
+.form-grid .full{grid-column:1/-1}
+.photo-upload{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+.photo-current{width:70px;height:70px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:700;color:#1a1200;font-family:'Playfair Display',serif;flex-shrink:0;overflow:hidden}
+.photo-current img{width:100%;height:100%;object-fit:cover}
+.photo-upload-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:8px 16px;border-radius:50px;font-size:0.8rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.photo-upload-btn:hover{border-color:var(--gold);color:var(--gold)}
+.cashback-offer-box{background:var(--goldlow);border:1px solid rgba(245,200,66,0.25);border-radius:14px;padding:20px;margin-top:16px}
+.cob-label{font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--gold);margin-bottom:8px}
+.cob-input-row{display:flex;align-items:center;gap:12px}
+.cob-pct{font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:900;color:var(--gold)}
+.cob-note{font-size:0.78rem;color:var(--muted);margin-top:8px}
+
+/* REFERRAL CALC */
+.ref-calc{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px}
+.ref-calc h3{font-weight:700;color:var(--white);margin-bottom:16px}
+.ref-slider-label{font-size:0.8rem;color:var(--muted);margin-bottom:6px}
+.ref-result{background:var(--redlow);border:1px solid rgba(232,84,84,0.2);border-radius:12px;padding:16px;margin-top:16px;display:flex;justify-content:space-between;align-items:center}
+.ref-result-label{font-size:0.85rem;color:var(--text)}
+.ref-result-num{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;color:var(--red)}
+.ref-keep{background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:12px;padding:16px;margin-top:8px;display:flex;justify-content:space-between;align-items:center}
+.ref-keep-label{font-size:0.85rem;color:var(--text)}
+.ref-keep-num{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;color:var(--green)}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:48px 24px;background:var(--card);border:1px solid var(--border);border-radius:16px}
+.empty-icon{font-size:2.4rem;margin-bottom:12px}
+.empty-title{font-weight:700;color:var(--white);margin-bottom:8px}
+.empty-sub{font-size:0.88rem;color:var(--muted)}
+
+/* LOADING & TOAST */
+.loading-overlay{position:fixed;inset:0;background:rgba(10,15,13,0.9);display:none;align-items:center;justify-content:center;z-index:999}
+.loading-overlay.show{display:flex}
+.loader{width:44px;height:44px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 20px;font-size:0.88rem;color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,0.4);transform:translateY(100px);opacity:0;transition:all 0.3s;z-index:999;max-width:320px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{border-color:rgba(62,240,122,0.4);color:var(--green)}
+.toast.error{border-color:rgba(232,84,84,0.4);color:var(--red)}
+.toast.gold{border-color:rgba(245,200,66,0.4);color:var(--gold)}
+
+input[type=range]{width:100%;-webkit-appearance:none;height:6px;background:var(--border);border-radius:3px;outline:none;cursor:pointer;margin:8px 0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;background:var(--gold);border-radius:50%;cursor:pointer;box-shadow:0 0 0 4px rgba(245,200,66,0.2)}
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loading"><div class="loader"></div></div>
+<div class="toast" id="toast"></div>
+
+<nav>
+  <a class="nav-logo" href="index.html">List<span>Direct</span></a>
+  <div class="nav-badge">🤝 Agent Portal</div>
+  <a class="nav-back" href="index.html">← Back to Site</a>
+</nav>
+
+<!-- AUTH SECTION -->
+<div id="auth-section" class="auth-wrap">
+  <div class="auth-box">
+    <div class="auth-logo">List<span>Direct</span></div>
+    <div class="auth-badge"><span style="background:var(--goldlow);border:1px solid rgba(245,200,66,0.3);color:var(--gold);padding:4px 14px;border-radius:50px;font-size:0.75rem;font-weight:700">🤝 Agent Portal</span></div>
+    <div class="auth-sub" style="margin-top:10px">Sign in or apply to join our certified agent network</div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('signin',this)">Sign In</button>
+      <button class="auth-tab" onclick="switchAuthTab('apply',this)">Apply to Join</button>
+    </div>
+
+    <div id="auth-error" class="auth-error"></div>
+    <div id="auth-success" class="auth-success"></div>
+
+    <!-- SIGN IN -->
+    <div id="signin-form">
+      <div class="ff"><label>Email</label><input type="email" id="si-email" placeholder="agent@example.com"/></div>
+      <div class="ff"><label>Password</label><input type="password" id="si-password" placeholder="Your password"/></div>
+      <button class="btn-gold" onclick="handleSignIn()">Sign In to Agent Portal →</button>
+      <div style="text-align:center;margin-top:16px;font-size:0.85rem;color:var(--muted)">Not an agent yet? <span style="color:var(--gold);cursor:pointer;font-weight:600" onclick="switchAuthTab('apply',null)">Apply to join →</span></div>
+    </div>
+
+    <!-- APPLY -->
+    <div id="apply-form" style="display:none">
+      <div class="benefits-box">
+        <h4>Why join ListDirect?</h4>
+        <div class="benefit-item"><span class="bi-icon">✓</span> Get qualified seller leads sent directly to you</div>
+        <div class="benefit-item"><span class="bi-icon">✓</span> Only pay a 10% referral fee when a deal closes</div>
+        <div class="benefit-item"><span class="bi-icon">✓</span> No monthly fees — free to join</div>
+        <div class="benefit-item"><span class="bi-icon">✓</span> Your profile listed on our agent directory</div>
+        <div class="benefit-item"><span class="bi-icon">✓</span> Access to AI tools and listing support</div>
+      </div>
+      <div class="ff"><label>Full Name</label><input type="text" id="ap-name" placeholder="Jane Smith"/></div>
+      <div class="ff"><label>Email</label><input type="email" id="ap-email" placeholder="jane@realty.com"/></div>
+      <div class="ff"><label>Phone</label><input type="tel" id="ap-phone" placeholder="(555) 000-0000"/></div>
+      <div class="ff"><label>Password</label><input type="password" id="ap-password" placeholder="Create a strong password"/></div>
+      <div class="ff"><label>License Number</label><input type="text" id="ap-license" placeholder="e.g. TX-547821 or ON-4892374"/></div>
+      <div class="ff"><label>City & State / Province</label><input type="text" id="ap-location" placeholder="e.g. Austin, TX or Toronto, ON"/></div>
+      <div class="ff"><label>Specialty</label>
+        <select id="ap-specialty">
+          <option>Residential & Luxury</option>
+          <option>First-Time Buyers</option>
+          <option>Investment & Condos</option>
+          <option>Townhomes & New Construction</option>
+          <option>Tech Corridor Specialist</option>
+          <option>Commercial</option>
+          <option>General Residential</option>
+        </select>
+      </div>
+      <div class="ff"><label>Years of Experience</label>
+        <select id="ap-years">
+          <option>1-2 years</option>
+          <option>3-5 years</option>
+          <option>6-10 years</option>
+          <option>10+ years</option>
+        </select>
+      </div>
+      <div class="ff"><label>Your Minimum Cashback Offer to Sellers</label>
+        <select id="ap-cashback">
+          <option value="1">1% cashback (minimum required)</option>
+          <option value="1.25">1.25% cashback</option>
+          <option value="1.5">1.5% cashback</option>
+          <option value="1.75">1.75% cashback</option>
+          <option value="2">2% cashback</option>
+        </select>
+      </div>
+      <div class="ff"><label>Bio (tell sellers about yourself)</label>
+        <textarea id="ap-bio" rows="3" placeholder="e.g. I've been serving the Austin market for 8 years, specializing in family homes and investment properties..."></textarea>
+      </div>
+      <div style="background:var(--redlow);border:1px solid rgba(232,84,84,0.2);border-radius:10px;padding:12px 16px;font-size:0.82rem;color:var(--muted);margin-bottom:14px">
+        <strong style="color:var(--text)">By applying you agree:</strong> To give sellers a minimum cashback as stated above at closing, and to pay ListDirect a <strong style="color:var(--red)">10% referral fee</strong> from your commission on every closed deal sourced through our platform.
+      </div>
+      <button class="btn-gold" onclick="handleApply()">Submit My Application →</button>
+      <div style="text-align:center;margin-top:16px;font-size:0.85rem;color:var(--muted)">Already have an account? <span style="color:var(--gold);cursor:pointer;font-weight:600" onclick="switchAuthTab('signin',null)">Sign in →</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dash-section" style="display:none">
+  <div class="dash-wrap">
+    <div class="dash-header">
+      <div>
+        <div class="dash-greeting">Welcome back, <span id="dash-name">Agent</span> 👋</div>
+        <div class="dash-sub">Your ListDirect Agent Portal — manage leads, earnings and your profile</div>
+      </div>
+      <div class="verified-badge">✅ ListDirect Certified Agent</div>
+    </div>
+
+    <div class="dash-grid">
+      <!-- SIDEBAR -->
+      <div>
+        <div class="agent-card">
+          <div class="agent-avatar" id="dash-avatar-img">A</div>
+          <div class="agent-name" id="dash-fullname">Loading...</div>
+          <div class="agent-loc" id="dash-location">—</div>
+          <div class="agent-rating">★★★★★</div>
+          <div class="agent-role-badge">Certified Agent</div>
+        </div>
+        <div class="sidebar">
+          <button class="nav-item active" onclick="showPanel('overview',this)"><span class="ni-icon">🏠</span> Overview</button>
+          <button class="nav-item" onclick="showPanel('leads',this)"><span class="ni-icon">📥</span> My Leads <span class="ni-badge" id="new-leads-count">3</span></button>
+          <button class="nav-item" onclick="showPanel('earnings',this)"><span class="ni-icon">💰</span> Earnings & Fees</button>
+          <button class="nav-item" onclick="showPanel('cashback',this)"><span class="ni-icon">💸</span> Cashback Tracker</button>
+          <button class="nav-item" onclick="showPanel('calculator',this)"><span class="ni-icon">🧮</span> Referral Calculator</button>
+          <button class="nav-item" onclick="showPanel('profile',this)"><span class="ni-icon">👤</span> My Profile</button>
+          <button class="nav-item" onclick="handleSignOut()" style="margin-top:8px;color:var(--red)"><span class="ni-icon">🚪</span> Sign Out</button>
+        </div>
+      </div>
+
+      <!-- MAIN -->
+      <div>
+
+        <!-- OVERVIEW -->
+        <div class="panel active" id="panel-overview">
+          <div class="panel-title">Your Dashboard</div>
+          <div class="panel-sub">Here's a snapshot of your performance on ListDirect</div>
+          <div class="stats-row">
+            <div class="stat-card"><div class="stat-num green" id="stat-leads">3</div><div class="stat-label">New Leads</div></div>
+            <div class="stat-card"><div class="stat-num" id="stat-active">2</div><div class="stat-label">Active Listings</div></div>
+            <div class="stat-card"><div class="stat-num gold" id="stat-earned">$0</div><div class="stat-label">Total Earned</div></div>
+            <div class="stat-card"><div class="stat-num red" id="stat-owed">$0</div><div class="stat-label">Referral Fees Owed</div></div>
+          </div>
+
+          <!-- Quick actions -->
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:16px">
+            <div style="font-weight:700;color:var(--white);margin-bottom:14px">⚡ Quick Actions</div>
+            <div style="display:flex;flex-wrap:wrap;gap:10px">
+              <button class="btn-sm btn-gold-sm" onclick="showPanel('leads',null)">📥 View New Leads</button>
+              <button class="btn-sm btn-outline-sm" onclick="showPanel('profile',null)">✏️ Update Profile</button>
+              <button class="btn-sm btn-outline-sm" onclick="showPanel('calculator',null)">🧮 Fee Calculator</button>
+              <button class="btn-sm btn-outline-sm" onclick="window.open('index.html','_blank')">🌐 View Site</button>
+            </div>
+          </div>
+
+          <!-- How it works reminder -->
+          <div style="background:var(--goldlow);border:1px solid rgba(245,200,66,0.2);border-radius:16px;padding:22px">
+            <div style="font-weight:700;color:var(--gold);margin-bottom:12px">💼 How ListDirect Agent Program Works</div>
+            <div style="display:flex;flex-direction:column;gap:10px;font-size:0.87rem;color:var(--muted)">
+              <div>1️⃣ <strong style="color:var(--text)">Seller requests you</strong> — you get a lead notification with their property details</div>
+              <div>2️⃣ <strong style="color:var(--text)">You work the deal</strong> — market the home, handle showings, negotiate offers</div>
+              <div>3️⃣ <strong style="color:var(--text)">Deal closes</strong> — you pay the seller their guaranteed cashback</div>
+              <div>4️⃣ <strong style="color:var(--text)">Pay ListDirect</strong> — 10% referral fee from your commission within 30 days of closing</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LEADS -->
+        <div class="panel" id="panel-leads">
+          <div class="panel-title">My Leads</div>
+          <div class="panel-sub">Sellers who have requested you through ListDirect</div>
+          <div class="leads-list" id="leads-list">
+            <!-- Sample leads - in production these come from Supabase -->
+            <div class="lead-card new">
+              <div class="lead-top">
+                <div>
+                  <div class="lead-name">Michael & Sarah Thompson</div>
+                  <div class="lead-contact">📧 mthompson@gmail.com · 📞 (512) 555-0192</div>
+                </div>
+                <span class="lead-badge badge-new">🆕 New</span>
+              </div>
+              <div class="lead-property">
+                <strong>📍 2847 Maple Creek Dr, Austin, TX 78701</strong><br>
+                3 bed · 2 bath · 1,820 sq ft · Asking $389,000<br>
+                <span style="color:var(--muted)">Requested you on March 18, 2026</span>
+              </div>
+              <div class="lead-actions">
+                <button class="btn-sm btn-gold-sm" onclick="acceptLead(this)">✅ Accept Lead</button>
+                <button class="btn-sm btn-outline-sm" onclick="contactLead('mthompson@gmail.com')">📧 Contact Seller</button>
+                <button class="btn-sm btn-red-sm" onclick="declineLead(this)">✗ Decline</button>
+              </div>
+            </div>
+
+            <div class="lead-card new">
+              <div class="lead-top">
+                <div>
+                  <div class="lead-name">Jennifer Rodriguez</div>
+                  <div class="lead-contact">📧 jrodriguez@outlook.com · 📞 (737) 555-0847</div>
+                </div>
+                <span class="lead-badge badge-new">🆕 New</span>
+              </div>
+              <div class="lead-property">
+                <strong>📍 104 Riverside Blvd, Austin, TX 78704</strong><br>
+                4 bed · 3 bath · 2,450 sq ft · Asking $549,000<br>
+                <span style="color:var(--muted)">Requested you on March 17, 2026</span>
+              </div>
+              <div class="lead-actions">
+                <button class="btn-sm btn-gold-sm" onclick="acceptLead(this)">✅ Accept Lead</button>
+                <button class="btn-sm btn-outline-sm" onclick="contactLead('jrodriguez@outlook.com')">📧 Contact Seller</button>
+                <button class="btn-sm btn-red-sm" onclick="declineLead(this)">✗ Decline</button>
+              </div>
+            </div>
+
+            <div class="lead-card">
+              <div class="lead-top">
+                <div>
+                  <div class="lead-name">David Park</div>
+                  <div class="lead-contact">📧 dpark@gmail.com · 📞 (512) 555-0334</div>
+                </div>
+                <span class="lead-badge badge-contacted">📞 Contacted</span>
+              </div>
+              <div class="lead-property">
+                <strong>📍 512 Harbor View Ct, Austin, TX 78702</strong><br>
+                2 bed · 2 bath · 1,200 sq ft · Asking $299,000<br>
+                <span style="color:var(--muted)">Requested you on March 15, 2026</span>
+              </div>
+              <div class="lead-actions">
+                <button class="btn-sm btn-outline-sm" onclick="contactLead('dpark@gmail.com')">📧 Follow Up</button>
+                <button class="btn-sm btn-outline-sm" onclick="markClosed(this)">🎉 Mark Closed</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- EARNINGS -->
+        <div class="panel" id="panel-earnings">
+          <div class="panel-title">Earnings & Referral Fees</div>
+          <div class="panel-sub">Track your commissions and what you owe ListDirect</div>
+
+          <div class="stats-row">
+            <div class="stat-card"><div class="stat-num gold">$0</div><div class="stat-label">Total Commissions</div></div>
+            <div class="stat-card"><div class="stat-num red">$0</div><div class="stat-label">Referral Fees Owed</div></div>
+            <div class="stat-card"><div class="stat-num green">$0</div><div class="stat-label">Cashback Paid Out</div></div>
+            <div class="stat-card"><div class="stat-num">0</div><div class="stat-label">Deals Closed</div></div>
+          </div>
+
+          <div class="earnings-card">
+            <div class="earnings-header">
+              <div class="earnings-title">Recent Transactions</div>
+              <div class="earnings-period">Last 90 days</div>
+            </div>
+            <div class="empty-state" style="padding:32px">
+              <div class="empty-icon">💰</div>
+              <div class="empty-title">No closed deals yet</div>
+              <div class="empty-sub">Your earnings will appear here once you close your first deal through ListDirect</div>
+            </div>
+          </div>
+
+          <div class="referral-box">
+            <div>
+              <div class="rb-label">Total Referral Fees Owed to ListDirect</div>
+              <div class="rb-sub">10% of all commissions earned through our platform · Due within 30 days of closing</div>
+            </div>
+            <div class="rb-amount">$0.00</div>
+          </div>
+        </div>
+
+        <!-- CASHBACK TRACKER -->
+        <div class="panel" id="panel-cashback">
+          <div class="panel-title">Cashback Tracker</div>
+          <div class="panel-sub">Track the cashback you've promised and paid to sellers</div>
+
+          <div style="background:var(--goldlow);border:1px solid rgba(245,200,66,0.2);border-radius:14px;padding:20px;margin-bottom:20px">
+            <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--gold);margin-bottom:6px">Your Committed Cashback Rate</div>
+            <div style="font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:900;color:var(--gold)" id="dash-cashback-rate">1%</div>
+            <div style="font-size:0.82rem;color:var(--muted);margin-top:4px">Minimum guaranteed to every seller you work with through ListDirect</div>
+          </div>
+
+          <div class="earnings-card">
+            <div class="earnings-header">
+              <div class="earnings-title">Cashback Commitments</div>
+            </div>
+            <div class="empty-state" style="padding:32px">
+              <div class="empty-icon">💸</div>
+              <div class="empty-title">No cashback commitments yet</div>
+              <div class="empty-sub">When you accept leads and close deals, your cashback commitments will be tracked here</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- REFERRAL CALCULATOR -->
+        <div class="panel" id="panel-calculator">
+          <div class="panel-title">Referral Fee Calculator</div>
+          <div class="panel-sub">See exactly what you'll earn and owe ListDirect on any deal</div>
+
+          <div class="ref-calc">
+            <h3>Calculate Your Deal</h3>
+            <div class="ref-slider-label">Sale Price: <strong id="calc-price-display" style="color:var(--white)">$500,000</strong></div>
+            <input type="range" id="calc-price" min="100000" max="2000000" step="25000" value="500000" oninput="updateRefCalc()"/>
+
+            <div class="ref-slider-label" style="margin-top:16px">Your Commission Rate: <strong id="calc-comm-display" style="color:var(--white)">5%</strong></div>
+            <input type="range" id="calc-comm" min="1" max="6" step="0.25" value="5" oninput="updateRefCalc()"/>
+
+            <div class="ref-slider-label" style="margin-top:16px">Cashback to Seller: <strong id="calc-cb-display" style="color:var(--gold)">1%</strong></div>
+            <input type="range" id="calc-cb" min="1" max="3" step="0.25" value="1" oninput="updateRefCalc()"/>
+
+            <div style="margin-top:20px;background:var(--bg2);border-radius:12px;padding:16px;font-size:0.88rem">
+              <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+                <span style="color:var(--muted)">Your Commission</span>
+                <strong id="calc-commission" style="color:var(--white)">$25,000</strong>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+                <span style="color:var(--muted)">Cashback to Seller</span>
+                <strong id="calc-cashback-out" style="color:var(--gold)">-$5,000</strong>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+                <span style="color:var(--muted)">ListDirect Referral Fee (10%)</span>
+                <strong id="calc-referral" style="color:var(--red)">-$2,500</strong>
+              </div>
+            </div>
+
+            <div class="ref-keep" style="margin-top:12px">
+              <div class="ref-keep-label"><strong>You Keep</strong></div>
+              <div class="ref-keep-num" id="calc-keep">$17,500</div>
+            </div>
+          </div>
+
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;font-size:0.83rem;color:var(--muted)">
+            💡 <strong style="color:var(--white)">Remember:</strong> The 10% referral fee is due to ListDirect within 30 days of closing. Cashback must be paid to the seller at or before closing.
+          </div>
+        </div>
+
+        <!-- PROFILE -->
+        <div class="panel" id="panel-profile">
+          <div class="panel-title">My Profile</div>
+          <div class="panel-sub">This is how sellers see you on the ListDirect agent directory</div>
+
+          <div class="profile-form">
+            <div class="profile-section">
+              <h3>Profile Photo</h3>
+              <div class="photo-upload">
+                <div class="photo-current" id="profile-avatar-preview">A</div>
+                <div>
+                  <button class="photo-upload-btn" onclick="document.getElementById('photo-file').click()">📸 Upload Photo</button>
+                  <input type="file" id="photo-file" accept="image/*" style="display:none" onchange="handleProfilePhoto(this)"/>
+                  <div style="font-size:0.75rem;color:var(--muted);margin-top:6px">JPG or PNG, max 5MB</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="profile-section">
+              <h3>Personal Information</h3>
+              <div class="form-grid">
+                <div class="ff"><label>Full Name</label><input type="text" id="prof-name" placeholder="Jane Smith"/></div>
+                <div class="ff"><label>Phone</label><input type="tel" id="prof-phone" placeholder="(555) 000-0000"/></div>
+                <div class="ff"><label>City & State / Province</label><input type="text" id="prof-location" placeholder="Austin, TX"/></div>
+                <div class="ff"><label>License Number</label><input type="text" id="prof-license" placeholder="TX-547821"/></div>
+                <div class="ff"><label>Specialty</label>
+                  <select id="prof-specialty">
+                    <option>Residential & Luxury</option>
+                    <option>First-Time Buyers</option>
+                    <option>Investment & Condos</option>
+                    <option>Townhomes & New Construction</option>
+                    <option>Tech Corridor Specialist</option>
+                    <option>Commercial</option>
+                    <option>General Residential</option>
+                  </select>
+                </div>
+                <div class="ff"><label>Years of Experience</label>
+                  <select id="prof-years">
+                    <option>1-2 years</option>
+                    <option>3-5 years</option>
+                    <option>6-10 years</option>
+                    <option>10+ years</option>
+                  </select>
+                </div>
+                <div class="ff"><label>Languages</label><input type="text" id="prof-languages" placeholder="e.g. English, Spanish"/></div>
+                <div class="ff"><label>Designations</label><input type="text" id="prof-designations" placeholder="e.g. ABR, CRS, GRI"/></div>
+                <div class="ff full"><label>Bio</label><textarea id="prof-bio" rows="4" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:12px 16px;border-radius:12px;font-size:0.92rem;font-family:'DM Sans',sans-serif;outline:none;resize:vertical" placeholder="Tell sellers about your experience and why they should choose you..."></textarea></div>
+              </div>
+            </div>
+
+            <div class="profile-section">
+              <h3>Cashback Offer</h3>
+              <div class="cashback-offer-box">
+                <div class="cob-label">Your Minimum Cashback to Sellers</div>
+                <div class="cob-input-row">
+                  <select id="prof-cashback" style="background:var(--bg2);border:1px solid rgba(245,200,66,0.3);color:var(--gold);padding:10px 16px;border-radius:10px;font-size:1rem;font-weight:700;font-family:'DM Sans',sans-serif;outline:none">
+                    <option value="1">1%</option>
+                    <option value="1.25">1.25%</option>
+                    <option value="1.5">1.5%</option>
+                    <option value="1.75">1.75%</option>
+                    <option value="2">2%</option>
+                  </select>
+                  <span style="color:var(--muted);font-size:0.88rem">cashback guaranteed at closing</span>
+                </div>
+                <div class="cob-note">Higher cashback offers attract more sellers. This is your legally binding commitment.</div>
+              </div>
+            </div>
+
+            <div class="profile-section">
+              <h3>Change Password</h3>
+              <div class="form-grid">
+                <div class="ff"><label>New Password</label><input type="password" id="prof-newpass" placeholder="New password"/></div>
+                <div class="ff"><label>Confirm Password</label><input type="password" id="prof-confirmpass" placeholder="Confirm password"/></div>
+              </div>
+            </div>
+
+            <button class="btn-gold" style="max-width:200px" onclick="saveProfile()">Save Profile →</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentUser = null;
+
+// ── Init ──────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', async () => {
+  const token = localStorage.getItem('ld_agent_token');
+  if (token) {
+    showLoading(true);
+    try {
+      const res = await fetch('/api/auth/me', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        currentUser = data.user;
+        showDashboard();
+      } else {
+        localStorage.removeItem('ld_agent_token');
+        showLoading(false);
+      }
+    } catch(e) {
+      showLoading(false);
+    }
+  }
+  updateRefCalc();
+});
+
+// ── Auth Tabs ─────────────────────────────────────────────────
+function switchAuthTab(tab, btn) {
+  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  else document.querySelectorAll('.auth-tab')[tab==='signin'?0:1].classList.add('active');
+  document.getElementById('signin-form').style.display = tab === 'signin' ? 'block' : 'none';
+  document.getElementById('apply-form').style.display = tab === 'apply' ? 'block' : 'none';
+  clearMessages();
+}
+
+function clearMessages() {
+  document.getElementById('auth-error').classList.remove('show');
+  document.getElementById('auth-success').classList.remove('show');
+}
+function showError(msg) {
+  const el = document.getElementById('auth-error');
+  el.textContent = msg; el.classList.add('show');
+}
+function showSuccess(msg) {
+  const el = document.getElementById('auth-success');
+  el.textContent = msg; el.classList.add('show');
+}
+
+// ── Sign In ───────────────────────────────────────────────────
+async function handleSignIn() {
+  clearMessages();
+  const email = document.getElementById('si-email').value.trim();
+  const password = document.getElementById('si-password').value;
+  if (!email || !password) return showError('Please fill in all fields.');
+  showLoading(true);
+  try {
+    const res = await fetch('/api/auth/signin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      showLoading(false);
+      let msg = data.error || 'Sign in failed.';
+      if (msg.toLowerCase().includes('not confirmed')) msg = '📧 Please check your email and confirm your account first.';
+      return showError(msg);
+    }
+    currentUser = data.user;
+    localStorage.setItem('ld_agent_token', data.session.access_token);
+    showDashboard();
+  } catch(e) {
+    showLoading(false);
+    showError('Connection error. Please try again.');
+  }
+}
+
+// ── Apply ─────────────────────────────────────────────────────
+async function handleApply() {
+  clearMessages();
+  const name = document.getElementById('ap-name').value.trim();
+  const email = document.getElementById('ap-email').value.trim();
+  const password = document.getElementById('ap-password').value;
+  const license = document.getElementById('ap-license').value.trim();
+  const location = document.getElementById('ap-location').value.trim();
+  if (!name || !email || !password || !license || !location) return showError('Please fill in all required fields.');
+  if (password.length < 6) return showError('Password must be at least 6 characters.');
+  showLoading(true);
+  try {
+    const res = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email, password,
+        full_name: name,
+        role: 'agent',
+        phone: document.getElementById('ap-phone').value,
+        license_number: license,
+        location,
+        specialty: document.getElementById('ap-specialty').value,
+        years_experience: document.getElementById('ap-years').value,
+        cashback_offer: document.getElementById('ap-cashback').value,
+        bio: document.getElementById('ap-bio').value,
+      })
+    });
+    const data = await res.json();
+    showLoading(false);
+    if (!res.ok) return showError(data.error || 'Application failed.');
+    document.getElementById('apply-form').innerHTML = `
+      <div style="text-align:center;padding:20px 0">
+        <div style="font-size:3rem;margin-bottom:16px">🎉</div>
+        <div style="font-size:1.1rem;font-weight:700;color:var(--white);margin-bottom:10px">Application Submitted!</div>
+        <div style="font-size:0.88rem;color:var(--muted);margin-bottom:24px">We sent a confirmation email to<br><strong style="color:var(--gold)">${email}</strong><br><br>Please confirm your email, then sign in to access your agent portal.</div>
+        <button class="btn-gold" onclick="switchAuthTab('signin',null)">Go to Sign In →</button>
+      </div>`;
+  } catch(e) {
+    showLoading(false);
+    showError('Connection error. Please try again.');
+  }
+}
+
+// ── Sign Out ──────────────────────────────────────────────────
+async function handleSignOut() {
+  const token = localStorage.getItem('ld_agent_token');
+  if (token) await fetch('/api/auth/signout', { method:'POST', headers:{'Authorization':`Bearer ${token}`} }).catch(()=>{});
+  localStorage.removeItem('ld_agent_token');
+  currentUser = null;
+  document.getElementById('auth-section').style.display = 'flex';
+  document.getElementById('dash-section').style.display = 'none';
+  showToast('Signed out', 'success');
+}
+
+// ── Show Dashboard ────────────────────────────────────────────
+function showDashboard() {
+  showLoading(false);
+  document.getElementById('auth-section').style.display = 'none';
+  document.getElementById('dash-section').style.display = 'block';
+  const meta = currentUser?.user_metadata || {};
+  const name = meta.full_name || currentUser?.email?.split('@')[0] || 'Agent';
+  const initials = name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('dash-name').textContent = name.split(' ')[0];
+  document.getElementById('dash-fullname').textContent = name;
+  document.getElementById('dash-location').textContent = meta.location || '📍 Location not set';
+  document.getElementById('dash-avatar-img').textContent = initials || '🤝';
+  document.getElementById('profile-avatar-preview').textContent = initials || '🤝';
+  document.getElementById('prof-name').value = name;
+  document.getElementById('prof-location').value = meta.location || '';
+  if (meta.cashback_offer) {
+    document.getElementById('dash-cashback-rate').textContent = meta.cashback_offer + '%';
+    document.getElementById('prof-cashback').value = meta.cashback_offer;
+  }
+}
+
+// ── Panels ────────────────────────────────────────────────────
+function showPanel(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+// ── Lead Actions ──────────────────────────────────────────────
+function acceptLead(btn) {
+  const card = btn.closest('.lead-card');
+  card.classList.remove('new');
+  const badge = card.querySelector('.lead-badge');
+  badge.className = 'lead-badge badge-contacted';
+  badge.textContent = '📞 Contacted';
+  btn.parentElement.innerHTML = `
+    <button class="btn-sm btn-outline-sm" onclick="contactLead('')">📧 Follow Up</button>
+    <button class="btn-sm btn-outline-sm" onclick="markClosed(this)">🎉 Mark Closed</button>`;
+  showToast('Lead accepted! Contact the seller to get started.', 'gold');
+  updateLeadCount();
+}
+
+function declineLead(btn) {
+  const card = btn.closest('.lead-card');
+  card.style.opacity = '0.4';
+  card.style.pointerEvents = 'none';
+  const badge = card.querySelector('.lead-badge');
+  badge.className = 'lead-badge badge-lost';
+  badge.textContent = '✗ Declined';
+  showToast('Lead declined.', 'error');
+  updateLeadCount();
+}
+
+function markClosed(btn) {
+  const card = btn.closest('.lead-card');
+  const badge = card.querySelector('.lead-badge');
+  badge.className = 'lead-badge badge-closed';
+  badge.textContent = '🎉 Closed';
+  btn.parentElement.innerHTML = '<span style="font-size:0.82rem;color:var(--green)">🎉 Deal closed! Remember to pay ListDirect\'s 10% referral fee within 30 days.</span>';
+  showToast('🎉 Congratulations on closing the deal!', 'success');
+}
+
+function contactLead(email) {
+  if (email) window.location.href = 'mailto:' + email;
+}
+
+function updateLeadCount() {
+  const newLeads = document.querySelectorAll('.lead-card.new').length;
+  const badge = document.getElementById('new-leads-count');
+  if (badge) {
+    badge.textContent = newLeads;
+    badge.style.display = newLeads > 0 ? 'inline' : 'none';
+  }
+  document.getElementById('stat-leads').textContent = newLeads;
+}
+
+// ── Referral Calculator ───────────────────────────────────────
+function updateRefCalc() {
+  const price = parseInt(document.getElementById('calc-price').value);
+  const commRate = parseFloat(document.getElementById('calc-comm').value);
+  const cbRate = parseFloat(document.getElementById('calc-cb').value);
+  const commission = Math.round(price * commRate / 100);
+  const cashbackOut = Math.round(price * cbRate / 100);
+  const referralFee = Math.round(commission * 0.10);
+  const youKeep = commission - cashbackOut - referralFee;
+  const fmt = n => '$' + n.toLocaleString();
+  document.getElementById('calc-price-display').textContent = fmt(price);
+  document.getElementById('calc-comm-display').textContent = commRate + '%';
+  document.getElementById('calc-cb-display').textContent = cbRate + '%';
+  document.getElementById('calc-commission').textContent = fmt(commission);
+  document.getElementById('calc-cashback-out').textContent = '-' + fmt(cashbackOut);
+  document.getElementById('calc-referral').textContent = '-' + fmt(referralFee);
+  document.getElementById('calc-keep').textContent = fmt(youKeep);
+}
+
+// ── Profile ───────────────────────────────────────────────────
+function handleProfilePhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const url = URL.createObjectURL(file);
+  const preview = document.getElementById('profile-avatar-preview');
+  preview.innerHTML = `<img src="${url}" alt="photo"/>`;
+  document.getElementById('dash-avatar-img').innerHTML = `<img src="${url}" alt="photo"/>`;
+}
+
+async function saveProfile() {
+  showToast('Profile saved! ✅', 'success');
+}
+
+// ── Helpers ───────────────────────────────────────────────────
+function showLoading(show) {
+  document.getElementById('loading').classList.toggle('show', show);
+}
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('signin-form').style.display !== 'none') handleSignIn();
+});
+</script>
+</body>
+</html>
