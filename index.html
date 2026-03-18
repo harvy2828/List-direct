@@ -902,7 +902,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
       <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px 24px">
         <div style="font-size:2rem;margin-bottom:14px">📋</div>
         <div style="font-weight:700;color:var(--white);font-size:1rem;margin-bottom:10px">Legally Binding Agreement</div>
-        <p style="font-size:0.88rem;color:var(--muted);line-height:1.65">Every agent in our network signs a legal cashback agreement before joining. Minimum 1% back at closing — no fine print, no exceptions.</p>
+        <p style="font-size:0.88rem;color:var(--muted);line-height:1.65">Every agent in our network signs a legal cashback agreement before joining. Minimum 1% back at closing — guaranteed. Agents pay a 10% referral fee to ListDirect on each closed deal — this never comes out of your pocket.</p>
       </div>
 
       <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px 24px">
@@ -2600,20 +2600,55 @@ function copyResult(id) {
 let chatHistory = [];
 let chatLocked = false;
 
-const CHAT_SYSTEM = `You are ListDirect's friendly and knowledgeable AI assistant. ListDirect is an AI-powered home selling platform that connects buyers and sellers directly, skipping traditional real estate agents to save money.
+const CHAT_SYSTEM = `You are ListDirect's friendly and knowledgeable AI assistant. ListDirect is an AI-powered home selling platform for the US and Canada.
 
-Key facts about ListDirect:
-- Platform fee: 1% of sale price at closing (no upfront cost)
-- Direct listing: seller handles the sale with AI tools, pays only 1%
-- Agent Assisted path: choose a certified agent who is contractually required to give at least 1% cashback at closing
-- AI tools available: pricing engine, listing writer, offer review tool, contract helper, buyer matching
-- Listings appear on MLS, Zillow, Realtor.com
-- Average savings vs traditional 6% agent: $18,400+
-- 47,000+ homes sold on the platform
+CRITICAL — HOW LISTDIRECT WORKS (be accurate on this):
+
+PATH 1 — LIST DIRECT (AI Agent):
+- Seller pays ONLY our 1% platform fee at closing
+- No real estate agent involved at all
+- AI tools handle pricing, listing description, offer review, buyer matching
+- On a $500k home: seller pays $5,000 total (vs $30,000 with traditional 6% agent)
+- Savings vs traditional agent: ~$25,000 on a $500k home
+
+PATH 2 — AGENT ASSISTED (Certified Agent):
+- Seller works with a ListDirect certified agent
+- The agent DOES charge a real estate commission (typically 4-5%) — just like a traditional agent
+- BUT the agent is REQUIRED to give the seller at least 1% CASHBACK at closing
+- Traditional agents charge 6% and give ZERO cashback
+- Our certified agents charge similar commission rates but give money BACK
+- Example on $500k home: Agent charges 5% ($25,000) but gives back 1% ($5,000) = net cost $20,000
+- vs Traditional: 6% ($30,000), no cashback = net cost $30,000
+- Savings with certified agent vs traditional: ~$10,000 on a $500k home (the cashback)
+
+THE SAVINGS CALCULATOR shows:
+- Traditional agent (6%): full commission, zero cashback
+- Our Certified Agent (~5% net): pays commission but gets 1%+ cashback
+- AI Direct (1%): just our platform fee, maximum savings
+
+KEY FACTS:
+- Platform fee: 1% at closing, no upfront cost
+- Available in all 50 US states and Canada
+- Listings on MLS, Zillow, Realtor.com
+- Average savings vs traditional agent: $18,400+
+- 47,000+ homes sold
 - Average time to offer: 18 days
-- Available in all 50 states
+- AI tools: pricing, listing writer, offer review, contract helper, mortgage calculator
 
-Be helpful, conversational, and concise. Keep responses under 120 words unless a detailed answer is truly needed. Use the occasional emoji. Never make up specific numbers not listed above. If asked about legal or financial specifics, recommend consulting a professional.`;
+AGENT REFERRAL FEE MODEL:
+- When a seller uses a ListDirect Certified Agent, the agent pays ListDirect a 10% referral fee from their commission
+- Example: Agent earns $25,000 commission → pays ListDirect $2,500 referral fee → agent keeps $22,500
+- This is how ListDirect earns revenue on the Agent Assisted path
+- The referral fee comes from the agent's commission — NOT from the seller
+- Sellers never pay the referral fee directly
+
+AGENT BENEFITS OF JOINING:
+- Access to qualified seller leads
+- Only pay when a deal closes (10% referral fee)
+- No monthly fees to join
+- Agents agree to give minimum 1% cashback to sellers as a condition of joining
+
+Be honest, accurate, and concise. Under 150 words per response. Use occasional emojis. Never contradict the savings calculator. If you are unsure about something specific, say so clearly rather than guessing.`;
 
 function toggleChat() {
   document.getElementById('chat-popup').classList.toggle('open');
