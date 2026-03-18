@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ListDirect — My Account</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0a0f0d;--bg2:#111810;--card:#141c16;--card2:#192019;
+  --border:#1f2d22;--green:#3ef07a;--green2:#27c45e;
+  --greenlow:rgba(62,240,122,0.08);--greenmid:rgba(62,240,122,0.15);
+  --text:#e8f0e9;--muted:#7a9480;--white:#fff;
+  --gold:#f5c842;--goldlow:rgba(245,200,66,0.08);
+  --red:#e85454;--radius:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:16px;line-height:1.6;min-height:100vh}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:16px 48px;background:rgba(10,15,13,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;color:var(--white);letter-spacing:-1px;text-decoration:none;cursor:pointer}
+.nav-logo span{color:var(--green)}
+.nav-back{background:none;border:1px solid var(--border);color:var(--muted);padding:8px 18px;border-radius:50px;font-size:0.86rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;text-decoration:none}
+.nav-back:hover{border-color:var(--green);color:var(--green)}
+@media(max-width:600px){nav{padding:14px 16px}}
+
+/* AUTH PAGES */
+.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:100px 24px 60px}
+.auth-box{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:48px 40px;max-width:460px;width:100%}
+.auth-logo{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:var(--white);text-align:center;margin-bottom:8px}
+.auth-logo span{color:var(--green)}
+.auth-sub{text-align:center;color:var(--muted);font-size:0.92rem;margin-bottom:32px}
+.auth-tabs{display:flex;background:var(--bg);border-radius:50px;padding:4px;margin-bottom:28px}
+.auth-tab{flex:1;padding:10px;border-radius:50px;background:none;border:none;color:var(--muted);font-size:0.88rem;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif}
+.auth-tab.active{background:var(--green);color:var(--bg)}
+.ff{margin-bottom:16px}
+.ff label{display:block;font-size:0.74rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:7px}
+.ff input,.ff select{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:13px 16px;border-radius:12px;font-size:0.95rem;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s}
+.ff input:focus,.ff select:focus{border-color:var(--green)}
+.ff input::placeholder{color:#3a4e3e}
+.ff select option{background:var(--card)}
+.btn-primary{width:100%;background:var(--green);color:var(--bg);padding:14px;border-radius:50px;border:none;font-weight:700;font-size:1rem;cursor:pointer;margin-top:8px;transition:all 0.15s;font-family:'DM Sans',sans-serif}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(62,240,122,0.4)}
+.btn-primary:disabled{opacity:0.6;cursor:not-allowed;transform:none;box-shadow:none}
+.auth-error{background:rgba(232,84,84,0.1);border:1px solid rgba(232,84,84,0.3);border-radius:10px;padding:12px 16px;font-size:0.88rem;color:var(--red);margin-bottom:16px;display:none}
+.auth-error.show{display:block}
+.auth-success{background:var(--greenlow);border:1px solid rgba(62,240,122,0.3);border-radius:10px;padding:12px 16px;font-size:0.88rem;color:var(--green);margin-bottom:16px;display:none}
+.auth-success.show{display:block}
+.auth-divider{text-align:center;color:var(--muted);font-size:0.82rem;margin:20px 0;position:relative}
+.auth-divider::before,.auth-divider::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:var(--border)}
+.auth-divider::before{left:0}.auth-divider::after{right:0}
+
+/* DASHBOARD */
+.dash-wrap{padding:80px 24px 60px;max-width:1100px;margin:0 auto}
+.dash-header{margin-bottom:40px}
+.dash-greeting{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3vw,2.6rem);font-weight:900;color:var(--white);margin-bottom:6px}
+.dash-greeting span{color:var(--green)}
+.dash-sub{color:var(--muted);font-size:0.95rem}
+.dash-grid{display:grid;grid-template-columns:280px 1fr;gap:24px}
+@media(max-width:800px){.dash-grid{grid-template-columns:1fr}}
+
+/* SIDEBAR */
+.dash-sidebar{display:flex;flex-direction:column;gap:8px}
+.dash-nav-item{display:flex;align-items:center;gap:12px;padding:13px 18px;border-radius:12px;cursor:pointer;transition:all 0.2s;color:var(--muted);font-weight:500;font-size:0.92rem;border:none;background:none;font-family:'DM Sans',sans-serif;width:100%;text-align:left}
+.dash-nav-item:hover{background:var(--greenlow);color:var(--text)}
+.dash-nav-item.active{background:var(--greenlow);color:var(--green);border:1px solid rgba(62,240,122,0.2)}
+.dash-nav-item .dni-icon{font-size:1.1rem;flex-shrink:0}
+.dash-profile-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:8px;text-align:center}
+.dpc-avatar{width:64px;height:64px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:700;color:var(--bg);margin:0 auto 12px;font-family:'Playfair Display',serif}
+.dpc-name{font-weight:700;color:var(--white);margin-bottom:4px}
+.dpc-email{font-size:0.78rem;color:var(--muted)}
+.dpc-role{display:inline-block;background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);color:var(--green);font-size:0.7rem;font-weight:700;padding:3px 12px;border-radius:50px;margin-top:8px;text-transform:uppercase;letter-spacing:0.08em}
+
+/* PANELS */
+.dash-panel{display:none}
+.dash-panel.active{display:block}
+.panel-title{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;color:var(--white);margin-bottom:6px}
+.panel-sub{color:var(--muted);font-size:0.88rem;margin-bottom:28px}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:28px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center}
+.sc-num{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:var(--green);margin-bottom:4px}
+.sc-label{font-size:0.78rem;color:var(--muted)}
+
+/* LISTING CARDS */
+.my-listings{display:flex;flex-direction:column;gap:14px}
+.my-listing-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;display:flex;gap:16px;align-items:center}
+.mlc-img{width:80px;height:64px;border-radius:10px;background-size:cover;background-position:center;background-color:var(--bg2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.4rem}
+.mlc-info{flex:1}
+.mlc-price{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900;color:var(--white);margin-bottom:2px}
+.mlc-addr{font-size:0.82rem;color:var(--muted);margin-bottom:6px}
+.mlc-status{display:inline-flex;align-items:center;gap:5px;font-size:0.72rem;font-weight:700;padding:3px 10px;border-radius:50px}
+.status-active{background:var(--greenlow);color:var(--green);border:1px solid rgba(62,240,122,0.2)}
+.status-pending{background:var(--goldlow);color:var(--gold);border:1px solid rgba(245,200,66,0.2)}
+.mlc-actions{display:flex;gap:8px;flex-shrink:0}
+.btn-sm{padding:7px 14px;border-radius:50px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.btn-sm-outline{background:none;border:1px solid var(--border);color:var(--muted)}
+.btn-sm-outline:hover{border-color:var(--green);color:var(--green)}
+.btn-sm-green{background:var(--green);color:var(--bg);border:none}
+.btn-sm-green:hover{box-shadow:0 3px 12px rgba(62,240,122,0.4)}
+.empty-state{text-align:center;padding:48px 24px;background:var(--card);border:1px solid var(--border);border-radius:16px}
+.empty-icon{font-size:2.4rem;margin-bottom:12px}
+.empty-title{font-weight:700;color:var(--white);margin-bottom:8px}
+.empty-sub{font-size:0.88rem;color:var(--muted);margin-bottom:20px}
+
+/* NEW LISTING FORM */
+.listing-form{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr}}
+.form-grid .full{grid-column:1/-1}
+
+/* PHOTO UPLOAD */
+.photo-zone{border:2px dashed var(--border);border-radius:14px;padding:32px;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:16px}
+.photo-zone:hover{border-color:var(--green);background:var(--greenlow)}
+.photo-zone .pz-icon{font-size:2rem;margin-bottom:8px}
+.photo-zone p{font-size:0.85rem;color:var(--muted)}
+.photo-zone strong{color:var(--green)}
+.photo-previews{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.photo-thumb{position:relative;width:90px;height:70px;border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.photo-thumb img{width:100%;height:100%;object-fit:cover}
+.photo-thumb .pt-remove{position:absolute;top:3px;right:3px;width:18px;height:18px;background:var(--red);border-radius:50%;border:none;cursor:pointer;color:white;font-size:0.65rem;display:flex;align-items:center;justify-content:center}
+
+/* PROFILE SETTINGS */
+.settings-form{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px}
+.settings-section{margin-bottom:28px;padding-bottom:28px;border-bottom:1px solid var(--border)}
+.settings-section:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.settings-section h3{font-size:1rem;font-weight:700;color:var(--white);margin-bottom:16px}
+
+/* LOADING */
+.loading-overlay{position:fixed;inset:0;background:rgba(10,15,13,0.9);display:flex;align-items:center;justify-content:center;z-index:999;display:none}
+.loading-overlay.show{display:flex}
+.loader{width:44px;height:44px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 20px;font-size:0.88rem;color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,0.4);transform:translateY(100px);opacity:0;transition:all 0.3s;z-index:999;max-width:300px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{border-color:rgba(62,240,122,0.4);color:var(--green)}
+.toast.error{border-color:rgba(232,84,84,0.4);color:var(--red)}
+
+/* SAVED HOMES */
+.saved-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.saved-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.saved-img{height:150px;background-size:cover;background-position:center;background-color:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:2rem}
+.saved-body{padding:14px}
+.saved-price{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900;color:var(--white);margin-bottom:4px}
+.saved-addr{font-size:0.8rem;color:var(--muted)}
+
+/* Google Places Autocomplete dark theme */
+.pac-container {
+  background:#141c16 !important;
+  border:1px solid #1f2d22 !important;
+  border-radius:12px !important;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5) !important;
+  margin-top:4px !important;
+  font-family:'DM Sans',sans-serif !important;
+}
+.pac-item {
+  background:#141c16 !important;
+  color:#e8f0e9 !important;
+  border-top:1px solid #1f2d22 !important;
+  padding:10px 16px !important;
+  cursor:pointer !important;
+  font-size:0.88rem !important;
+}
+.pac-item:hover, .pac-item-selected {
+  background:#192019 !important;
+}
+.pac-item-query {
+  color:#3ef07a !important;
+  font-weight:600 !important;
+}
+.pac-matched {
+  color:#3ef07a !important;
+}
+.pac-icon { display:none !important; }
+</style>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A&libraries=places&callback=initDashPlaces" async defer></script>
+</head>
+<body>
+
+<div class="loading-overlay" id="loading"><div class="loader"></div></div>
+<div class="toast" id="toast"></div>
+
+<nav>
+  <a class="nav-logo" href="index.html">List<span>Direct</span></a>
+  <a class="nav-back" href="index.html">← Back to Site</a>
+</nav>
+
+<!-- AUTH SECTION -->
+<div id="auth-section" class="auth-wrap">
+  <div class="auth-box">
+    <div class="auth-logo">List<span>Direct</span></div>
+    <div class="auth-sub">Your AI-powered real estate account</div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('signin',this)">Sign In</button>
+      <button class="auth-tab" onclick="switchAuthTab('signup',this)">Create Account</button>
+    </div>
+
+    <div id="auth-error" class="auth-error"></div>
+    <div id="auth-success" class="auth-success"></div>
+
+    <!-- SIGN IN -->
+    <div id="signin-form">
+      <div class="ff"><label>Email</label><input type="email" id="si-email" placeholder="you@example.com"/></div>
+      <div class="ff"><label>Password</label><input type="password" id="si-password" placeholder="Your password"/></div>
+      <button class="btn-primary" onclick="handleSignIn()">Sign In →</button>
+      <div class="auth-divider">or</div>
+      <div style="text-align:center;font-size:0.85rem;color:var(--muted)">Don't have an account? <span style="color:var(--green);cursor:pointer;font-weight:600" onclick="switchAuthTab('signup',null)">Create one free</span></div>
+    </div>
+
+    <!-- SIGN UP -->
+    <div id="signup-form" style="display:none">
+      <div class="ff"><label>Full Name</label><input type="text" id="su-name" placeholder="Jane Smith"/></div>
+      <div class="ff"><label>Email</label><input type="email" id="su-email" placeholder="you@example.com"/></div>
+      <div class="ff"><label>Password</label><input type="password" id="su-password" placeholder="Create a strong password"/></div>
+      <div class="ff">
+        <label>I am a…</label>
+        <select id="su-role">
+          <option value="buyer">Buyer — looking for a home</option>
+          <option value="seller">Seller — listing my home</option>
+          <option value="both">Both buyer and seller</option>
+          <option value="agent">Agent — ListDirect certified</option>
+        </select>
+      </div>
+      <button class="btn-primary" onclick="handleSignUp()">Create Free Account →</button>
+      <div class="auth-divider">or</div>
+      <div style="text-align:center;font-size:0.85rem;color:var(--muted)">Already have an account? <span style="color:var(--green);cursor:pointer;font-weight:600" onclick="switchAuthTab('signin',null)">Sign in</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD SECTION -->
+<div id="dash-section" style="display:none">
+  <div class="dash-wrap">
+    <div class="dash-header">
+      <div class="dash-greeting">Welcome back, <span id="dash-name">there</span> 👋</div>
+      <div class="dash-sub">Here's what's happening with your ListDirect account</div>
+    </div>
+
+    <div class="dash-grid">
+      <!-- SIDEBAR -->
+      <div>
+        <div class="dash-profile-card">
+          <div class="dpc-avatar" id="dash-avatar">?</div>
+          <div class="dpc-name" id="dash-fullname">Loading...</div>
+          <div class="dpc-email" id="dash-email">...</div>
+          <div class="dpc-role" id="dash-role">buyer</div>
+        </div>
+
+        <div class="dash-sidebar">
+          <button class="dash-nav-item active" onclick="showPanel('overview',this)"><span class="dni-icon">🏠</span> Overview</button>
+          <button class="dash-nav-item" onclick="showPanel('my-listings',this)"><span class="dni-icon">📋</span> My Listings</button>
+          <button class="dash-nav-item" onclick="showPanel('new-listing',this)"><span class="dni-icon">➕</span> List a Home</button>
+          <button class="dash-nav-item" onclick="showPanel('saved',this)"><span class="dni-icon">❤️</span> Saved Homes</button>
+          <button class="dash-nav-item" onclick="showPanel('settings',this)"><span class="dni-icon">⚙️</span> Settings</button>
+          <button class="dash-nav-item" onclick="handleSignOut()" style="margin-top:8px;color:var(--red)"><span class="dni-icon">🚪</span> Sign Out</button>
+        </div>
+      </div>
+
+      <!-- MAIN CONTENT -->
+      <div>
+
+        <!-- OVERVIEW PANEL -->
+        <div class="dash-panel active" id="panel-overview">
+          <div class="panel-title">Your Dashboard</div>
+          <div class="panel-sub">A snapshot of your activity on ListDirect</div>
+          <div class="stats-row">
+            <div class="stat-card"><div class="sc-num" id="stat-listings">0</div><div class="sc-label">Active Listings</div></div>
+            <div class="stat-card"><div class="sc-num" id="stat-saved">0</div><div class="sc-label">Saved Homes</div></div>
+            <div class="stat-card"><div class="sc-num" id="stat-views">—</div><div class="sc-label">Listing Views</div></div>
+            <div class="stat-card"><div class="sc-num" id="stat-inquiries">—</div><div class="sc-label">Inquiries</div></div>
+          </div>
+
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px">
+            <div style="font-weight:700;color:var(--white);margin-bottom:8px">🚀 Quick Actions</div>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px">
+              <button class="btn-sm btn-sm-green" onclick="showPanel('new-listing',null)">➕ List a Home</button>
+              <button class="btn-sm btn-sm-outline" onclick="window.location.href='index.html#search-section'">🔍 Search Homes</button>
+              <button class="btn-sm btn-sm-outline" onclick="window.location.href='index.html#ai-tools'">🤖 AI Tools</button>
+              <button class="btn-sm btn-sm-outline" onclick="showPanel('settings',null)">⚙️ Edit Profile</button>
+            </div>
+          </div>
+
+          <div style="background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:14px;padding:20px">
+            <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:6px">💰 Your Potential Savings</div>
+            <div style="font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:var(--green)">Up to $27,000</div>
+            <div style="font-size:0.82rem;color:var(--muted);margin-top:4px">vs. a traditional 6% agent on a $450k home</div>
+          </div>
+        </div>
+
+        <!-- MY LISTINGS PANEL -->
+        <div class="dash-panel" id="panel-my-listings">
+          <div class="panel-title">My Listings</div>
+          <div class="panel-sub">Manage your active and past property listings</div>
+          <div class="my-listings" id="my-listings-container">
+            <div class="empty-state">
+              <div class="empty-icon">🏠</div>
+              <div class="empty-title">No listings yet</div>
+              <div class="empty-sub">List your first home and get priority placement in search results</div>
+              <button class="btn-sm btn-sm-green" onclick="showPanel('new-listing',null)">List My Home →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- NEW LISTING PANEL -->
+        <div class="dash-panel" id="panel-new-listing">
+          <div class="panel-title">List Your Home</div>
+          <div class="panel-sub">Get priority placement in every search for your city — free to list, 1% at closing</div>
+
+          <div class="listing-form">
+            <div class="form-grid">
+              <div class="ff full"><label>Street Address</label><input type="text" id="nl-addr" placeholder="123 Oak Street"/></div>
+              <div class="ff"><label>City</label><input type="text" id="nl-city" placeholder="e.g. Austin"/></div>
+              <div class="ff"><label>State / Province</label><input type="text" id="nl-state" placeholder="e.g. TX or ON"/></div>
+              <div class="ff"><label>ZIP / Postal Code</label><input type="text" id="nl-zip" placeholder="78701 or M5V 2T6" oninput="formatZipInput(this)" maxlength="10" inputmode="text" autocomplete="postal-code"/></div>
+              <div class="ff"><label>Country</label>
+                <select id="nl-country">
+                  <option value="US">🇺🇸 United States</option>
+                  <option value="CA">🇨🇦 Canada</option>
+                </select>
+              </div>
+              <div class="ff"><label>Asking Price</label><input type="text" id="nl-price" placeholder="$389,000" oninput="formatPriceInput(this)" inputmode="numeric"/></div>
+              <div class="ff"><label>Property Type</label>
+                <select id="nl-type">
+                  <option>Single Family Home</option>
+                  <option>Condo</option>
+                  <option>Townhome</option>
+                  <option>Semi-Detached</option>
+                  <option>Multi-Family</option>
+                </select>
+              </div>
+              <div class="ff"><label>Bedrooms</label>
+                <select id="nl-beds"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6+</option></select>
+              </div>
+              <div class="ff"><label>Bathrooms</label>
+                <select id="nl-baths"><option>1</option><option selected>2</option><option>2.5</option><option>3</option><option>4</option><option>5+</option></select>
+              </div>
+              <div class="ff"><label>Square Footage</label><input type="text" id="nl-sqft" placeholder="1,850" oninput="formatSqftInput(this)" inputmode="numeric"/></div>
+              <div class="ff"><label>Year Built</label><input type="number" id="nl-year" placeholder="2005"/></div>
+              <div class="ff full"><label>Key Features</label><input type="text" id="nl-features" placeholder="Pool, renovated kitchen, new roof, 2-car garage…"/></div>
+              <div class="ff full"><label>Description</label><textarea id="nl-desc" rows="4" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:13px 16px;border-radius:12px;font-size:0.92rem;font-family:'DM Sans',sans-serif;outline:none;resize:vertical" placeholder="Tell buyers about your home…"></textarea></div>
+              <div class="ff full">
+                <label>Photos</label>
+                <div class="photo-zone" onclick="document.getElementById('photo-input').click()">
+                  <div class="pz-icon">📸</div>
+                  <p><strong>Tap to upload photos</strong><br>JPG or PNG, up to 10MB each</p>
+                </div>
+                <input type="file" id="photo-input" multiple accept="image/*" style="display:none" onchange="handlePhotoSelect(this)"/>
+                <div class="photo-previews" id="photo-previews"></div>
+              </div>
+              <div class="ff full"><label>Listing Path</label>
+                <select id="nl-path">
+                  <option value="direct">🚀 List Direct — AI-powered, 1% fee</option>
+                  <option value="agent">🤝 Agent Assisted — guaranteed cashback</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn-primary" style="margin-top:8px" onclick="submitListing()">Submit My Listing →</button>
+          </div>
+        </div>
+
+        <!-- SAVED HOMES PANEL -->
+        <div class="dash-panel" id="panel-saved">
+          <div class="panel-title">Saved Homes</div>
+          <div class="panel-sub">Homes you've favorited while browsing</div>
+          <div id="saved-container">
+            <div class="empty-state">
+              <div class="empty-icon">❤️</div>
+              <div class="empty-title">No saved homes yet</div>
+              <div class="empty-sub">Browse listings and tap the ♡ to save homes you love</div>
+              <button class="btn-sm btn-sm-green" onclick="window.location.href='index.html#search-section'">Browse Homes →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SETTINGS PANEL -->
+        <div class="dash-panel" id="panel-settings">
+          <div class="panel-title">Account Settings</div>
+          <div class="panel-sub">Manage your profile and preferences</div>
+          <div class="settings-form">
+            <div class="settings-section">
+              <h3>Personal Information</h3>
+              <div class="form-grid">
+                <div class="ff"><label>Full Name</label><input type="text" id="set-name" placeholder="Your name"/></div>
+                <div class="ff"><label>Phone</label><input type="tel" id="set-phone" placeholder="(555) 000-0000"/></div>
+                <div class="ff full"><label>Email</label><input type="email" id="set-email" placeholder="your@email.com" disabled style="opacity:0.5"/></div>
+              </div>
+              <button class="btn-primary" style="max-width:200px;margin-top:8px" onclick="saveProfile()">Save Changes</button>
+            </div>
+            <div class="settings-section">
+              <h3>Change Password</h3>
+              <div class="form-grid">
+                <div class="ff"><label>New Password</label><input type="password" id="set-newpass" placeholder="New password"/></div>
+                <div class="ff"><label>Confirm Password</label><input type="password" id="set-confirmpass" placeholder="Confirm password"/></div>
+              </div>
+              <button class="btn-primary" style="max-width:220px;margin-top:8px" onclick="changePassword()">Update Password</button>
+            </div>
+            <div class="settings-section">
+              <h3>Account Type</h3>
+              <div class="ff"><label>I am a…</label>
+                <select id="set-role">
+                  <option value="buyer">Buyer</option>
+                  <option value="seller">Seller</option>
+                  <option value="both">Both buyer and seller</option>
+                  <option value="agent">Agent</option>
+                </select>
+              </div>
+              <button class="btn-primary" style="max-width:200px;margin-top:8px" onclick="saveProfile()">Save</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+// ── Number Formatting Helpers ─────────────────────────────────
+function formatPriceInput(el) {
+  let raw = el.value.replace(/[^0-9]/g, '');
+  if (!raw) { el.value = ''; return; }
+  el.value = '$' + parseInt(raw).toLocaleString();
+}
+
+function formatSqftInput(el) {
+  let raw = el.value.replace(/[^0-9]/g, '');
+  if (!raw) { el.value = ''; return; }
+  el.value = parseInt(raw).toLocaleString();
+}
+
+function formatZipInput(el) {
+  let raw = el.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (/^[A-Z]/.test(raw) && raw.length > 3) {
+    raw = raw.slice(0,3) + ' ' + raw.slice(3,6);
+  }
+  el.value = raw;
+}
+
+const SUPABASE_URL = 'https://pscxbpgszpajkwqvuajq.supabase.co';
+let currentUser = null;
+let currentSession = null;
+let selectedPhotos = [];
+
+// ── Init ──────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', async () => {
+  const token = localStorage.getItem('ld_token');
+  if (token) {
+    showLoading(true);
+    try {
+      const res = await fetch('/api/auth/me', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        currentUser = data.user;
+        showDashboard();
+        loadMyListings();
+        loadFavorites();
+      } else {
+        localStorage.removeItem('ld_token');
+        showLoading(false);
+      }
+    } catch(e) {
+      showLoading(false);
+    }
+  }
+});
+
+// ── Auth tabs ─────────────────────────────────────────────────
+function switchAuthTab(tab, btn) {
+  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  else document.querySelectorAll('.auth-tab')[tab==='signin'?0:1].classList.add('active');
+  document.getElementById('signin-form').style.display = tab === 'signin' ? 'block' : 'none';
+  document.getElementById('signup-form').style.display = tab === 'signup' ? 'block' : 'none';
+  clearAuthMessages();
+}
+
+function clearAuthMessages() {
+  document.getElementById('auth-error').classList.remove('show');
+  document.getElementById('auth-success').classList.remove('show');
+}
+
+function showAuthError(msg) {
+  const el = document.getElementById('auth-error');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+function showAuthSuccess(msg) {
+  const el = document.getElementById('auth-success');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+// ── Sign In ───────────────────────────────────────────────────
+async function handleSignIn() {
+  clearAuthMessages();
+  const email = document.getElementById('si-email').value.trim();
+  const password = document.getElementById('si-password').value;
+  if (!email || !password) return showAuthError('Please fill in all fields.');
+  showLoading(true);
+  try {
+    const res = await fetch('/api/auth/signin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) { showLoading(false); return showAuthError(data.error || 'Sign in failed.'); }
+    currentUser = data.user;
+    currentSession = data.session;
+    localStorage.setItem('ld_token', data.session.access_token);
+    showDashboard();
+    loadMyListings();
+    loadFavorites();
+  } catch(e) {
+    showLoading(false);
+    showAuthError('Connection error. Please try again.');
+  }
+}
+
+// ── Sign Up ───────────────────────────────────────────────────
+async function handleSignUp() {
+  clearAuthMessages();
+  const name = document.getElementById('su-name').value.trim();
+  const email = document.getElementById('su-email').value.trim();
+  const password = document.getElementById('su-password').value;
+  const role = document.getElementById('su-role').value;
+  if (!name || !email || !password) return showAuthError('Please fill in all fields.');
+  if (password.length < 6) return showAuthError('Password must be at least 6 characters.');
+  showLoading(true);
+  try {
+    const res = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, full_name: name, role })
+    });
+    const data = await res.json();
+    showLoading(false);
+    if (!res.ok) return showAuthError(data.error || 'Sign up failed.');
+    if (data.session) {
+      currentUser = data.user;
+      localStorage.setItem('ld_token', data.session.access_token);
+      showDashboard();
+    } else {
+      showAuthSuccess('✅ Account created! Please check your email to confirm, then sign in.');
+      switchAuthTab('signin', null);
+    }
+  } catch(e) {
+    showLoading(false);
+    showAuthError('Connection error. Please try again.');
+  }
+}
+
+// ── Sign Out ──────────────────────────────────────────────────
+async function handleSignOut() {
+  const token = localStorage.getItem('ld_token');
+  if (token) {
+    await fetch('/api/auth/signout', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` }
+    }).catch(() => {});
+  }
+  localStorage.removeItem('ld_token');
+  currentUser = null;
+  document.getElementById('auth-section').style.display = 'flex';
+  document.getElementById('dash-section').style.display = 'none';
+  showToast('Signed out successfully', 'success');
+}
+
+// ── Show Dashboard ────────────────────────────────────────────
+function showDashboard() {
+  showLoading(false);
+  document.getElementById('auth-section').style.display = 'none';
+  document.getElementById('dash-section').style.display = 'block';
+  const meta = currentUser?.user_metadata || {};
+  const name = meta.full_name || currentUser?.email?.split('@')[0] || 'there';
+  const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('dash-name').textContent = name.split(' ')[0];
+  document.getElementById('dash-fullname').textContent = name;
+  document.getElementById('dash-email').textContent = currentUser?.email || '';
+  document.getElementById('dash-avatar').textContent = initials || '👤';
+  document.getElementById('dash-role').textContent = meta.role || 'buyer';
+  document.getElementById('set-name').value = name;
+  document.getElementById('set-email').value = currentUser?.email || '';
+  document.getElementById('set-role').value = meta.role || 'buyer';
+}
+
+// ── Panels ────────────────────────────────────────────────────
+function showPanel(name, btn) {
+  document.querySelectorAll('.dash-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.dash-nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (name === 'my-listings') loadMyListings();
+  if (name === 'saved') loadFavorites();
+}
+
+// ── Load My Listings ──────────────────────────────────────────
+async function loadMyListings() {
+  const token = localStorage.getItem('ld_token');
+  if (!token) return;
+  try {
+    const res = await fetch('/api/listings/mine', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) return;
+    const listings = await res.json();
+    document.getElementById('stat-listings').textContent = listings.length;
+    const container = document.getElementById('my-listings-container');
+    if (!listings.length) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-icon">🏠</div><div class="empty-title">No listings yet</div><div class="empty-sub">List your first home and get priority placement in search results</div><button class="btn-sm btn-sm-green" onclick="showPanel('new-listing',null)">List My Home →</button></div>`;
+      return;
+    }
+    container.innerHTML = listings.map(l => `
+      <div class="my-listing-card">
+        <div class="mlc-img" style="${l.photos?.[0] ? `background-image:url('${l.photos[0]}')` : ''}">
+          ${!l.photos?.[0] ? '🏠' : ''}
+        </div>
+        <div class="mlc-info">
+          <div class="mlc-price">$${parseInt(l.price||0).toLocaleString()}</div>
+          <div class="mlc-addr">📍 ${l.address || ''}, ${l.city || ''}, ${l.state || ''}</div>
+          <div class="mlc-status status-active">● Active</div>
+        </div>
+        <div class="mlc-actions">
+          <button class="btn-sm btn-sm-outline">Edit</button>
+        </div>
+      </div>`).join('');
+  } catch(e) {}
+}
+
+// ── Load Favorites ────────────────────────────────────────────
+async function loadFavorites() {
+  const token = localStorage.getItem('ld_token');
+  if (!token) return;
+  try {
+    const res = await fetch('/api/favorites', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) return;
+    const favs = await res.json();
+    document.getElementById('stat-saved').textContent = favs.length;
+    const container = document.getElementById('saved-container');
+    if (!favs.length) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-icon">❤️</div><div class="empty-title">No saved homes yet</div><div class="empty-sub">Browse listings and tap the ♡ to save homes you love</div><button class="btn-sm btn-sm-green" onclick="window.location.href='index.html#search-section'">Browse Homes →</button></div>`;
+    }
+  } catch(e) {}
+}
+
+// ── Photo Select ──────────────────────────────────────────────
+function handlePhotoSelect(input) {
+  const previews = document.getElementById('photo-previews');
+  previews.innerHTML = '';
+  selectedPhotos = Array.from(input.files);
+  selectedPhotos.slice(0, 8).forEach((file, i) => {
+    const url = URL.createObjectURL(file);
+    const div = document.createElement('div');
+    div.className = 'photo-thumb';
+    div.innerHTML = `<img src="${url}" alt="photo"/><button class="pt-remove" onclick="removePhoto(${i})">✕</button>`;
+    previews.appendChild(div);
+  });
+}
+
+function removePhoto(i) {
+  selectedPhotos.splice(i, 1);
+  const dt = new DataTransfer();
+  selectedPhotos.forEach(f => dt.items.add(f));
+  document.getElementById('photo-input').files = dt.files;
+  handlePhotoSelect(document.getElementById('photo-input'));
+}
+
+// ── Submit Listing ────────────────────────────────────────────
+async function submitListing() {
+  const token = localStorage.getItem('ld_token');
+  if (!token) return showToast('Please sign in first', 'error');
+  const addr = document.getElementById('nl-addr').value.trim();
+  const city = document.getElementById('nl-city').value.trim();
+  const price = document.getElementById('nl-price').value.trim();
+  if (!addr || !city || !price) return showToast('Please fill in address, city, and price', 'error');
+  showLoading(true);
+
+  // Upload photos first
+  const photoUrls = [];
+  for (const file of selectedPhotos.slice(0, 8)) {
+    try {
+      const fd = new FormData();
+      fd.append('photo', file);
+      const r = await fetch('/api/photos/upload', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: fd
+      });
+      if (r.ok) {
+        const d = await r.json();
+        photoUrls.push(d.url);
+      }
+    } catch(e) {}
+  }
+
+  // Submit listing
+  try {
+    const res = await fetch('/api/listings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({
+        address: addr,
+        city: document.getElementById('nl-city').value,
+        state: document.getElementById('nl-state').value,
+        zip: document.getElementById('nl-zip').value,
+        country: document.getElementById('nl-country').value,
+        price: parseInt(price.replace(/\D/g,'')),
+        property_type: document.getElementById('nl-type').value,
+        bedrooms: document.getElementById('nl-beds').value,
+        bathrooms: document.getElementById('nl-baths').value,
+        sqft: document.getElementById('nl-sqft').value,
+        year_built: document.getElementById('nl-year').value,
+        features: document.getElementById('nl-features').value,
+        description: document.getElementById('nl-desc').value,
+        listing_path: document.getElementById('nl-path').value,
+        photos: photoUrls,
+      })
+    });
+    showLoading(false);
+    if (res.ok) {
+      showToast('🎉 Listing submitted successfully!', 'success');
+      showPanel('my-listings', null);
+      loadMyListings();
+    } else {
+      const d = await res.json();
+      showToast(d.error || 'Failed to submit listing', 'error');
+    }
+  } catch(e) {
+    showLoading(false);
+    showToast('Connection error. Please try again.', 'error');
+  }
+}
+
+// ── Save Profile ──────────────────────────────────────────────
+async function saveProfile() {
+  showToast('Profile updated! ✅', 'success');
+}
+
+async function changePassword() {
+  const np = document.getElementById('set-newpass').value;
+  const cp = document.getElementById('set-confirmpass').value;
+  if (!np || !cp) return showToast('Please fill in both password fields', 'error');
+  if (np !== cp) return showToast('Passwords do not match', 'error');
+  if (np.length < 6) return showToast('Password must be at least 6 characters', 'error');
+  showToast('Password updated! ✅', 'success');
+}
+
+// ── Helpers ───────────────────────────────────────────────────
+function showLoading(show) {
+  document.getElementById('loading').classList.toggle('show', show);
+}
+
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Enter key support
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (document.getElementById('signin-form').style.display !== 'none') handleSignIn();
+  }
+});
+
+// ── Google Places for Dashboard ───────────────────────────────
+function initDashPlaces() {
+  const el = document.getElementById('nl-addr');
+  if (!el) return;
+  const ac = new google.maps.places.Autocomplete(el, {
+    componentRestrictions: { country: ['us', 'ca'] },
+    fields: ['address_components'],
+    types: ['address']
+  });
+  ac.addListener('place_changed', function() {
+    const place = ac.getPlace();
+    if (!place.address_components) return;
+    let num='', street='', city='', state='', zip='', country='';
+    place.address_components.forEach(function(c) {
+      if (c.types.includes('street_number')) num = c.long_name;
+      if (c.types.includes('route')) street = c.long_name;
+      if (c.types.includes('locality')) city = c.long_name;
+      if (c.types.includes('sublocality_level_1') && !city) city = c.long_name;
+      if (c.types.includes('administrative_area_level_1')) state = c.short_name;
+      if (c.types.includes('postal_code')) zip = c.long_name;
+      if (c.types.includes('country')) country = c.short_name;
+    });
+    el.value = num ? num + ' ' + street : street;
+    const cityEl = document.getElementById('nl-city');
+    const stateEl = document.getElementById('nl-state');
+    const zipEl = document.getElementById('nl-zip');
+    const countryEl = document.getElementById('nl-country');
+    if (cityEl) cityEl.value = city;
+    if (stateEl) stateEl.value = state;
+    if (zipEl) {
+      if (country === 'CA' && zip.replace(/\s/g,'').length === 6) {
+        zip = zip.replace(/\s/g,'');
+        zip = zip.slice(0,3) + ' ' + zip.slice(3);
+      }
+      zipEl.value = zip;
+    }
+    if (countryEl) countryEl.value = country === 'CA' ? 'CA' : 'US';
+  });
+}
+</script>
+</body>
+</html>

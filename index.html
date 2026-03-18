@@ -552,7 +552,37 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
 .hero-ai-chip-label{font-size:0.72rem;color:var(--muted);font-weight:500}
 @media(max-width:900px){nav{padding:14px 16px}.nav-links{display:none}.hamburger{display:flex}.nav-login{display:none}}
 @media(max-width:600px){footer{padding:40px 20px 24px}.mortgage-box,.calc-box{padding:32px 24px}.modal{padding:32px 24px}}
+
+/* Google Places Autocomplete dark theme */
+.pac-container {
+  background:#141c16 !important;
+  border:1px solid #1f2d22 !important;
+  border-radius:12px !important;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5) !important;
+  margin-top:4px !important;
+  font-family:'DM Sans',sans-serif !important;
+}
+.pac-item {
+  background:#141c16 !important;
+  color:#e8f0e9 !important;
+  border-top:1px solid #1f2d22 !important;
+  padding:10px 16px !important;
+  cursor:pointer !important;
+  font-size:0.88rem !important;
+}
+.pac-item:hover, .pac-item-selected {
+  background:#192019 !important;
+}
+.pac-item-query {
+  color:#3ef07a !important;
+  font-weight:600 !important;
+}
+.pac-matched {
+  color:#3ef07a !important;
+}
+.pac-icon { display:none !important; }
 </style>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A&libraries=places&callback=initGooglePlacesSearch" async defer></script>
 </head>
 <body>
 
@@ -569,7 +599,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
     <li><a href="#ai-tools" class="nav-ai-link">🤖 AI Tools</a></li>
   </ul>
   <div class="nav-right">
-    <button class="nav-login" onclick="openModal('login')">Log In</button>
+    <a href="dashboard.html" class="nav-login" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px">👤 My Account</a>
     <button class="nav-cta" onclick="openPM()">Get Started Free</button>
     <button class="hamburger" onclick="toggleMenu()" id="ham">
       <span></span><span></span><span></span>
@@ -593,7 +623,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
   <a href="#testimonials" onclick="toggleMenu()">⭐ Success Stories</a>
   <a href="#cashback" onclick="toggleMenu()">💸 Agent Cashback</a>
   <div class="mobile-menu-btns">
-    <button class="nav-cta" style="width:100%;padding:13px;font-size:0.95rem;" onclick="openModal('login');toggleMenu()">Log In</button>
+    <a href="dashboard.html" class="nav-cta" style="width:100%;padding:13px;font-size:0.95rem;text-align:center;text-decoration:none;display:block">👤 My Account</a>
   </div>
 </div>
 
@@ -2789,6 +2819,80 @@ updateMortgage();
 function openPM(){document.getElementById('pm-overlay').style.display='flex';document.body.style.overflow='hidden';}
 function closePM(){document.getElementById('pm-overlay').style.display='none';document.body.style.overflow='';}
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closePM();});
+</script>
+
+
+<!-- Google Places Autocomplete -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A&libraries=places&callback=initGooglePlaces" async defer></script>
+<style>
+.pac-container {
+  background:var(--card) !important;
+  border:1px solid rgba(62,240,122,0.3) !important;
+  border-radius:12px !important;
+  box-shadow:0 8px 32px rgba(0,0,0,0.4) !important;
+  font-family:'DM Sans',sans-serif !important;
+  margin-top:4px !important;
+  overflow:hidden !important;
+}
+.pac-item {
+  padding:10px 16px !important;
+  color:var(--text) !important;
+  cursor:pointer !important;
+  border-top:1px solid var(--border) !important;
+  font-size:0.88rem !important;
+}
+.pac-item:first-child { border-top:none !important; }
+.pac-item:hover { background:var(--greenlow) !important; }
+.pac-item-query { color:var(--white) !important; font-weight:600 !important; }
+.pac-matched { color:var(--green) !important; }
+.pac-icon { display:none !important; }
+</style>
+<script>
+function initGooglePlaces() {
+  // Search box autocomplete
+  const searchInput = document.getElementById('search-input');
+  if (searchInput) {
+    const searchAC = new google.maps.places.Autocomplete(searchInput, {
+      types: ['(cities)'],
+      fields: ['name','address_components','geometry','formatted_address']
+    });
+    searchAC.addListener('place_changed', () => {
+      const place = searchAC.getPlace();
+      if (place.name) {
+        runSearch();
+      }
+    });
+  }
+}
+
+// ── Google Places for Search Box ──────────────────────────────
+function initGooglePlacesSearch() {
+  const el = document.getElementById('search-input');
+  if (!el) return;
+  const ac = new google.maps.places.Autocomplete(el, {
+    componentRestrictions: { country: ['us', 'ca'] },
+    fields: ['formatted_address', 'address_components', 'geometry'],
+    types: ['geocode']
+  });
+  ac.addListener('place_changed', function() {
+    const place = ac.getPlace();
+    if (!place) return;
+    let city = '', state = '';
+    if (place.address_components) {
+      place.address_components.forEach(function(c) {
+        if (c.types.includes('locality')) city = c.long_name;
+        if (c.types.includes('sublocality_level_1') && !city) city = c.long_name;
+        if (c.types.includes('administrative_area_level_1')) state = c.short_name;
+        if (c.types.includes('country')) {
+          if (c.short_name === 'CA') setCountry('ca', document.getElementById('btn-ca'));
+          else setCountry('us', document.getElementById('btn-us'));
+        }
+      });
+    }
+    if (city) el.value = city + (state ? ', ' + state : '');
+    setTimeout(runSearch, 300);
+  });
+}
 </script>
 
 </body>
