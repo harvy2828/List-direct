@@ -515,7 +515,14 @@ async function handleSignIn() {
       body: JSON.stringify({ email, password })
     });
     const data = await res.json();
-    if (!res.ok) { showLoading(false); return showAuthError(data.error || 'Sign in failed.'); }
+    if (!res.ok) {
+      showLoading(false);
+      let errMsg = data.error || 'Sign in failed.';
+      if (errMsg.toLowerCase().includes('email not confirmed') || errMsg.toLowerCase().includes('not confirmed')) {
+        errMsg = '📧 Please check your email and click the confirmation link before signing in. Check your spam folder too!';
+      }
+      return showAuthError(errMsg);
+    }
     currentUser = data.user;
     currentSession = data.session;
     localStorage.setItem('ld_token', data.session.access_token);
@@ -552,7 +559,7 @@ async function handleSignUp() {
       localStorage.setItem('ld_token', data.session.access_token);
       showDashboard();
     } else {
-      showAuthSuccess('✅ Account created! Please check your email to confirm, then sign in.');
+      showAuthSuccess('✅ Account created! We sent a confirmation email to ' + email + '. Please check your inbox and click the link to activate your account, then sign in here.');
       switchAuthTab('signin', null);
     }
   } catch(e) {
