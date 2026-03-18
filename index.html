@@ -981,7 +981,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
             </select>
           </div>
           <div class="atf-field"><label>City & State / Province</label><input type="text" id="p-city" placeholder="e.g. Austin, TX or Toronto, ON"/></div>
-          <div class="atf-field"><label>Street Address</label><input type="text" id="p-addr" placeholder="e.g. 123 Oak Street"/></div>
+          <div class="atf-field"><label>Street Address</label><input type="text" id="p-addr" placeholder="e.g. 123 Oak Street" autocomplete="off"/></div>
           <div class="atf-field"><label>Bedrooms</label><select id="p-beds"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6+</option></select></div>
           <div class="atf-field"><label>Bathrooms</label><select id="p-baths"><option>1</option><option selected>2</option><option>2.5</option><option>3</option><option>4</option><option>5+</option></select></div>
           <div class="atf-field"><label>Square Footage</label><input type="text" id="p-sqft" placeholder="e.g. 1,850" oninput="formatSqftInput(this)" inputmode="numeric"/></div>
@@ -1009,7 +1009,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
       </div>
       <div class="ai-tool-body">
         <div class="ai-tool-form">
-          <div class="atf-field"><label>Property Address / City</label><input type="text" id="l-addr" placeholder="e.g. 2847 Maple Creek Dr, Austin, TX"/></div>
+          <div class="atf-field"><label>Property Address / City</label><input type="text" id="l-addr" placeholder="e.g. 2847 Maple Creek Dr, Austin, TX" autocomplete="off"/></div>
           <div class="atf-field"><label>Listing Price</label><input type="text" id="l-price" placeholder="e.g. $389,000" oninput="formatPriceInput(this)" inputmode="numeric"/></div>
           <div class="atf-field"><label>Beds / Baths / Sq Ft</label><input type="text" id="l-specs" placeholder="e.g. 3 bed / 2 bath / 1,820 sq ft"/></div>
           <div class="atf-field"><label>Year Built</label><input type="text" id="l-year" placeholder="e.g. 2004"/></div>
@@ -1317,7 +1317,7 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
 
     <!-- Page 1: Location -->
     <div class="submit-page active" id="spage-1">
-      <div class="form-field"><label>Street Address</label><input type="text" id="sl-addr" placeholder="123 Oak Street"/></div>
+      <div class="form-field"><label>Street Address</label><input type="text" id="sl-addr" placeholder="123 Oak Street" autocomplete="off"/></div>
       <div class="form-field"><label>City</label><input type="text" id="sl-city" placeholder="e.g. Austin"/></div>
       <div class="form-field"><label>State</label><input type="text" id="sl-state" placeholder="e.g. TX"/></div>
       <div class="form-field"><label>ZIP Code</label><input type="text" id="sl-zip" placeholder="e.g. 78701"/></div>
@@ -2897,31 +2897,8 @@ function initGooglePlaces() {
 
 // ── Google Places for Search Box ──────────────────────────────
 function initGooglePlacesSearch() {
-  const el = document.getElementById('search-input');
-  if (!el) return;
-  const ac = new google.maps.places.Autocomplete(el, {
-    componentRestrictions: { country: ['us', 'ca'] },
-    fields: ['formatted_address', 'address_components', 'geometry'],
-    types: ['geocode']
-  });
-  ac.addListener('place_changed', function() {
-    const place = ac.getPlace();
-    if (!place) return;
-    let city = '', state = '';
-    if (place.address_components) {
-      place.address_components.forEach(function(c) {
-        if (c.types.includes('locality')) city = c.long_name;
-        if (c.types.includes('sublocality_level_1') && !city) city = c.long_name;
-        if (c.types.includes('administrative_area_level_1')) state = c.short_name;
-        if (c.types.includes('country')) {
-          if (c.short_name === 'CA') setCountry('ca', document.getElementById('btn-ca'));
-          else setCountry('us', document.getElementById('btn-us'));
-        }
-      });
-    }
-    if (city) el.value = city + (state ? ', ' + state : '');
-    setTimeout(runSearch, 300);
-  });
+  // This is called as the callback - initialize everything
+  initGooglePlaces();
 }
 </script>
 

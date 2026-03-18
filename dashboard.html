@@ -460,6 +460,13 @@ window.addEventListener('DOMContentLoaded', async () => {
       });
       if (res.ok) {
         const data = await res.json();
+        // Redirect agents to their portal
+        const role = data.user?.user_metadata?.role;
+        if (role === 'agent') {
+          localStorage.removeItem('ld_token');
+          window.location.href = 'agent-portal.html';
+          return;
+        }
         currentUser = data.user;
         showDashboard();
         loadMyListings();
@@ -526,9 +533,20 @@ async function handleSignIn() {
       }
       return showAuthError(errMsg);
     }
+    // Block agents from using regular dashboard
+    const role = data.user?.user_metadata?.role;
+    if (role === 'agent') {
+      showLoading(false);
+      // Sign them out and redirect
+      await fetch('/api/auth/signout', { method:'POST', headers:{'Authorization': 'Bearer ' + data.session.access_token} }).catch(()=>{});
+      showAuthError('🤝 You are registered as an agent. Please use the <a href="agent-portal.html" style="color:var(--green);font-weight:700">Agent Portal</a> to sign in.');
+      return;
+    }
     currentUser = data.user;
     currentSession = data.session;
     localStorage.setItem('ld_token', data.session.access_token);
+    // Make sure they are not logged into agent portal
+    localStorage.removeItem('ld_agent_token');
     showDashboard();
     loadMyListings();
     loadFavorites();

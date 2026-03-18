@@ -187,7 +187,15 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 
 input[type=range]{width:100%;-webkit-appearance:none;height:6px;background:var(--border);border-radius:3px;outline:none;cursor:pointer;margin:8px 0}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;background:var(--gold);border-radius:50%;cursor:pointer;box-shadow:0 0 0 4px rgba(245,200,66,0.2)}
+
+.pac-container{background:#141c16!important;border:1px solid #1f2d22!important;border-radius:12px!important;box-shadow:0 8px 32px rgba(0,0,0,0.5)!important;margin-top:4px!important;font-family:'DM Sans',sans-serif!important}
+.pac-item{background:#141c16!important;color:#e8f0e9!important;border-top:1px solid #1f2d22!important;padding:10px 16px!important;cursor:pointer!important;font-size:0.88rem!important}
+.pac-item:hover,.pac-item-selected{background:#192019!important}
+.pac-item-query{color:#f5c842!important;font-weight:600!important}
+.pac-matched{color:#f5c842!important}
+.pac-icon{display:none!important}
 </style>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A&libraries=places&callback=initAgentPlaces" async defer></script>
 </head>
 <body>
 
@@ -601,6 +609,31 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
 <script>
 let currentUser = null;
 
+// ── Handle Email Confirmation Redirect ───────────────────────
+(function() {
+  const hash = window.location.hash;
+  const params = new URLSearchParams(hash.replace('#', '?'));
+  const accessToken = params.get('access_token');
+  const type = params.get('type');
+  
+  if (accessToken && type === 'signup') {
+    // Store token and clear the URL hash
+    const isAgentPortal = window.location.pathname.includes('agent-portal');
+    if (isAgentPortal) {
+      localStorage.setItem('ld_agent_token', accessToken);
+    } else {
+      localStorage.setItem('ld_token', accessToken);
+    }
+    // Clean URL
+    history.replaceState(null, '', window.location.pathname);
+    // Show success message briefly then load dashboard
+    document.addEventListener('DOMContentLoaded', function() {
+      showToast('✅ Email confirmed! Welcome to ListDirect.', 'success');
+    });
+  }
+})();
+
+
 // ── Init ──────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', async () => {
   const token = localStorage.getItem('ld_agent_token');
@@ -612,6 +645,13 @@ window.addEventListener('DOMContentLoaded', async () => {
       });
       if (res.ok) {
         const data = await res.json();
+        const role = data.user?.user_metadata?.role;
+        if (role !== 'agent') {
+          // Not an agent - clear token and show auth
+          localStorage.removeItem('ld_agent_token');
+          showLoading(false);
+          return;
+        }
         currentUser = data.user;
         showDashboard();
       } else {
@@ -668,8 +708,18 @@ async function handleSignIn() {
       if (msg.toLowerCase().includes('not confirmed')) msg = '📧 Please check your email and confirm your account first.';
       return showError(msg);
     }
+    // Check role - only agents can access this portal
+    const role = data.user?.user_metadata?.role;
+    if (role !== 'agent') {
+      showLoading(false);
+      // Sign them out immediately
+      await fetch('/api/auth/signout', { method:'POST', headers:{'Authorization': 'Bearer ' + data.session.access_token} }).catch(()=>{});
+      return showError('⛔ This portal is for certified agents only. If you are a buyer or seller, please use the regular account page instead.');
+    }
     currentUser = data.user;
     localStorage.setItem('ld_agent_token', data.session.access_token);
+    // Make sure they are not logged into the regular portal
+    localStorage.removeItem('ld_token');
     showDashboard();
   } catch(e) {
     showLoading(false);
@@ -856,6 +906,33 @@ function showToast(msg, type='success') {
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && document.getElementById('signin-form').style.display !== 'none') handleSignIn();
 });
+
+function initAgentPlaces() {
+  // Apply autocomplete to all address fields in agent portal
+  const fields = [
+    { id: 'ap-location', type: 'geocode' },
+    { id: 'prof-location', type: 'geocode' },
+  ];
+  fields.forEach(function(cfg) {
+    const el = document.getElementById(cfg.id);
+    if (!el) return;
+    const ac = new google.maps.places.Autocomplete(el, {
+      componentRestrictions: { country: ['us', 'ca'] },
+      fields: ['formatted_address', 'address_components'],
+      types: [cfg.type]
+    });
+    ac.addListener('place_changed', function() {
+      const place = ac.getPlace();
+      if (!place.address_components) return;
+      let city = '', state = '';
+      place.address_components.forEach(function(c) {
+        if (c.types.includes('locality')) city = c.long_name;
+        if (c.types.includes('administrative_area_level_1')) state = c.short_name;
+      });
+      if (city && state) el.value = city + ', ' + state;
+    });
+  });
+}
 </script>
 </body>
 </html>
