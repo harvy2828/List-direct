@@ -204,5 +204,76 @@ app.post('/api/auth/update-password', async (req, res) => {
   }
 });
 
+
+// ── Get Certified Agents ──────────────────────────────────────
+app.get('/api/agents', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('role', 'agent')
+      .eq('approved', true)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    res.json({ agents: data || [] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// ── Admin: Get All Agents ─────────────────────────────────────
+app.get('/api/admin/agents', async (req, res) => {
+  const adminKey = req.headers['x-admin-key'];
+  if (adminKey !== process.env.ADMIN_PASSWORD) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  try {
+    // Get all agent profiles with their auth email
+    const { data: profiles, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('role', 'agent')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+
+    // Get emails from auth.users
+    const { data: authData } = await supabase.auth.admin.listUsers();
+    const userMap = {};
+    if (authData?.users) {
+      authData.users.forEach(u => { userMap[u.id] = u.email; });
+    }
+
+    const agents = (profiles || []).map(p => ({
+      ...p,
+      email: userMap[p.id] || p.email || '—'
+    }));
+
+    res.json({ agents });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Admin: Update Agent ───────────────────────────────────────
+app.patch('/api/admin/agents/:id', async (req, res) => {
+  const adminKey = req.headers['x-admin-key'];
+  if (adminKey !== process.env.ADMIN_PASSWORD) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  const { id } = req.params;
+  const updates = req.body;
+  try {
+    const { error } = await supabase
+      .from('profiles')
+      .update(updates)
+      .eq('id', id);
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`ListDirect running on port ${PORT}`));

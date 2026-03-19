@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ListDirect — Contact & Support</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#0a0f0d;--bg2:#111810;--card:#141c16;--border:#1f2d22;--green:#3ef07a;--greenlow:rgba(62,240,122,0.08);--text:#e8f0e9;--muted:#7a9480;--white:#fff;--gold:#f5c842;--goldlow:rgba(245,200,66,0.08);--red:#e85454;--radius:16px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:16px;line-height:1.7}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--green);border-radius:3px}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:16px 48px;background:rgba(10,15,13,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;color:var(--white);letter-spacing:-1px;text-decoration:none}
+.nav-logo span{color:var(--green)}
+.nav-back{background:none;border:1px solid var(--border);color:var(--muted);padding:8px 18px;border-radius:50px;font-size:0.86rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;text-decoration:none}
+.nav-back:hover{border-color:var(--green);color:var(--green)}
+.desktop-nav-right{display:flex;align-items:center;gap:8px}
+@media(max-width:900px){.desktop-nav-right{display:none!important}nav{padding:14px 16px}}
+
+/* PAGE */
+.page-header{padding:100px 24px 60px;background:var(--bg2);border-bottom:1px solid var(--border);text-align:center}
+.page-header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 60% at 50% 0%,rgba(62,240,122,0.07) 0%,transparent 70%)}
+.ph-inner{max-width:600px;margin:0 auto;position:relative;z-index:1}
+.page-header{position:relative;overflow:hidden}
+.ph-tag{display:inline-block;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:var(--green);margin-bottom:14px;background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);padding:5px 14px;border-radius:50px}
+.ph-title{font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,3rem);font-weight:900;color:var(--white);margin-bottom:12px}
+.ph-sub{color:var(--muted);font-size:0.95rem;line-height:1.7}
+
+/* MAIN */
+.main-wrap{max-width:1100px;margin:0 auto;padding:60px 24px 80px;display:grid;grid-template-columns:1fr 1.4fr;gap:40px}
+@media(max-width:800px){.main-wrap{grid-template-columns:1fr}}
+
+/* LEFT COLUMN */
+.contact-options{display:flex;flex-direction:column;gap:16px}
+.contact-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;transition:border-color 0.2s}
+.contact-card:hover{border-color:rgba(62,240,122,0.3)}
+.cc-icon{font-size:1.8rem;margin-bottom:12px}
+.cc-title{font-weight:700;color:var(--white);margin-bottom:6px}
+.cc-desc{font-size:0.88rem;color:var(--muted);line-height:1.6;margin-bottom:14px}
+.cc-action{display:inline-flex;align-items:center;gap:6px;background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);color:var(--green);padding:8px 16px;border-radius:50px;font-size:0.82rem;font-weight:600;text-decoration:none;transition:all 0.2s;cursor:pointer;font-family:'DM Sans',sans-serif;border-width:1px}
+.cc-action:hover{background:var(--greenmid)}
+.response-time{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px 20px}
+.rt-title{font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:12px}
+.rt-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:0.85rem}
+.rt-row:last-child{border-bottom:none}
+.rt-type{color:var(--muted)}
+.rt-time{color:var(--green);font-weight:600}
+
+/* RIGHT COLUMN - FORM */
+.contact-form{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:36px}
+.form-title{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;color:var(--white);margin-bottom:6px}
+.form-sub{font-size:0.88rem;color:var(--muted);margin-bottom:28px}
+.ff{margin-bottom:16px}
+.ff label{display:block;font-size:0.74rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:7px}
+.ff input,.ff select,.ff textarea{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:13px 16px;border-radius:12px;font-size:0.95rem;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s;resize:vertical}
+.ff input:focus,.ff select:focus,.ff textarea:focus{border-color:var(--green)}
+.ff input::placeholder,.ff textarea::placeholder{color:#3a4e3e}
+.ff select option{background:var(--card)}
+.btn-submit{width:100%;background:var(--green);color:var(--bg);padding:14px;border-radius:50px;border:none;font-weight:700;font-size:1rem;cursor:pointer;margin-top:8px;transition:all 0.15s;font-family:'DM Sans',sans-serif}
+.btn-submit:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(62,240,122,0.4)}
+.success-msg{display:none;background:var(--greenlow);border:1px solid rgba(62,240,122,0.3);border-radius:14px;padding:24px;text-align:center}
+.success-msg.show{display:block}
+.success-msg .sm-icon{font-size:2.4rem;margin-bottom:12px}
+.success-msg .sm-title{font-weight:700;color:var(--white);margin-bottom:6px}
+.success-msg .sm-sub{font-size:0.88rem;color:var(--muted)}
+
+/* FAQ SECTION */
+.faq-section{max-width:1100px;margin:0 auto;padding:0 24px 80px}
+.faq-title{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:var(--white);margin-bottom:8px}
+.faq-sub{color:var(--muted);font-size:0.9rem;margin-bottom:28px}
+.faq-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:700px){.faq-grid{grid-template-columns:1fr}}
+.faq-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;cursor:pointer;transition:border-color 0.2s}
+.faq-card:hover{border-color:rgba(62,240,122,0.3)}
+.faq-card.open{border-color:rgba(62,240,122,0.4)}
+.faq-q{font-weight:600;color:var(--white);font-size:0.92rem;margin-bottom:0;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.faq-arrow{color:var(--muted);transition:transform 0.3s;flex-shrink:0}
+.faq-card.open .faq-arrow{transform:rotate(180deg);color:var(--green)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height 0.3s ease;font-size:0.88rem;color:var(--muted);line-height:1.7}
+.faq-card.open .faq-a{max-height:200px;margin-top:12px}
+
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:32px 48px;text-align:center;font-size:0.82rem;color:var(--muted)}
+footer a{color:var(--muted);text-decoration:none;margin:0 12px}
+footer a:hover{color:var(--green)}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">List<span>Direct</span></a>
+  <a href="index.html" class="nav-back">← Back to Site</a>
+  <div class="desktop-nav-right">
+    <a href="dashboard.html" style="background:none;border:1px solid rgba(62,240,122,0.3);color:#e8f0e9;padding:6px 14px;border-radius:50px;font-size:0.82rem;font-weight:600;text-decoration:none;white-space:nowrap">👤 My Account</a>
+    <a href="agent-portal.html" style="background:none;border:1px solid rgba(245,200,66,0.3);color:#f5c842;padding:6px 14px;border-radius:50px;font-size:0.82rem;font-weight:600;text-decoration:none;white-space:nowrap">🤝 Agent Login</a>
+  </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="ph-inner">
+    <div class="ph-tag">Support</div>
+    <h1 class="ph-title">How can we help?</h1>
+    <p class="ph-sub">We're here to help you sell smarter and save more. Send us a message and we'll get back to you quickly.</p>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-wrap">
+
+  <!-- LEFT: Contact options -->
+  <div>
+    <div class="contact-options">
+      <div class="contact-card">
+        <div class="cc-icon">💬</div>
+        <div class="cc-title">Live Chat</div>
+        <div class="cc-desc">Chat with our AI assistant on the main site for instant answers about listings, fees, and how the platform works.</div>
+        <a href="index.html" class="cc-action">Open Chat →</a>
+      </div>
+
+      <div class="contact-card">
+        <div class="cc-icon">📧</div>
+        <div class="cc-title">Email Support</div>
+        <div class="cc-desc">For account issues, billing questions, or anything that needs a human. We respond within 24 hours.</div>
+        <a href="mailto:infolistdirect@gmail.com" class="cc-action">infolistdirect@gmail.com</a>
+      </div>
+
+      <div class="contact-card">
+        <div class="cc-icon">🤝</div>
+        <div class="cc-title">Agent Support</div>
+        <div class="cc-desc">Are you a certified agent with questions about leads, referral fees, or your account?</div>
+        <a href="mailto:infolistdirect@gmail.com" class="cc-action">infolistdirect@gmail.com</a>
+      </div>
+
+      <div class="contact-card">
+        <div class="cc-icon">⚖️</div>
+        <div class="cc-title">Legal & Privacy</div>
+        <div class="cc-desc">Questions about our Terms of Service, Privacy Policy, or data requests.</div>
+        <a href="mailto:infolistdirect@gmail.com" class="cc-action">infolistdirect@gmail.com</a>
+      </div>
+    </div>
+
+    <div class="response-time" style="margin-top:16px">
+      <div class="rt-title">⏱ Response Times</div>
+      <div class="rt-row"><span class="rt-type">General support</span><span class="rt-time">Within 24 hours</span></div>
+      <div class="rt-row"><span class="rt-type">Account issues</span><span class="rt-time">Within 12 hours</span></div>
+      <div class="rt-row"><span class="rt-type">Agent inquiries</span><span class="rt-time">Within 24 hours</span></div>
+      <div class="rt-row"><span class="rt-type">Legal requests</span><span class="rt-time">Within 48 hours</span></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Contact form -->
+  <div class="contact-form">
+    <div class="form-title">Send Us a Message</div>
+    <div class="form-sub">Fill out the form below and we'll get back to you as soon as possible.</div>
+
+    <div id="contact-form-body">
+      <div class="ff"><label>Your Name</label><input type="text" id="cf-name" placeholder="Jane Smith"/></div>
+      <div class="ff"><label>Email</label><input type="email" id="cf-email" placeholder="jane@example.com"/></div>
+      <div class="ff">
+        <label>I am a…</label>
+        <select id="cf-type">
+          <option>Seller — listing my home</option>
+          <option>Buyer — looking for a home</option>
+          <option>Certified Agent</option>
+          <option>Agent — interested in joining</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="ff">
+        <label>Topic</label>
+        <select id="cf-topic">
+          <option>Account & Login Issues</option>
+          <option>Listing Help</option>
+          <option>Agent Cashback Question</option>
+          <option>Referral Fee Question</option>
+          <option>AI Tools Not Working</option>
+          <option>Billing & Fees</option>
+          <option>Privacy & Data Request</option>
+          <option>Report a Problem</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="ff"><label>Message</label><textarea id="cf-message" rows="5" placeholder="Tell us what's going on and we'll help you sort it out…"></textarea></div>
+      <button class="btn-submit" onclick="submitContact()">Send Message →</button>
+    </div>
+
+    <div class="success-msg" id="success-msg">
+      <div class="sm-icon">✅</div>
+      <div class="sm-title">Message Sent!</div>
+      <div class="sm-sub">Thanks for reaching out. We'll get back to you at your email address within 24 hours.</div>
+    </div>
+  </div>
+</div>
+
+<!-- QUICK FAQ -->
+<div class="faq-section">
+  <div class="faq-title">Quick Answers</div>
+  <div class="faq-sub">The most common questions we get</div>
+  <div class="faq-grid">
+    <div class="faq-card" onclick="toggleFaq(this)">
+      <div class="faq-q">How do I reset my password? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a">Go to your account page (My Account in the nav), tap Sign In, then tap "Forgot your password?" Enter your email and we'll send you a reset link.</div>
+    </div>
+    <div class="faq-card" onclick="toggleFaq(this)">
+      <div class="faq-q">What is the 1% platform fee? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a">ListDirect charges 1% of your home's final sale price at closing — only if your home sells. There's no upfront cost to list.</div>
+    </div>
+    <div class="faq-card" onclick="toggleFaq(this)">
+      <div class="faq-q">How does agent cashback work? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a">Every certified agent on our platform has agreed to give sellers a minimum 1% cashback at closing. This comes from the agent's commission — you pay nothing extra.</div>
+    </div>
+    <div class="faq-card" onclick="toggleFaq(this)">
+      <div class="faq-q">What is the agent referral fee? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a">Agents pay ListDirect a 10% referral fee from their commission on deals closed through our platform. This never comes out of the seller's pocket.</div>
+    </div>
+    <div class="faq-card" onclick="toggleFaq(this)">
+      <div class="faq-q">Is ListDirect available in Canada? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a">Yes! ListDirect serves both the United States and Canada. Our AI tools support both USD and CAD pricing, and our agent network covers major Canadian cities.</div>
+    </div>
+    <div class="faq-card" onclick="toggleFaq(this)">
+      <div class="faq-q">How do I delete my account? <span class="faq-arrow">▼</span></div>
+      <div class="faq-a">Email us at infolistdirect@gmail.com with your account email and we'll delete your account and all associated data within 30 days as per our Privacy Policy.</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <a href="index.html">Home</a>
+  <a href="terms.html">Terms of Service</a>
+  <a href="privacy.html">Privacy Policy</a>
+  <a href="contact.html">Contact</a>
+</footer>
+
+<script>
+function toggleFaq(card) {
+  const wasOpen = card.classList.contains('open');
+  document.querySelectorAll('.faq-card').forEach(c => c.classList.remove('open'));
+  if (!wasOpen) card.classList.add('open');
+}
+
+async function submitContact() {
+  const name = document.getElementById('cf-name').value.trim();
+  const email = document.getElementById('cf-email').value.trim();
+  const message = document.getElementById('cf-message').value.trim();
+  if (!name || !email || !message) {
+    alert('Please fill in your name, email, and message.');
+    return;
+  }
+  // Show success (in production you'd send this to your backend)
+  document.getElementById('contact-form-body').style.display = 'none';
+  document.getElementById('success-msg').classList.add('show');
+}
+</script>
+</body>
+</html>

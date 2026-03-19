@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ListDirect — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#0a0f0d;--bg2:#111810;--card:#141c16;--border:#1f2d22;--green:#3ef07a;--greenlow:rgba(62,240,122,0.08);--text:#e8f0e9;--muted:#7a9480;--white:#fff;--gold:#f5c842;--goldlow:rgba(245,200,66,0.08);--red:#e85454;--redlow:rgba(232,84,84,0.08);--radius:16px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--green);border-radius:3px}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:16px 48px;background:rgba(10,15,13,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;color:var(--white);text-decoration:none}
+.nav-logo span{color:var(--green)}
+.admin-badge{background:var(--redlow);border:1px solid rgba(232,84,84,0.3);color:var(--red);padding:5px 14px;border-radius:50px;font-size:0.75rem;font-weight:700}
+@media(max-width:600px){nav{padding:14px 16px}}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:80px 24px}
+.login-box{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:48px 40px;max-width:420px;width:100%;text-align:center}
+.login-icon{font-size:2.5rem;margin-bottom:16px}
+.login-title{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;color:var(--white);margin-bottom:6px}
+.login-sub{color:var(--muted);font-size:0.88rem;margin-bottom:24px}
+.ff{margin-bottom:14px;text-align:left}
+.ff label{display:block;font-size:0.74rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:6px}
+.ff input{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:12px 16px;border-radius:12px;font-size:0.95rem;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s}
+.ff input:focus{border-color:var(--red)}
+.btn-red{width:100%;background:var(--red);color:white;padding:13px;border-radius:50px;border:none;font-weight:700;font-size:0.95rem;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:4px;transition:all 0.15s}
+.btn-red:hover{box-shadow:0 4px 16px rgba(232,84,84,0.4)}
+.login-error{background:var(--redlow);border:1px solid rgba(232,84,84,0.3);border-radius:10px;padding:10px 16px;font-size:0.85rem;color:var(--red);margin-bottom:14px;display:none}
+.login-error.show{display:block}
+
+/* DASHBOARD */
+.admin-wrap{padding:90px 24px 60px;max-width:1200px;margin:0 auto}
+.admin-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:12px}
+.admin-title{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:var(--white)}
+.admin-title span{color:var(--red)}
+.btn-signout{background:none;border:1px solid var(--border);color:var(--muted);padding:8px 16px;border-radius:50px;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+.btn-signout:hover{border-color:var(--red);color:var(--red)}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:32px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center}
+.stat-num{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;margin-bottom:4px}
+.stat-num.green{color:var(--green)}
+.stat-num.gold{color:var(--gold)}
+.stat-num.red{color:var(--red)}
+.stat-label{font-size:0.78rem;color:var(--muted)}
+
+/* TABS */
+.tabs{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap}
+.tab{padding:8px 20px;border-radius:50px;font-size:0.86rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:none;color:var(--muted);font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.tab.active{background:var(--red);color:white;border-color:var(--red)}
+
+/* AGENT CARDS */
+.agents-list{display:flex;flex-direction:column;gap:16px}
+.agent-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;transition:border-color 0.2s}
+.agent-card.pending{border-color:rgba(245,200,66,0.3)}
+.agent-card.approved{border-color:rgba(62,240,122,0.3)}
+.agent-card.rejected{opacity:0.5}
+.ac-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.ac-info .ac-name{font-weight:700;color:var(--white);font-size:1.05rem;margin-bottom:4px}
+.ac-info .ac-email{font-size:0.82rem;color:var(--muted)}
+.ac-info .ac-loc{font-size:0.82rem;color:var(--muted);margin-top:2px}
+.status-badge{font-size:0.7rem;font-weight:700;padding:4px 12px;border-radius:50px;flex-shrink:0}
+.badge-pending{background:var(--goldlow);color:var(--gold);border:1px solid rgba(245,200,66,0.3)}
+.badge-approved{background:var(--greenlow);color:var(--green);border:1px solid rgba(62,240,122,0.3)}
+.badge-rejected{background:var(--redlow);color:var(--red);border:1px solid rgba(232,84,84,0.3)}
+.ac-details{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:16px}
+.ac-detail{background:var(--bg2);border-radius:10px;padding:10px 14px;font-size:0.82rem}
+.ac-detail-label{color:var(--muted);margin-bottom:3px;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em}
+.ac-detail-val{color:var(--text);font-weight:600}
+.ac-bio{background:var(--bg2);border-radius:10px;padding:12px 14px;font-size:0.85rem;color:var(--muted);margin-bottom:16px;line-height:1.6}
+.ac-actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn-approve{background:var(--green);color:#0a0f0d;padding:8px 20px;border-radius:50px;border:none;font-weight:700;font-size:0.85rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.btn-approve:hover{box-shadow:0 3px 12px rgba(62,240,122,0.4)}
+.btn-reject{background:var(--redlow);border:1px solid rgba(232,84,84,0.3);color:var(--red);padding:8px 20px;border-radius:50px;font-weight:700;font-size:0.85rem;cursor:pointer;font-family:'DM Sans',sans-serif}
+.btn-unapprove{background:var(--goldlow);border:1px solid rgba(245,200,66,0.3);color:var(--gold);padding:8px 20px;border-radius:50px;font-weight:700;font-size:0.85rem;cursor:pointer;font-family:'DM Sans',sans-serif}
+.empty-state{text-align:center;padding:48px;background:var(--card);border:1px solid var(--border);border-radius:16px}
+.empty-icon{font-size:2.4rem;margin-bottom:12px}
+.empty-title{font-weight:700;color:var(--white);margin-bottom:6px}
+.empty-sub{font-size:0.88rem;color:var(--muted)}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 20px;font-size:0.88rem;color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,0.4);transform:translateY(100px);opacity:0;transition:all 0.3s;z-index:999;max-width:320px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{border-color:rgba(62,240,122,0.4);color:var(--green)}
+.toast.error{border-color:rgba(232,84,84,0.4);color:var(--red)}
+
+.loading{position:fixed;inset:0;background:rgba(10,15,13,0.9);display:none;align-items:center;justify-content:center;z-index:999}
+.loading.show{display:flex}
+.spinner{width:44px;height:44px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div class="loading" id="loading"><div class="spinner"></div></div>
+<div class="toast" id="toast"></div>
+
+<nav>
+  <a href="index.html" class="nav-logo">List<span>Direct</span></a>
+  <div class="admin-badge">🔒 Admin Panel</div>
+</nav>
+
+<!-- LOGIN -->
+<div id="login-section" class="login-wrap">
+  <div class="login-box">
+    <div class="login-icon">🔒</div>
+    <div class="login-title">Admin Access</div>
+    <div class="login-sub">This area is restricted to ListDirect administrators only.</div>
+    <div class="login-error" id="login-error">Incorrect password. Please try again.</div>
+    <div class="ff"><label>Admin Password</label><input type="password" id="admin-password" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')checkPassword()"/></div>
+    <button class="btn-red" onclick="checkPassword()">Access Admin Panel →</button>
+  </div>
+</div>
+
+<!-- ADMIN DASHBOARD -->
+<div id="admin-section" style="display:none">
+  <div class="admin-wrap">
+    <div class="admin-header">
+      <div>
+        <div class="admin-title">Admin <span>Panel</span></div>
+        <div style="color:var(--muted);font-size:0.88rem">Manage agent applications and platform activity</div>
+      </div>
+      <button class="btn-signout" onclick="signOut()">🚪 Sign Out</button>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num gold" id="stat-pending">0</div><div class="stat-label">Pending Applications</div></div>
+      <div class="stat-card"><div class="stat-num green" id="stat-approved">0</div><div class="stat-label">Approved Agents</div></div>
+      <div class="stat-card"><div class="stat-num red" id="stat-rejected">0</div><div class="stat-label">Rejected</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total Applications</div></div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('pending', this)">⏳ Pending</button>
+      <button class="tab" onclick="showTab('approved', this)">✅ Approved</button>
+      <button class="tab" onclick="showTab('rejected', this)">❌ Rejected</button>
+      <button class="tab" onclick="showTab('all', this)">📋 All</button>
+    </div>
+
+    <div class="agents-list" id="agents-list">
+      <div class="empty-state">
+        <div class="empty-icon">⏳</div>
+        <div class="empty-title">Loading applications...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Admin Password (change this to your own!) ─────────────────
+const ADMIN_PASSWORD = 'ListDirect2026!';
+
+let allAgents = [];
+let currentTab = 'pending';
+
+// ── Login ─────────────────────────────────────────────────────
+function checkPassword() {
+  const pw = document.getElementById('admin-password').value;
+  if (pw === ADMIN_PASSWORD) {
+    sessionStorage.setItem('ld_admin', 'true');
+    document.getElementById('login-section').style.display = 'none';
+    document.getElementById('admin-section').style.display = 'block';
+    loadAgents();
+  } else {
+    document.getElementById('login-error').classList.add('show');
+  }
+}
+
+function signOut() {
+  sessionStorage.removeItem('ld_admin');
+  document.getElementById('login-section').style.display = 'flex';
+  document.getElementById('admin-section').style.display = 'none';
+  document.getElementById('admin-password').value = '';
+}
+
+// Check if already logged in
+window.addEventListener('DOMContentLoaded', () => {
+  if (sessionStorage.getItem('ld_admin') === 'true') {
+    document.getElementById('login-section').style.display = 'none';
+    document.getElementById('admin-section').style.display = 'block';
+    loadAgents();
+  }
+});
+
+// ── Load Agents ───────────────────────────────────────────────
+async function loadAgents() {
+  showLoading(true);
+  try {
+    const res = await fetch('/api/admin/agents', {
+      headers: { 'x-admin-key': ADMIN_PASSWORD }
+    });
+    const data = await res.json();
+    allAgents = data.agents || [];
+    updateStats();
+    renderTab(currentTab);
+  } catch(e) {
+    showToast('Failed to load agents', 'error');
+  }
+  showLoading(false);
+}
+
+function updateStats() {
+  const pending = allAgents.filter(a => !a.approved && !a.rejected).length;
+  const approved = allAgents.filter(a => a.approved).length;
+  const rejected = allAgents.filter(a => a.rejected).length;
+  document.getElementById('stat-pending').textContent = pending;
+  document.getElementById('stat-approved').textContent = approved;
+  document.getElementById('stat-rejected').textContent = rejected;
+  document.getElementById('stat-total').textContent = allAgents.length;
+}
+
+// ── Tabs ──────────────────────────────────────────────────────
+function showTab(tab, btn) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderTab(tab);
+}
+
+function renderTab(tab) {
+  let filtered = allAgents;
+  if (tab === 'pending') filtered = allAgents.filter(a => !a.approved && !a.rejected);
+  if (tab === 'approved') filtered = allAgents.filter(a => a.approved);
+  if (tab === 'rejected') filtered = allAgents.filter(a => a.rejected);
+
+  const list = document.getElementById('agents-list');
+
+  if (filtered.length === 0) {
+    const labels = { pending: 'No pending applications', approved: 'No approved agents yet', rejected: 'No rejected applications', all: 'No applications yet' };
+    const subs = { pending: 'New agent applications will appear here', approved: 'Approved agents will appear on the agents page', rejected: 'Rejected applications will appear here', all: 'Agent applications will appear here once agents start signing up' };
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">${tab === 'pending' ? '⏳' : tab === 'approved' ? '✅' : '📋'}</div><div class="empty-title">${labels[tab]}</div><div class="empty-sub">${subs[tab]}</div></div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(agent => `
+    <div class="agent-card ${agent.approved ? 'approved' : agent.rejected ? 'rejected' : 'pending'}" id="card-${agent.id}">
+      <div class="ac-top">
+        <div class="ac-info">
+          <div class="ac-name">${agent.full_name || 'Unknown'}</div>
+          <div class="ac-email">📧 ${agent.email || '—'}</div>
+          <div class="ac-loc">📍 ${agent.location || 'Location not set'}</div>
+        </div>
+        <span class="status-badge ${agent.approved ? 'badge-approved' : agent.rejected ? 'badge-rejected' : 'badge-pending'}">
+          ${agent.approved ? '✅ Approved' : agent.rejected ? '❌ Rejected' : '⏳ Pending'}
+        </span>
+      </div>
+      <div class="ac-details">
+        <div class="ac-detail"><div class="ac-detail-label">License</div><div class="ac-detail-val">${agent.license_number || '—'}</div></div>
+        <div class="ac-detail"><div class="ac-detail-label">Specialty</div><div class="ac-detail-val">${agent.specialty || '—'}</div></div>
+        <div class="ac-detail"><div class="ac-detail-label">Experience</div><div class="ac-detail-val">${agent.years_experience || '—'}</div></div>
+        <div class="ac-detail"><div class="ac-detail-label">Cashback Offer</div><div class="ac-detail-val" style="color:var(--gold)">${agent.cashback_offer || '1'}% to sellers</div></div>
+        <div class="ac-detail"><div class="ac-detail-label">Phone</div><div class="ac-detail-val">${agent.phone || '—'}</div></div>
+        <div class="ac-detail"><div class="ac-detail-label">Applied</div><div class="ac-detail-val">${new Date(agent.created_at).toLocaleDateString()}</div></div>
+      </div>
+      ${agent.bio ? `<div class="ac-bio">"${agent.bio}"</div>` : ''}
+      <div class="ac-actions">
+        ${!agent.approved ? `<button class="btn-approve" onclick="approveAgent('${agent.id}')">✅ Approve</button>` : `<button class="btn-unapprove" onclick="unapproveAgent('${agent.id}')">↩ Unapprove</button>`}
+        ${!agent.rejected ? `<button class="btn-reject" onclick="rejectAgent('${agent.id}')">❌ Reject</button>` : ''}
+        <button class="btn-unapprove" onclick="copyEmail('${agent.email}')">📧 Copy Email</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── Agent Actions ─────────────────────────────────────────────
+async function approveAgent(id) {
+  await updateAgent(id, { approved: true, rejected: false });
+  showToast('✅ Agent approved! They are now live on the agents page.', 'success');
+}
+
+async function unapproveAgent(id) {
+  await updateAgent(id, { approved: false });
+  showToast('Agent unapproved.', 'error');
+}
+
+async function rejectAgent(id) {
+  if (!confirm('Are you sure you want to reject this agent?')) return;
+  await updateAgent(id, { approved: false, rejected: true });
+  showToast('Agent rejected.', 'error');
+}
+
+async function updateAgent(id, updates) {
+  showLoading(true);
+  try {
+    const res = await fetch(`/api/admin/agents/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_PASSWORD },
+      body: JSON.stringify(updates)
+    });
+    if (res.ok) {
+      await loadAgents();
+    } else {
+      showToast('Update failed. Please try again.', 'error');
+    }
+  } catch(e) {
+    showToast('Connection error.', 'error');
+  }
+  showLoading(false);
+}
+
+function copyEmail(email) {
+  navigator.clipboard.writeText(email);
+  showToast('Email copied!', 'success');
+}
+
+// ── Helpers ───────────────────────────────────────────────────
+function showLoading(show) { document.getElementById('loading').classList.toggle('show', show); }
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+</script>
+</body>
+</html>
