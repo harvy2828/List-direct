@@ -109,8 +109,12 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 <nav>
   <a href="index.html" class="nav-logo">List<span>Direct</span></a>
   <div style="display:flex;gap:10px;align-items:center">
-    <div style="display:flex;align-items:center;gap:8px"><a href="index.html" class="nav-back" style="padding:4px 10px;font-size:0.72rem;white-space:nowrap">← Back</a><a href="dashboard.html" style="background:none;border:1px solid rgba(62,240,122,0.3);color:#e8f0e9;padding:6px 12px;border-radius:50px;font-weight:600;font-size:0.78rem;text-decoration:none;white-space:nowrap">👤 My Account</a>
-    <a href="agent-portal.html" style="background:var(--gold);color:#1a1200;padding:6px 12px;border-radius:50px;font-weight:700;font-size:0.78rem;text-decoration:none;font-family:'DM Sans',sans-serif;white-space:nowrap">🤝 Agent Login</a><button class="nav-cta" style="padding:6px 12px;font-size:0.78rem;white-space:nowrap" onclick="document.getElementById('request-section').scrollIntoView({behavior:'smooth'})">Request</button></div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <a href="index.html" class="nav-back" style="padding:4px 10px;font-size:0.72rem;white-space:nowrap">← Back</a>
+      <a href="dashboard.html" class="desktop-nav-right" style="background:none;border:1px solid rgba(62,240,122,0.3);color:#e8f0e9;padding:6px 12px;border-radius:50px;font-weight:600;font-size:0.78rem;text-decoration:none;white-space:nowrap">👤 My Account</a>
+      <a href="agent-portal.html" class="desktop-nav-right" style="background:var(--gold);color:#1a1200;padding:6px 12px;border-radius:50px;font-weight:700;font-size:0.78rem;text-decoration:none;font-family:'DM Sans',sans-serif;white-space:nowrap">🤝 Agent Login</a>
+      <button class="nav-cta" style="padding:6px 12px;font-size:0.78rem;white-space:nowrap" onclick="document.getElementById('request-section').scrollIntoView({behavior:'smooth'})">Request Agent</button>
+    </div>
   </div>
 </nav>
 
