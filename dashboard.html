@@ -178,6 +178,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
   color:#3ef07a !important;
 }
 .pac-icon { display:none !important; }
+
+@media(max-width:900px){.desktop-nav-right{display:none!important}}
 </style>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A&libraries=places&callback=initDashPlaces" async defer></script>
 </head>
@@ -189,6 +191,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 <nav>
   <a class="nav-logo" href="index.html">List<span>Direct</span></a>
   <a class="nav-back" href="index.html">← Back to Site</a>
+  <div class="desktop-nav-right" style="display:flex;align-items:center;gap:8px">
+    <a href="agent-portal.html" style="background:none;border:1px solid rgba(245,200,66,0.3);color:#f5c842;padding:6px 14px;border-radius:50px;font-size:0.82rem;font-weight:600;text-decoration:none;white-space:nowrap">🤝 Agent Login</a>
+  </div>
 </nav>
 
 <!-- AUTH SECTION -->

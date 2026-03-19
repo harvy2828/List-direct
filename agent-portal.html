@@ -194,6 +194,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
 .pac-item-query{color:#f5c842!important;font-weight:600!important}
 .pac-matched{color:#f5c842!important}
 .pac-icon{display:none!important}
+
+@media(max-width:900px){.desktop-nav-right{display:none!important}}
 </style>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A&libraries=places&callback=initAgentPlaces" async defer></script>
 </head>
@@ -206,6 +208,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
   <a class="nav-logo" href="index.html">List<span>Direct</span></a>
   <div class="nav-badge">🤝 Agent Portal</div>
   <a class="nav-back" href="index.html">← Back to Site</a>
+  <div class="desktop-nav-right" style="display:flex;align-items:center;gap:8px">
+    <a href="dashboard.html" style="background:none;border:1px solid rgba(62,240,122,0.3);color:#e8f0e9;padding:6px 14px;border-radius:50px;font-size:0.82rem;font-weight:600;text-decoration:none;white-space:nowrap">👤 My Account</a>
+  </div>
 </nav>
 
 <!-- AUTH SECTION -->
