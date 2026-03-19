@@ -357,11 +357,30 @@ document.getElementById('agent-form').addEventListener('submit', async function(
   btn.textContent = 'Submitting…';
   btn.disabled = true;
   try {
-    await fetch('/', {
+    // Get form data
+    const formData = new FormData(this);
+    const sellerName = formData.get('seller-name') || document.getElementById('f-name')?.value || 'Unknown';
+    const sellerEmail = formData.get('seller-email') || document.getElementById('f-email')?.value || '';
+    const sellerPhone = formData.get('seller-phone') || document.getElementById('f-phone')?.value || '';
+    const sellerAddress = formData.get('seller-address') || document.getElementById('f-addr')?.value || '';
+    const sellerPrice = formData.get('seller-price') || document.getElementById('f-price')?.value || '';
+
+    // Send email notification via our server
+    await fetch('/api/notify/agent-request', {
       method: 'POST',
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-      body: new URLSearchParams(new FormData(this)).toString()
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        agent_name: selectedAgent.name,
+        agent_email: selectedAgent.email || '',
+        seller_name: sellerName,
+        seller_email: sellerEmail,
+        seller_phone: sellerPhone,
+        seller_address: sellerAddress,
+        seller_price: sellerPrice,
+        cashback: selectedAgent.cashback
+      })
     });
+
     document.getElementById('agent-form').style.display = 'none';
     document.getElementById('success-agent-name').textContent = selectedAgent.name;
     document.getElementById('success-cashback').textContent = selectedAgent.cashback;
