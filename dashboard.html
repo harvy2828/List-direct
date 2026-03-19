@@ -215,8 +215,20 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
       <div class="ff"><label>Email</label><input type="email" id="si-email" placeholder="you@example.com"/></div>
       <div class="ff"><label>Password</label><input type="password" id="si-password" placeholder="Your password"/></div>
       <button class="btn-primary" onclick="handleSignIn()">Sign In →</button>
+      <div style="text-align:center;margin-top:12px;font-size:0.83rem"><span style="color:var(--muted);cursor:pointer" onclick="showForgotPassword()">Forgot your password?</span></div>
       <div class="auth-divider">or</div>
       <div style="text-align:center;font-size:0.85rem;color:var(--muted)">Don't have an account? <span style="color:var(--green);cursor:pointer;font-weight:600" onclick="switchAuthTab('signup',null)">Create one free</span></div>
+
+      <!-- FORGOT PASSWORD FORM -->
+      <div id="forgot-form" style="display:none;margin-top:16px">
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px">
+          <div style="font-weight:700;color:var(--white);margin-bottom:8px">Reset Your Password</div>
+          <div style="font-size:0.85rem;color:var(--muted);margin-bottom:14px">Enter your email and we'll send you a reset link.</div>
+          <div class="ff"><label>Email</label><input type="email" id="reset-email" placeholder="your@email.com"/></div>
+          <button class="btn-primary" style="margin-top:4px" onclick="handleForgotPassword()">Send Reset Link →</button>
+          <div style="text-align:center;margin-top:10px"><span style="font-size:0.82rem;color:var(--muted);cursor:pointer" onclick="hideForgotPassword()">← Back to Sign In</span></div>
+        </div>
+      </div>
     </div>
 
     <!-- SIGN UP -->
@@ -850,6 +862,93 @@ function initDashPlaces() {
     }
     if (countryEl) countryEl.value = country === 'CA' ? 'CA' : 'US';
   });
+}
+
+// ── Forgot Password ───────────────────────────────────────────
+function showForgotPassword() {
+  document.getElementById('forgot-form').style.display = 'block';
+  document.getElementById('si-email').closest('.ff') && (document.getElementById('si-email').value = '');
+}
+function hideForgotPassword() {
+  document.getElementById('forgot-form').style.display = 'none';
+}
+async function handleForgotPassword() {
+  const email = document.getElementById('reset-email').value.trim();
+  if (!email) return showToast('Please enter your email', 'error');
+  showLoading(true);
+  try {
+    const res = await fetch('/api/auth/reset-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    showLoading(false);
+    if (res.ok) {
+      showToast('✅ Reset link sent! Check your email.', 'success');
+      hideForgotPassword();
+    } else {
+      showToast('Could not send reset email. Please try again.', 'error');
+    }
+  } catch(e) {
+    showLoading(false);
+    showToast('Connection error. Please try again.', 'error');
+  }
+}
+
+// ── Handle Password Reset Redirect ───────────────────────────
+(function() {
+  const hash = window.location.hash;
+  const params = new URLSearchParams(hash.replace('#', '?'));
+  const accessToken = params.get('access_token');
+  const type = params.get('type');
+  if (accessToken && type === 'recovery') {
+    localStorage.setItem('ld_reset_token', accessToken);
+    history.replaceState(null, '', window.location.pathname);
+    document.addEventListener('DOMContentLoaded', function() {
+      showResetPasswordForm();
+    });
+  }
+})();
+
+function showResetPasswordForm() {
+  document.getElementById('auth-section').innerHTML = `
+    <div class="auth-box" style="max-width:460px;width:100%">
+      <div class="auth-logo">List<span style="color:var(--green)">Direct</span></div>
+      <div class="auth-sub" style="margin-top:8px">Set your new password</div>
+      <div id="reset-error" class="auth-error"></div>
+      <div id="reset-success" class="auth-success"></div>
+      <div class="ff"><label>New Password</label><input type="password" id="new-password" placeholder="Enter new password"/></div>
+      <div class="ff"><label>Confirm Password</label><input type="password" id="confirm-password" placeholder="Confirm new password"/></div>
+      <button class="btn-primary" onclick="submitNewPassword()">Set New Password →</button>
+    </div>`;
+}
+
+async function submitNewPassword() {
+  const np = document.getElementById('new-password').value;
+  const cp = document.getElementById('confirm-password').value;
+  if (!np || np.length < 6) return document.getElementById('reset-error').textContent = 'Password must be at least 6 characters.' || document.getElementById('reset-error').classList.add('show');
+  if (np !== cp) return document.getElementById('reset-error').textContent = 'Passwords do not match.' || document.getElementById('reset-error').classList.add('show');
+  const token = localStorage.getItem('ld_reset_token');
+  showLoading(true);
+  try {
+    const res = await fetch('/api/auth/update-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ password: np })
+    });
+    showLoading(false);
+    if (res.ok) {
+      localStorage.removeItem('ld_reset_token');
+      document.getElementById('reset-success').textContent = '✅ Password updated! You can now sign in.';
+      document.getElementById('reset-success').classList.add('show');
+      setTimeout(() => window.location.href = 'dashboard.html', 2000);
+    } else {
+      document.getElementById('reset-error').textContent = 'Failed to update password. Please try again.';
+      document.getElementById('reset-error').classList.add('show');
+    }
+  } catch(e) {
+    showLoading(false);
+  }
 }
 </script>
 </body>

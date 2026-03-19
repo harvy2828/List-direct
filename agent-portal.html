@@ -233,7 +233,19 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
       <div class="ff"><label>Email</label><input type="email" id="si-email" placeholder="agent@example.com"/></div>
       <div class="ff"><label>Password</label><input type="password" id="si-password" placeholder="Your password"/></div>
       <button class="btn-gold" onclick="handleSignIn()">Sign In to Agent Portal →</button>
-      <div style="text-align:center;margin-top:16px;font-size:0.85rem;color:var(--muted)">Not an agent yet? <span style="color:var(--gold);cursor:pointer;font-weight:600" onclick="switchAuthTab('apply',null)">Apply to join →</span></div>
+      <div style="text-align:center;margin-top:12px;font-size:0.83rem"><span style="color:var(--muted);cursor:pointer" onclick="showAgentForgotPassword()">Forgot your password?</span></div>
+      <div style="text-align:center;margin-top:10px;font-size:0.85rem;color:var(--muted)">Not an agent yet? <span style="color:var(--gold);cursor:pointer;font-weight:600" onclick="switchAuthTab('apply',null)">Apply to join →</span></div>
+
+      <!-- FORGOT PASSWORD -->
+      <div id="agent-forgot-form" style="display:none;margin-top:16px">
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px">
+          <div style="font-weight:700;color:var(--white);margin-bottom:8px">Reset Your Password</div>
+          <div style="font-size:0.85rem;color:var(--muted);margin-bottom:14px">Enter your email and we'll send you a reset link.</div>
+          <div class="ff"><label>Email</label><input type="email" id="agent-reset-email" placeholder="your@email.com"/></div>
+          <button class="btn-gold" style="margin-top:4px" onclick="handleAgentForgotPassword()">Send Reset Link →</button>
+          <div style="text-align:center;margin-top:10px"><span style="font-size:0.82rem;color:var(--muted);cursor:pointer" onclick="document.getElementById('agent-forgot-form').style.display='none'">← Back to Sign In</span></div>
+        </div>
+      </div>
     </div>
 
     <!-- APPLY -->
@@ -937,6 +949,28 @@ function initAgentPlaces() {
       if (city && state) el.value = city + ', ' + state;
     });
   });
+}
+
+function showAgentForgotPassword() {
+  document.getElementById('agent-forgot-form').style.display = 'block';
+}
+async function handleAgentForgotPassword() {
+  const email = document.getElementById('agent-reset-email').value.trim();
+  if (!email) return showToast('Please enter your email', 'error');
+  showLoading(true);
+  try {
+    const res = await fetch('/api/auth/reset-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, redirectTo: window.location.origin + '/agent-portal.html' })
+    });
+    showLoading(false);
+    showToast('✅ Reset link sent! Check your email.', 'gold');
+    document.getElementById('agent-forgot-form').style.display = 'none';
+  } catch(e) {
+    showLoading(false);
+    showToast('Connection error. Please try again.', 'error');
+  }
 }
 </script>
 </body>

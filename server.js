@@ -172,5 +172,37 @@ app.get('/api/favorites', async (req, res) => {
   }
 });
 
+
+// ── Auth: Reset Password (send email) ────────────────────────
+app.post('/api/auth/reset-password', async (req, res) => {
+  const { email, redirectTo } = req.body;
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: redirectTo || process.env.SITE_URL + '/dashboard.html'
+    });
+    if (error) return res.status(400).json({ error: error.message });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Auth: Update Password ─────────────────────────────────────
+app.post('/api/auth/update-password', async (req, res) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  const { password } = req.body;
+  if (!token) return res.status(401).json({ error: 'Not authenticated' });
+  try {
+    const userSupabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: `Bearer ${token}` } }
+    });
+    const { error } = await userSupabase.auth.updateUser({ password });
+    if (error) return res.status(400).json({ error: error.message });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`ListDirect running on port ${PORT}`));
