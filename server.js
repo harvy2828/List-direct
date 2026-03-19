@@ -412,7 +412,7 @@ app.patch('/api/admin/agents/:id', async (req, res) => {
       if (agentEmail) {
         await sendEmail({
           to: agentEmail,
-          subject: '🎉 You're now a ListDirect Certified Agent!',
+          subject: "🎉 You're now a ListDirect Certified Agent!",
           html: `
             <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a0f0d;color:#e8f0e9;border-radius:12px;padding:32px">
               <h1 style="color:#f5c842;font-size:2rem;margin-bottom:4px">Congratulations!</h1>
