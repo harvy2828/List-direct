@@ -139,6 +139,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
       <button class="tab" onclick="showTab('approved', this)">✅ Approved</button>
       <button class="tab" onclick="showTab('rejected', this)">❌ Rejected</button>
       <button class="tab" onclick="showTab('all', this)">📋 All</button>
+      <button class="tab" onclick="showTab('payments', this)">💰 Payments</button>
     </div>
 
     <div class="agents-list" id="agents-list">
@@ -223,6 +224,7 @@ function showTab(tab, btn) {
 
 function renderTab(tab) {
   let filtered = allAgents;
+  if (tab === 'payments') { loadPayments(); return; }
   if (tab === 'pending') filtered = allAgents.filter(a => !a.approved && !a.rejected);
   if (tab === 'approved') filtered = allAgents.filter(a => a.approved);
   if (tab === 'rejected') filtered = allAgents.filter(a => a.rejected);
@@ -313,6 +315,50 @@ function showToast(msg, type='success') {
   const t = document.getElementById('toast');
   t.textContent = msg; t.className = `toast ${type} show`;
   setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ── Payments ──────────────────────────────────────────────────
+async function loadPayments() {
+  const list = document.getElementById('agents-list');
+  list.innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-title">Loading payments...</div></div>';
+  try {
+    const res = await fetch('/api/admin/payments', { headers: { 'x-admin-key': ADMIN_PASSWORD } });
+    const data = await res.json();
+    const payments = data.payments || [];
+    if (payments.length === 0) {
+      list.innerHTML = '<div class="empty-state"><div class="empty-icon">💰</div><div class="empty-title">No payments yet</div><div class="empty-sub">Seller and agent payments will appear here</div></div>';
+      return;
+    }
+    list.innerHTML = payments.map(p => `
+      <div style="background:var(--card);border:1px solid ${p.status === 'paid' ? 'rgba(62,240,122,0.3)' : p.status === 'pending' ? 'rgba(245,200,66,0.3)' : 'var(--border)'};border-radius:16px;padding:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div>
+          <div style="font-weight:700;color:var(--white);margin-bottom:4px">${p.fee_type === 'seller_platform_fee' ? '🏠 Seller Platform Fee (1%)' : '🤝 Agent Referral Fee (10%)'}</div>
+          <div style="font-size:0.82rem;color:var(--muted)">Method: ${p.payment_method || '—'} · ${new Date(p.created_at).toLocaleDateString()}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:${p.status === 'paid' ? 'var(--green)' : 'var(--gold)'}">$${parseFloat(p.amount).toLocaleString()}</div>
+          <span style="font-size:0.72rem;font-weight:700;padding:4px 10px;border-radius:50px;background:${p.status === 'paid' ? 'var(--greenlow)' : 'var(--goldlow)'};color:${p.status === 'paid' ? 'var(--green)' : 'var(--gold)'};">${p.status === 'paid' ? '✅ Paid' : '⏳ Pending'}</span>
+          ${p.status !== 'paid' && p.payment_method === 'check' ? `<button onclick="markCheckPaid('${p.id}')" style="background:var(--green);color:#0a0f0d;padding:6px 14px;border-radius:50px;border:none;font-weight:700;font-size:0.78rem;cursor:pointer;font-family:'DM Sans',sans-serif">✅ Mark Paid</button>` : ''}
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">❌</div><div class="empty-title">Failed to load payments</div></div>';
+  }
+}
+
+async function markCheckPaid(paymentId) {
+  try {
+    await fetch('/api/payments/mark-check', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_PASSWORD },
+      body: JSON.stringify({ payment_id: paymentId })
+    });
+    showToast('✅ Payment marked as paid!', 'success');
+    loadPayments();
+  } catch(e) {
+    showToast('Failed to update payment', 'error');
+  }
 }
 </script>
 </body>

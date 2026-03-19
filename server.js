@@ -2,6 +2,8 @@ const express = require('express');
 const path = require('path');
 const multer = require('multer');
 const { createClient } = require('@supabase/supabase-js');
+const Stripe = require('stripe');
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 const app = express();
 app.use(express.json());
@@ -270,6 +272,94 @@ app.patch('/api/admin/agents/:id', async (req, res) => {
       .eq('id', id);
     if (error) throw error;
     res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// ── Stripe: Create Payment Intent (Seller 1%) ─────────────────
+app.post('/api/payments/create-intent', async (req, res) => {
+  const { sale_price, payment_type, user_id, listing_id } = req.body;
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Not authenticated' });
+  
+  try {
+    const fee = Math.round(sale_price * 0.01 * 100); // 1% in cents
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: fee,
+      currency: 'usd',
+      metadata: { user_id, listing_id, type: 'seller_platform_fee', sale_price: sale_price.toString() }
+    });
+    
+    // Save payment record to Supabase
+    await supabase.from('payments').insert({
+      user_id,
+      listing_id,
+      amount: fee / 100,
+      fee_type: 'seller_platform_fee',
+      status: 'pending',
+      payment_method: payment_type,
+      stripe_intent_id: paymentIntent.id
+    });
+    
+    res.json({ client_secret: paymentIntent.client_secret, amount: fee });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Stripe: Create Payment Intent (Agent 10%) ─────────────────
+app.post('/api/payments/agent-fee', async (req, res) => {
+  const { commission_amount, payment_type, agent_id, deal_id } = req.body;
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Not authenticated' });
+  
+  try {
+    const fee = Math.round(commission_amount * 0.10 * 100); // 10% in cents
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: fee,
+      currency: 'usd',
+      metadata: { agent_id, deal_id, type: 'agent_referral_fee', commission: commission_amount.toString() }
+    });
+    
+    await supabase.from('payments').insert({
+      user_id: agent_id,
+      amount: fee / 100,
+      fee_type: 'agent_referral_fee',
+      status: 'pending',
+      payment_method: payment_type,
+      stripe_intent_id: paymentIntent.id
+    });
+    
+    res.json({ client_secret: paymentIntent.client_secret, amount: fee });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Mark Check Payment ────────────────────────────────────────
+app.post('/api/payments/mark-check', async (req, res) => {
+  const adminKey = req.headers['x-admin-key'];
+  if (adminKey !== process.env.ADMIN_PASSWORD) return res.status(401).json({ error: 'Unauthorized' });
+  const { payment_id } = req.body;
+  try {
+    const { error } = await supabase.from('payments').update({ status: 'paid' }).eq('id', payment_id);
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Get Payments (Admin) ──────────────────────────────────────
+app.get('/api/admin/payments', async (req, res) => {
+  const adminKey = req.headers['x-admin-key'];
+  if (adminKey !== process.env.ADMIN_PASSWORD) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const { data, error } = await supabase.from('payments').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    res.json({ payments: data || [] });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

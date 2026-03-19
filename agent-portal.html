@@ -198,6 +198,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
 @media(max-width:900px){.desktop-nav-right{display:none!important}}
 </style>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A&libraries=places&callback=initAgentPlaces" async defer></script>
+<script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
 
@@ -457,10 +458,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
               <div class="earnings-title">Recent Transactions</div>
               <div class="earnings-period">Last 90 days</div>
             </div>
-            <div class="empty-state" style="padding:32px">
-              <div class="empty-icon">💰</div>
-              <div class="empty-title">No closed deals yet</div>
-              <div class="empty-sub">Your earnings will appear here once you close your first deal through ListDirect</div>
+            <div style="text-align:center;padding:24px">
+              <div style="font-size:2rem;margin-bottom:12px">💰</div>
+              <div style="font-weight:700;color:var(--white);margin-bottom:8px">Ready to close a deal?</div>
+              <div style="font-size:0.85rem;color:var(--muted);margin-bottom:16px">When you close a deal through ListDirect, submit your referral fee here.</div>
+              <button onclick="openAgentPaymentModal()" style="background:var(--gold);color:#1a1200;padding:12px 24px;border-radius:50px;border:none;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:'DM Sans',sans-serif">💳 Pay Referral Fee</button>
             </div>
           </div>
 
@@ -973,5 +975,157 @@ async function handleAgentForgotPassword() {
   }
 }
 </script>
+
+<!-- AGENT PAYMENT MODAL -->
+<div id="agent-payment-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:500;align-items:center;justify-content:center;padding:24px">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:24px;padding:36px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto">
+    <div style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--white);margin-bottom:6px">Pay Referral Fee</div>
+    <div style="font-size:0.85rem;color:var(--muted);margin-bottom:24px">ListDirect charges 10% of your commission on deals closed through our platform</div>
+
+    <div style="margin-bottom:16px">
+      <label style="display:block;font-size:0.74rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:6px">Your Commission Amount</label>
+      <input type="text" id="apm-commission" placeholder="e.g. $25,000" oninput="formatAgentFee(this)" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:12px 16px;border-radius:12px;font-size:0.95rem;font-family:'DM Sans',sans-serif;outline:none"/>
+    </div>
+
+    <div style="background:var(--redlow);border:1px solid rgba(232,84,84,0.2);border-radius:12px;padding:16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:0.88rem;color:var(--muted)">ListDirect Referral Fee (10%)</div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--red)" id="apm-fee-display">$0</div>
+    </div>
+
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;font-size:0.82rem;color:var(--muted);line-height:1.7">
+      <strong style="color:var(--white);display:block;margin-bottom:8px">📋 ListDirect Agent Referral Agreement</strong>
+      I confirm that this deal was sourced through the ListDirect platform and agree to pay ListDirect a referral fee of 10% of my total commission as per the referral agreement I signed upon joining. This fee is due within 30 days of closing.
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:20px">
+      <input type="checkbox" id="apm-agree" style="margin-top:3px;accent-color:var(--gold);width:16px;height:16px;flex-shrink:0"/>
+      <label for="apm-agree" style="font-size:0.85rem;color:var(--text);cursor:pointer">I agree to the ListDirect Agent Referral Agreement and authorize payment of the 10% referral fee</label>
+    </div>
+
+    <div style="margin-bottom:20px">
+      <label style="display:block;font-size:0.74rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:10px">Payment Method</label>
+      <div style="display:flex;gap:10px">
+        <button id="apm-card-btn" onclick="selectAgentPayMethod('card')" style="flex:1;padding:12px;border-radius:12px;border:2px solid var(--gold);background:var(--goldlow);color:var(--gold);font-weight:700;font-size:0.88rem;cursor:pointer;font-family:'DM Sans',sans-serif">💳 Pay by Card</button>
+        <button id="apm-check-btn" onclick="selectAgentPayMethod('check')" style="flex:1;padding:12px;border-radius:12px;border:1px solid var(--border);background:none;color:var(--muted);font-weight:600;font-size:0.88rem;cursor:pointer;font-family:'DM Sans',sans-serif">📬 Pay by Check</button>
+      </div>
+    </div>
+
+    <div id="apm-card-section" style="margin-bottom:16px">
+      <label style="display:block;font-size:0.74rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:8px">Card Details</label>
+      <div id="agent-card-element" style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px"></div>
+      <div id="agent-card-errors" style="color:var(--red);font-size:0.82rem;margin-top:6px"></div>
+    </div>
+
+    <div id="apm-check-section" style="display:none;background:var(--goldlow);border:1px solid rgba(245,200,66,0.2);border-radius:12px;padding:16px;margin-bottom:16px;font-size:0.85rem;color:var(--muted)">
+      <strong style="color:var(--white);display:block;margin-bottom:8px">📬 Check Payment Instructions</strong>
+      Make your check payable to <strong style="color:var(--gold)">ListDirect Inc.</strong><br/>
+      Email us at <strong style="color:var(--gold)">infolistdirect@gmail.com</strong> with your name and property address after mailing.<br/>
+      We will mark your account as paid upon receipt.
+    </div>
+
+    <div style="display:flex;gap:10px">
+      <button onclick="closeAgentPaymentModal()" style="flex:1;padding:13px;border-radius:50px;border:1px solid var(--border);background:none;color:var(--muted);font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Cancel</button>
+      <button onclick="submitAgentPayment()" style="flex:2;padding:13px;border-radius:50px;border:none;background:var(--gold);color:#1a1200;font-weight:700;font-size:0.95rem;cursor:pointer;font-family:'DM Sans',sans-serif" id="apm-submit-btn">Submit Payment →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STRIPE_PK_AGENT = 'pk_test_51TCoc7CFLBqpuNpBCRDDcIB0CaHfz2DIunhqpYp1joGsCD79T6Wlw9qPpBjFpxjKousFpPQEGSDRFjlI0V7i84L500YTUYItNc';
+let agentStripe = null;
+let agentCardEl = null;
+let selectedAgentPayMethod = 'card';
+
+function openAgentPaymentModal() {
+  document.getElementById('agent-payment-modal').style.display = 'flex';
+  if (!agentStripe) {
+    agentStripe = Stripe(STRIPE_PK_AGENT);
+    const elements = agentStripe.elements({
+      appearance: { theme: 'night', variables: { colorPrimary: '#f5c842', colorBackground: '#111810', colorText: '#e8f0e9', colorDanger: '#e85454', borderRadius: '12px' } }
+    });
+    agentCardEl = elements.create('card');
+    agentCardEl.mount('#agent-card-element');
+    agentCardEl.on('change', e => {
+      document.getElementById('agent-card-errors').textContent = e.error ? e.error.message : '';
+    });
+  }
+}
+
+function closeAgentPaymentModal() {
+  document.getElementById('agent-payment-modal').style.display = 'none';
+}
+
+function formatAgentFee(el) {
+  let raw = el.value.replace(/[^0-9]/g, '');
+  if (!raw) { el.value = ''; document.getElementById('apm-fee-display').textContent = '$0'; return; }
+  el.value = '$' + parseInt(raw).toLocaleString();
+  const fee = Math.round(parseInt(raw) * 0.10);
+  document.getElementById('apm-fee-display').textContent = '$' + fee.toLocaleString();
+}
+
+function selectAgentPayMethod(method) {
+  selectedAgentPayMethod = method;
+  document.getElementById('apm-card-section').style.display = method === 'card' ? 'block' : 'none';
+  document.getElementById('apm-check-section').style.display = method === 'check' ? 'block' : 'none';
+  document.getElementById('apm-card-btn').style.borderColor = method === 'card' ? 'var(--gold)' : 'var(--border)';
+  document.getElementById('apm-check-btn').style.borderColor = method === 'check' ? 'var(--gold)' : 'var(--border)';
+}
+
+async function submitAgentPayment() {
+  if (!document.getElementById('apm-agree').checked) {
+    showToast('Please agree to the referral agreement first', 'error');
+    return;
+  }
+  const raw = document.getElementById('apm-commission').value.replace(/[^0-9]/g, '');
+  if (!raw || parseInt(raw) < 100) {
+    showToast('Please enter a valid commission amount', 'error');
+    return;
+  }
+
+  const commission = parseInt(raw);
+  const token = localStorage.getItem('ld_agent_token');
+
+  if (selectedAgentPayMethod === 'check') {
+    showToast('✅ Check payment noted! Please follow the instructions above.', 'gold');
+    await fetch('/api/payments/agent-fee', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ commission_amount: commission, payment_type: 'check', agent_id: currentUser?.id })
+    }).catch(() => {});
+    closeAgentPaymentModal();
+    return;
+  }
+
+  const btn = document.getElementById('apm-submit-btn');
+  btn.textContent = 'Processing...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/payments/agent-fee', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ commission_amount: commission, payment_type: 'card', agent_id: currentUser?.id })
+    });
+    const data = await res.json();
+
+    const result = await agentStripe.confirmCardPayment(data.client_secret, {
+      payment_method: { card: agentCardEl }
+    });
+
+    if (result.error) {
+      document.getElementById('agent-card-errors').textContent = result.error.message;
+      btn.textContent = 'Submit Payment →';
+      btn.disabled = false;
+    } else {
+      showToast('✅ Referral fee paid! Thank you.', 'success');
+      closeAgentPaymentModal();
+    }
+  } catch(e) {
+    showToast('Payment failed. Please try again.', 'error');
+    btn.textContent = 'Submit Payment →';
+    btn.disabled = false;
+  }
+}
+</script>
+
 </body>
 </html>
