@@ -1377,6 +1377,7 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
 </div>
 
 
+<script>
 // ── Number Formatting Helpers ─────────────────────────────────
 function formatPriceInput(el) {
   let raw = el.value.replace(/[^0-9]/g, '');
@@ -1388,7 +1389,6 @@ function formatSqftInput(el) {
   if (!raw) { el.value = ''; return; }
   el.value = parseInt(raw).toLocaleString();
 }
-<script>
 // ═══════════════════════════════════════════
 // DATA
 // ═══════════════════════════════════════════
