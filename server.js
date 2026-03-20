@@ -656,5 +656,111 @@ app.patch('/api/listings/:id', async (req, res) => {
   }
 });
 
+
+// ── Messages: Send ────────────────────────────────────────────
+app.post('/api/messages', async (req, res) => {
+  const { listing_id, seller_id, sender_name, sender_email, message } = req.body;
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  let sender_id = null;
+  if (token) {
+    const { data: { user } } = await supabase.auth.getUser(token).catch(() => ({ data: { user: null } }));
+    sender_id = user?.id || null;
+  }
+  try {
+    const { data, error } = await supabase.from('messages').insert([{
+      listing_id, seller_id, sender_id,
+      sender_name, sender_email, message, read: false
+    }]).select().single();
+    if (error) return res.status(400).json({ error: error.message });
+
+    // Notify seller via email
+    const { data: sellerAuth } = await supabase.auth.admin.getUserById(seller_id).catch(() => ({ data: null }));
+    if (sellerAuth?.user?.email) {
+      await sendEmail({
+        to: sellerAuth.user.email,
+        subject: '💬 New Inquiry — ' + sender_name + ' is interested in your listing!',
+        html: `<div style="font-family:Arial,sans-serif;background:#0a0f0d;color:#e8f0e9;padding:32px;border-radius:12px;max-width:600px">
+          <h2 style="color:#3ef07a">New Inquiry on Your Listing!</h2>
+          <p style="color:#7a9480">Someone is interested in your property.</p>
+          <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin:16px 0">
+            <p><strong>From:</strong> ${sender_name}</p>
+            <p><strong>Email:</strong> ${sender_email}</p>
+            <p style="margin-top:12px;color:#e8f0e9">"${message}"</p>
+          </div>
+          <a href="https://listdirect.ai/dashboard.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-top:8px">Reply in Dashboard →</a>
+        </div>`
+      });
+    }
+
+    res.json({ success: true, id: data.id });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Messages: Get Inquiries (for seller) ──────────────────────
+app.get('/api/messages/inquiries', async (req, res) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Not authenticated' });
+  try {
+    const { data: { user } } = await supabase.auth.getUser(token);
+    if (!user) return res.status(401).json({ error: 'Invalid token' });
+    const { data, error } = await supabase
+      .from('messages')
+      .select('*')
+      .eq('seller_id', user.id)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    res.json({ messages: data || [] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Messages: Reply ───────────────────────────────────────────
+app.post('/api/messages/reply', async (req, res) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Not authenticated' });
+  const { original_message_id, reply_text, buyer_email, buyer_name } = req.body;
+  try {
+    const { data: { user } } = await supabase.auth.getUser(token);
+    const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user.id).single();
+    
+    // Send reply email to buyer
+    await sendEmail({
+      to: buyer_email,
+      subject: '💬 Reply from your ListDirect inquiry',
+      html: `<div style="font-family:Arial,sans-serif;background:#0a0f0d;color:#e8f0e9;padding:32px;border-radius:12px;max-width:600px">
+        <h2 style="color:#3ef07a">The seller replied to your inquiry!</h2>
+        <p style="color:#7a9480">Hi ${buyer_name},</p>
+        <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin:16px 0">
+          <p style="color:#e8f0e9">"${reply_text}"</p>
+          <p style="color:#7a9480;margin-top:8px">— ${profile?.full_name || 'The Seller'}</p>
+        </div>
+        <a href="https://listdirect.ai" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-top:8px">View on ListDirect →</a>
+      </div>`
+    });
+
+    // Mark original as read
+    await supabase.from('messages').update({ read: true }).eq('id', original_message_id);
+
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Messages: Mark Read ───────────────────────────────────────
+app.patch('/api/messages/:id/read', async (req, res) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Not authenticated' });
+  try {
+    await supabase.from('messages').update({ read: true }).eq('id', req.params.id);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`ListDirect running on port ${PORT}`));
