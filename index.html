@@ -1743,6 +1743,41 @@ async function generateAIListings(city, beds, maxPrice) {
 // ═══════════════════════════════════════════
 // MAIN SEARCH FUNCTION
 // ═══════════════════════════════════════════
+
+// ── Fetch Real Platform Listings ──────────────────────────────
+async function fetchPlatformListings(query, beds, maxPrice) {
+  try {
+    const res = await fetch('/api/listings/search?q=' + encodeURIComponent(query) + '&beds=' + beds + '&maxPrice=' + maxPrice);
+    if (!res.ok) return [];
+    const data = await res.json();
+    // Convert to same format as LD_VERIFIED listings
+    return (data.listings || []).map(l => ({
+      id: l.id,
+      seller_id: l.user_id,
+      verified: true,
+      listing: l.listing_path || 'direct',
+      price: parseInt(l.price) || 0,
+      currency: l.state && ['BC','AB','ON','QC','MB','SK','NS','NB','NL','PE','NT','YT','NU'].includes(l.state) ? 'CAD' : 'USD',
+      addr: l.address || '',
+      city: l.city || '',
+      zip: l.zip || '',
+      beds: parseInt(l.bedrooms) || 0,
+      baths: parseFloat(l.bathrooms) || 0,
+      sqft: parseInt(l.sqft) || 0,
+      type: l.property_type || 'house',
+      days: Math.floor((Date.now() - new Date(l.created_at)) / 86400000) || 0,
+      match: 98,
+      img: l.photos?.[0] || 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=400&h=280&fit=crop',
+      cashback: l.listing_path === 'agent' ? '1%' : null,
+      desc: l.description || '',
+      platform: true // flag as our own listing
+    }));
+  } catch(e) {
+    console.error('Platform listings error:', e);
+    return [];
+  }
+}
+
 async function runSearch() {
   if (isSearching) return;
   const query = document.getElementById('search-input').value.trim();
@@ -1771,13 +1806,17 @@ async function runSearch() {
     return true;
   });
 
+  // Fetch real platform listings from database
+  const platformListings = await fetchPlatformListings(query, beds, maxPrice);
+
   // Generate AI market listings
   const aiListings = await generateAIListings(query, beds, maxPrice);
 
   document.getElementById('search-loading').classList.remove('visible');
   isSearching = false;
 
-  const all = [...verifiedMatches, ...aiListings.filter(l => {
+  // Platform listings first, then verified, then AI
+  const all = [...platformListings, ...verifiedMatches.filter(v => !platformListings.find(p => p.id === v.id)), ...aiListings.filter(l => {
     if (typeFilter !== 'all' && l.type !== typeFilter) return false;
     if (listingFilter === 'verified') return false;
     return true;

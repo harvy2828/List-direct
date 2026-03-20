@@ -769,5 +769,34 @@ app.patch('/api/messages/:id/read', async (req, res) => {
   }
 });
 
+
+// ── Listings: Search Public ───────────────────────────────────
+app.get('/api/listings/search', async (req, res) => {
+  const { q, beds, maxPrice } = req.query;
+  try {
+    let query = supabase
+      .from('listings')
+      .select('*')
+      .eq('status', 'active')
+      .order('created_at', { ascending: false });
+
+    if (q) {
+      query = query.or(`city.ilike.%${q}%,address.ilike.%${q}%,state.ilike.%${q}%,zip.ilike.%${q}%`);
+    }
+    if (beds && parseInt(beds) > 0) {
+      query = query.gte('bedrooms', parseInt(beds));
+    }
+    if (maxPrice && parseInt(maxPrice) > 0) {
+      query = query.lte('price', parseInt(maxPrice));
+    }
+
+    const { data, error } = await query.limit(20);
+    if (error) throw error;
+    res.json({ listings: data || [] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`ListDirect running on port ${PORT}`));
