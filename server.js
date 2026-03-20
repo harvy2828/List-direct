@@ -667,8 +667,15 @@ app.post('/api/messages', async (req, res) => {
     sender_id = user?.id || null;
   }
   try {
+    // Only use listing_id if it's a valid UUID, otherwise null
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const validListingId = listing_id && uuidRegex.test(listing_id) ? listing_id : null;
+    const validSellerId = seller_id && uuidRegex.test(seller_id) ? seller_id : null;
+
     const { data, error } = await supabase.from('messages').insert([{
-      listing_id, seller_id, sender_id,
+      listing_id: validListingId,
+      seller_id: validSellerId,
+      sender_id,
       sender_name, sender_email, message, read: false
     }]).select().single();
     if (error) return res.status(400).json({ error: error.message });
