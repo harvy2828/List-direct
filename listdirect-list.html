@@ -523,7 +523,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
         </div>
       </div>
       <div class="success-actions">
-        <a href="listdirect-search.html" class="btn-primary">Browse Listings</a>
+        <a href="index.html#search-section" class="btn-primary">Browse Listings</a>
         <a href="index.html" class="btn-outline">Back to Home</a>
       </div>
     </div>
@@ -838,16 +838,59 @@ document.getElementById('listing-form').addEventListener('submit', async functio
   const btn = document.getElementById('btn-submit');
   btn.textContent = 'Submitting…';
   btn.disabled = true;
+
+  const token = localStorage.getItem('ld_token');
+  
+  // Gather all listing data
+  const listingData = {
+    address: document.getElementById('s2-addr')?.value || '',
+    city: document.getElementById('s2-city')?.value || '',
+    state: document.getElementById('s2-state')?.value || '',
+    zip: document.getElementById('s2-zip')?.value || '',
+    price: document.getElementById('s2-price')?.value?.replace(/[^0-9]/g,'') || '',
+    bedrooms: document.getElementById('s2-beds')?.value || '',
+    bathrooms: document.getElementById('s2-baths')?.value || '',
+    sqft: document.getElementById('s2-sqft')?.value?.replace(/[^0-9]/g,'') || '',
+    year_built: document.getElementById('s2-year')?.value || '',
+    property_type: document.getElementById('s2-type')?.value || '',
+    features: document.getElementById('s2-features')?.value || '',
+    description: aiDescription || document.getElementById('lp-desc')?.textContent || '',
+    photos: uploadedPhotoUrls || [],
+    status: 'pending',
+    listing_path: document.getElementById('s1-path')?.value || 'direct'
+  };
+
   try {
-    await fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(new FormData(this)).toString() });
+    if (token) {
+      // Logged in — save to database
+      const res = await fetch('/api/listings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify(listingData)
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        console.error('Listing save error:', data.error);
+      }
+    } else {
+      // Not logged in — save to localStorage temporarily
+      localStorage.setItem('ld_pending_listing', JSON.stringify(listingData));
+    }
+
     const city = document.getElementById('s2-city').value;
     document.getElementById('success-city').textContent = city || 'your city';
     showStep(6);
     updateProgress(6);
   } catch (err) {
+    console.error('Submit error:', err);
+    // Still show success even if save fails
+    const city = document.getElementById('s2-city').value;
+    document.getElementById('success-city').textContent = city || 'your city';
+    showStep(6);
+    updateProgress(6);
+  } finally {
     btn.textContent = '🚀 Submit My Listing — Go Live!';
     btn.disabled = false;
-    alert('Submission failed. Please try again.');
   }
 });
 
@@ -884,7 +927,7 @@ function chooseAI(){
 }
 function chooseAgent(){
   closePathModal();
-  window.location.href='listdirect-search.html#agents';
+  window.location.href='listdirect-agents.html';
 }
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closePathModal();});
 

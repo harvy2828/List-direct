@@ -234,7 +234,25 @@ app.post('/api/listings', async (req, res) => {
   try {
     const { data: { user } } = await supabase.auth.getUser(token);
     if (!user) return res.status(401).json({ error: 'Invalid token' });
-    const listing = { ...req.body, user_id: user.id, status: 'active' };
+    const body = req.body;
+    const listing = {
+      user_id: user.id,
+      address: body.address || '',
+      city: body.city || '',
+      state: body.state || '',
+      zip: body.zip || '',
+      price: body.price ? parseInt(body.price) : null,
+      bedrooms: body.bedrooms ? parseInt(body.bedrooms) : null,
+      bathrooms: body.bathrooms ? parseFloat(body.bathrooms) : null,
+      sqft: body.sqft ? parseInt(body.sqft) : null,
+      year_built: body.year_built ? parseInt(body.year_built) : null,
+      property_type: body.property_type || '',
+      features: body.features || '',
+      description: body.description || '',
+      photos: body.photos || [],
+      status: 'active',
+      listing_path: body.listing_path || 'direct'
+    };
     const { data, error } = await supabase.from('listings').insert([listing]).select().single();
     if (error) return res.status(400).json({ error: error.message });
     res.json(data);
