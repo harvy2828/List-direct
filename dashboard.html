@@ -904,10 +904,16 @@ async function handleForgotPassword() {
   const type = params.get('type');
   if (accessToken && type === 'recovery') {
     localStorage.setItem('ld_reset_token', accessToken);
+    localStorage.removeItem('ld_token'); // make sure not logged in
     history.replaceState(null, '', window.location.pathname);
-    document.addEventListener('DOMContentLoaded', function() {
+    // Show reset form as soon as DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        showResetPasswordForm();
+      });
+    } else {
       showResetPasswordForm();
-    });
+    }
   }
 })();
 

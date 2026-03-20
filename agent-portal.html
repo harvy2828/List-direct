@@ -358,6 +358,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
               <button class="btn-sm btn-gold-sm" onclick="showPanel('leads',null)">📥 View New Leads</button>
               <button class="btn-sm btn-outline-sm" onclick="showPanel('profile',null)">✏️ Update Profile</button>
               <button class="btn-sm btn-outline-sm" onclick="showPanel('calculator',null)">🧮 Fee Calculator</button>
+              <button class="btn-sm" onclick="openAgentPaymentModal()" style="background:var(--gold);color:#1a1200;border:none;padding:7px 16px;border-radius:50px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">💳 Pay Referral Fee</button>
               <button class="btn-sm btn-outline-sm" onclick="window.open('index.html','_blank')">🌐 View Site</button>
             </div>
           </div>
@@ -820,6 +821,8 @@ function showDashboard() {
     document.getElementById('dash-cashback-rate').textContent = meta.cashback_offer + '%';
     document.getElementById('prof-cashback').value = meta.cashback_offer;
   }
+  // Check if agent needs to agree to terms
+  setTimeout(checkShowAgreement, 500);
 }
 
 // ── Panels ────────────────────────────────────────────────────
@@ -1125,7 +1128,64 @@ async function submitAgentPayment() {
     btn.disabled = false;
   }
 }
+
+// ── Agent Agreement ───────────────────────────────────────────
+function checkShowAgreement() {
+  const agreed = localStorage.getItem('ld_agent_agreed');
+  if (!agreed) {
+    document.getElementById('agreement-modal').style.display = 'flex';
+  }
+}
+
+function submitAgreement() {
+  if (!document.getElementById('agree-checkbox').checked) {
+    showToast('Please check the box to agree to the terms', 'error');
+    return;
+  }
+  localStorage.setItem('ld_agent_agreed', 'true');
+  document.getElementById('agreement-modal').style.display = 'none';
+  showToast('✅ Agreement accepted! Welcome to ListDirect.', 'gold');
+}
 </script>
+
+
+<!-- FIRST LOGIN AGREEMENT MODAL -->
+<div id="agreement-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:600;align-items:center;justify-content:center;padding:24px">
+  <div style="background:var(--card);border:1px solid rgba(245,200,66,0.3);border-radius:24px;padding:36px;max-width:540px;width:100%;max-height:90vh;overflow-y:auto">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:2.5rem;margin-bottom:12px">🤝</div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;color:var(--white);margin-bottom:6px">Agent Agreement</div>
+      <div style="font-size:0.85rem;color:var(--muted)">Please review and agree before accessing your portal</div>
+    </div>
+
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;font-size:0.85rem;color:var(--muted);line-height:1.8;max-height:280px;overflow-y:auto">
+      <strong style="color:var(--white);display:block;margin-bottom:12px;font-size:0.95rem">ListDirect Certified Agent Agreement</strong>
+      
+      <strong style="color:var(--gold)">1. Cashback Commitment</strong><br/>
+      I agree to provide sellers a minimum cashback rebate (as stated on my profile) at or before closing on every transaction sourced through ListDirect.<br/><br/>
+      
+      <strong style="color:var(--gold)">2. Referral Fee</strong><br/>
+      I agree to pay ListDirect a <strong style="color:var(--red)">10% referral fee</strong> from my commission on every deal closed through the ListDirect platform. This fee is due within 30 days of closing.<br/><br/>
+      
+      <strong style="color:var(--gold)">3. Professional Conduct</strong><br/>
+      I agree to respond to seller leads within 24 hours and conduct all transactions professionally and in compliance with local real estate laws.<br/><br/>
+      
+      <strong style="color:var(--gold)">4. Payment Methods</strong><br/>
+      I agree to pay my referral fee by credit card or check through the ListDirect platform. Non-payment may result in removal from the platform.<br/><br/>
+      
+      <strong style="color:var(--gold)">5. Platform Rules</strong><br/>
+      I agree not to circumvent ListDirect by directing clients sourced through our platform to outside channels to avoid the referral fee. Violations may result in legal action.
+    </div>
+
+    <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:20px;background:var(--goldlow);border:1px solid rgba(245,200,66,0.2);border-radius:12px;padding:14px">
+      <input type="checkbox" id="agree-checkbox" style="margin-top:3px;accent-color:var(--gold);width:18px;height:18px;flex-shrink:0"/>
+      <label for="agree-checkbox" style="font-size:0.88rem;color:var(--text);cursor:pointer;line-height:1.6">I have read, understood, and agree to the ListDirect Certified Agent Agreement including the 10% referral fee and cashback commitment.</label>
+    </div>
+
+    <button onclick="submitAgreement()" style="width:100%;background:var(--gold);color:#1a1200;padding:14px;border-radius:50px;border:none;font-weight:700;font-size:1rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s">I Agree — Enter Portal →</button>
+    <div style="text-align:center;margin-top:12px;font-size:0.8rem;color:var(--muted)">By clicking agree you are entering into a legally binding agreement</div>
+  </div>
+</div>
 
 </body>
 </html>
