@@ -284,7 +284,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
           <button class="dash-nav-item" onclick="showPanel('my-listings',this)"><span class="dni-icon">🏡</span> My Listings</button>
           <button class="dash-nav-item" onclick="showPanel('new-listing',this)"><span class="dni-icon">➕</span> List a Home</button>
           <button class="dash-nav-item" onclick="showPanel('saved',this)"><span class="dni-icon">❤️</span> Saved Homes</button>
-          <button class="dash-nav-item" onclick="showPanel('inquiries',this)"><span class="dni-icon">💬</span> Inquiries <span id="inquiry-nav-badge" style="display:none;background:var(--red);color:white;font-size:0.65rem;font-weight:700;padding:2px 6px;border-radius:50px;margin-left:auto">0</span></button>
+          <button class="dash-nav-item" onclick="showPanel('inquiries',this)"><span class="dni-icon">💬</span> Inquiries</button>
           <button class="dash-nav-item" onclick="showPanel('settings',this)"><span class="dni-icon">⚙️</span> Settings</button>
           <button class="dash-nav-item" onclick="handleSignOut()" style="margin-top:8px;color:var(--red)"><span class="dni-icon">🚪</span> Sign Out</button>
         </div>
@@ -657,7 +657,6 @@ async function handleSignIn() {
     showDashboard();
     loadMyListings();
     loadFavorites();
-    loadInquiries();
   } catch(e) {
     showLoading(false);
     showAuthError('Connection error. Please try again.');
@@ -1212,21 +1211,12 @@ async function submitPayment() {
   }
 }
 
-// ── Listings Cache ────────────────────────────────────────────
+// ── Listings Cache & View by ID ──────────────────────────────
 let listingsCache = [];
 
-// ── View / Edit Listing ──────────────────────────────────────
 function viewListingById(id) {
   const listing = listingsCache.find(l => l.id === id);
   if (listing) viewListingDetail(listing);
-}
-
-function editListing(id) {
-  window.location.href = 'listdirect-list.html?edit=' + id;
-}
-
-function viewListing(id) {
-  window.location.href = 'listdirect-list.html?edit=' + id;
 }
 
 // ── View Listing Detail ───────────────────────────────────────
@@ -1259,86 +1249,14 @@ function viewListingDetail(listing) {
   modal.style.display = 'flex';
 }
 
-
-// ── Inquiries / Messaging ─────────────────────────────────────
-let currentReplyData = null;
-
-async function loadInquiries() {
-  const token = localStorage.getItem('ld_token');
-  if (!token) return;
-  try {
-    const res = await fetch('/api/messages/inquiries', {
-      headers: { 'Authorization': 'Bearer ' + token }
-    });
-    const data = await res.json();
-    const messages = data.messages || [];
-    
-    // Update unread badge
-    const unread = messages.filter(m => !m.read).length;
-    const badge = document.getElementById('unread-badge');
-    const inquiryNavBadge = document.getElementById('inquiry-nav-badge');
-    if (badge) { badge.textContent = unread + ' new'; badge.style.display = unread > 0 ? 'inline' : 'none'; }
-    if (inquiryNavBadge) { inquiryNavBadge.textContent = unread; inquiryNavBadge.style.display = unread > 0 ? 'inline' : 'none'; }
-    document.getElementById('stat-inquiries').textContent = messages.length;
-
-    const container = document.getElementById('inquiries-container');
-    if (!messages.length) {
-      container.innerHTML = '<div class="empty-state"><div class="empty-icon">💬</div><div class="empty-title">No inquiries yet</div><div class="empty-sub">When buyers message you about your listings they'll appear here.</div><button class="btn-sm btn-sm-green" onclick="showPanel('my-listings',null)" style="margin-top:16px">View My Listings →</button></div>';
-      return;
-    }
-
-    container.innerHTML = messages.map(m => `
-      <div style="background:var(--card);border:1px solid ${!m.read ? 'rgba(62,240,122,0.4)' : 'var(--border)'};border-radius:16px;padding:20px;margin-bottom:12px;transition:border-color 0.2s">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;flex-wrap:wrap;gap:8px">
-          <div>
-            <div style="font-weight:700;color:var(--white);margin-bottom:2px">${m.sender_name || 'Anonymous Buyer'} ${!m.read ? '<span style="background:var(--greenlow);color:var(--green);font-size:0.68rem;font-weight:700;padding:2px 8px;border-radius:50px;margin-left:8px">NEW</span>' : ''}</div>
-            <div style="font-size:0.78rem;color:var(--muted)">📧 ${m.sender_email || '—'} · ${new Date(m.created_at).toLocaleDateString()} ${new Date(m.created_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</div>
-          </div>
-        </div>
-        <div style="background:var(--bg2);border-radius:10px;padding:14px;font-size:0.88rem;color:var(--text);line-height:1.7;margin-bottom:14px">"${m.message}"</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button onclick="openReply('${m.id}','${(m.sender_name||'').replace(/'/g,"\'")}','${(m.sender_email||'').replace(/'/g,"\'")}','${(m.message||'').replace(/'/g,"\'").replace(/
-/g,' ')}')" style="background:var(--green);color:#0a0f0d;padding:7px 16px;border-radius:50px;border:none;font-weight:700;font-size:0.82rem;cursor:pointer;font-family:'DM Sans',sans-serif">💬 Reply</button>
-          <a href="mailto:${m.sender_email}" style="background:none;border:1px solid var(--border);color:var(--muted);padding:7px 16px;border-radius:50px;font-size:0.82rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center">📧 Email Directly</a>
-        </div>
-      </div>
-    `).join('');
-  } catch(e) { console.error('Load inquiries error:', e); }
+// ── Edit Listing ──────────────────────────────────────────────
+function editListing(id) {
+  window.location.href = 'listdirect-list.html?edit=' + id;
 }
 
-function openReply(msgId, senderName, senderEmail, originalMsg) {
-  currentReplyData = { msgId, senderName, senderEmail };
-  document.getElementById('reply-original').innerHTML = '<strong style="color:var(--white)">' + senderName + ' wrote:</strong><br>"' + originalMsg + '"';
-  document.getElementById('reply-text').value = '';
-  document.getElementById('reply-modal').style.display = 'flex';
-}
-
-async function submitReply() {
-  if (!currentReplyData) return;
-  const replyText = document.getElementById('reply-text').value.trim();
-  if (!replyText) { showToast('Please write a reply first', 'error'); return; }
-  const token = localStorage.getItem('ld_token');
-  try {
-    const res = await fetch('/api/messages/reply', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({
-        original_message_id: currentReplyData.msgId,
-        reply_text: replyText,
-        buyer_email: currentReplyData.senderEmail,
-        buyer_name: currentReplyData.senderName
-      })
-    });
-    if (res.ok) {
-      document.getElementById('reply-modal').style.display = 'none';
-      showToast('✅ Reply sent to ' + currentReplyData.senderName + '!', 'success');
-      loadInquiries();
-    } else {
-      showToast('Failed to send reply. Please try again.', 'error');
-    }
-  } catch(e) {
-    showToast('Connection error. Please try again.', 'error');
-  }
+// ── View Listing (old - redirect) ─────────────────────────────
+function viewListing(id) {
+  window.location.href = 'listdirect-list.html?edit=' + id;
 }
 </script>
 
