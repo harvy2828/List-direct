@@ -1211,13 +1211,12 @@ async function submitPayment() {
   }
 }
 
-// ── View Listing Detail ───────────────────────────────────────
-function viewListing(id) {
-  window.location.href = 'index.html#search-section';
+// ── View / Edit Listing ──────────────────────────────────────
+function editListing(id) {
+  window.location.href = 'listdirect-list.html?edit=' + id;
 }
 
-// ── Edit Listing ──────────────────────────────────────────────
-function editListing(id) {
+function viewListing(id) {
   window.location.href = 'listdirect-list.html?edit=' + id;
 }
 
@@ -1251,15 +1250,6 @@ function viewListingDetail(listing) {
   modal.style.display = 'flex';
 }
 
-// ── Edit Listing ──────────────────────────────────────────────
-function editListing(id) {
-  window.location.href = 'listdirect-list.html?edit=' + id;
-}
-
-// ── View Listing (old - redirect) ─────────────────────────────
-function viewListing(id) {
-  window.location.href = 'listdirect-list.html?edit=' + id;
-}
 
 // ── Inquiries / Messaging ─────────────────────────────────────
 let currentReplyData = null;
