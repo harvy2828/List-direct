@@ -239,7 +239,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
       <div class="ff"><label>Password</label><input type="password" id="su-password" placeholder="Create a strong password"/></div>
       <div class="ff">
         <label>I am a…</label>
-        <select id="su-role">
+        <select id="su-role" onchange="onRoleChange(this)">
           <option value="buyer">Buyer — looking for a home</option>
           <option value="seller">Seller — listing my home</option>
           <option value="both">Both buyer and seller</option>
