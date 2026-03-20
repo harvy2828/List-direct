@@ -689,6 +689,7 @@ function copyDesc() {
 // ── PHOTOS ──
 // ── SUPABASE PHOTO UPLOAD ──
 let uploadedPhotoUrls = [];
+let editListingId = null; // set when editing existing listing
 
 function openCloudinaryUpload() {
   const input = document.createElement('input');
@@ -867,9 +868,11 @@ document.getElementById('listing-form').addEventListener('submit', async functio
 
   try {
     if (token) {
-      // Logged in — save to database directly
-      const res = await fetch('/api/listings', {
-        method: 'POST',
+      // Logged in — update if editing, create if new
+      const url = editListingId ? '/api/listings/' + editListingId : '/api/listings';
+      const method = editListingId ? 'PATCH' : 'POST';
+      const res = await fetch(url, {
+        method: method,
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
         body: JSON.stringify(listingData)
       });
@@ -877,6 +880,13 @@ document.getElementById('listing-form').addEventListener('submit', async functio
       if (!res.ok) console.error('Listing save error:', data.error);
       const city = document.getElementById('s2-city').value;
       document.getElementById('success-city').textContent = city || 'your city';
+      // If editing, show different success message
+      if (editListingId) {
+        const successTitle = document.querySelector('.success-title');
+        if (successTitle) successTitle.textContent = 'Listing Updated!';
+        const successSub = document.querySelector('.success-sub');
+        if (successSub) successSub.textContent = 'Your listing has been updated successfully.';
+      }
       showStep(6);
       updateProgress(6);
     } else {
@@ -1250,6 +1260,7 @@ async function submitWithAccount() {
   sucEl.style.display = 'none';
 
   if (!name || !email || !password) { errEl.textContent = 'Please fill in all fields.'; errEl.style.display = 'block'; return; }
+  if (!document.getElementById('sm-agree').checked) { errEl.textContent = 'Please agree to the seller agreement to continue.'; errEl.style.display = 'block'; return; }
   if (password.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; errEl.style.display = 'block'; return; }
 
   document.getElementById('sm-btn').textContent = 'Creating account…';
@@ -1325,6 +1336,65 @@ async function signInAndPublish() {
     errEl.textContent = 'Connection error. Please try again.'; errEl.style.display = 'block';
   }
 }
+
+// ── Handle Edit Mode ──────────────────────────────────────────
+(async function() {
+  const params = new URLSearchParams(location.search);
+  const editId = params.get('edit');
+  if (!editId) return;
+  const token = localStorage.getItem('ld_token');
+  if (!token) return;
+  try {
+    const res = await fetch('/api/listings/mine', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const listings = await res.json();
+    const listing = listings.find(l => l.id === editId);
+    if (!listing) return;
+    
+    // Store edit ID globally so submit knows to update not create
+    editListingId = editId;
+    
+    const fillForm = function() {
+      setTimeout(() => {
+        if (document.getElementById('s2-addr')) document.getElementById('s2-addr').value = listing.address || '';
+        if (document.getElementById('s2-city')) document.getElementById('s2-city').value = listing.city || '';
+        if (document.getElementById('s2-state')) document.getElementById('s2-state').value = listing.state || '';
+        if (document.getElementById('s2-zip')) document.getElementById('s2-zip').value = listing.zip || '';
+        if (document.getElementById('s2-price')) document.getElementById('s2-price').value = listing.price ? '$' + parseInt(listing.price).toLocaleString() : '';
+        if (document.getElementById('s2-beds')) document.getElementById('s2-beds').value = listing.bedrooms || '3';
+        if (document.getElementById('s2-baths')) document.getElementById('s2-baths').value = listing.bathrooms || '2';
+        if (document.getElementById('s2-sqft')) document.getElementById('s2-sqft').value = listing.sqft ? parseInt(listing.sqft).toLocaleString() : '';
+        if (document.getElementById('s2-year')) document.getElementById('s2-year').value = listing.year_built || '';
+        if (document.getElementById('s2-type')) document.getElementById('s2-type').value = listing.property_type || '';
+        if (document.getElementById('s2-features')) document.getElementById('s2-features').value = listing.features || '';
+        if (listing.description) {
+          aiDescription = listing.description;
+          if (document.getElementById('ai-body')) document.getElementById('ai-body').textContent = listing.description;
+          if (document.getElementById('lp-desc')) document.getElementById('lp-desc').textContent = listing.description;
+        }
+        // Pre-fill existing photos
+        if (listing.photos && listing.photos.length > 0) {
+          uploadedPhotoUrls = listing.photos;
+          renderCloudinaryPreviews();
+          if (document.getElementById('photo-urls')) document.getElementById('photo-urls').value = uploadedPhotoUrls.join(',');
+        }
+        // Change submit button text
+        const btn = document.getElementById('btn-submit');
+        if (btn) btn.textContent = '💾 Save Changes';
+        // Skip to step 2
+        showStep(2);
+        updateProgress(2);
+      }, 300);
+    };
+    
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', fillForm);
+    } else {
+      fillForm();
+    }
+  } catch(e) { console.error('Edit load error:', e); }
+})();
 </script>
 
 
@@ -1353,6 +1423,15 @@ async function signInAndPublish() {
       <input type="password" id="sm-password" placeholder="Create a password (min 6 characters)" style="width:100%;background:#111810;border:1px solid #1f2d22;color:#e8f0e9;padding:12px 16px;border-radius:12px;font-size:0.95rem;font-family:'DM Sans',sans-serif;outline:none"/>
     </div>
 
+    <!-- Agreement -->
+    <div style="background:rgba(62,240,122,0.05);border:1px solid rgba(62,240,122,0.15);border-radius:12px;padding:14px 16px;margin-bottom:14px;font-size:0.8rem;color:#7a9480;line-height:1.7">
+      <strong style="color:#e8f0e9;display:block;margin-bottom:6px">📋 ListDirect Seller Agreement</strong>
+      By creating an account I agree to pay ListDirect a <strong style="color:#3ef07a">1% platform fee</strong> of the final sale price at closing if my home sells through the platform. No upfront cost. Fee is only due upon successful closing.
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:16px">
+      <input type="checkbox" id="sm-agree" style="margin-top:3px;accent-color:#3ef07a;width:16px;height:16px;flex-shrink:0"/>
+      <label for="sm-agree" style="font-size:0.85rem;color:#e8f0e9;cursor:pointer">I agree to the ListDirect Seller Agreement and the 1% platform fee at closing</label>
+    </div>
     <button onclick="submitWithAccount()" id="sm-btn" style="width:100%;background:#3ef07a;color:#0a0f0d;padding:14px;border-radius:50px;border:none;font-weight:700;font-size:1rem;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:12px">Create Account & Publish Listing →</button>
     
     <div style="text-align:center;font-size:0.85rem;color:#7a9480">Already have an account? <span onclick="showLoginInstead()" style="color:#3ef07a;cursor:pointer;font-weight:600">Sign in →</span></div>
