@@ -771,8 +771,8 @@ async function loadMyListings() {
           <div class="mlc-status status-active">● Active</div>
         </div>
         <div class="mlc-actions">
-          <button class="btn-sm btn-sm-outline" onclick="viewListingById('${l.id}')">👁 View</button>
-          <button class="btn-sm btn-sm-outline" onclick="editListing('${l.id}')">✏️ Edit</button>
+          <button class="btn-sm btn-sm-outline" data-id="${l.id}" data-action="view" onclick="handleListingBtn(this)">👁 View</button>
+          <button class="btn-sm btn-sm-outline" data-id="${l.id}" data-action="edit" onclick="handleListingBtn(this)">✏️ Edit</button>
         </div>
       </div>`).join('');
   } catch(e) {}
@@ -1280,7 +1280,7 @@ async function loadInquiries() {
           <div style="font-weight:700;color:var(--white);margin-bottom:4px">${m.sender_name||'Buyer'} ${!m.read?'<span style="background:var(--greenlow);color:var(--green);font-size:0.68rem;font-weight:700;padding:2px 8px;border-radius:50px;margin-left:6px">NEW</span>':''}</div>
           <div style="font-size:0.78rem;color:var(--muted);margin-bottom:10px">📧 ${m.sender_email||'—'} · ${new Date(m.created_at).toLocaleDateString()}</div>
           <div style="background:var(--bg2);border-radius:10px;padding:12px;font-size:0.88rem;color:var(--text);line-height:1.7;margin-bottom:12px">"${m.message}"</div>
-          <button onclick="openReply('${m.id}','${(m.sender_name||'').replace(/'/g,'')}','${(m.sender_email||'').replace(/'/g,'')}','${(m.message||'').replace(/'/g,'').replace(/
+          <button data-id="${m.id}" data-name="${m.sender_name||''}" data-email="${m.sender_email||''}" data-msg="${m.message||''}" onclick="openReplyFromBtn(this)" style="background:var(--green);color:#0a0f0d;padding:7px 16px;border-radius:50px;border:none;font-weight:700;font-size:0.82rem;cursor:pointer;font-family:'DM Sans',sans-serif;margin-right:8px">💬 Reply</button>
 /g,' ')}')" style="background:var(--green);color:#0a0f0d;padding:7px 16px;border-radius:50px;border:none;font-weight:700;font-size:0.82rem;cursor:pointer;font-family:'DM Sans',sans-serif;margin-right:8px">💬 Reply</button>
           <a href="mailto:${m.sender_email}" style="background:none;border:1px solid var(--border);color:var(--muted);padding:7px 16px;border-radius:50px;font-size:0.82rem;font-weight:600;text-decoration:none">📧 Email</a>
         </div>`).join('');
@@ -1310,6 +1310,25 @@ async function submitReply() {
     showToast(res.ok ? '✅ Reply sent!' : 'Failed to send', res.ok ? 'success' : 'error');
     if (res.ok) loadInquiries();
   } catch(e) { showToast('Connection error', 'error'); }
+}
+
+function handleListingBtn(btn) {
+  var id = btn.getAttribute('data-id');
+  var action = btn.getAttribute('data-action');
+  if (action === 'edit') {
+    window.location.href = 'listdirect-list.html?edit=' + id;
+  } else {
+    var listing = listingsCache.find(function(x) { return x.id === id; });
+    if (listing) viewListingDetail(listing);
+  }
+}
+
+function openReplyFromBtn(btn) {
+  var id = btn.getAttribute('data-msg-id');
+  var name = btn.getAttribute('data-sender-name');
+  var email = btn.getAttribute('data-sender-email');
+  var msg = btn.getAttribute('data-message');
+  openReply(id, name, email, msg);
 }
 </script>
 
