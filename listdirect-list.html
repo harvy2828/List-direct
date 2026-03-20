@@ -208,7 +208,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 
 @media(max-width:900px){.desktop-nav-right{display:none!important}}
 </style>
-<script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
 
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A&libraries=places&callback=initGooglePlaces" async defer></script>
 </head>
@@ -688,40 +687,55 @@ function copyDesc() {
 }
 
 // ── PHOTOS ──
-// ── CLOUDINARY PHOTO UPLOAD ──
+// ── SUPABASE PHOTO UPLOAD ──
 let uploadedPhotoUrls = [];
 
 function openCloudinaryUpload() {
-  // Use Cloudinary unsigned upload preset
-  // Replace 'listdirect_unsigned' with your actual preset name from Cloudinary dashboard
-  if (typeof cloudinary === 'undefined') {
-    // Fallback to file input if Cloudinary not loaded
-    const input = document.createElement('input');
-    input.type = 'file'; input.multiple = true; input.accept = 'image/*';
-    input.onchange = function() { handleLocalPhotos(this.files); };
-    input.click(); return;
-  }
-  const widget = cloudinary.createUploadWidget({
-    cloudName: 'listdirect',
-    uploadPreset: 'listdirect_homes',
-    multiple: true,
-    maxFiles: 20,
-    maxFileSize: 20000000,
-    clientAllowedFormats: ['jpg','jpeg','png','webp'],
-    sources: ['local','camera'],
-    showAdvancedOptions: false,
-    cropping: false,
-    styles: {
-      palette: { window: '#141c16', windowBorder: '#1f2d22', tabIcon: '#3ef07a', menuIcons: '#7a9480', textDark: '#0a0f0d', textLight: '#e8f0e9', link: '#3ef07a', action: '#3ef07a', inactiveTabIcon: '#7a9480', error: '#e85454', inProgress: '#3ef07a', complete: '#27c45e', sourceBg: '#111810' }
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.multiple = true;
+  input.accept = 'image/*';
+  input.onchange = async function() {
+    const files = Array.from(this.files).slice(0, 20);
+    if (!files.length) return;
+    
+    const token = localStorage.getItem('ld_token');
+    if (!token) {
+      alert('Please sign in to upload photos.');
+      return;
     }
-  }, function(error, result) {
-    if (!error && result && result.event === 'success') {
-      uploadedPhotoUrls.push(result.info.secure_url);
-      renderCloudinaryPreviews();
-      document.getElementById('photo-urls').value = uploadedPhotoUrls.join(',');
+
+    // Show uploading indicator
+    const zone = document.getElementById('photo-zone-title');
+    if (zone) zone.textContent = 'Uploading photos…';
+
+    for (const file of files) {
+      try {
+        const formData = new FormData();
+        formData.append('photo', file);
+        const res = await fetch('/api/photos/upload', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token },
+          body: formData
+        });
+        const data = await res.json();
+        if (data.url) {
+          uploadedPhotoUrls.push(data.url);
+          renderCloudinaryPreviews();
+          document.getElementById('photo-urls').value = uploadedPhotoUrls.join(',');
+        } else {
+          console.error('Upload error:', data.error);
+          alert('Photo upload failed: ' + (data.error || 'Unknown error'));
+        }
+      } catch(e) {
+        console.error('Upload failed:', e);
+        alert('Photo upload failed. Please try again.');
+      }
     }
-  });
-  widget.open();
+
+    if (zone) zone.textContent = uploadedPhotoUrls.length + ' photo' + (uploadedPhotoUrls.length !== 1 ? 's' : '') + ' uploaded ✓ — tap to add more';
+  };
+  input.click();
 }
 
 function handleLocalPhotos(files) {
