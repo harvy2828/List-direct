@@ -2991,13 +2991,14 @@ async function sendMessageToSeller() {
         message
       })
     });
+    const data = await res.json();
     if (res.ok) {
       document.getElementById('msm-form').style.display = 'none';
       document.getElementById('msm-success').innerHTML = '✅ Message sent! The seller will reply to <strong>' + email + '</strong> shortly.';
       document.getElementById('msm-success').style.display = 'block';
       setTimeout(() => { document.getElementById('message-seller-modal').style.display = 'none'; }, 3000);
     } else {
-      errEl.textContent = 'Failed to send message. Please try again.'; errEl.style.display = 'block';
+      errEl.textContent = 'Error: ' + (data.error || 'Failed to send message.'); errEl.style.display = 'block';
     }
   } catch(e) {
     errEl.textContent = 'Connection error. Please try again.'; errEl.style.display = 'block';
