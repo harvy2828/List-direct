@@ -323,7 +323,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 
         <!-- MY LISTINGS PANEL -->
         <div class="dash-panel" id="panel-my-listings">
-          <div class="panel-title">My Listings</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
+            <button onclick="showPanel('overview',null)" style="background:none;border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:50px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;flex-shrink:0" onmouseover="this.style.borderColor='var(--green)';this.style.color='var(--green)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">← Back</button>
+            <div class="panel-title" style="margin-bottom:0">My Listings</div>
+          </div>
           <div class="panel-sub">Manage your active and past property listings</div>
           <div class="my-listings" id="my-listings-container">
             <div class="empty-state">
@@ -338,7 +341,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
         <!-- NEW LISTING PANEL -->
         <!-- INQUIRIES PANEL -->
         <div class="dash-panel" id="panel-inquiries">
-          <div class="panel-title">Inquiries</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
+            <button onclick="showPanel('overview',null)" style="background:none;border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:50px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;flex-shrink:0" onmouseover="this.style.borderColor='var(--green)';this.style.color='var(--green)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">← Back</button>
+            <div class="panel-title" style="margin-bottom:0">Inquiries</div>
+          </div>
           <div class="panel-sub">Messages from buyers interested in your listings</div>
           <div id="inquiries-container">
             <div class="empty-state">
@@ -351,7 +357,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
         </div>
 
         <div class="dash-panel" id="panel-new-listing">
-          <div class="panel-title">List Your Home</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
+            <button onclick="showPanel('overview',null)" style="background:none;border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:50px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;flex-shrink:0" onmouseover="this.style.borderColor='var(--green)';this.style.color='var(--green)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">← Back</button>
+            <div class="panel-title" style="margin-bottom:0">List Your Home</div>
+          </div>
           <div class="panel-sub">Choose how you'd like to sell — both paths include our full AI tools</div>
 
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:8px">
@@ -451,7 +460,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 
         <!-- SAVED HOMES PANEL -->
         <div class="dash-panel" id="panel-saved">
-          <div class="panel-title">Saved Homes</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
+            <button onclick="showPanel('overview',null)" style="background:none;border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:50px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;flex-shrink:0" onmouseover="this.style.borderColor='var(--green)';this.style.color='var(--green)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">← Back</button>
+            <div class="panel-title" style="margin-bottom:0">Saved Homes</div>
+          </div>
           <div class="panel-sub">Homes you've favorited while browsing</div>
           <div id="saved-container">
             <div class="empty-state">
@@ -465,7 +477,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 
         <!-- SETTINGS PANEL -->
         <div class="dash-panel" id="panel-settings">
-          <div class="panel-title">Account Settings</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
+            <button onclick="showPanel('overview',null)" style="background:none;border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:50px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;flex-shrink:0" onmouseover="this.style.borderColor='var(--green)';this.style.color='var(--green)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">← Back</button>
+            <div class="panel-title" style="margin-bottom:0">Account Settings</div>
+          </div>
           <div class="panel-sub">Manage your profile and preferences</div>
           <div class="settings-form">
             <div class="settings-section">
