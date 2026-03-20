@@ -1881,6 +1881,7 @@ function renderListings(list) {
           </div>
           ${l.cashback ? `<div class="listing-cashback">💰 ${l.cashback} cashback</div>` : `<div class="listing-days">${l.days}d ago</div>`}
         </div>
+        ${l.verified ? `<button data-listing-id="${l.id||''}" data-seller-id="${l.seller_id||''}" data-addr="${l.addr||''}" data-price="${l.price||0}" onclick="event.stopPropagation();openMessageSellerBtn(this)" style="width:100%;margin-top:10px;background:var(--greenlow);border:1px solid rgba(62,240,122,0.25);color:var(--green);padding:8px;border-radius:10px;font-weight:600;font-size:0.82rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s">💬 Message Seller</button>` : ''}
       </div>`;
 
     card.addEventListener('click', e => {
@@ -2962,6 +2963,14 @@ async function sendMessageToSeller() {
   } catch(e) {
     errEl.textContent = 'Connection error. Please try again.'; errEl.style.display = 'block';
   }
+}
+
+function openMessageSellerBtn(btn) {
+  var listingId = btn.getAttribute('data-listing-id');
+  var sellerId = btn.getAttribute('data-seller-id');
+  var addr = btn.getAttribute('data-addr');
+  var price = btn.getAttribute('data-price');
+  openMessageSeller(listingId, sellerId, addr, price);
 }
 </script>
 
