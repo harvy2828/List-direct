@@ -281,9 +281,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 
         <div class="dash-sidebar">
           <button class="dash-nav-item active" onclick="showPanel('overview',this)"><span class="dni-icon">🏠</span> Overview</button>
-          <button class="dash-nav-item" onclick="showPanel('my-listings',this)"><span class="dni-icon">📋</span> My Listings</button>
+          <button class="dash-nav-item" onclick="showPanel('my-listings',this)"><span class="dni-icon">🏡</span> My Listings</button>
           <button class="dash-nav-item" onclick="showPanel('new-listing',this)"><span class="dni-icon">➕</span> List a Home</button>
           <button class="dash-nav-item" onclick="showPanel('saved',this)"><span class="dni-icon">❤️</span> Saved Homes</button>
+          <button class="dash-nav-item" onclick="showPanel('inquiries',this)"><span class="dni-icon">💬</span> Inquiries</button>
           <button class="dash-nav-item" onclick="showPanel('settings',this)"><span class="dni-icon">⚙️</span> Settings</button>
           <button class="dash-nav-item" onclick="handleSignOut()" style="margin-top:8px;color:var(--red)"><span class="dni-icon">🚪</span> Sign Out</button>
         </div>
@@ -335,6 +336,20 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
         </div>
 
         <!-- NEW LISTING PANEL -->
+        <!-- INQUIRIES PANEL -->
+        <div class="dash-panel" id="panel-inquiries">
+          <div class="panel-title">Inquiries</div>
+          <div class="panel-sub">Messages from buyers interested in your listings</div>
+          <div id="inquiries-container">
+            <div class="empty-state">
+              <div class="empty-icon">💬</div>
+              <div class="empty-title">No inquiries yet</div>
+              <div class="empty-sub">When buyers message you about your listings they'll appear here. Make sure your listing is active and visible to buyers!</div>
+              <button class="btn-sm btn-sm-green" onclick="showPanel('my-listings',null)" style="margin-top:16px">View My Listings →</button>
+            </div>
+          </div>
+        </div>
+
         <div class="dash-panel" id="panel-new-listing">
           <div class="panel-title">List Your Home</div>
           <div class="panel-sub">Choose how you'd like to sell — both paths include our full AI tools</div>
@@ -739,6 +754,7 @@ async function loadMyListings() {
           <div class="mlc-status status-active">● Active</div>
         </div>
         <div class="mlc-actions">
+          <button class="btn-sm btn-sm-outline" onclick="viewListing('${l.id}')">View</button>
           <button class="btn-sm btn-sm-outline">Edit</button>
         </div>
       </div>`).join('');
@@ -1177,6 +1193,11 @@ async function submitPayment() {
     btn.textContent = 'Submit Payment →';
     btn.disabled = false;
   }
+}
+
+// ── View Listing Detail ───────────────────────────────────────
+function viewListing(id) {
+  window.location.href = 'index.html#search-section';
 }
 </script>
 
