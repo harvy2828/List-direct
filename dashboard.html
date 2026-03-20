@@ -348,9 +348,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
           <div class="panel-sub">Messages from buyers interested in your listings</div>
           <div id="inquiries-container">
             <div class="empty-state">
-              <div class="empty-icon">💬</div>
-              <div class="empty-title">No inquiries yet</div>
-              <div class="empty-sub">When buyers message you they'll appear here.</div>
+              <div class="empty-icon" id="inq-icon">💬</div>
+              <div class="empty-title" id="inq-title">No inquiries yet</div>
+              <div class="empty-sub" id="inq-sub">When buyers message you about your listings they'll appear here.</div>
               <button class="btn-sm btn-sm-green" onclick="showPanel('my-listings',null)" style="margin-top:16px">View My Listings →</button>
             </div>
           </div>
@@ -657,7 +657,7 @@ async function handleSignIn() {
     showDashboard();
     loadMyListings();
     loadFavorites();
-    loadInquiries();
+    setTimeout(loadInquiries, 500);
   } catch(e) {
     showLoading(false);
     showAuthError('Connection error. Please try again.');
@@ -1212,13 +1212,8 @@ async function submitPayment() {
   }
 }
 
-// ── Listings Cache & View by ID ──────────────────────────────
 let listingsCache = [];
-
-function viewListingById(id) {
-  const listing = listingsCache.find(l => l.id === id);
-  if (listing) viewListingDetail(listing);
-}
+function viewListingById(id) { const l = listingsCache.find(x => x.id === id); if(l) viewListingDetail(l); }
 
 // ── View Listing Detail ───────────────────────────────────────
 function viewListingDetail(listing) {
@@ -1260,84 +1255,61 @@ function viewListing(id) {
   window.location.href = 'listdirect-list.html?edit=' + id;
 }
 
-// ── Inquiries / Messaging ─────────────────────────────────────
 let currentReplyData = null;
 
 async function loadInquiries() {
   const token = localStorage.getItem('ld_token');
   if (!token) return;
   try {
-    const res = await fetch('/api/messages/inquiries', {
-      headers: { 'Authorization': 'Bearer ' + token }
-    });
+    const res = await fetch('/api/messages/inquiries', { headers: { 'Authorization': 'Bearer ' + token } });
     if (!res.ok) return;
     const data = await res.json();
-    const messages = data.messages || [];
-
-    // Update badges
-    const unread = messages.filter(m => !m.read).length;
-    const navBadge = document.getElementById('inquiry-nav-badge');
-    if (navBadge) { navBadge.textContent = unread; navBadge.style.display = unread > 0 ? 'inline' : 'none'; }
-    document.getElementById('stat-inquiries').textContent = messages.length || '—';
-
-    const container = document.getElementById('inquiries-container');
-    if (!container) return;
-    if (!messages.length) {
-      container.innerHTML = '<div class="empty-state"><div class="empty-icon">💬</div><div class="empty-title">No inquiries yet</div><div class="empty-sub">When buyers message you they'll appear here.</div></div>';
-      return;
+    const msgs = data.messages || [];
+    document.getElementById('stat-inquiries').textContent = msgs.length || '—';
+    const badge = document.getElementById('inquiry-nav-badge');
+    const unread = msgs.filter(m => !m.read).length;
+    if (badge) { badge.textContent = unread; badge.style.display = unread > 0 ? 'inline' : 'none'; }
+    if (!msgs.length) return;
+    // Find the inquiries panel empty state and replace with messages
+    const panel = document.getElementById('panel-inquiries');
+    if (!panel) return;
+    const emptyState = panel.querySelector('.empty-state');
+    if (emptyState) {
+      emptyState.outerHTML = msgs.map(m => `
+        <div style="background:var(--card);border:1px solid ${!m.read?'rgba(62,240,122,0.4)':'var(--border)'};border-radius:16px;padding:20px;margin-bottom:12px">
+          <div style="font-weight:700;color:var(--white);margin-bottom:4px">${m.sender_name||'Buyer'} ${!m.read?'<span style="background:var(--greenlow);color:var(--green);font-size:0.68rem;font-weight:700;padding:2px 8px;border-radius:50px;margin-left:6px">NEW</span>':''}</div>
+          <div style="font-size:0.78rem;color:var(--muted);margin-bottom:10px">📧 ${m.sender_email||'—'} · ${new Date(m.created_at).toLocaleDateString()}</div>
+          <div style="background:var(--bg2);border-radius:10px;padding:12px;font-size:0.88rem;color:var(--text);line-height:1.7;margin-bottom:12px">"${m.message}"</div>
+          <button onclick="openReply('${m.id}','${(m.sender_name||'').replace(/'/g,'')}','${(m.sender_email||'').replace(/'/g,'')}','${(m.message||'').replace(/'/g,'').replace(/
+/g,' ')}')" style="background:var(--green);color:#0a0f0d;padding:7px 16px;border-radius:50px;border:none;font-weight:700;font-size:0.82rem;cursor:pointer;font-family:'DM Sans',sans-serif;margin-right:8px">💬 Reply</button>
+          <a href="mailto:${m.sender_email}" style="background:none;border:1px solid var(--border);color:var(--muted);padding:7px 16px;border-radius:50px;font-size:0.82rem;font-weight:600;text-decoration:none">📧 Email</a>
+        </div>`).join('');
     }
-
-    container.innerHTML = messages.map(m => `
-      <div style="background:var(--card);border:1px solid ${!m.read ? 'rgba(62,240,122,0.4)' : 'var(--border)'};border-radius:16px;padding:20px;margin-bottom:12px">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;flex-wrap:wrap;gap:8px">
-          <div>
-            <div style="font-weight:700;color:var(--white);margin-bottom:2px">${m.sender_name || 'Anonymous'} ${!m.read ? '<span style="background:var(--greenlow);color:var(--green);font-size:0.68rem;font-weight:700;padding:2px 8px;border-radius:50px;margin-left:6px">NEW</span>' : ''}</div>
-            <div style="font-size:0.78rem;color:var(--muted)">📧 ${m.sender_email || '—'} · ${new Date(m.created_at).toLocaleDateString()}</div>
-          </div>
-        </div>
-        <div style="background:var(--bg2);border-radius:10px;padding:14px;font-size:0.88rem;color:var(--text);line-height:1.7;margin-bottom:14px">"${m.message}"</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button onclick="openReply('${m.id}','${(m.sender_name||'').replace(/'/g,"\\'")}','${(m.sender_email||'').replace(/'/g,"\\'")}','${(m.message||'').replace(/'/g,"\\'").replace(/\n/g,' ')}')" style="background:var(--green);color:#0a0f0d;padding:7px 16px;border-radius:50px;border:none;font-weight:700;font-size:0.82rem;cursor:pointer;font-family:'DM Sans',sans-serif">💬 Reply</button>
-          <a href="mailto:${m.sender_email}" style="background:none;border:1px solid var(--border);color:var(--muted);padding:7px 16px;border-radius:50px;font-size:0.82rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center">📧 Email Directly</a>
-        </div>
-      </div>
-    `).join('');
-  } catch(e) { console.error('Inquiries error:', e); }
+  } catch(e) {}
 }
 
-function openReply(msgId, senderName, senderEmail, originalMsg) {
-  currentReplyData = { msgId, senderName, senderEmail };
-  document.getElementById('reply-original').innerHTML = '<strong style="color:var(--white)">' + senderName + ' wrote:</strong><br>"' + originalMsg + '"';
+function openReply(id, name, email, msg) {
+  currentReplyData = {id, name, email};
+  document.getElementById('reply-original').innerHTML = '<strong style="color:var(--white)">' + name + ':</strong> "' + msg + '"';
   document.getElementById('reply-text').value = '';
   document.getElementById('reply-modal').style.display = 'flex';
 }
 
 async function submitReply() {
   if (!currentReplyData) return;
-  const replyText = document.getElementById('reply-text').value.trim();
-  if (!replyText) { showToast('Please write a reply first', 'error'); return; }
+  const text = document.getElementById('reply-text').value.trim();
+  if (!text) { showToast('Please write a reply', 'error'); return; }
   const token = localStorage.getItem('ld_token');
   try {
     const res = await fetch('/api/messages/reply', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({
-        original_message_id: currentReplyData.msgId,
-        reply_text: replyText,
-        buyer_email: currentReplyData.senderEmail,
-        buyer_name: currentReplyData.senderName
-      })
+      body: JSON.stringify({ original_message_id: currentReplyData.id, reply_text: text, buyer_email: currentReplyData.email, buyer_name: currentReplyData.name })
     });
-    if (res.ok) {
-      document.getElementById('reply-modal').style.display = 'none';
-      showToast('✅ Reply sent to ' + currentReplyData.senderName + '!', 'success');
-      loadInquiries();
-    } else {
-      showToast('Failed to send. Please try again.', 'error');
-    }
-  } catch(e) {
-    showToast('Connection error.', 'error');
-  }
+    document.getElementById('reply-modal').style.display = 'none';
+    showToast(res.ok ? '✅ Reply sent!' : 'Failed to send', res.ok ? 'success' : 'error');
+    if (res.ok) loadInquiries();
+  } catch(e) { showToast('Connection error', 'error'); }
 }
 </script>
 
@@ -1358,10 +1330,9 @@ async function submitReply() {
 </div>
 
 
-<!-- REPLY MODAL -->
 <div id="reply-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:600;align-items:center;justify-content:center;padding:24px">
   <div style="background:var(--card);border:1px solid var(--border);border-radius:24px;padding:32px;max-width:520px;width:100%">
-    <div style="font-weight:700;color:var(--white);font-size:1.1rem;margin-bottom:16px">💬 Reply to Inquiry</div>
+    <div style="font-weight:700;color:var(--white);font-size:1.1rem;margin-bottom:16px">💬 Reply to Buyer</div>
     <div id="reply-original" style="background:var(--bg2);border-radius:12px;padding:14px;margin-bottom:16px;font-size:0.85rem;color:var(--muted);line-height:1.6"></div>
     <textarea id="reply-text" rows="4" placeholder="Write your reply..." style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:13px 16px;border-radius:12px;font-size:0.92rem;font-family:'DM Sans',sans-serif;outline:none;resize:vertical;margin-bottom:14px"></textarea>
     <div style="display:flex;gap:10px">
@@ -1370,6 +1341,5 @@ async function submitReply() {
     </div>
   </div>
 </div>
-
 </body>
 </html>
