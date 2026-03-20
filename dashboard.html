@@ -753,6 +753,7 @@ async function loadMyListings() {
     });
     if (!res.ok) return;
     const listings = await res.json();
+    listingsCache = listings;
     document.getElementById('stat-listings').textContent = listings.length;
     const container = document.getElementById('my-listings-container');
     if (!listings.length) {
@@ -770,7 +771,7 @@ async function loadMyListings() {
           <div class="mlc-status status-active">● Active</div>
         </div>
         <div class="mlc-actions">
-          <button class="btn-sm btn-sm-outline" onclick="viewListingDetail(${JSON.stringify(l).split('"').join('&quot;')})">👁 View</button>
+          <button class="btn-sm btn-sm-outline" onclick="viewListingById('${l.id}')">👁 View</button>
           <button class="btn-sm btn-sm-outline" onclick="editListing('${l.id}')">✏️ Edit</button>
         </div>
       </div>`).join('');
@@ -1211,7 +1212,15 @@ async function submitPayment() {
   }
 }
 
+// ── Listings Cache ────────────────────────────────────────────
+let listingsCache = [];
+
 // ── View / Edit Listing ──────────────────────────────────────
+function viewListingById(id) {
+  const listing = listingsCache.find(l => l.id === id);
+  if (listing) viewListingDetail(listing);
+}
+
 function editListing(id) {
   window.location.href = 'listdirect-list.html?edit=' + id;
 }
