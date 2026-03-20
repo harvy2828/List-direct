@@ -699,37 +699,42 @@ function openCloudinaryUpload() {
     const files = Array.from(this.files).slice(0, 20);
     if (!files.length) return;
     
-    const token = localStorage.getItem('ld_token');
-    if (!token) {
-      alert('Please sign in to upload photos.');
-      return;
-    }
-
     // Show uploading indicator
     const zone = document.getElementById('photo-zone-title');
-    if (zone) zone.textContent = 'Uploading photos…';
+    if (zone) zone.textContent = 'Loading photos…';
+
+    const token = localStorage.getItem('ld_token');
 
     for (const file of files) {
       try {
-        const formData = new FormData();
-        formData.append('photo', file);
-        const res = await fetch('/api/photos/upload', {
-          method: 'POST',
-          headers: { 'Authorization': 'Bearer ' + token },
-          body: formData
-        });
-        const data = await res.json();
-        if (data.url) {
-          uploadedPhotoUrls.push(data.url);
-          renderCloudinaryPreviews();
-          document.getElementById('photo-urls').value = uploadedPhotoUrls.join(',');
+        if (token) {
+          // Logged in — upload directly to server
+          const formData = new FormData();
+          formData.append('photo', file);
+          const res = await fetch('/api/photos/upload', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + token },
+            body: formData
+          });
+          const data = await res.json();
+          if (data.url) {
+            uploadedPhotoUrls.push(data.url);
+          }
         } else {
-          console.error('Upload error:', data.error);
-          alert('Photo upload failed: ' + (data.error || 'Unknown error'));
+          // Not logged in — store as base64 locally
+          const reader = new FileReader();
+          await new Promise((resolve) => {
+            reader.onload = (e) => {
+              uploadedPhotoUrls.push(e.target.result);
+              resolve();
+            };
+            reader.readAsDataURL(file);
+          });
         }
+        renderCloudinaryPreviews();
+        document.getElementById('photo-urls').value = uploadedPhotoUrls.join(',');
       } catch(e) {
-        console.error('Upload failed:', e);
-        alert('Photo upload failed. Please try again.');
+        console.error('Photo error:', e);
       }
     }
 
@@ -862,28 +867,25 @@ document.getElementById('listing-form').addEventListener('submit', async functio
 
   try {
     if (token) {
-      // Logged in — save to database
+      // Logged in — save to database directly
       const res = await fetch('/api/listings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
         body: JSON.stringify(listingData)
       });
       const data = await res.json();
-      if (!res.ok) {
-        console.error('Listing save error:', data.error);
-      }
+      if (!res.ok) console.error('Listing save error:', data.error);
+      const city = document.getElementById('s2-city').value;
+      document.getElementById('success-city').textContent = city || 'your city';
+      showStep(6);
+      updateProgress(6);
     } else {
-      // Not logged in — save to localStorage temporarily
+      // Not logged in — save to localStorage and show signup modal
       localStorage.setItem('ld_pending_listing', JSON.stringify(listingData));
+      document.getElementById('signup-modal').style.display = 'flex';
     }
-
-    const city = document.getElementById('s2-city').value;
-    document.getElementById('success-city').textContent = city || 'your city';
-    showStep(6);
-    updateProgress(6);
   } catch (err) {
     console.error('Submit error:', err);
-    // Still show success even if save fails
     const city = document.getElementById('s2-city').value;
     document.getElementById('success-city').textContent = city || 'your city';
     showStep(6);
@@ -1231,7 +1233,144 @@ async function runAIComps() {
     output.textContent = 'Could not load market data.';
   }
 }
+
+// ── Listing Signup Modal ──────────────────────────────────────
+function showLoginInstead() {
+  document.getElementById('sm-login-form').style.display = 'block';
+  document.getElementById('sm-btn').style.display = 'none';
+}
+
+async function submitWithAccount() {
+  const name = document.getElementById('sm-name').value.trim();
+  const email = document.getElementById('sm-email').value.trim();
+  const password = document.getElementById('sm-password').value;
+  const errEl = document.getElementById('sm-error');
+  const sucEl = document.getElementById('sm-success');
+  errEl.style.display = 'none';
+  sucEl.style.display = 'none';
+
+  if (!name || !email || !password) { errEl.textContent = 'Please fill in all fields.'; errEl.style.display = 'block'; return; }
+  if (password.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; errEl.style.display = 'block'; return; }
+
+  document.getElementById('sm-btn').textContent = 'Creating account…';
+  document.getElementById('sm-btn').disabled = true;
+
+  try {
+    const res = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, full_name: name, role: 'seller' })
+    });
+    const data = await res.json();
+    if (!res.ok) { errEl.textContent = data.error || 'Signup failed.'; errEl.style.display = 'block'; document.getElementById('sm-btn').textContent = 'Create Account & Publish Listing →'; document.getElementById('sm-btn').disabled = false; return; }
+
+    // Save listing to pending in localStorage
+    const pendingListing = JSON.parse(localStorage.getItem('ld_pending_listing') || '{}');
+    localStorage.setItem('ld_pending_listing', JSON.stringify(pendingListing));
+
+    sucEl.innerHTML = '📧 Account created! Check your email at <strong>' + email + '</strong> to confirm, then sign in to see your listing in your dashboard.';
+    sucEl.style.display = 'block';
+    document.getElementById('sm-btn').style.display = 'none';
+
+    // Close modal and show success step after 3 seconds
+    setTimeout(() => {
+      document.getElementById('signup-modal').style.display = 'none';
+      const city = document.getElementById('s2-city')?.value || 'your city';
+      document.getElementById('success-city').textContent = city;
+      showStep(6);
+      updateProgress(6);
+    }, 3000);
+
+  } catch(e) {
+    errEl.textContent = 'Connection error. Please try again.'; errEl.style.display = 'block';
+    document.getElementById('sm-btn').textContent = 'Create Account & Publish Listing →';
+    document.getElementById('sm-btn').disabled = false;
+  }
+}
+
+async function signInAndPublish() {
+  const email = document.getElementById('sm-login-email').value.trim();
+  const password = document.getElementById('sm-login-password').value;
+  const errEl = document.getElementById('sm-error');
+  errEl.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/auth/signin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) { errEl.textContent = data.error || 'Sign in failed.'; errEl.style.display = 'block'; return; }
+
+    localStorage.setItem('ld_token', data.session.access_token);
+
+    // Now save the listing
+    const pendingListing = JSON.parse(localStorage.getItem('ld_pending_listing') || '{}');
+    if (Object.keys(pendingListing).length > 0) {
+      await fetch('/api/listings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + data.session.access_token },
+        body: JSON.stringify(pendingListing)
+      });
+      localStorage.removeItem('ld_pending_listing');
+    }
+
+    document.getElementById('signup-modal').style.display = 'none';
+    const city = document.getElementById('s2-city')?.value || 'your city';
+    document.getElementById('success-city').textContent = city;
+    showStep(6);
+    updateProgress(6);
+  } catch(e) {
+    errEl.textContent = 'Connection error. Please try again.'; errEl.style.display = 'block';
+  }
+}
 </script>
+
+
+<!-- ACCOUNT CREATION MODAL (shown at submission if not logged in) -->
+<div id="signup-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:600;align-items:center;justify-content:center;padding:24px">
+  <div style="background:#141c16;border:1px solid rgba(62,240,122,0.3);border-radius:24px;padding:36px;max-width:480px;width:100%;max-height:90vh;overflow-y:auto">
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="font-size:2.5rem;margin-bottom:12px">🏡</div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;color:#fff;margin-bottom:8px">Almost there!</div>
+      <div style="font-size:0.88rem;color:#7a9480;line-height:1.6">Create your free account to publish your listing. Your home details and photos are saved — they'll appear in your dashboard automatically.</div>
+    </div>
+
+    <div id="sm-error" style="background:rgba(232,84,84,0.08);border:1px solid rgba(232,84,84,0.3);border-radius:10px;padding:12px 16px;font-size:0.88rem;color:#e85454;margin-bottom:14px;display:none"></div>
+    <div id="sm-success" style="background:rgba(62,240,122,0.08);border:1px solid rgba(62,240,122,0.3);border-radius:10px;padding:12px 16px;font-size:0.88rem;color:#3ef07a;margin-bottom:14px;display:none"></div>
+
+    <div style="margin-bottom:14px">
+      <label style="display:block;font-size:0.74rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#7a9480;margin-bottom:6px">Full Name</label>
+      <input type="text" id="sm-name" placeholder="Jane Smith" style="width:100%;background:#111810;border:1px solid #1f2d22;color:#e8f0e9;padding:12px 16px;border-radius:12px;font-size:0.95rem;font-family:'DM Sans',sans-serif;outline:none"/>
+    </div>
+    <div style="margin-bottom:14px">
+      <label style="display:block;font-size:0.74rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#7a9480;margin-bottom:6px">Email</label>
+      <input type="email" id="sm-email" placeholder="jane@example.com" style="width:100%;background:#111810;border:1px solid #1f2d22;color:#e8f0e9;padding:12px 16px;border-radius:12px;font-size:0.95rem;font-family:'DM Sans',sans-serif;outline:none"/>
+    </div>
+    <div style="margin-bottom:20px">
+      <label style="display:block;font-size:0.74rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#7a9480;margin-bottom:6px">Password</label>
+      <input type="password" id="sm-password" placeholder="Create a password (min 6 characters)" style="width:100%;background:#111810;border:1px solid #1f2d22;color:#e8f0e9;padding:12px 16px;border-radius:12px;font-size:0.95rem;font-family:'DM Sans',sans-serif;outline:none"/>
+    </div>
+
+    <button onclick="submitWithAccount()" id="sm-btn" style="width:100%;background:#3ef07a;color:#0a0f0d;padding:14px;border-radius:50px;border:none;font-weight:700;font-size:1rem;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:12px">Create Account & Publish Listing →</button>
+    
+    <div style="text-align:center;font-size:0.85rem;color:#7a9480">Already have an account? <span onclick="showLoginInstead()" style="color:#3ef07a;cursor:pointer;font-weight:600">Sign in →</span></div>
+    
+    <!-- Login form (hidden by default) -->
+    <div id="sm-login-form" style="display:none;margin-top:16px;border-top:1px solid #1f2d22;padding-top:16px">
+      <div style="margin-bottom:14px">
+        <label style="display:block;font-size:0.74rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#7a9480;margin-bottom:6px">Email</label>
+        <input type="email" id="sm-login-email" placeholder="your@email.com" style="width:100%;background:#111810;border:1px solid #1f2d22;color:#e8f0e9;padding:12px 16px;border-radius:12px;font-size:0.95rem;font-family:'DM Sans',sans-serif;outline:none"/>
+      </div>
+      <div style="margin-bottom:14px">
+        <label style="display:block;font-size:0.74rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#7a9480;margin-bottom:6px">Password</label>
+        <input type="password" id="sm-login-password" placeholder="Your password" style="width:100%;background:#111810;border:1px solid #1f2d22;color:#e8f0e9;padding:12px 16px;border-radius:12px;font-size:0.95rem;font-family:'DM Sans',sans-serif;outline:none"/>
+      </div>
+      <button onclick="signInAndPublish()" style="width:100%;background:#3ef07a;color:#0a0f0d;padding:13px;border-radius:50px;border:none;font-weight:700;font-size:0.95rem;cursor:pointer;font-family:'DM Sans',sans-serif">Sign In & Publish →</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
