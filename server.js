@@ -141,60 +141,6 @@ app.post('/api/auth/signin', async (req, res) => {
   try {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) return res.status(400).json({ error: error.message });
-    
-    // Send notification emails on signup
-    const role = req.body.role;
-    if (role === 'agent') {
-      // Email to admin about new agent application
-      await sendEmail({
-        to: 'infolistdirect@gmail.com',
-        subject: '🤝 New Agent Application — ' + (req.body.full_name || 'Unknown'),
-        html: `
-          <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a0f0d;color:#e8f0e9;border-radius:12px;padding:32px">
-            <h2 style="color:#3ef07a;margin-bottom:4px">New Agent Application</h2>
-            <p style="color:#7a9480;margin-bottom:24px">Someone applied to join your certified agent network</p>
-            <table style="width:100%;border-collapse:collapse">
-              <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">Name</td><td style="padding:10px;color:#e8f0e9;border-bottom:1px solid #1f2d22"><strong>${req.body.full_name || '—'}</strong></td></tr>
-              <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">Email</td><td style="padding:10px;color:#e8f0e9;border-bottom:1px solid #1f2d22">${req.body.email}</td></tr>
-              <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">Phone</td><td style="padding:10px;color:#e8f0e9;border-bottom:1px solid #1f2d22">${req.body.phone || '—'}</td></tr>
-              <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">License</td><td style="padding:10px;color:#e8f0e9;border-bottom:1px solid #1f2d22">${req.body.license_number || '—'}</td></tr>
-              <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">Location</td><td style="padding:10px;color:#e8f0e9;border-bottom:1px solid #1f2d22">${req.body.location || '—'}</td></tr>
-              <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">Specialty</td><td style="padding:10px;color:#e8f0e9;border-bottom:1px solid #1f2d22">${req.body.specialty || '—'}</td></tr>
-              <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">Cashback Offer</td><td style="padding:10px;color:#f5c842;border-bottom:1px solid #1f2d22">${req.body.cashback_offer || '1'}% to sellers</td></tr>
-              <tr><td style="padding:10px;color:#7a9480">Bio</td><td style="padding:10px;color:#e8f0e9">${req.body.bio || '—'}</td></tr>
-            </table>
-            <div style="margin-top:24px;text-align:center">
-              <a href="https://list-direct.onrender.com/admin.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">Review Application →</a>
-            </div>
-          </div>
-        `
-      });
-    } else {
-      // Email to new regular user - welcome
-      await sendEmail({
-        to: req.body.email,
-        subject: 'Welcome to ListDirect! 🏡',
-        html: `
-          <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a0f0d;color:#e8f0e9;border-radius:12px;padding:32px">
-            <h1 style="color:#3ef07a;font-size:2rem;margin-bottom:4px">Welcome to ListDirect!</h1>
-            <p style="color:#7a9480;margin-bottom:24px">You're one step closer to saving thousands on your home sale.</p>
-            <p style="color:#e8f0e9">Hi ${req.body.full_name || 'there'},</p>
-            <p style="color:#7a9480">Your account is almost ready. Please check your email and confirm your address to get started.</p>
-            <p style="color:#7a9480;margin-top:16px">Once confirmed you can:</p>
-            <ul style="color:#7a9480;line-height:2">
-              <li>List your home for just 1% at closing</li>
-              <li>Use our AI pricing and listing tools</li>
-              <li>Browse certified agents with guaranteed cashback</li>
-            </ul>
-            <div style="margin-top:24px;text-align:center">
-              <a href="https://list-direct.onrender.com/dashboard.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">Go to My Account →</a>
-            </div>
-            <p style="color:#3d5240;font-size:0.8rem;margin-top:32px;text-align:center">Questions? Email us at infolistdirect@gmail.com</p>
-          </div>
-        `
-      });
-    }
-    
     res.json({ user: data.user, session: data.session });
   } catch (err) {
     res.status(500).json({ error: err.message });
