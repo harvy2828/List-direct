@@ -666,7 +666,15 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
     <div class="calc-headline">
       <div class="section-tag" style="display:block;text-align:center">💰 Savings Calculator</div>
       <h2 class="section-title" style="text-align:center;margin-bottom:6px">See exactly how much<br><em style="font-style:normal;color:var(--green)">you'll keep</em></h2>
-      <p style="text-align:center;color:var(--muted);font-size:1rem;margin-bottom:32px">Drag to your home's price. Watch what a traditional agent would take — vs. what you keep with ListDirect.</p>
+      <p style="text-align:center;color:var(--muted);font-size:1rem;margin-bottom:20px">Drag to your home's price. Watch what a traditional agent would take — vs. what you keep with ListDirect.</p>
+      
+      <!-- Country toggle for calculator -->
+      <div style="display:flex;justify-content:center;margin-bottom:28px">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:50px;padding:4px;display:inline-flex;gap:4px">
+          <button id="calc-btn-ca" onclick="setCalcCountry('ca')" style="background:var(--green);color:#0a0f0d;border:none;padding:8px 20px;border-radius:50px;font-weight:700;font-size:0.88rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s">🇨🇦 Canada</button>
+          <button id="calc-btn-us" onclick="setCalcCountry('us')" style="background:none;color:var(--muted);border:none;padding:8px 20px;border-radius:50px;font-weight:600;font-size:0.88rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s">🇺🇸 United States</button>
+        </div>
+      </div>
     </div>
     <div class="calc-box">
       <!-- Price display -->
@@ -2207,12 +2215,30 @@ function updateCalc() {
   slider.style.background = `linear-gradient(to right, var(--green) 0%, var(--green) ${pct}%, var(--border) ${pct}%)`;
 
   // Calculations — showing what you PAY for each option
-  const trad = Math.round(price * 0.06);        // Traditional: 6% full commission
-  const agentGross = Math.round(price * 0.06);  // Agent charges ~6%
-  const agentCashback = Math.round(price * 0.01); // You get 1% back
-  const agentNet = agentGross - agentCashback;   // Net cost = ~5%
+  // Use BC formula for Canada, 6% for US
+  var isCanada = (typeof calcCountry !== 'undefined' && calcCountry === 'ca');
+  
+  var trad, tradPctLabel;
+  if (isCanada) {
+    // BC formula: 3.22% on first $100k + 1.15% on remainder (both sides = seller pays both)
+    var firstPart = Math.min(price, 100000) * 0.0644; // 3.22% x 2 sides
+    var remainder = Math.max(0, price - 100000) * 0.023; // 1.15% x 2 sides
+    trad = Math.round(firstPart + remainder);
+    tradPctLabel = 'BC Rate';
+  } else {
+    trad = Math.round(price * 0.06);  // US: 6%
+    tradPctLabel = '6%';
+  }
+  
+  const agentGross = trad;
+  const agentCashback = Math.round(price * (isCanada ? 0.005 : 0.01)); // 0.5% CA, 1% US
+  const agentNet = agentGross - agentCashback;
   const direct = Math.round(price * 0.01);       // AI Direct: just 1%
   const savings = trad - direct;                 // Savings vs traditional
+  
+  // Update the label dynamically
+  var tradPctEl = document.querySelector('.cbm-pct');
+  if (tradPctEl) tradPctEl.textContent = '(' + tradPctLabel + ')';
 
   // Format numbers
   const fmt = n => {
@@ -2238,7 +2264,7 @@ function updateCalc() {
   var cbAmt = document.getElementById('cashback-amount');
   if(cbAmt) cbAmt.textContent = fmt(agentCashback);
   var agNote = document.getElementById('bar-agent-note-text');
-  if(agNote) agNote.textContent = 'Agent charges 6% · You get ' + fmt(agentCashback) + ' cashback · Net cost ' + fmt(agentNet);
+  if(agNote) agNote.textContent = 'Agent charges ' + tradPctLabel + ' · You get ' + fmt(agentCashback) + ' cashback · Net cost ' + fmt(agentNet);
 
   // Big savings number
   document.getElementById('calc-savings').textContent = fmt(savings);
@@ -2871,7 +2897,7 @@ updateMortgage();
         <span class="pm-desc">Local expert · Guaranteed cashback</span>
         <ul class="pm-list">
           <li><span class="pm-check-y">✓</span><span>Local expert handles everything</span></li>
-          <li><span class="pm-check-y">✓</span><span>Minimum 1% cashback at closing</span></li>
+          <li><span class="pm-check-y">✓</span><span>Minimum cashback at closing (0.5% CA · 1% US)</span></li>
           <li><span class="pm-check-y">✓</span><span>Full MLS &amp; open house support</span></li>
           <li><span class="pm-check-y">✓</span><span>Agents compete for your listing</span></li>
           <li><span class="pm-check-y">✓</span><span>All AI tools still included</span></li>
@@ -3011,6 +3037,19 @@ function openMessageSellerBtn(btn) {
   var addr = btn.getAttribute('data-addr');
   var price = btn.getAttribute('data-price');
   openMessageSeller(listingId, sellerId, addr, price);
+}
+
+// ── Calculator Country Toggle ─────────────────────────────────
+let calcCountry = 'ca'; // default Canada
+
+function setCalcCountry(country) {
+  calcCountry = country;
+  // Update button styles
+  document.getElementById('calc-btn-ca').style.background = country === 'ca' ? 'var(--green)' : 'none';
+  document.getElementById('calc-btn-ca').style.color = country === 'ca' ? '#0a0f0d' : 'var(--muted)';
+  document.getElementById('calc-btn-us').style.background = country === 'us' ? 'var(--green)' : 'none';
+  document.getElementById('calc-btn-us').style.color = country === 'us' ? '#0a0f0d' : 'var(--muted)';
+  updateCalc();
 }
 </script>
 
