@@ -98,7 +98,7 @@ app.post('/api/auth/signup', async (req, res) => {
               <tr><td style="padding:10px;color:#7a9480">Bio</td><td style="padding:10px;color:#e8f0e9">${req.body.bio || '—'}</td></tr>
             </table>
             <div style="margin-top:24px;text-align:center">
-              <a href="https://list-direct.onrender.com/admin.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">Review Application →</a>
+              <a href="https://listdirect.ai/admin.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">Review Application →</a>
             </div>
           </div>
         `
@@ -121,7 +121,7 @@ app.post('/api/auth/signup', async (req, res) => {
               <li>Browse certified agents with guaranteed cashback</li>
             </ul>
             <div style="margin-top:24px;text-align:center">
-              <a href="https://list-direct.onrender.com/dashboard.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">Go to My Account →</a>
+              <a href="https://listdirect.ai/dashboard.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">Go to My Account →</a>
             </div>
             <p style="color:#3d5240;font-size:0.8rem;margin-top:32px;text-align:center">Questions? Email us at infolistdirect@gmail.com</p>
           </div>
@@ -393,7 +393,7 @@ app.patch('/api/admin/agents/:id', async (req, res) => {
                 </ul>
               </div>
               <div style="margin-top:24px;text-align:center">
-                <a href="https://list-direct.onrender.com/agent-portal.html" style="background:#f5c842;color:#1a1200;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">Go to Agent Portal →</a>
+                <a href="https://listdirect.ai/agent-portal.html" style="background:#f5c842;color:#1a1200;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">Go to Agent Portal →</a>
               </div>
               <p style="color:#3d5240;font-size:0.8rem;margin-top:32px;text-align:center">Questions? Email us at infolistdirect@gmail.com</p>
             </div>
@@ -438,7 +438,7 @@ app.post('/api/payments/create-intent', async (req, res) => {
     await sendEmail({
       to: 'infolistdirect@gmail.com',
       subject: '💰 New Payment Initiated — Seller Platform Fee',
-      html: `<div style="font-family:Arial,sans-serif;background:#0a0f0d;color:#e8f0e9;padding:24px;border-radius:12px"><h2 style="color:#3ef07a">New Seller Payment</h2><p>Amount: <strong>$${(fee/100).toLocaleString()}</strong></p><p>Sale Price: <strong>$${parseInt(sale_price).toLocaleString()}</strong></p><p>Method: <strong>${payment_type}</strong></p><a href="https://list-direct.onrender.com/admin.html" style="background:#3ef07a;color:#0a0f0d;padding:10px 20px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-top:12px">View in Admin →</a></div>`
+      html: `<div style="font-family:Arial,sans-serif;background:#0a0f0d;color:#e8f0e9;padding:24px;border-radius:12px"><h2 style="color:#3ef07a">New Seller Payment</h2><p>Amount: <strong>$${(fee/100).toLocaleString()}</strong></p><p>Sale Price: <strong>$${parseInt(sale_price).toLocaleString()}</strong></p><p>Method: <strong>${payment_type}</strong></p><a href="https://listdirect.ai/admin.html" style="background:#3ef07a;color:#0a0f0d;padding:10px 20px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-top:12px">View in Admin →</a></div>`
     });
     
     res.json({ client_secret: paymentIntent.client_secret, amount: fee });
@@ -524,7 +524,7 @@ app.post('/api/notify/agent-request', async (req, res) => {
             <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">Property Address</td><td style="padding:10px;color:#e8f0e9;border-bottom:1px solid #1f2d22">${seller_address}</td></tr>
             <tr><td style="padding:10px;color:#7a9480">Asking Price</td><td style="padding:10px;color:#3ef07a">${seller_price}</td></tr>
           </table>
-          <a href="https://list-direct.onrender.com/admin.html" style="display:inline-block;margin-top:24px;background:#f5c842;color:#1a1200;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700">View in Admin →</a>
+          <a href="https://listdirect.ai/admin.html" style="display:inline-block;margin-top:24px;background:#f5c842;color:#1a1200;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700">View in Admin →</a>
         </div>
       `
     });
@@ -549,7 +549,7 @@ app.post('/api/notify/agent-request', async (req, res) => {
               <p style="color:#f5c842;font-weight:700;margin-bottom:8px">Remember your commitment:</p>
               <p style="color:#7a9480">You have agreed to give this seller a minimum <strong style="color:#f5c842">${cashback}</strong> cashback at closing, and to pay ListDirect a 10% referral fee from your commission.</p>
             </div>
-            <a href="https://list-direct.onrender.com/agent-portal.html" style="display:inline-block;margin-top:8px;background:#f5c842;color:#1a1200;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700">Go to Agent Portal →</a>
+            <a href="https://listdirect.ai/agent-portal.html" style="display:inline-block;margin-top:8px;background:#f5c842;color:#1a1200;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700">Go to Agent Portal →</a>
           </div>
         `
       });
@@ -741,6 +741,20 @@ app.get('/api/listings/search', async (req, res) => {
     res.json({ listings: data || [] });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+
+// ── Members: Count ────────────────────────────────────────────
+app.get('/api/members/count', async (req, res) => {
+  try {
+    const { count, error } = await supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true });
+    if (error) throw error;
+    res.json({ count: count || 0 });
+  } catch (err) {
+    res.json({ count: 0 });
   }
 });
 
