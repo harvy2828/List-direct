@@ -381,7 +381,7 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 0 8px rgba(62,240,1
 .faq-section{padding:100px 0;background:var(--bg)}
 .faq-inner{max-width:780px;margin:0 auto;padding:0 24px}
 .faq-list{margin-top:48px;display:flex;flex-direction:column;gap:12px}
-.faq-item{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;opacity:0;transform:translateY(16px);transition:opacity 0.4s,transform 0.4s,border-color 0.2s}
+.faq-item{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;opacity:1;transform:translateY(0);transition:opacity 0.4s,transform 0.4s,border-color 0.2s}
 .faq-item.visible{opacity:1;transform:translateY(0)}
 .faq-item.open{border-color:rgba(62,240,122,0.3)}
 .faq-q{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;cursor:pointer;gap:16px}
@@ -622,7 +622,6 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
   <a href="#calculator" onclick="toggleMenu()">💰 Savings Calculator</a>
   <a href="#mortgage" onclick="toggleMenu()">🏦 Mortgage Calculator</a>
   <a href="#faq" onclick="toggleMenu()">❓ FAQ</a>
-  <a href="#testimonials" onclick="toggleMenu()">⭐ Success Stories</a>
   <a href="#cashback" onclick="toggleMenu()">💸 Agent Cashback</a>
   <a href="contact.html" onclick="toggleMenu()">📧 Contact & Support</a>
   <div class="mobile-menu-btns">
@@ -759,210 +758,11 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
 <div class="stats">
   <div class="stat-item"><div class="stat-num">$0</div><div class="stat-label">Listing fee to get started</div></div>
   <div class="stat-item"><div class="stat-num">1%</div><div class="stat-label">Platform fee on close</div></div>
-  <div class="stat-item"><div class="stat-num">47K+</div><div class="stat-label">Homes sold direct</div></div>
-  <div class="stat-item"><div class="stat-num">18 days</div><div class="stat-label">Average time to offer</div></div>
+  <div class="stat-item"><div class="stat-num">🇨🇦🇺🇸</div><div class="stat-label">Canada & USA</div></div>
+  <div class="stat-item"><div class="stat-num">AI</div><div class="stat-label">Powered platform</div></div>
 </div>
 
 <!-- SEARCH SECTION -->
-<div class="search-section" id="search-section">
-  <div class="search-inner">
-    <div class="section-tag">Property Search</div>
-    <h2>Search Any City.<br><em style="font-style:normal;color:var(--green)">ListDirect Sellers Rise to the Top.</em></h2>
-    <div class="search-box">
-      <!-- Country toggle -->
-      <div class="search-country-row">
-        <button class="country-btn active" id="btn-ca" onclick="setCountry('ca',this)">🇨🇦 Canada</button>
-        <button class="country-btn" id="btn-us" onclick="setCountry('us',this)">🇺🇸 United States</button>
-        <span class="country-hint" id="country-hint">Searching US cities & ZIP codes</span>
-      </div>
-      <div class="search-top-row">
-        <div class="search-input-wrap" style="flex:3">
-          <span class="s-icon">📍</span>
-          <input type="text" id="search-input" placeholder="City, ZIP, or neighborhood…" onkeydown="if(event.key==='Enter')runSearch()"/>
-        </div>
-        <select class="search-select" id="filter-beds" onchange="runSearch()">
-          <option value="">Any Beds</option>
-          <option value="2">2+ Beds</option>
-          <option value="3">3+ Beds</option>
-          <option value="4">4+ Beds</option>
-        </select>
-        <select class="search-select" id="filter-price" onchange="runSearch()">
-          <option value="">Any Price</option>
-          <option value="300000" id="price-opt-300">Under $300k</option>
-          <option value="500000" id="price-opt-500">Under $500k</option>
-          <option value="750000" id="price-opt-750">Under $750k</option>
-          <option value="1000000" id="price-opt-1m">Under $1M</option>
-        </select>
-        <button class="search-btn" onclick="runSearch()">Search</button>
-      </div>
-      <div class="filter-row">
-        <span class="filter-label">Type:</span>
-        <button class="filter-chip active" data-type="all" onclick="setTypeFilter(this,'all')">All</button>
-        <button class="filter-chip" data-type="house" onclick="setTypeFilter(this,'house')">🏠 House</button>
-        <button class="filter-chip" data-type="condo" onclick="setTypeFilter(this,'condo')">🏢 Condo</button>
-        <button class="filter-chip" data-type="townhome" onclick="setTypeFilter(this,'townhome')">🏘 Townhome</button>
-        <span class="filter-label" style="margin-left:12px">Show:</span>
-        <button class="filter-chip active" data-listing="all" onclick="setListingFilter(this,'all')">All Homes</button>
-        <button class="filter-chip" data-listing="verified" onclick="setListingFilter(this,'verified')">⭐ ListDirect Only</button>
-      </div>
-    </div>
-
-    <!-- State banners -->
-    <div class="search-state-banner" id="banner-ai-results">
-      <div class="ssb-icon">🤖</div>
-      <div class="ssb-text">Showing <strong>AI-generated market listings</strong> for your search. <strong style="color:var(--green)">ListDirect Verified</strong> homes are pinned to the top. Results update in real time.</div>
-    </div>
-    <div class="search-state-banner" id="banner-list-yours">
-      <div class="ssb-icon">🚀</div>
-      <div class="ssb-text">Is your home in this area? <strong>List it on ListDirect</strong> and it'll appear first in every search for your city — with a Verified badge.</div>
-      <button class="ssb-action" onclick="openPM()">List My Home →</button>
-    </div>
-
-    <div class="results-header">
-      <div class="results-count"><strong id="result-count">12</strong> homes found <span id="search-city-label"></span></div>
-      <select class="sort-select" id="sort-select" onchange="renderCurrentResults()">
-        <option value="match">Best Match</option>
-        <option value="price-asc">Price: Low to High</option>
-        <option value="price-desc">Price: High to Low</option>
-        <option value="newest">Newest</option>
-      </select>
-    </div>
-
-    <div class="search-loading" id="search-loading">
-      <div class="search-loading-inner">
-        <div class="sl-spinner"></div>
-        <div class="sl-text" id="search-loading-text">Searching listings and generating <strong>AI market data</strong> for your area…</div>
-      </div>
-    </div>
-
-    <div class="listings-grid" id="listings-grid"></div>
-    <div class="view-all-row" id="view-all-row">
-      <button class="btn-outline" onclick="openPM()" style="display:inline-flex;gap:8px;align-items:center;margin-right:12px">🏠 List My Home — Get Top Placement</button>
-      <button class="btn-outline" onclick="openModal('buy')" style="display:inline-flex;gap:8px;align-items:center">See All Results →</button>
-    </div>
-  </div>
-</div>
-
-<!-- HOW IT WORKS -->
-<div class="how-section" id="how">
-  <div class="how-inner">
-    <div class="section-tag">The Process</div>
-    <h2 class="section-title">From listing to closing in<br>four simple steps</h2>
-    <p class="section-sub">Our AI handles pricing, marketing, and matching — you just approve and close.</p>
-    <div class="steps">
-      <div class="step"><div class="step-num">01</div><div class="step-icon">🏠</div><h3>List Your Property</h3><p>Upload photos, enter details, and our AI instantly creates a professional listing with optimized descriptions and pricing analysis.</p></div>
-      <div class="step"><div class="step-num">02</div><div class="step-icon">🤖</div><h3>AI Matches Buyers</h3><p>Our algorithm surfaces your listing to verified buyers who match your home's profile — location, size, price range, and lifestyle fit.</p></div>
-      <div class="step"><div class="step-num">03</div><div class="step-icon">💬</div><h3>Connect Directly with Buyers</h3><p>Message buyers, schedule tours, and communicate through our secure platform — no middleman, no delays. You stay in full control of your sale.</p></div>
-      <div class="step"><div class="step-num">04</div><div class="step-icon">🔑</div><h3>Close & Save</h3><p>We handle digital paperwork, connect you with a closing attorney, and you keep the savings. Simple as that.</p></div>
-    </div>
-  </div>
-</div>
-
-<!-- PATHS -->
-<section id="paths">
-  <div class="section-tag">Choose Your Path</div>
-  <h2 class="section-title">Go direct, or go<br>with a vetted agent</h2>
-  <p class="section-sub">You're in control. Skip the agent and maximize savings, or choose a ListDirect-certified agent committed to giving you cash back.</p>
-  <div class="path-grid">
-    <div class="path-card featured">
-      <div class="path-best">Most Popular</div>
-      <div class="path-icon">🚀</div>
-      <h3>List Direct</h3>
-      <div class="tagline">AI-assisted · No agent needed</div>
-      <p>Use our AI platform to price, market, and sell your home yourself. We provide the tools — you close the deal and keep your equity.</p>
-      <ul class="path-features">
-        <li>AI-powered pricing & market analysis</li>
-        <li>Professional listing on MLS, Zillow & Realtor.com</li>
-        <li>Verified buyer matching algorithm</li>
-        <li>Digital offer management & negotiation tools</li>
-        <li>E-signature & secure document vault</li>
-        <li>Dedicated closing support team</li>
-      </ul>
-      <div class="path-fee">1% <span>of sale price</span></div>
-      <div class="path-fee-note">On a $400k home, that's just $4,000 vs. $24,000 with a traditional agent</div>
-      <button class="btn-path primary" onclick="window.location.href='listdirect-list.html'">Start Listing Free →</button>
-    </div>
-    <div class="path-card">
-      <div class="path-icon">🤝</div>
-      <h3>Agent Assisted</h3>
-      <div class="tagline">Certified agent · Guaranteed cashback</div>
-      <p>Prefer a human touch? Every ListDirect-certified agent is contractually required to give you a cash rebate at closing — minimum 1%.</p>
-      <ul class="path-features">
-        <li>Minimum 1% cash rebate at closing — guaranteed</li>
-        <li>Agents bid for your listing (you choose)</li>
-        <li>Full MLS access & open house support</li>
-        <li>AI tools + human expertise combined</li>
-        <li>Agent performance ratings & reviews</li>
-        <li>Dispute resolution if rebate isn't honored</li>
-      </ul>
-      <div class="path-fee">Agent fee <span>varies</span></div>
-      <div class="path-fee-note">Agents compete for your listing — see their rebate offer upfront before choosing</div>
-      <button class="btn-path" onclick="document.getElementById('agents-section').scrollIntoView({behavior:'smooth'})">Browse Agents →</button>
-    </div>
-  </div>
-</section>
-
-<!-- AGENT CASHBACK -->
-<div class="cashback-section" id="cashback">
-  <div class="cashback-inner">
-    <div class="section-tag">Agent Cashback Program</div>
-    <h2 class="section-title">Every agent. Every time.<br><span style="color:var(--green)">Cash back guaranteed.</span></h2>
-    <p class="section-sub" style="text-align:center;max-width:580px;margin:0 auto 52px">Our agents don't just offer cashback — they're contractually required to. Here's exactly how the program works and how we protect you.</p>
-
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-bottom:48px">
-
-      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px 24px">
-        <div style="font-size:2rem;margin-bottom:14px">📋</div>
-        <div style="font-weight:700;color:var(--white);font-size:1rem;margin-bottom:10px">Legally Binding Agreement</div>
-        <p style="font-size:0.88rem;color:var(--muted);line-height:1.65">Every agent in our network signs a legal cashback agreement before joining. Minimum 1% back at closing — guaranteed. Agents pay a 10% referral fee to ListDirect on each closed deal — this never comes out of your pocket. You only pay the agent commission minus your guaranteed cashback.</p>
-      </div>
-
-      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px 24px">
-        <div style="font-size:2rem;margin-bottom:14px">🏆</div>
-        <div style="font-weight:700;color:var(--white);font-size:1rem;margin-bottom:10px">Agents Compete For You</div>
-        <p style="font-size:0.88rem;color:var(--muted);line-height:1.65">Post your home and agents bid for your listing — showing you their cashback offer upfront. You pick the best deal before committing to anyone.</p>
-      </div>
-
-      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px 24px">
-        <div style="font-size:2rem;margin-bottom:14px">🛡️</div>
-        <div style="font-weight:700;color:var(--white);font-size:1rem;margin-bottom:10px">You're Protected</div>
-        <p style="font-size:0.88rem;color:var(--muted);line-height:1.65">If an agent doesn't honor their cashback commitment, our guarantee fund covers you and the agent is immediately removed from the platform.</p>
-      </div>
-
-      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px 24px">
-        <div style="font-size:2rem;margin-bottom:14px">⭐</div>
-        <div style="font-weight:700;color:var(--white);font-size:1rem;margin-bottom:10px">Verified Reviews Only</div>
-        <p style="font-size:0.88rem;color:var(--muted);line-height:1.65">Every review on our platform comes from a completed, verified transaction. Real outcomes from real sellers — not handpicked testimonials.</p>
-      </div>
-
-    </div>
-
-    <div style="background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:16px;padding:28px 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;max-width:700px;margin:0 auto">
-      <div>
-        <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:6px">Ready to find your agent?</div>
-        <div style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--white)">Browse agents competing for your listing</div>
-        <div style="font-size:0.85rem;color:var(--muted);margin-top:4px">See their cashback offer before you decide — no commitment required</div>
-      </div>
-      <button onclick="document.getElementById('agents-section').scrollIntoView({behavior:'smooth'})" style="background:var(--green);color:var(--bg);border:none;padding:13px 28px;border-radius:50px;font-weight:700;font-size:0.92rem;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;flex-shrink:0">Browse Agents →</button>
-    </div>
-
-  </div>
-</div>
-
-<!-- AGENT DIRECTORY -->
-<div class="agents-section" id="agents-section">
-  <div class="agents-inner">
-    <div class="section-tag">Agent Directory</div>
-    <h2 class="section-title">Browse certified agents<br>competing for <em style="font-style:normal;color:var(--green)">your listing</em></h2>
-    <p class="section-sub">Every agent below has agreed to our cashback terms. See their rebate offer, rating, and sales history before you decide.</p>
-    <div class="agents-grid" id="agents-grid"></div>
-    <div class="view-all-row" style="margin-top:32px">
-      <button class="btn-outline" onclick="openModal('buy')" style="display:inline-flex">View All 240+ Agents →</button>
-    </div>
-  </div>
-</div>
-
-<!-- AI TOOLS — LIVE -->
 <div class="ai-tools-section" id="ai-tools">
   <div class="ai-tools-inner">
     <div class="section-tag" style="display:block">Live AI Tools</div>
@@ -1178,6 +978,205 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
 </div>
 
 <!-- FAQ -->
+<div class="search-section" id="search-section">
+  <div class="search-inner">
+    <div class="section-tag">Property Search</div>
+    <h2>Search Any City.<br><em style="font-style:normal;color:var(--green)">ListDirect Sellers Rise to the Top.</em></h2>
+    <div class="search-box">
+      <!-- Country toggle -->
+      <div class="search-country-row">
+        <button class="country-btn active" id="btn-ca" onclick="setCountry('ca',this)">🇨🇦 Canada</button>
+        <button class="country-btn" id="btn-us" onclick="setCountry('us',this)">🇺🇸 United States</button>
+        <span class="country-hint" id="country-hint">Searching US cities & ZIP codes</span>
+      </div>
+      <div class="search-top-row">
+        <div class="search-input-wrap" style="flex:3">
+          <span class="s-icon">📍</span>
+          <input type="text" id="search-input" placeholder="City, ZIP, or neighborhood…" onkeydown="if(event.key==='Enter')runSearch()"/>
+        </div>
+        <select class="search-select" id="filter-beds" onchange="runSearch()">
+          <option value="">Any Beds</option>
+          <option value="2">2+ Beds</option>
+          <option value="3">3+ Beds</option>
+          <option value="4">4+ Beds</option>
+        </select>
+        <select class="search-select" id="filter-price" onchange="runSearch()">
+          <option value="">Any Price</option>
+          <option value="300000" id="price-opt-300">Under $300k</option>
+          <option value="500000" id="price-opt-500">Under $500k</option>
+          <option value="750000" id="price-opt-750">Under $750k</option>
+          <option value="1000000" id="price-opt-1m">Under $1M</option>
+        </select>
+        <button class="search-btn" onclick="runSearch()">Search</button>
+      </div>
+      <div class="filter-row">
+        <span class="filter-label">Type:</span>
+        <button class="filter-chip active" data-type="all" onclick="setTypeFilter(this,'all')">All</button>
+        <button class="filter-chip" data-type="house" onclick="setTypeFilter(this,'house')">🏠 House</button>
+        <button class="filter-chip" data-type="condo" onclick="setTypeFilter(this,'condo')">🏢 Condo</button>
+        <button class="filter-chip" data-type="townhome" onclick="setTypeFilter(this,'townhome')">🏘 Townhome</button>
+        <span class="filter-label" style="margin-left:12px">Show:</span>
+        <button class="filter-chip active" data-listing="all" onclick="setListingFilter(this,'all')">All Homes</button>
+        <button class="filter-chip" data-listing="verified" onclick="setListingFilter(this,'verified')">⭐ ListDirect Only</button>
+      </div>
+    </div>
+
+    <!-- State banners -->
+    <div class="search-state-banner" id="banner-ai-results">
+      <div class="ssb-icon">🤖</div>
+      <div class="ssb-text">Showing <strong>AI-generated market listings</strong> for your search. <strong style="color:var(--green)">ListDirect Verified</strong> homes are pinned to the top. Results update in real time.</div>
+    </div>
+    <div class="search-state-banner" id="banner-list-yours">
+      <div class="ssb-icon">🚀</div>
+      <div class="ssb-text">Is your home in this area? <strong>List it on ListDirect</strong> and it'll appear first in every search for your city — with a Verified badge.</div>
+      <button class="ssb-action" onclick="openPM()">List My Home →</button>
+    </div>
+
+    <div class="results-header">
+      <div class="results-count"><strong id="result-count">12</strong> homes found <span id="search-city-label"></span></div>
+      <select class="sort-select" id="sort-select" onchange="renderCurrentResults()">
+        <option value="match">Best Match</option>
+        <option value="price-asc">Price: Low to High</option>
+        <option value="price-desc">Price: High to Low</option>
+        <option value="newest">Newest</option>
+      </select>
+    </div>
+
+    <div class="search-loading" id="search-loading">
+      <div class="search-loading-inner">
+        <div class="sl-spinner"></div>
+        <div class="sl-text" id="search-loading-text">Searching listings and generating <strong>AI market data</strong> for your area…</div>
+      </div>
+    </div>
+
+    <div class="listings-grid" id="listings-grid"></div>
+    <div class="view-all-row" id="view-all-row">
+      <button class="btn-outline" onclick="openPM()" style="display:inline-flex;gap:8px;align-items:center;margin-right:12px">🏠 List My Home — Get Top Placement</button>
+      <button class="btn-outline" onclick="openModal('buy')" style="display:inline-flex;gap:8px;align-items:center">See All Results →</button>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="how-section" id="how">
+  <div class="how-inner">
+    <div class="section-tag">The Process</div>
+    <h2 class="section-title">From listing to closing in<br>four simple steps</h2>
+    <p class="section-sub">Our AI handles pricing, marketing, and matching — you just approve and close.</p>
+    <div class="steps">
+      <div class="step"><div class="step-num">01</div><div class="step-icon">🏠</div><h3>List Your Property</h3><p>Upload photos, enter details, and our AI instantly creates a professional listing with optimized descriptions and pricing analysis.</p></div>
+      <div class="step"><div class="step-num">02</div><div class="step-icon">🤖</div><h3>AI Matches Buyers</h3><p>Our algorithm surfaces your listing to verified buyers who match your home's profile — location, size, price range, and lifestyle fit.</p></div>
+      <div class="step"><div class="step-num">03</div><div class="step-icon">💬</div><h3>Connect Directly with Buyers</h3><p>Message buyers, schedule tours, and communicate through our secure platform — no middleman, no delays. You stay in full control of your sale.</p></div>
+      <div class="step"><div class="step-num">04</div><div class="step-icon">🔑</div><h3>Close & Save</h3><p>We handle digital paperwork, connect you with a closing attorney, and you keep the savings. Simple as that.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- PATHS -->
+<section id="paths">
+  <div class="section-tag">Choose Your Path</div>
+  <h2 class="section-title">Go direct, or go<br>with a vetted agent</h2>
+  <p class="section-sub">You're in control. Skip the agent and maximize savings, or choose a ListDirect-certified agent committed to giving you cash back.</p>
+  <div class="path-grid">
+    <div class="path-card featured">
+      <div class="path-best">Most Popular</div>
+      <div class="path-icon">🚀</div>
+      <h3>List Direct</h3>
+      <div class="tagline">AI-assisted · No agent needed</div>
+      <p>Use our AI platform to price, market, and sell your home yourself. We provide the tools — you close the deal and keep your equity.</p>
+      <ul class="path-features">
+        <li>AI-powered pricing & market analysis</li>
+        <li>Professional listing on MLS, Zillow & Realtor.com</li>
+        <li>Verified buyer matching algorithm</li>
+        <li>Digital offer management & negotiation tools</li>
+        <li>E-signature & secure document vault</li>
+        <li>Dedicated closing support team</li>
+      </ul>
+      <div class="path-fee">1% <span>of sale price</span></div>
+      <div class="path-fee-note">On a $400k home, that's just $4,000 vs. $24,000 with a traditional agent</div>
+      <button class="btn-path primary" onclick="window.location.href='listdirect-list.html'">Start Listing Free →</button>
+    </div>
+    <div class="path-card">
+      <div class="path-icon">🤝</div>
+      <h3>Agent Assisted</h3>
+      <div class="tagline">Certified agent · Guaranteed cashback</div>
+      <p>Prefer a human touch? Every ListDirect-certified agent is contractually required to give you a cash rebate at closing — minimum 1%.</p>
+      <ul class="path-features">
+        <li>Minimum 1% cash rebate at closing — guaranteed</li>
+        <li>Agents bid for your listing (you choose)</li>
+        <li>Full MLS access & open house support</li>
+        <li>AI tools + human expertise combined</li>
+        <li>Agent performance ratings & reviews</li>
+        <li>Dispute resolution if rebate isn't honored</li>
+      </ul>
+      <div class="path-fee">Agent fee <span>varies</span></div>
+      <div class="path-fee-note">Agents compete for your listing — see their rebate offer upfront before choosing</div>
+      <button class="btn-path" onclick="document.getElementById('agents-section').scrollIntoView({behavior:'smooth'})">Browse Agents →</button>
+    </div>
+  </div>
+</section>
+
+<!-- AGENT CASHBACK -->
+<div class="cashback-section" id="cashback">
+  <div class="cashback-inner">
+    <div class="section-tag">Agent Cashback Program</div>
+    <h2 class="section-title">Every agent. Every time.<br><span style="color:var(--green)">Cash back guaranteed.</span></h2>
+    <p class="section-sub" style="text-align:center;max-width:580px;margin:0 auto 52px">Our agents don't just offer cashback — they're contractually required to. Here's exactly how the program works and how we protect you.</p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-bottom:48px">
+
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px 24px">
+        <div style="font-size:2rem;margin-bottom:14px">📋</div>
+        <div style="font-weight:700;color:var(--white);font-size:1rem;margin-bottom:10px">Legally Binding Agreement</div>
+        <p style="font-size:0.88rem;color:var(--muted);line-height:1.65">Every agent in our network signs a legal cashback agreement before joining. Minimum 1% back at closing — guaranteed. Agents pay a 10% referral fee to ListDirect on each closed deal — this never comes out of your pocket. You only pay the agent commission minus your guaranteed cashback.</p>
+      </div>
+
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px 24px">
+        <div style="font-size:2rem;margin-bottom:14px">🏆</div>
+        <div style="font-weight:700;color:var(--white);font-size:1rem;margin-bottom:10px">Agents Compete For You</div>
+        <p style="font-size:0.88rem;color:var(--muted);line-height:1.65">Post your home and agents bid for your listing — showing you their cashback offer upfront. You pick the best deal before committing to anyone.</p>
+      </div>
+
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px 24px">
+        <div style="font-size:2rem;margin-bottom:14px">🛡️</div>
+        <div style="font-weight:700;color:var(--white);font-size:1rem;margin-bottom:10px">You're Protected</div>
+        <p style="font-size:0.88rem;color:var(--muted);line-height:1.65">If an agent doesn't honor their cashback commitment, our guarantee fund covers you and the agent is immediately removed from the platform.</p>
+      </div>
+
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px 24px">
+        <div style="font-size:2rem;margin-bottom:14px">⭐</div>
+        <div style="font-weight:700;color:var(--white);font-size:1rem;margin-bottom:10px">Verified Reviews Only</div>
+        <p style="font-size:0.88rem;color:var(--muted);line-height:1.65">Every review on our platform comes from a completed, verified transaction. Real outcomes from real sellers — not handpicked testimonials.</p>
+      </div>
+
+    </div>
+
+    <div style="background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:16px;padding:28px 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;max-width:700px;margin:0 auto">
+      <div>
+        <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:6px">Ready to find your agent?</div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--white)">Browse agents competing for your listing</div>
+        <div style="font-size:0.85rem;color:var(--muted);margin-top:4px">See their cashback offer before you decide — no commitment required</div>
+      </div>
+      <button onclick="document.getElementById('agents-section').scrollIntoView({behavior:'smooth'})" style="background:var(--green);color:var(--bg);border:none;padding:13px 28px;border-radius:50px;font-weight:700;font-size:0.92rem;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;flex-shrink:0">Browse Agents →</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- AGENT DIRECTORY -->
+<div class="agents-section" id="agents-section">
+  <div class="agents-inner">
+    <div class="section-tag">Agent Directory</div>
+    <h2 class="section-title">Browse certified agents<br>competing for <em style="font-style:normal;color:var(--green)">your listing</em></h2>
+    <p class="section-sub">Every agent below has agreed to our cashback terms. See their rebate offer, rating, and sales history before you decide.</p>
+    <div class="agents-grid" id="agents-grid"></div>
+    <div class="view-all-row" style="margin-top:32px">
+      <button class="btn-outline" onclick="openModal('buy')" style="display:inline-flex">View All 240+ Agents →</button>
+    </div>
+  </div>
+</div>
+
+<!-- AI TOOLS — LIVE -->
 <div class="faq-section" id="faq">
   <div class="faq-inner">
     <div class="section-tag" style="text-align:center;display:block">FAQ</div>
@@ -1187,22 +1186,28 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
 </div>
 
 <!-- TESTIMONIALS -->
-<div class="testi-section">
-  <div class="testi-inner">
-    <div class="section-tag">Real Stories</div>
-    <h2 class="section-title">Sellers who kept their equity</h2>
-    <div class="testi-grid">
-      <div class="testi-card"><div class="testi-stars">★★★★★</div><p class="testi-quote">"The AI pricing tool nailed it. We listed Tuesday and had 8 offers by Friday. Closed in 22 days and saved over $21,000."</p><div class="testi-author"><div class="testi-avatar">👩</div><div><div class="testi-name">Maria T.</div><div class="testi-loc">Austin, TX</div><div class="testi-saved">Saved $21,400</div></div></div></div>
-      <div class="testi-card"><div class="testi-stars">★★★★★</div><p class="testi-quote">"We used the Agent Assisted option and our agent gave us $6,800 cash back at closing. Never knew this was even possible."</p><div class="testi-author"><div class="testi-avatar">👨</div><div><div class="testi-name">James & Keisha R.</div><div class="testi-loc">Charlotte, NC</div><div class="testi-saved">$6,800 cashback received</div></div></div></div>
-      <div class="testi-card"><div class="testi-stars">★★★★★</div><p class="testi-quote">"As a first-time seller I was nervous. The offer review tool helped me understand every detail. I ended up getting $14k above asking."</p><div class="testi-author"><div class="testi-avatar">🧑</div><div><div class="testi-name">Devon L.</div><div class="testi-loc">Denver, CO</div><div class="testi-saved">Saved $17,200</div></div></div></div>
+<div class="testi-section" id="founding">
+  <div class="testi-inner" style="text-align:center">
+    <div class="section-tag">🚀 Now Launching</div>
+    <h2 class="section-title">Be a <em style="font-style:normal;color:var(--green)">Founding Member</em></h2>
+    <p style="color:var(--muted);font-size:1rem;max-width:560px;margin:0 auto 40px;line-height:1.7">Early members get priority placement in every search, free AI tools, and our guaranteed lowest platform fee — forever. Available across Canada and the United States.</p>
+    
+
+
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:32px">
+      <div style="background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:12px;padding:14px 20px;font-size:0.88rem;color:var(--text);display:flex;align-items:center;gap:8px">✅ Priority placement in search</div>
+      <div style="background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:12px;padding:14px 20px;font-size:0.88rem;color:var(--text);display:flex;align-items:center;gap:8px">✅ All AI tools free forever</div>
+      <div style="background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:12px;padding:14px 20px;font-size:0.88rem;color:var(--text);display:flex;align-items:center;gap:8px">✅ Founding member badge</div>
     </div>
+
+    <a href="dashboard.html" style="display:inline-block;background:var(--green);color:#0a0f0d;padding:14px 40px;border-radius:50px;font-weight:700;font-size:1rem;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:0 4px 24px rgba(62,240,122,0.3);text-decoration:none">Join Free — Claim Your Spot →</a>
   </div>
 </div>
 
 <!-- CTA -->
 <div class="cta-section">
   <h2>Ready to sell smarter<br>and save <em>big</em>?</h2>
-  <p>Join 47,000+ homeowners who've taken control of their sale.</p>
+  <p>Join our founding members in Vancouver and across North America.</p>
   <div class="cta-buttons">
     <button class="btn-primary" onclick="openPM()">List My Home Free</button>
     <button class="btn-outline" onclick="openModal('buy')">Search Homes</button>
@@ -1503,14 +1508,16 @@ const AGENTS = [
 ];
 
 const FAQS = [
-  {q:"Is ListDirect legal? Do I need an attorney?",a:"Yes, ListDirect is fully legal in all 50 states. We recommend using a real estate closing attorney or title company for the final closing — we connect you with licensed professionals. In states that require a buyer's agent, our platform handles that as well."},
-  {q:"What happens if a buyer backs out?",a:"Our platform includes a digitally signed purchase agreement. If a buyer backs out without a valid contingency, you keep their earnest money deposit. Our transaction support team walks you through every scenario."},
-  {q:"How does the 1% fee work? Are there hidden costs?",a:"Our platform fee is 1% of the final sale price, collected at closing — so there's no upfront cost to list. The only other cost is your closing attorney or title company (typically $1,000–$2,000). No hidden fees, ever."},
-  {q:"How is ListDirect different from Zillow or Redfin?",a:"Zillow and Redfin are primarily listing aggregators — they still route you to agents who charge full commissions. ListDirect is a true direct-to-buyer platform. Our AI does the work agents charge for, and we take only 1%."},
-  {q:"What if I want an agent but also want cashback?",a:"That's exactly what our Agent Assisted path is for. Agents in our certified network agree to a minimum 1% cashback at closing as a condition of joining. They compete for your listing by offering you their best rebate."},
-  {q:"How does the AI pricing tool work?",a:"Our pricing engine analyzes hundreds of data points: recent comparable sales within 1 mile, days-on-market trends, seasonal adjustments, school ratings, walkability scores, and neighborhood appreciation rates. It recommends a price band and explains the reasoning."},
-  {q:"Can I list if I still have a mortgage?",a:"Absolutely. The vast majority of sellers have an existing mortgage. When your home closes, the mortgage is paid off from the sale proceeds at closing — our attorney partners coordinate this automatically."},
-  {q:"What states do you operate in?",a:"ListDirect is active in all 50 states. Our agent network currently has the deepest coverage in TX, FL, CA, NC, GA, CO, WA, IL, AZ, TN, and OH — with 240+ certified agents nationwide."}
+  {q:"How does the 1% platform fee work?",a:"Our platform fee is 1% of your final sale price, collected at closing — there is no upfront cost to list. The only other costs are your closing attorney or notary (typically $1,000–$2,000). No hidden fees, ever."},
+  {q:"Is ListDirect available in Canada?",a:"Yes! ListDirect serves both Canada and the United States. We support CAD and USD pricing, and our savings calculator uses the correct commission formula for each country — including the BC rate for Canadian sellers."},
+  {q:"How is ListDirect different from using a traditional agent?",a:"Traditional agents in Canada charge roughly 3–5% commission. With ListDirect you pay just 1% at closing and keep the rest. Our AI tools handle pricing, listing descriptions, and offer review — the same things agents charge thousands for."},
+  {q:"What is the Agent Assisted path?",a:"If you prefer working with a human agent, our certified agents have agreed to give you a minimum cashback at closing (0.5% in Canada, 1% in the US). They compete for your listing and you choose who you work with."},
+  {q:"What if I want an agent but also want cashback?",a:"That is exactly what our Agent Assisted path is for. Every agent in our certified network has signed a legal cashback agreement before joining. You are guaranteed to receive your cashback at closing — it is contractually binding."},
+  {q:"How does the AI pricing tool work?",a:"Our AI pricing tool analyzes comparable sales in your area, days-on-market trends, property features, and local market conditions. It gives you a recommended price range with full reasoning so you can make a confident decision."},
+  {q:"Can I list if I still have a mortgage?",a:"Absolutely. Most sellers have an existing mortgage. When your home closes, the mortgage is paid off from the sale proceeds at closing. Your lawyer or notary coordinates this automatically."},
+  {q:"How do buyers find my listing?",a:"Your listing appears in our search results immediately. We also syndicate to major platforms so buyers searching in your area can find your home. ListDirect verified listings always appear first in search results."},
+  {q:"What happens if a buyer backs out?",a:"Your purchase agreement includes buyer protections. If a buyer backs out without a valid contingency they forfeit their deposit. We recommend working with a real estate lawyer to ensure your agreement is properly structured."},
+  {q:"Is there a contract or commitment?",a:"No contracts and no commitments. Listing is completely free. You only pay the 1% platform fee if and when your home successfully closes. You can remove your listing at any time."}
 ];
 
 // (Chat responses now powered by real Claude AI)
@@ -3051,6 +3058,22 @@ function setCalcCountry(country) {
   document.getElementById('calc-btn-us').style.color = country === 'us' ? '#0a0f0d' : 'var(--muted)';
   updateCalc();
 }
+
+// ── Load Real Member Count ────────────────────────────────────
+async function loadMemberCount() {
+  try {
+    const res = await fetch('/api/members/count');
+    if (!res.ok) return;
+    const data = await res.json();
+    const count = data.count || 0;
+    const fmt = count >= 1000 ? (count/1000).toFixed(1) + 'K+' : count + '+';
+    const el1 = document.getElementById('founding-count');
+    const el2 = document.getElementById('stat-members');
+    if (el1) el1.textContent = count > 0 ? fmt : 'Join now';
+    if (el2) el2.textContent = count > 0 ? fmt : '0';
+  } catch(e) {}
+}
+window.addEventListener('DOMContentLoaded', loadMemberCount);
 </script>
 
 
