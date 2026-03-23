@@ -2971,6 +2971,50 @@ function initGooglePlaces() {
       }
     });
   }
+
+  // AI Pricing tool address autocomplete
+  const pAddr = document.getElementById('p-addr');
+  if (pAddr) {
+    const pAC = new google.maps.places.Autocomplete(pAddr, {
+      fields: ['address_components', 'formatted_address', 'geometry']
+    });
+    pAC.addListener('place_changed', () => {
+      const place = pAC.getPlace();
+      if (place.address_components) {
+        // Auto-fill city field
+        const cityComp = place.address_components.find(c => c.types.includes('locality'));
+        const stateComp = place.address_components.find(c => c.types.includes('administrative_area_level_1'));
+        const cityField = document.getElementById('p-city');
+        if (cityField && cityComp && stateComp) {
+          cityField.value = cityComp.long_name + ', ' + stateComp.short_name;
+        }
+        // Auto-select country
+        const countryComp = place.address_components.find(c => c.types.includes('country'));
+        if (countryComp) {
+          const countrySelect = document.getElementById('p-country');
+          if (countrySelect) {
+            countrySelect.value = countryComp.short_name === 'CA' ? 'Canada' : 'United States';
+          }
+        }
+      }
+    });
+  }
+
+  // AI Listing writer address autocomplete
+  const lAddr = document.getElementById('l-addr');
+  if (lAddr) {
+    new google.maps.places.Autocomplete(lAddr, {
+      fields: ['address_components', 'formatted_address']
+    });
+  }
+
+  // AI Offer review address autocomplete  
+  const oAddr = document.getElementById('o-addr');
+  if (oAddr) {
+    new google.maps.places.Autocomplete(oAddr, {
+      fields: ['address_components', 'formatted_address']
+    });
+  }
 }
 
 // ── Google Places for Search Box ──────────────────────────────
