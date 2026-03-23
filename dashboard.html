@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-EYCY016PBH"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-EYCY016PBH');
+</script>
+
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>ListDirect — My Account</title>
@@ -1315,11 +1324,16 @@ async function submitReply() {
 function handleListingBtn(btn) {
   var id = btn.getAttribute('data-id');
   var action = btn.getAttribute('data-action');
+  if (!id) { alert('No ID found'); return; }
   if (action === 'edit') {
     window.location.href = 'listdirect-list.html?edit=' + id;
   } else {
     var listing = listingsCache.find(function(x) { return x.id === id; });
-    if (listing) viewListingDetail(listing);
+    if (listing) {
+      viewListingDetail(listing);
+    } else {
+      alert('Listing not in cache. Cache size: ' + listingsCache.length);
+    }
   }
 }
 
