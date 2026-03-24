@@ -762,5 +762,64 @@ app.get('/api/members/count', async (req, res) => {
   }
 });
 
+
+// ── Repliers MLS Listings (Canada) ───────────────────────────
+app.get('/api/mls/canada', async (req, res) => {
+  const { city, minBeds, maxPrice, minPrice, type } = req.query;
+  try {
+    const params = new URLSearchParams({
+      status: 'A',
+      limit: '20',
+      sortBy: 'updatedOnDesc',
+    });
+
+    if (city) params.append('city', city);
+    if (minBeds) params.append('minBeds', minBeds);
+    if (maxPrice) params.append('maxPrice', maxPrice);
+    if (minPrice) params.append('minPrice', minPrice);
+    if (type) params.append('propertyType', type);
+
+    const response = await fetch(`https://api.repliers.io/listings?${params.toString()}`, {
+      headers: {
+        'repliers-api-key': process.env.REPLIERS_API_KEY,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      const err = await response.text();
+      return res.status(response.status).json({ error: err, listings: [] });
+    }
+
+    const data = await response.json();
+    const listings = (data.listings || []).map(l => ({
+      id: l.mlsNumber || l.id,
+      verified: false,
+      platform: false,
+      mls: true,
+      price: parseInt(l.listPrice) || 0,
+      currency: 'CAD',
+      addr: l.address?.streetNumber + ' ' + l.address?.streetName + (l.address?.streetSuffix ? ' ' + l.address?.streetSuffix : ''),
+      city: l.address?.city || city || '',
+      zip: l.address?.zip || '',
+      beds: parseInt(l.details?.numBedrooms) || 0,
+      baths: parseFloat(l.details?.numBathrooms) || 0,
+      sqft: parseInt(l.details?.sqft) || 0,
+      type: l.details?.propertyType || 'house',
+      days: Math.floor((Date.now() - new Date(l.listDate)) / 86400000) || 0,
+      match: Math.floor(Math.random() * 15) + 80,
+      img: l.images?.[0] || 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=400&h=280&fit=crop',
+      cashback: null,
+      desc: l.details?.description || '',
+      listing: 'mls'
+    }));
+
+    res.json({ listings });
+  } catch (err) {
+    console.error('Repliers error:', err.message);
+    res.json({ listings: [], error: err.message });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`ListDirect running on port ${PORT}`));
