@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /dashboard.html
+Disallow: /agent-portal.html
+
+Sitemap: https://listdirect.ai/sitemap.xml

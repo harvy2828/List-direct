@@ -12,7 +12,7 @@
 
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>ListDirect — AI Home Selling, Reimagined</title>
+<title>ListDirect — Sell Your Home for 1% | Skip the Agent | Canada & USA</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
 :root {
@@ -592,6 +592,18 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
 .pac-icon { display:none !important; }
 </style>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A&libraries=places&callback=initGooglePlacesSearch" async defer></script>
+  <meta name="description" content="Sell your home in Canada or the United States for just 1% at closing. Skip the agent or use a certified agent with guaranteed cashback. AI-powered pricing, listing writer, and offer review — free to use."/>
+  <meta name="keywords" content="sell home without agent Canada, list home direct, 1% real estate fee, skip real estate agent, save on commission, AI real estate platform, sell house yourself Canada, flat fee real estate, guaranteed cashback agent, sell home without realtor"/>
+  <meta property="og:title" content="ListDirect — Sell Your Home for 1% | Skip the Agent | Canada & USA"/>
+  <meta property="og:description" content="Sell your home in Canada or the United States for just 1% at closing. Skip the agent or use a certified agent with guaranteed cashback. AI-powered pricing, listing writer, and offer review — free to use."/>
+  <meta property="og:url" content="https://listdirect.ai/index.html"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:image" content="https://listdirect.ai/og-image.png"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="ListDirect — Sell Your Home for 1% | Skip the Agent | Canada & USA"/>
+  <meta name="twitter:description" content="Sell your home in Canada or the United States for just 1% at closing. Skip the agent or use a certified agent with guaranteed cashback. AI-powered pricing, listing writer, and offer review — free to use."/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://listdirect.ai/index.html"/>
 </head>
 <body>
 
@@ -654,6 +666,11 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
     <button class="btn-outline" style="border-color:rgba(62,240,122,0.4);color:var(--green)" onclick="document.getElementById('calculator').scrollIntoView({behavior:'smooth'})">💰 See My Savings</button>
     <button class="btn-outline" onclick="document.getElementById('search-section').scrollIntoView({behavior:'smooth'})">🏠 Browse Homes</button>
     <button class="btn-outline" style="border-color:rgba(62,240,122,0.4);color:var(--green)" onclick="document.getElementById('ai-tools').scrollIntoView({behavior:'smooth'})">🤖 Try AI Tools</button>
+  </div>
+  <div style="margin-top:20px;position:relative;z-index:1;animation:fadeUp 0.8s 0.4s ease both">
+    <a href="agent-portal.html" style="font-size:0.88rem;color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:color 0.2s" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--muted)'">
+      🤝 Are you a licensed agent? <span style="color:var(--green);font-weight:600">Join our network →</span>
+    </a>
   </div>
   <div class="hero-ai-strip">
     <span class="hero-ai-chip-label">Free AI tools:</span>
@@ -767,14 +784,84 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
 </div>
 
 <!-- STATS -->
-<div class="stats">
-  <div class="stat-item"><div class="stat-num">$0</div><div class="stat-label">Listing fee to get started</div></div>
-  <div class="stat-item"><div class="stat-num">1%</div><div class="stat-label">Platform fee on close</div></div>
-  <div class="stat-item"><div class="stat-num">🇨🇦🇺🇸</div><div class="stat-label">Canada & USA</div></div>
-  <div class="stat-item"><div class="stat-num">AI</div><div class="stat-label">Powered platform</div></div>
-</div>
 
 <!-- SEARCH SECTION -->
+<div class="search-section" id="search-section">
+  <div class="search-inner">
+    <div class="section-tag">Property Search</div>
+    <h2>Search Any City.<br><em style="font-style:normal;color:var(--green)">ListDirect Sellers Rise to the Top.</em></h2>
+    <div class="search-box">
+      <!-- Country toggle -->
+      <div class="search-country-row">
+        <button class="country-btn active" id="btn-ca" onclick="setCountry('ca',this)">🇨🇦 Canada</button>
+        <button class="country-btn" id="btn-us" onclick="setCountry('us',this)">🇺🇸 United States</button>
+        <span class="country-hint" id="country-hint">Searching US cities & ZIP codes</span>
+      </div>
+      <div class="search-top-row">
+        <div class="search-input-wrap" style="flex:3">
+          <span class="s-icon">📍</span>
+          <input type="text" id="search-input" placeholder="City, ZIP, or neighborhood…" onkeydown="if(event.key==='Enter')runSearch()"/>
+        </div>
+        <select class="search-select" id="filter-beds" onchange="runSearch()">
+          <option value="">Any Beds</option>
+          <option value="2">2+ Beds</option>
+          <option value="3">3+ Beds</option>
+          <option value="4">4+ Beds</option>
+        </select>
+        <select class="search-select" id="filter-price" onchange="runSearch()">
+          <option value="">Any Price</option>
+          <option value="300000" id="price-opt-300">Under $300k</option>
+          <option value="500000" id="price-opt-500">Under $500k</option>
+          <option value="750000" id="price-opt-750">Under $750k</option>
+          <option value="1000000" id="price-opt-1m">Under $1M</option>
+        </select>
+        <button class="search-btn" onclick="runSearch()">Search</button>
+      </div>
+      <div class="filter-row">
+        <span class="filter-label">Type:</span>
+        <button class="filter-chip active" data-type="all" onclick="setTypeFilter(this,'all')">All</button>
+        <button class="filter-chip" data-type="house" onclick="setTypeFilter(this,'house')">🏠 House</button>
+        <button class="filter-chip" data-type="condo" onclick="setTypeFilter(this,'condo')">🏢 Condo</button>
+        <button class="filter-chip" data-type="townhome" onclick="setTypeFilter(this,'townhome')">🏘 Townhome</button>
+        <span class="filter-label" style="margin-left:12px">Show:</span>
+        <button class="filter-chip active" data-listing="all" onclick="setListingFilter(this,'all')">All Homes</button>
+        <button class="filter-chip" data-listing="verified" onclick="setListingFilter(this,'verified')">⭐ ListDirect Only</button>
+      </div>
+    </div>
+
+    <!-- State banners -->
+<div id="banner-ai-results" style="display:none"></div>
+    <div id="banner-list-yours" style="display:none;background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:12px;padding:12px 18px;margin-bottom:12px;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+      <div style="font-size:0.84rem;color:var(--muted)">🏡 Selling in this area? <strong style="color:var(--white)">List on ListDirect and appear first in every search.</strong></div>
+      <button onclick="openPM()" style="background:var(--green);color:#0a0f0d;padding:7px 18px;border-radius:50px;border:none;font-weight:700;font-size:0.82rem;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;flex-shrink:0">List Free →</button>
+    </div>
+
+    <div class="results-header">
+      <div class="results-count"><strong id="result-count">12</strong> homes found <span id="search-city-label"></span></div>
+      <select class="sort-select" id="sort-select" onchange="renderCurrentResults()">
+        <option value="match">Best Match</option>
+        <option value="price-asc">Price: Low to High</option>
+        <option value="price-desc">Price: High to Low</option>
+        <option value="newest">Newest</option>
+      </select>
+    </div>
+
+    <div class="search-loading" id="search-loading">
+      <div class="search-loading-inner">
+        <div class="sl-spinner"></div>
+        <div class="sl-text" id="search-loading-text">Searching listings and generating <strong>AI market data</strong> for your area…</div>
+      </div>
+    </div>
+
+    <div class="listings-grid" id="listings-grid"></div>
+    <div class="view-all-row" id="view-all-row">
+      <button class="btn-outline" onclick="openPM()" style="display:inline-flex;gap:8px;align-items:center;margin-right:12px">🏠 List My Home — Get Top Placement</button>
+      <button class="btn-outline" onclick="openModal('buy')" style="display:inline-flex;gap:8px;align-items:center">See All Results →</button>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
 <div class="ai-tools-section" id="ai-tools">
   <div class="ai-tools-inner">
     <div class="section-tag" style="display:block">Live AI Tools</div>
@@ -990,86 +1077,12 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
 </div>
 
 <!-- FAQ -->
-<div class="search-section" id="search-section">
-  <div class="search-inner">
-    <div class="section-tag">Property Search</div>
-    <h2>Search Any City.<br><em style="font-style:normal;color:var(--green)">ListDirect Sellers Rise to the Top.</em></h2>
-    <div class="search-box">
-      <!-- Country toggle -->
-      <div class="search-country-row">
-        <button class="country-btn active" id="btn-ca" onclick="setCountry('ca',this)">🇨🇦 Canada</button>
-        <button class="country-btn" id="btn-us" onclick="setCountry('us',this)">🇺🇸 United States</button>
-        <span class="country-hint" id="country-hint">Searching US cities & ZIP codes</span>
-      </div>
-      <div class="search-top-row">
-        <div class="search-input-wrap" style="flex:3">
-          <span class="s-icon">📍</span>
-          <input type="text" id="search-input" placeholder="City, ZIP, or neighborhood…" onkeydown="if(event.key==='Enter')runSearch()"/>
-        </div>
-        <select class="search-select" id="filter-beds" onchange="runSearch()">
-          <option value="">Any Beds</option>
-          <option value="2">2+ Beds</option>
-          <option value="3">3+ Beds</option>
-          <option value="4">4+ Beds</option>
-        </select>
-        <select class="search-select" id="filter-price" onchange="runSearch()">
-          <option value="">Any Price</option>
-          <option value="300000" id="price-opt-300">Under $300k</option>
-          <option value="500000" id="price-opt-500">Under $500k</option>
-          <option value="750000" id="price-opt-750">Under $750k</option>
-          <option value="1000000" id="price-opt-1m">Under $1M</option>
-        </select>
-        <button class="search-btn" onclick="runSearch()">Search</button>
-      </div>
-      <div class="filter-row">
-        <span class="filter-label">Type:</span>
-        <button class="filter-chip active" data-type="all" onclick="setTypeFilter(this,'all')">All</button>
-        <button class="filter-chip" data-type="house" onclick="setTypeFilter(this,'house')">🏠 House</button>
-        <button class="filter-chip" data-type="condo" onclick="setTypeFilter(this,'condo')">🏢 Condo</button>
-        <button class="filter-chip" data-type="townhome" onclick="setTypeFilter(this,'townhome')">🏘 Townhome</button>
-        <span class="filter-label" style="margin-left:12px">Show:</span>
-        <button class="filter-chip active" data-listing="all" onclick="setListingFilter(this,'all')">All Homes</button>
-        <button class="filter-chip" data-listing="verified" onclick="setListingFilter(this,'verified')">⭐ ListDirect Only</button>
-      </div>
-    </div>
-
-    <!-- State banners -->
-    <div class="search-state-banner" id="banner-ai-results">
-      <div class="ssb-icon">🤖</div>
-      <div class="ssb-text">Showing <strong>AI-generated market listings</strong> for your search. <strong style="color:var(--green)">ListDirect Verified</strong> homes are pinned to the top. Results update in real time.</div>
-    </div>
-    <div class="search-state-banner" id="banner-list-yours">
-      <div class="ssb-icon">🚀</div>
-      <div class="ssb-text">Is your home in this area? <strong>List it on ListDirect</strong> and it'll appear first in every search for your city — with a Verified badge.</div>
-      <button class="ssb-action" onclick="openPM()">List My Home →</button>
-    </div>
-
-    <div class="results-header">
-      <div class="results-count"><strong id="result-count">12</strong> homes found <span id="search-city-label"></span></div>
-      <select class="sort-select" id="sort-select" onchange="renderCurrentResults()">
-        <option value="match">Best Match</option>
-        <option value="price-asc">Price: Low to High</option>
-        <option value="price-desc">Price: High to Low</option>
-        <option value="newest">Newest</option>
-      </select>
-    </div>
-
-    <div class="search-loading" id="search-loading">
-      <div class="search-loading-inner">
-        <div class="sl-spinner"></div>
-        <div class="sl-text" id="search-loading-text">Searching listings and generating <strong>AI market data</strong> for your area…</div>
-      </div>
-    </div>
-
-    <div class="listings-grid" id="listings-grid"></div>
-    <div class="view-all-row" id="view-all-row">
-      <button class="btn-outline" onclick="openPM()" style="display:inline-flex;gap:8px;align-items:center;margin-right:12px">🏠 List My Home — Get Top Placement</button>
-      <button class="btn-outline" onclick="openModal('buy')" style="display:inline-flex;gap:8px;align-items:center">See All Results →</button>
-    </div>
-  </div>
+<div class="stats">
+  <div class="stat-item"><div class="stat-num">$0</div><div class="stat-label">Listing fee to get started</div></div>
+  <div class="stat-item"><div class="stat-num">1%</div><div class="stat-label">Platform fee on close</div></div>
+  <div class="stat-item"><div class="stat-num">🇨🇦🇺🇸</div><div class="stat-label">Canada & USA</div></div>
+  <div class="stat-item"><div class="stat-num">AI</div><div class="stat-label">Powered platform</div></div>
 </div>
-
-<!-- HOW IT WORKS -->
 <div class="how-section" id="how">
   <div class="how-inner">
     <div class="section-tag">The Process</div>
@@ -1078,7 +1091,7 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
     <div class="steps">
       <div class="step"><div class="step-num">01</div><div class="step-icon">🏠</div><h3>List Your Property</h3><p>Upload photos, enter details, and our AI instantly creates a professional listing with optimized descriptions and pricing analysis.</p></div>
       <div class="step"><div class="step-num">02</div><div class="step-icon">🤖</div><h3>AI Matches Buyers</h3><p>Our algorithm surfaces your listing to verified buyers who match your home's profile — location, size, price range, and lifestyle fit.</p></div>
-      <div class="step"><div class="step-num">03</div><div class="step-icon">💬</div><h3>Connect Directly with Buyers</h3><p>Message buyers, schedule tours, and communicate through our secure platform — no middleman, no delays. You stay in full control of your sale.</p></div>
+      <div class="step"><div class="step-num">03</div><div class="step-icon">💬</div><h3>Message Buyers Directly</h3><p>Our built-in messaging lets buyers contact you instantly — no phone tag, no agent relay. You get notified, reply on your terms, and stay in full control.</p></div>
       <div class="step"><div class="step-num">04</div><div class="step-icon">🔑</div><h3>Close & Save</h3><p>We handle digital paperwork, connect you with a closing attorney, and you keep the savings. Simple as that.</p></div>
     </div>
   </div>
@@ -1106,7 +1119,7 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
       </ul>
       <div class="path-fee">1% <span>of sale price</span></div>
       <div class="path-fee-note">On a $400k home, that's just $4,000 vs. $24,000 with a traditional agent</div>
-      <button class="btn-path primary" onclick="window.location.href='listdirect-list.html'">Start Listing Free →</button>
+      <button class="btn-path primary" onclick="openPM()">Start Listing Free →</button>
     </div>
     <div class="path-card">
       <div class="path-icon">🤝</div>
@@ -1178,12 +1191,13 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
 <!-- AGENT DIRECTORY -->
 <div class="agents-section" id="agents-section">
   <div class="agents-inner">
-    <div class="section-tag">Agent Directory</div>
-    <h2 class="section-title">Browse certified agents<br>competing for <em style="font-style:normal;color:var(--green)">your listing</em></h2>
-    <p class="section-sub">Every agent below has agreed to our cashback terms. See their rebate offer, rating, and sales history before you decide.</p>
+    <div class="section-tag">Certified Agent Network</div>
+    <h2 class="section-title">Work with a certified agent<br>and <em style="font-style:normal;color:var(--green)">still save money</em></h2>
+    <p class="section-sub">Every agent in our network has agreed to guaranteed cashback at closing. Our network is growing across Canada and the United States.</p>
     <div class="agents-grid" id="agents-grid"></div>
     <div class="view-all-row" style="margin-top:32px">
-      <button class="btn-outline" onclick="openModal('buy')" style="display:inline-flex">View All 240+ Agents →</button>
+      <a href="agent-portal.html" class="btn-outline" style="display:inline-flex;text-decoration:none">Join as a Certified Agent →</a>
+      <a href="listdirect-agents.html" class="btn-outline" style="display:inline-flex;text-decoration:none;margin-left:12px">Find an Agent →</a>
     </div>
   </div>
 </div>
@@ -1198,33 +1212,64 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
 </div>
 
 <!-- TESTIMONIALS -->
-<div class="testi-section" id="founding">
+<div class="testi-section" id="founding" style="overflow:hidden">
   <div class="testi-inner" style="text-align:center">
-    <div class="section-tag">🚀 Now Launching</div>
-    <h2 class="section-title">Be a <em style="font-style:normal;color:var(--green)">Founding Member</em></h2>
-    <p style="color:var(--muted);font-size:1rem;max-width:560px;margin:0 auto 40px;line-height:1.7">Early members get priority placement in every search, free AI tools, and our guaranteed lowest platform fee — forever. Available across Canada and the United States.</p>
-    
+    <div class="section-tag">🚀 Limited Time</div>
+    <h2 class="section-title">Founding Member <em style="font-style:normal;color:var(--green)">Pricing</em></h2>
+    <p style="color:var(--muted);font-size:1rem;max-width:560px;margin:0 auto 40px;line-height:1.7">First 100 sellers and first 100 agents get locked-in founding pricing — forever. Once spots are gone, regular pricing applies.</p>
 
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;max-width:700px;margin:0 auto 40px;width:100%">
+      
+      <div style="background:var(--card);border:2px solid rgba(62,240,122,0.3);border-radius:20px;padding:32px;text-align:left">
+        <div style="font-size:1.5rem;margin-bottom:12px">🏡</div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:900;color:var(--white);margin-bottom:4px">Founding Seller</div>
+        <div style="font-size:0.78rem;color:var(--green);font-weight:600;margin-bottom:16px">First 100 sellers only</div>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
+          <div style="font-family:'Playfair Display',serif;font-size:2.5rem;font-weight:900;color:var(--green)">0.5%</div>
+          <div style="font-size:0.85rem;color:var(--muted)">at closing</div>
+        </div>
+        <div style="font-size:0.78rem;color:var(--muted);text-decoration:line-through;margin-bottom:16px">Regular price: 1%</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+          <div style="font-size:0.82rem;color:var(--muted);display:flex;gap:8px"><span style="color:var(--green)">✓</span> Half price forever — locked in</div>
+          <div style="font-size:0.82rem;color:var(--muted);display:flex;gap:8px"><span style="color:var(--green)">✓</span> Priority placement in search</div>
+          <div style="font-size:0.82rem;color:var(--muted);display:flex;gap:8px"><span style="color:var(--green)">✓</span> 👑 Founding Member badge</div>
+          <div style="font-size:0.82rem;color:var(--muted);display:flex;gap:8px"><span style="color:var(--green)">✓</span> All AI tools free</div>
+        </div>
+        <div style="background:var(--bg2);border-radius:10px;padding:10px 14px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
+          <div style="font-size:0.78rem;color:var(--muted)">Spots remaining</div>
+          <div style="font-weight:700;color:var(--green);font-size:1rem" id="seller-spots">100 of 100 left</div>
+        </div>
+        <a href="dashboard.html" style="display:block;background:var(--green);color:#0a0f0d;padding:11px;border-radius:50px;font-weight:700;font-size:0.88rem;text-align:center;text-decoration:none;font-family:'DM Sans',sans-serif">Claim Seller Spot →</a>
+      </div>
 
-    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:32px">
-      <div style="background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:12px;padding:14px 20px;font-size:0.88rem;color:var(--text);display:flex;align-items:center;gap:8px">✅ Priority placement in search</div>
-      <div style="background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:12px;padding:14px 20px;font-size:0.88rem;color:var(--text);display:flex;align-items:center;gap:8px">✅ All AI tools free forever</div>
-      <div style="background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:12px;padding:14px 20px;font-size:0.88rem;color:var(--text);display:flex;align-items:center;gap:8px">✅ Founding member badge</div>
+      <div style="background:var(--card);border:2px solid rgba(245,200,66,0.3);border-radius:20px;padding:32px;text-align:left">
+        <div style="font-size:1.5rem;margin-bottom:12px">🤝</div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:900;color:var(--white);margin-bottom:4px">Founding Agent</div>
+        <div style="font-size:0.78rem;color:var(--gold);font-weight:600;margin-bottom:16px">First 100 agents only</div>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
+          <div style="font-family:'Playfair Display',serif;font-size:2.5rem;font-weight:900;color:var(--gold)">5%</div>
+          <div style="font-size:0.85rem;color:var(--muted)">referral fee</div>
+        </div>
+        <div style="font-size:0.78rem;color:var(--muted);text-decoration:line-through;margin-bottom:16px">Regular price: 10%</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+          <div style="font-size:0.82rem;color:var(--muted);display:flex;gap:8px"><span style="color:var(--gold)">✓</span> Half the referral fee forever</div>
+          <div style="font-size:0.82rem;color:var(--muted);display:flex;gap:8px"><span style="color:var(--gold)">✓</span> First access to leads in your city</div>
+          <div style="font-size:0.82rem;color:var(--muted);display:flex;gap:8px"><span style="color:var(--gold)">✓</span> 🏅 Founding Agent badge</div>
+          <div style="font-size:0.82rem;color:var(--muted);display:flex;gap:8px"><span style="color:var(--gold)">✓</span> All AI tools included</div>
+        </div>
+        <div style="background:var(--bg2);border-radius:10px;padding:10px 14px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
+          <div style="font-size:0.78rem;color:var(--muted)">Spots remaining</div>
+          <div style="font-weight:700;color:var(--gold);font-size:1rem" id="agent-spots">100 of 100 left</div>
+        </div>
+        <a href="agent-portal.html" style="display:block;background:var(--gold);color:#1a1200;padding:11px;border-radius:50px;font-weight:700;font-size:0.88rem;text-align:center;text-decoration:none;font-family:'DM Sans',sans-serif">Claim Agent Spot →</a>
+      </div>
+
     </div>
-
-    <a href="dashboard.html" style="display:inline-block;background:var(--green);color:#0a0f0d;padding:14px 40px;border-radius:50px;font-weight:700;font-size:1rem;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:0 4px 24px rgba(62,240,122,0.3);text-decoration:none">Join Free — Claim Your Spot →</a>
+    <p style="color:var(--muted);font-size:0.82rem">🇨🇦 Canada & 🇺🇸 United States · Founding pricing locked in forever · No credit card required</p>
   </div>
 </div>
 
-<!-- CTA -->
-<div class="cta-section">
-  <h2>Ready to sell smarter<br>and save <em>big</em>?</h2>
-  <p>Join our founding members in Vancouver and across North America.</p>
-  <div class="cta-buttons">
-    <button class="btn-primary" onclick="openPM()">List My Home Free</button>
-    <button class="btn-outline" onclick="openModal('buy')">Search Homes</button>
-  </div>
-</div>
+
 
 <!-- FOOTER -->
 <footer>
@@ -1420,104 +1465,7 @@ function formatSqftInput(el) {
 // ═══════════════════════════════════════════
 // (Verified listings now in LD_VERIFIED above — AI generates market listings dynamically)
 
-const AGENTS = [
-  {
-    name:"Sarah Mitchell",
-    loc:"Austin, TX",
-    rating:"4.9",
-    reviews:142,
-    sales:87,
-    cashback:"1.5%",
-    years:9,
-    photo:"https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&h=200&fit=crop&crop=face",
-    verified:true,
-    specialty:"Residential & Luxury",
-    license:"TX-547821",
-    bio:"Specializing in Austin's booming market, Sarah has closed over $42M in sales in the past 3 years alone. Former top producer at Keller Williams with a reputation for getting sellers above asking price.",
-    languages:"English, Spanish",
-    designations:"ABR, CRS, GRI"
-  },
-  {
-    name:"Marcus Johnson",
-    loc:"Charlotte, NC",
-    rating:"4.8",
-    reviews:98,
-    sales:64,
-    cashback:"2%",
-    years:7,
-    photo:"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face",
-    verified:true,
-    specialty:"First-Time Buyers",
-    license:"NC-289045",
-    bio:"Marcus built his reputation helping first-time buyers and sellers navigate the Charlotte market confidently. Known for patient communication and expert negotiation that consistently delivers results.",
-    languages:"English",
-    designations:"ABR, SRS"
-  },
-  {
-    name:"Lisa Chen",
-    loc:"Denver, CO",
-    rating:"5.0",
-    reviews:211,
-    sales:130,
-    cashback:"1.25%",
-    years:14,
-    photo:"https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&h=200&fit=crop&crop=face",
-    verified:true,
-    specialty:"Investment & Condos",
-    license:"CO-FA100092847",
-    bio:"With 14 years in Denver real estate and a perfect 5-star rating, Lisa is the go-to agent for investment properties and downtown condos. She's personally invested in Denver real estate and knows the market inside out.",
-    languages:"English, Mandarin",
-    designations:"CRS, GRI, CCIM"
-  },
-  {
-    name:"David Torres",
-    loc:"Atlanta, GA",
-    rating:"4.7",
-    reviews:76,
-    sales:51,
-    cashback:"1.75%",
-    years:6,
-    photo:"https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face",
-    verified:true,
-    specialty:"Townhomes & New Construction",
-    license:"GA-394721",
-    bio:"David's background in residential construction gives him a unique edge — he knows exactly what to look for and what to negotiate. Specializes in new construction and townhome communities across greater Atlanta.",
-    languages:"English, Spanish",
-    designations:"CSP, SRS"
-  },
-  {
-    name:"Priya Patel",
-    loc:"Seattle, WA",
-    rating:"4.9",
-    reviews:163,
-    sales:104,
-    cashback:"1%",
-    years:11,
-    photo:"https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=200&h=200&fit=crop&crop=face",
-    verified:true,
-    specialty:"Tech Corridor Specialist",
-    license:"WA-24197",
-    bio:"Priya has worked with hundreds of tech professionals relocating to and from Seattle. She understands the pace and expectations of tech buyers and sellers — quick, data-driven, and always responsive.",
-    languages:"English, Hindi, Gujarati",
-    designations:"ABR, CRS"
-  },
-  {
-    name:"James Whitfield",
-    loc:"Chicago, IL",
-    rating:"4.8",
-    reviews:188,
-    sales:117,
-    cashback:"1.5%",
-    years:13,
-    photo:"https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop&crop=face",
-    verified:true,
-    specialty:"Luxury & Waterfront",
-    license:"IL-471.023841",
-    bio:"James has sold some of Chicago's most prestigious lakefront properties. With $85M+ in luxury sales and a deep network of high-net-worth buyers, he delivers premium results for premium homes.",
-    languages:"English, French",
-    designations:"CRS, CLHMS, GRI"
-  }
-];
+const AGENTS = [];
 
 const FAQS = [
   {q:"How does the 1% platform fee work?",a:"Our platform fee is 1% of your final sale price, collected at closing — there is no upfront cost to list. The only other costs are your closing attorney or notary (typically $1,000–$2,000). No hidden fees, ever."},
@@ -1545,14 +1493,7 @@ let currentResults = [];
 let isSearching = false;
 
 // Seed ListDirect verified homes (real platform sellers)
-const LD_VERIFIED = [
-  {id:'ld1',verified:true,price:389000,addr:"2847 Maple Creek Dr",city:"Austin, TX",zip:"78701",beds:3,baths:2,sqft:1820,type:"house",listing:"direct",match:98,days:3,img:"https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=600&q=80",img2:"https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&q=80",img3:"https://images.unsplash.com/photo-1554995207-c18c203602cb?w=600&q=80",desc:"Charming 3-bed ranch in the heart of Austin. Updated kitchen with granite counters, open floor plan, large backyard perfect for entertaining.",cashback:null,garage:2,year:2004},
-  {id:'ld2',verified:true,price:549000,addr:"104 Riverside Blvd",city:"Charlotte, NC",zip:"28201",beds:4,baths:3,sqft:2450,type:"house",listing:"agent",match:96,days:7,img:"https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?w=600&q=80",img2:"https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=600&q=80",img3:"https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?w=600&q=80",desc:"Gorgeous 4-bedroom colonial with hardwood floors, chef's kitchen, master suite with spa bath. Top school district.",cashback:"1.5%",garage:2,year:2011},
-  {id:'ld3',verified:true,price:299000,addr:"512 Harbor View Ct",city:"Denver, CO",zip:"80201",beds:2,baths:2,sqft:1200,type:"condo",listing:"direct",match:95,days:12,img:"https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&q=80",img2:"https://images.unsplash.com/photo-1576941089067-2de3c901e126?w=600&q=80",img3:"https://images.unsplash.com/photo-1484154218962-a197022b5858?w=600&q=80",desc:"Modern downtown condo with mountain views, rooftop deck access, and secure underground parking.",cashback:null,garage:1,year:2018},
-  {id:'ld4',verified:true,price:724000,addr:"39 Willow Creek Way",city:"Seattle, WA",zip:"98101",beds:5,baths:4,sqft:3200,type:"house",listing:"direct",match:97,days:2,img:"https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&q=80",img2:"https://images.unsplash.com/photo-1600210492493-0946911123ea?w=600&q=80",img3:"https://images.unsplash.com/photo-1600607686527-6fb886090705?w=600&q=80",desc:"Stunning Pacific Northwest craftsman on a large wooded lot. 5 bedrooms, home office, chef's kitchen, 3-car garage.",cashback:null,garage:3,year:2016},
-  {id:'ld5',verified:true,price:425000,addr:"7821 Peachtree St",city:"Atlanta, GA",zip:"30301",beds:3,baths:2,sqft:2100,type:"townhome",listing:"agent",match:94,days:18,img:"https://images.unsplash.com/photo-1571939228382-b2f2b585ce15?w=600&q=80",img2:"https://images.unsplash.com/photo-1565182999561-18d7dc61c393?w=600&q=80",img3:"https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&q=80",desc:"End-unit townhome in Buckhead. Rooftop terrace, 2-car garage, open concept. HOA includes pool and fitness center.",cashback:"2%",garage:2,year:2020},
-  {id:'ld6',verified:true,price:875000,addr:"1205 Lakeview Blvd",city:"Chicago, IL",zip:"60601",beds:4,baths:3,sqft:2900,type:"house",listing:"agent",match:93,days:5,img:"https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=600&q=80",img2:"https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=600&q=80",img3:"https://images.unsplash.com/photo-1572120360610-d971b9d7767c?w=600&q=80",desc:"Elegant Lincoln Park greystone on a tree-lined street. Chef's kitchen, finished basement, private backyard.",cashback:"1.25%",garage:2,year:2008},
-];
+const LD_VERIFIED = [];
 
 // Home images pool for AI-generated listings
 const IMG_POOL = [
@@ -1821,7 +1762,7 @@ async function runSearch() {
   document.getElementById('search-loading-text').innerHTML = `Searching ${countryLabel} listings and generating <strong>AI market data</strong> for <strong>${query}</strong>…`;
   document.getElementById('listings-grid').innerHTML = '';
   document.getElementById('banner-ai-results').classList.remove('visible');
-  document.getElementById('banner-list-yours').classList.remove('visible');
+  document.getElementById('banner-list-yours').style.display = 'none';
 
   // Filter verified listings that match
   const verifiedMatches = LD_VERIFIED.filter(l => {
@@ -1853,7 +1794,7 @@ async function runSearch() {
 
   document.getElementById('search-city-label').textContent = `in "${query}" (${countryLabel}, prices in ${currencyLabel})`;
   document.getElementById('banner-ai-results').classList.add('visible');
-  document.getElementById('banner-list-yours').classList.add('visible');
+  document.getElementById('banner-list-yours').style.display = 'flex';
 
   renderCurrentResults();
 }
@@ -2136,6 +2077,45 @@ function handlePhotos(input) {
 // ═══════════════════════════════════════════
 function renderAgents() {
   const grid = document.getElementById('agents-grid');
+  if (!AGENTS.length) {
+    grid.innerHTML = `
+      <div style="grid-column:1/-1">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px">
+          
+          <!-- Recruitment card -->
+          <div style="background:var(--card);border:2px dashed rgba(62,240,122,0.3);border-radius:20px;padding:32px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:320px">
+            <div style="font-size:2.5rem;margin-bottom:16px">🤝</div>
+            <div style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900;color:var(--white);margin-bottom:10px">Are You a Licensed Agent?</div>
+            <div style="font-size:0.85rem;color:var(--muted);line-height:1.7;margin-bottom:20px;max-width:260px">Join our certified network — no monthly fees, guaranteed leads, 10% referral fee only when you close.</div>
+            <div style="background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:10px;padding:10px 16px;font-size:0.8rem;color:var(--green);font-weight:600;margin-bottom:16px">🇨🇦 Canada · 🇺🇸 United States</div>
+            <a href="agent-portal.html" style="background:var(--green);color:#0a0f0d;padding:11px 28px;border-radius:50px;font-weight:700;font-size:0.9rem;text-decoration:none;font-family:'DM Sans',sans-serif">Apply to Join →</a>
+          </div>
+
+          <!-- What agents get card -->
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px">
+            <div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:900;color:var(--white);margin-bottom:20px">What certified agents get</div>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div style="display:flex;align-items:flex-start;gap:12px"><span style="color:var(--green);font-size:1.1rem;flex-shrink:0">✓</span><div><div style="font-weight:600;color:var(--text);font-size:0.88rem">Motivated seller leads</div><div style="font-size:0.8rem;color:var(--muted)">Sellers come to you ready to list</div></div></div>
+              <div style="display:flex;align-items:flex-start;gap:12px"><span style="color:var(--green);font-size:1.1rem;flex-shrink:0">✓</span><div><div style="font-weight:600;color:var(--text);font-size:0.88rem">No monthly fees ever</div><div style="font-size:0.8rem;color:var(--muted)">Only pay 10% when a deal closes</div></div></div>
+              <div style="display:flex;align-items:flex-start;gap:12px"><span style="color:var(--green);font-size:1.1rem;flex-shrink:0">✓</span><div><div style="font-weight:600;color:var(--text);font-size:0.88rem">Full AI tools included</div><div style="font-size:0.8rem;color:var(--muted)">Pricing, listing writer, offer review</div></div></div>
+              <div style="display:flex;align-items:flex-start;gap:12px"><span style="color:var(--green);font-size:1.1rem;flex-shrink:0">✓</span><div><div style="font-weight:600;color:var(--text);font-size:0.88rem">ListDirect Certified badge</div><div style="font-size:0.8rem;color:var(--muted)">Stand out from traditional agents</div></div></div>
+              <div style="display:flex;align-items:flex-start;gap:12px"><span style="color:var(--green);font-size:1.1rem;flex-shrink:0">✓</span><div><div style="font-weight:600;color:var(--text);font-size:0.88rem">Serve Canada & USA</div><div style="font-size:0.8rem;color:var(--muted)">One platform for both markets</div></div></div>
+            </div>
+          </div>
+
+          <!-- Find agent card -->
+          <div style="background:var(--card);border:1px solid rgba(245,200,66,0.25);border-radius:20px;padding:32px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:320px">
+            <div style="font-size:2.5rem;margin-bottom:16px">🏡</div>
+            <div style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900;color:var(--white);margin-bottom:10px">Looking for an Agent?</div>
+            <div style="font-size:0.85rem;color:var(--muted);line-height:1.7;margin-bottom:20px;max-width:260px">Our network is growing. Submit your details and we'll connect you with a certified agent in your area.</div>
+            <div style="background:var(--goldlow);border:1px solid rgba(245,200,66,0.2);border-radius:10px;padding:10px 16px;font-size:0.8rem;color:var(--gold);font-weight:600;margin-bottom:16px">💰 Guaranteed cashback at closing</div>
+            <a href="listdirect-agents.html" style="background:var(--gold);color:#1a1200;padding:11px 28px;border-radius:50px;font-weight:700;font-size:0.9rem;text-decoration:none;font-family:'DM Sans',sans-serif">Find an Agent →</a>
+          </div>
+
+        </div>
+      </div>`;
+    return;
+  }
   AGENTS.forEach((a, i) => {
     const card = document.createElement('div');
     card.className = 'agent-card';
@@ -2150,28 +2130,11 @@ function renderAgents() {
           <div style="font-size:0.72rem;color:var(--green);font-weight:600;margin-top:2px">${a.specialty}</div>
         </div>
       </div>
-      <p style="font-size:0.82rem;color:var(--muted);line-height:1.6;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:14px">${a.bio}</p>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
-        <div style="background:var(--bg2);border-radius:8px;padding:10px;text-align:center">
-          <div style="font-size:1rem;font-weight:700;color:var(--white)">${a.sales}</div>
-          <div style="font-size:0.68rem;color:var(--muted)">Homes Sold</div>
-        </div>
-        <div style="background:var(--bg2);border-radius:8px;padding:10px;text-align:center">
-          <div style="font-size:1rem;font-weight:700;color:var(--white)">${a.years} yrs</div>
-          <div style="font-size:0.68rem;color:var(--muted)">Experience</div>
-        </div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;font-size:0.78rem;color:var(--muted)">
-        <div>🪪 <strong style="color:var(--text)">License:</strong> ${a.license}</div>
-        <div>🗣️ <strong style="color:var(--text)">Languages:</strong> ${a.languages}</div>
-        <div>🏅 <strong style="color:var(--text)">Designations:</strong> ${a.designations}</div>
-      </div>
       <div class="agent-cashback-badge">
         <div class="acb-label">💰 Cashback Offer</div>
         <div class="acb-val">${a.cashback} at closing</div>
       </div>
-      <button class="btn-agent" onclick="window.location.href='listdirect-agents.html?agent=${i}'">Request This Agent →</button>
-      ${a.verified ? '<div class="agent-verified">✅ ListDirect Certified & Verified</div>' : ''}`;
+      <button class="btn-agent" onclick="window.location.href='listdirect-agents.html?agent=${i}'">Request This Agent →</button>`;
     grid.appendChild(card);
   });
 }
@@ -3121,12 +3084,14 @@ async function loadMemberCount() {
     const res = await fetch('/api/members/count');
     if (!res.ok) return;
     const data = await res.json();
-    const count = data.count || 0;
-    const fmt = count >= 1000 ? (count/1000).toFixed(1) + 'K+' : count + '+';
-    const el1 = document.getElementById('founding-count');
-    const el2 = document.getElementById('stat-members');
-    if (el1) el1.textContent = count > 0 ? fmt : 'Join now';
-    if (el2) el2.textContent = count > 0 ? fmt : '0';
+    const sellerCount = data.sellers || 0;
+    const agentCount = data.agents || 0;
+    const sellerSpots = Math.max(0, 100 - sellerCount);
+    const agentSpots = Math.max(0, 100 - agentCount);
+    const sellerEl = document.getElementById('seller-spots');
+    const agentEl = document.getElementById('agent-spots');
+    if (sellerEl) sellerEl.textContent = sellerSpots + ' of 100 left';
+    if (agentEl) agentEl.textContent = agentSpots + ' of 100 left';
   } catch(e) {}
 }
 window.addEventListener('DOMContentLoaded', loadMemberCount);

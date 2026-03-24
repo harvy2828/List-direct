@@ -12,7 +12,7 @@
 
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>ListDirect — Find Your Certified Agent</title>
+<title>Find a Certified Agent — ListDirect | Guaranteed Cashback</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
 :root{--bg:#0a0f0d;--bg2:#111810;--card:#141c16;--border:#1f2d22;--green:#3ef07a;--greenlow:rgba(62,240,122,0.08);--text:#e8f0e9;--muted:#7a9480;--white:#fff;--gold:#f5c842;--goldlow:rgba(245,200,66,0.08);--radius:16px}
@@ -112,6 +112,18 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 
 @media(max-width:900px){.desktop-nav-right{display:none!important}}
 </style>
+  <meta name="description" content="Browse certified real estate agents who guarantee cashback at closing. Every ListDirect agent is contractually required to give you a rebate. Serving Canada and the United States."/>
+  <meta name="keywords" content="real estate agent cashback Canada, certified agent rebate, find real estate agent Canada, agent cashback program, discount real estate agent"/>
+  <meta property="og:title" content="Find a Certified Agent — ListDirect | Guaranteed Cashback"/>
+  <meta property="og:description" content="Browse certified real estate agents who guarantee cashback at closing. Every ListDirect agent is contractually required to give you a rebate. Serving Canada and the United States."/>
+  <meta property="og:url" content="https://listdirect.ai/listdirect-agents.html"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:image" content="https://listdirect.ai/og-image.png"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="Find a Certified Agent — ListDirect | Guaranteed Cashback"/>
+  <meta name="twitter:description" content="Browse certified real estate agents who guarantee cashback at closing. Every ListDirect agent is contractually required to give you a rebate. Serving Canada and the United States."/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://listdirect.ai/listdirect-agents.html"/>
 </head>
 <body>
 
@@ -132,7 +144,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
   <div class="ph-inner">
     <div class="ph-tag">🤝 Certified Agent Network</div>
     <h1 class="ph-title">Find Your <em>Certified Agent</em></h1>
-    <p class="ph-sub">Every agent on our site has agreed to our cashback terms. Pick whoever suits you best, fill out your details, and they'll be in contact within 24 hours.</p>
+    <p class="ph-sub">Every agent on our network has agreed to guaranteed cashback terms. Search your area, find your agent, and they'll be in contact within 24 hours.</p>
     <div class="cashback-promise">💰 Use a certified agent and get cashback at closing (0.5% in Canada · 1% in US) — the agent pays ListDirect a 10% referral fee. You pay nothing extra.</div>
 
   </div>
@@ -148,6 +160,17 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
   </div>
 </div>
 
+<!-- AGENT SEARCH -->
+<div style="background:var(--bg2);border-bottom:1px solid var(--border);padding:24px">
+  <div style="max-width:600px;margin:0 auto;display:flex;gap:12px">
+    <input type="text" id="agent-search" placeholder="🔍 Search by city or area (e.g. Vancouver, BC)..." 
+      style="flex:1;background:var(--card);border:1px solid var(--border);color:var(--text);padding:13px 18px;border-radius:12px;font-size:0.95rem;font-family:'DM Sans',sans-serif;outline:none"
+      oninput="filterAgents(this.value)"/>
+    <button onclick="filterAgents(document.getElementById('agent-search').value)" 
+      style="background:var(--green);color:#0a0f0d;padding:13px 24px;border-radius:12px;border:none;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap">Search</button>
+  </div>
+</div>
+
 <!-- AGENTS GRID -->
 <div class="agents-wrap">
   <div class="agents-grid" id="agents-grid"></div>
@@ -157,20 +180,20 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 <div class="request-section" id="request-section">
   <div class="request-inner">
     <div class="req-header">
-      <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:var(--gold);margin-bottom:10px">Step 2 of 2</div>
+      
       <h2 style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:var(--white);margin-bottom:8px">Tell us about your home</h2>
-      <p style="color:var(--muted);font-size:0.92rem">Your selected agent will review your details and reach out within 24 hours.</p>
+      <p style="color:var(--muted);font-size:0.92rem">Fill out your details below and we'll connect you with the right agent for your area.</p>
     </div>
 
     <div class="req-selected-agent" id="req-selected-agent">
       <div class="rsa-avatar" id="rsa-avatar">🤝</div>
       <div>
         <div class="rsa-name" id="rsa-name">No agent selected yet</div>
-        <div class="rsa-cb" id="rsa-cb">Select an agent above first</div>
+        <div class="rsa-cb" id="rsa-cb">Your Agent Request</div>
       </div>
     </div>
 
-    <div class="no-agent-note" id="no-agent-note">👆 <strong>Select an agent above</strong> first, then fill out your details below</div>
+    <div class="no-agent-note" id="no-agent-note">Fill in your details and we'll match you with a certified agent in your area.</div>
 
     <div class="req-form">
       <form name="agent-request" id="agent-form">
@@ -256,14 +279,14 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
           </div>
         </div>
 
-        <button type="submit" class="submit-btn" id="submit-btn">🤝 Request This Agent →</button>
+        <button type="submit" class="submit-btn" id="submit-btn">🤝 Request an Agent →</button>
         <p style="text-align:center;font-size:0.76rem;color:var(--muted);margin-top:12px">No commitment required. Free to submit. Agent will contact you within 24 hours.</p>
       </form>
 
       <div class="success-box" id="success-box">
         <div class="sb-icon">🎉</div>
         <div class="sb-title">Request Sent!</div>
-        <p class="sb-sub">Your agent request has been submitted. <strong id="success-agent-name" style="color:var(--white)">Your agent</strong> will reach out within 24 hours to discuss your listing.</p>
+        <p class="sb-sub">Your request has been submitted! Our team will connect you with a certified agent in your area within 24 hours.</p>
         <div class="sb-banner">💰 Remember — your agent has agreed to a minimum <strong id="success-cashback">1%</strong> cashback at closing. This is contractually guaranteed.</div>
         <div class="sb-actions">
           <a href="listdirect-list.html" class="btn-primary">📋 Start Your Listing Too</a>
@@ -277,19 +300,26 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 <p style="text-align:center;font-size:0.72rem;color:#3d5240;padding:14px 24px;border-top:1px solid #162a19">ListDirect is a technology platform, not a licensed real estate brokerage. Certified agents pay a 10% referral fee to ListDirect on closed transactions. Agent cashback availability varies by jurisdiction. © 2026 ListDirect, Inc.</p>
 
 <script>
-const AGENTS = [
-  {name:"Sarah Mitchell",loc:"Austin, TX",rating:"4.9",reviews:142,sales:87,cashback:"1.5%",years:9,photo:"https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&h=200&fit=crop&crop=face",specialty:"Residential & Luxury",license:"TX-547821",bio:"Specializing in Austin's booming market, Sarah has closed over $42M in sales in the past 3 years. Former top producer at Keller Williams with a reputation for getting sellers above asking price.",languages:"English, Spanish",designations:"ABR, CRS, GRI"},
-  {name:"Marcus Johnson",loc:"Charlotte, NC",rating:"4.8",reviews:98,sales:64,cashback:"2%",years:7,photo:"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face",specialty:"First-Time Buyers",license:"NC-289045",bio:"Marcus built his reputation helping first-time buyers and sellers navigate the Charlotte market confidently. Known for patient communication and expert negotiation.",languages:"English",designations:"ABR, SRS"},
-  {name:"Lisa Chen",loc:"Denver, CO",rating:"5.0",reviews:211,sales:130,cashback:"1.25%",years:14,photo:"https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&h=200&fit=crop&crop=face",specialty:"Investment & Condos",license:"CO-FA100092847",bio:"With 14 years in Denver real estate and a perfect 5-star rating, Lisa is the go-to agent for investment properties and downtown condos.",languages:"English, Mandarin",designations:"CRS, GRI, CCIM"},
-  {name:"David Torres",loc:"Atlanta, GA",rating:"4.7",reviews:76,sales:51,cashback:"1.75%",years:6,photo:"https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face",specialty:"Townhomes & New Construction",license:"GA-394721",bio:"David's background in residential construction gives him a unique edge. Specializes in new construction and townhome communities across greater Atlanta.",languages:"English, Spanish",designations:"CSP, SRS"},
-  {name:"Priya Patel",loc:"Seattle, WA",rating:"4.9",reviews:163,sales:104,cashback:"1%",years:11,photo:"https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=200&h=200&fit=crop&crop=face",specialty:"Tech Corridor Specialist",license:"WA-24197",bio:"Priya has worked with hundreds of tech professionals relocating to and from Seattle. Quick, data-driven, and always responsive.",languages:"English, Hindi, Gujarati",designations:"ABR, CRS"},
-  {name:"James Whitfield",loc:"Chicago, IL",rating:"4.8",reviews:188,sales:117,cashback:"1.5%",years:13,photo:"https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop&crop=face",specialty:"Luxury & Waterfront",license:"IL-471.023841",bio:"James has sold some of Chicago's most prestigious lakefront properties. With $85M+ in luxury sales and a deep network of high-net-worth buyers.",languages:"English, French",designations:"CRS, CLHMS, GRI"}
-];
+const AGENTS = [];
 
 let selectedAgent = null;
 
 function renderAgents() {
   const grid = document.getElementById('agents-grid');
+  if (!AGENTS.length) {
+    grid.innerHTML = `
+      <div style="grid-column:1/-1;text-align:center;padding:60px 24px">
+        <div style="font-size:3rem;margin-bottom:16px">🤝</div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;color:#fff;margin-bottom:12px">Our Agent Network is Growing</div>
+        <div style="color:#7a9480;font-size:0.95rem;line-height:1.7;max-width:480px;margin:0 auto 12px">Certified agents are joining ListDirect across Canada and the United States.</div>
+        <div style="color:#7a9480;font-size:0.95rem;line-height:1.7;max-width:480px;margin:0 auto 28px">Are you a licensed agent? Join our network — no monthly fees, just a 10% referral fee when you close. Sellers in your market are waiting.</div>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+          <a href="agent-portal.html" style="display:inline-block;background:#3ef07a;color:#0a0f0d;padding:13px 32px;border-radius:50px;font-weight:700;font-size:0.95rem;text-decoration:none;font-family:'DM Sans',sans-serif">Join as a Certified Agent →</a>
+          <a href="index.html#search-section" style="display:inline-block;background:none;border:1px solid rgba(62,240,122,0.3);color:#3ef07a;padding:13px 32px;border-radius:50px;font-weight:600;font-size:0.95rem;text-decoration:none;font-family:'DM Sans',sans-serif">Browse Homes Instead</a>
+        </div>
+      </div>`;
+    return;
+  }
   AGENTS.forEach((a, i) => {
     const card = document.createElement('div');
     card.className = 'agent-card';
@@ -375,18 +405,23 @@ document.getElementById('agent-form').addEventListener('submit', async function(
     const sellerPrice = formData.get('seller-price') || document.getElementById('f-price')?.value || '';
 
     // Send email notification via our server
+    // If no agent selected, send to company
+    const agentName = selectedAgent ? selectedAgent.name : 'ListDirect Team';
+    const agentEmail = selectedAgent ? (selectedAgent.email || '') : 'infolistdirect@gmail.com';
+    const cashback = selectedAgent ? selectedAgent.cashback : 'TBD';
+    
     await fetch('/api/notify/agent-request', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
-        agent_name: selectedAgent.name,
-        agent_email: selectedAgent.email || '',
+        agent_name: agentName,
+        agent_email: agentEmail,
         seller_name: sellerName,
         seller_email: sellerEmail,
         seller_phone: sellerPhone,
         seller_address: sellerAddress,
         seller_price: sellerPrice,
-        cashback: selectedAgent.cashback
+        cashback: cashback
       })
     });
 
@@ -411,6 +446,102 @@ if (urlAgent !== null) {
 }
 
 renderAgents();
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A&libraries=places&callback=initAgentsPlaces" async defer></script>
+<style>
+.pac-container{background:#141c16!important;border:1px solid rgba(62,240,122,0.3)!important;border-radius:12px!important;box-shadow:0 8px 32px rgba(0,0,0,0.4)!important;font-family:'DM Sans',sans-serif!important;margin-top:4px!important;overflow:hidden!important}
+.pac-item{padding:10px 16px!important;color:#e8f0e9!important;cursor:pointer!important;border-top:1px solid #1f2d22!important;font-size:0.88rem!important}
+.pac-item:first-child{border-top:none!important}
+.pac-item:hover{background:rgba(62,240,122,0.08)!important}
+.pac-item-query{color:#fff!important;font-weight:600!important}
+.pac-matched{color:#3ef07a!important}
+.pac-icon{display:none!important}
+</style>
+<script>
+function initAgentsPlaces() {
+  // Address autocomplete
+  const addrInput = document.getElementById('f-addr');
+  if (addrInput) {
+    new google.maps.places.Autocomplete(addrInput, {
+      fields: ['formatted_address', 'address_components']
+    });
+  }
+}
+
+// Price formatting
+const priceInput = document.getElementById('f-price');
+if (priceInput) {
+  priceInput.addEventListener('input', function() {
+    let val = this.value.replace(/[^0-9]/g, '');
+    if (val) this.value = '$' + parseInt(val).toLocaleString();
+    else this.value = '';
+  });
+}
+
+// ── Agent Search Filter ───────────────────────────────────────
+function filterAgents(query) {
+  const grid = document.getElementById('agents-grid');
+  const q = query.toLowerCase().trim();
+  
+  if (!q) {
+    renderAgents();
+    return;
+  }
+
+  const filtered = AGENTS.filter(a => 
+    a.loc.toLowerCase().includes(q) || 
+    a.name.toLowerCase().includes(q) ||
+    (a.specialty && a.specialty.toLowerCase().includes(q))
+  );
+
+  if (!filtered.length) {
+    grid.innerHTML = `
+      <div style="grid-column:1/-1;text-align:center;padding:60px 24px">
+        <div style="font-size:3rem;margin-bottom:16px">📍</div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:#fff;margin-bottom:12px">No agents in "${query}" yet</div>
+        <div style="color:#7a9480;font-size:0.95rem;line-height:1.7;max-width:480px;margin:0 auto 28px">
+          We're growing our network in your area. Are you a licensed agent in ${query}? Join ListDirect and be the first certified agent in your market.
+        </div>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+          <a href="agent-portal.html" style="display:inline-block;background:#3ef07a;color:#0a0f0d;padding:13px 32px;border-radius:50px;font-weight:700;font-size:0.95rem;text-decoration:none;font-family:'DM Sans',sans-serif">Join as Agent in ${query} →</a>
+          <button onclick="submitNoAgentInquiry('${query}')" style="background:none;border:1px solid rgba(62,240,122,0.3);color:#3ef07a;padding:13px 32px;border-radius:50px;font-weight:600;font-size:0.95rem;cursor:pointer;font-family:'DM Sans',sans-serif">Request an Agent →</button>
+        </div>
+      </div>`;
+    return;
+  }
+
+  // Render filtered agents
+  grid.innerHTML = '';
+  filtered.forEach(agent => renderAgentCard(agent, grid));
+}
+
+// ── No Agent Inquiry → Company Email ─────────────────────────
+async function submitNoAgentInquiry(area) {
+  const name = prompt('Your name:');
+  const email = prompt('Your email:');
+  if (!name || !email) return;
+
+  try {
+    await fetch('/api/notify/agent-request', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        agent_name: 'ListDirect Team',
+        agent_email: 'infolistdirect@gmail.com',
+        seller_name: name,
+        seller_email: email,
+        seller_address: area,
+        seller_price: '',
+        seller_phone: '',
+        cashback: '0.5%',
+        no_agent_area: area
+      })
+    });
+    alert('Thanks ' + name + '! We received your request for an agent in ' + area + '. We will reach out as soon as one becomes available in your area.');
+  } catch(e) {
+    alert('Request sent! We will follow up with you shortly.');
+  }
+}
 </script>
 </body>
 </html>
