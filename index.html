@@ -1494,13 +1494,13 @@ const LD_VERIFIED = [];
 // Home images pool for AI-generated listings
 const IMG_POOL = [
   {a:"https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&q=80",b:"https://images.unsplash.com/photo-1600210492493-0946911123ea?w=600&q=80",c:"https://images.unsplash.com/photo-1600607686527-6fb886090705?w=600&q=80"},
-  {a:"https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=600&q=80",b:"https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&q=80",c:"https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&q=80"},
-  {a:"https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=600&q=80",b:"https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=600&q=80",c:"https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&q=80"},
-  {a:"https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=600&q=80",b:"https://images.unsplash.com/photo-1505693314120-0d443867891c?w=600&q=80",c:"https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&q=80"},
-  {a:"https://images.unsplash.com/photo-1571939228382-b2f2b585ce15?w=600&q=80",b:"https://images.unsplash.com/photo-1565182999561-18d7dc61c393?w=600&q=80",c:"https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&q=80"},
-  {a:"https://images.unsplash.com/photo-1560184897-ae75f418493e?w=600&q=80",b:"https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=600&q=80",c:"https://images.unsplash.com/photo-1556909172-54557c7e4fb7?w=600&q=80"},
-  {a:"https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&q=80",b:"https://images.unsplash.com/photo-1576941089067-2de3c901e126?w=600&q=80",c:"https://images.unsplash.com/photo-1484154218962-a197022b5858?w=600&q=80"},
-  {a:"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80",b:"https://images.unsplash.com/photo-1523217582562-09d0def993a6?w=600&q=80",c:"https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?w=600&q=80"},
+  {a:"https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=600&q=80",b:"https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&q=80",c:"https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&q=80"},
+  {a:"https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=600&q=80",b:"https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&q=80",c:"https://images.unsplash.com/photo-1600210492493-0946911123ea?w=600&q=80"},
+  {a:"https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=600&q=80",b:"https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=600&q=80",c:"https://images.unsplash.com/photo-1600607686527-6fb886090705?w=600&q=80"},
+  {a:"https://images.unsplash.com/photo-1600210492493-0946911123ea?w=600&q=80",b:"https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=600&q=80",c:"https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&q=80"},
+  {a:"https://images.unsplash.com/photo-1571939228382-b2f2b585ce15?w=600&q=80",b:"https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=600&q=80",c:"https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=600&q=80"},
+  {a:"https://images.unsplash.com/photo-1560184897-ae75f418493e?w=600&q=80",b:"https://images.unsplash.com/photo-1600210492493-0946911123ea?w=600&q=80",c:"https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&q=80"},
+  {a:"https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&q=80",b:"https://images.unsplash.com/photo-1571939228382-b2f2b585ce15?w=600&q=80",c:"https://images.unsplash.com/photo-1600607686527-6fb886090705?w=600&q=80"},
 ];
 
 // Seeded random (consistent per search)
@@ -1731,7 +1731,7 @@ async function fetchPlatformListings(query, beds, maxPrice) {
       type: l.property_type || 'house',
       days: Math.floor((Date.now() - new Date(l.created_at)) / 86400000) || 0,
       match: 98,
-      img: l.photos?.[0] || 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=400&h=280&fit=crop',
+      img: l.photos?.[0] || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=280&fit=crop&auto=format',
       cashback: l.listing_path === 'agent' ? '1%' : null,
       desc: l.description || '',
       platform: true // flag as our own listing
