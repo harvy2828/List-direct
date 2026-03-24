@@ -748,13 +748,17 @@ app.get('/api/listings/search', async (req, res) => {
 // ── Members: Count ────────────────────────────────────────────
 app.get('/api/members/count', async (req, res) => {
   try {
-    const { count, error } = await supabase
+    const { count: sellerCount } = await supabase
       .from('profiles')
-      .select('*', { count: 'exact', head: true });
-    if (error) throw error;
-    res.json({ count: count || 0 });
+      .select('*', { count: 'exact', head: true })
+      .eq('role', 'seller');
+    const { count: agentCount } = await supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true })
+      .eq('role', 'agent');
+    res.json({ sellers: sellerCount || 0, agents: agentCount || 0, count: (sellerCount || 0) + (agentCount || 0) });
   } catch (err) {
-    res.json({ count: 0 });
+    res.json({ sellers: 0, agents: 0, count: 0 });
   }
 });
 
