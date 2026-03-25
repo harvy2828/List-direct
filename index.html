@@ -676,14 +676,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
       </div>
       <button onclick="heroSearch()" style="background:var(--green);color:#0a0f0d;padding:11px 24px;border-radius:50px;border:none;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;flex-shrink:0">Search Homes →</button>
     </div>
-    <!-- Dynamic location-based city chips -->
-    <div id="hero-city-chips" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px">
-      <!-- Populated dynamically based on location -->
-      <button onclick="heroQuickSearch('Vancouver')" style="background:rgba(62,240,122,0.08);border:1px solid rgba(62,240,122,0.2);color:var(--muted);padding:5px 14px;border-radius:50px;font-size:0.78rem;cursor:pointer;font-family:'DM Sans',sans-serif">🇨🇦 Vancouver</button>
-      <button onclick="heroQuickSearch('Toronto')" style="background:rgba(62,240,122,0.08);border:1px solid rgba(62,240,122,0.2);color:var(--muted);padding:5px 14px;border-radius:50px;font-size:0.78rem;cursor:pointer;font-family:'DM Sans',sans-serif">🇨🇦 Toronto</button>
-      <button onclick="heroQuickSearch('Austin')" style="background:rgba(62,240,122,0.08);border:1px solid rgba(62,240,122,0.2);color:var(--muted);padding:5px 14px;border-radius:50px;font-size:0.78rem;cursor:pointer;font-family:'DM Sans',sans-serif">🇺🇸 Austin</button>
-      <button onclick="heroQuickSearch('Miami')" style="background:rgba(62,240,122,0.08);border:1px solid rgba(62,240,122,0.2);color:var(--muted);padding:5px 14px;border-radius:50px;font-size:0.78rem;cursor:pointer;font-family:'DM Sans',sans-serif">🇺🇸 Miami</button>
-    </div>
+
   </div>
 
   <!-- Smaller action buttons below search -->
@@ -3158,69 +3151,6 @@ function heroQuickSearch(city) {
 }
 
 // ── Location-based City Chips ─────────────────────────────────
-const CITY_REGIONS = {
-  // Canada - BC
-  'vancouver': ['🇨🇦 Vancouver','🇨🇦 Burnaby','🇨🇦 Richmond','🇨🇦 Surrey','🇨🇦 North Vancouver'],
-  'burnaby': ['🇨🇦 Vancouver','🇨🇦 Burnaby','🇨🇦 Richmond','🇨🇦 Surrey','🇨🇦 Coquitlam'],
-  'surrey': ['🇨🇦 Surrey','🇨🇦 Vancouver','🇨🇦 Langley','🇨🇦 Burnaby','🇨🇦 Abbotsford'],
-  'victoria': ['🇨🇦 Victoria','🇨🇦 Saanich','🇨🇦 Langford','🇨🇦 Colwood','🇨🇦 Oak Bay'],
-  // Canada - Ontario
-  'toronto': ['🇨🇦 Toronto','🇨🇦 Mississauga','🇨🇦 Brampton','🇨🇦 Scarborough','🇨🇦 North York'],
-  'mississauga': ['🇨🇦 Mississauga','🇨🇦 Toronto','🇨🇦 Brampton','🇨🇦 Oakville','🇨🇦 Burlington'],
-  'ottawa': ['🇨🇦 Ottawa','🇨🇦 Gatineau','🇨🇦 Kanata','🇨🇦 Nepean','🇨🇦 Gloucester'],
-  // Canada - Alberta
-  'calgary': ['🇨🇦 Calgary','🇨🇦 Edmonton','🇨🇦 Airdrie','🇨🇦 Cochrane','🇨🇦 Okotoks'],
-  'edmonton': ['🇨🇦 Edmonton','🇨🇦 Calgary','🇨🇦 St. Albert','🇨🇦 Sherwood Park','🇨🇦 Leduc'],
-  // US - Texas
-  'austin': ['🇺🇸 Austin','🇺🇸 Dallas','🇺🇸 Houston','🇺🇸 San Antonio','🇺🇸 Fort Worth'],
-  'dallas': ['🇺🇸 Dallas','🇺🇸 Fort Worth','🇺🇸 Plano','🇺🇸 Irving','🇺🇸 Arlington'],
-  'houston': ['🇺🇸 Houston','🇺🇸 Austin','🇺🇸 San Antonio','🇺🇸 Dallas','🇺🇸 Sugar Land'],
-  // US - Florida
-  'miami': ['🇺🇸 Miami','🇺🇸 Fort Lauderdale','🇺🇸 Orlando','🇺🇸 Tampa','🇺🇸 West Palm Beach'],
-  'orlando': ['🇺🇸 Orlando','🇺🇸 Miami','🇺🇸 Tampa','🇺🇸 Jacksonville','🇺🇸 Fort Lauderdale'],
-  // US - California
-  'los angeles': ['🇺🇸 Los Angeles','🇺🇸 San Diego','🇺🇸 San Francisco','🇺🇸 San Jose','🇺🇸 Irvine'],
-  'san francisco': ['🇺🇸 San Francisco','🇺🇸 Oakland','🇺🇸 San Jose','🇺🇸 Berkeley','🇺🇸 Palo Alto'],
-  // US - New York
-  'new york': ['🇺🇸 New York','🇺🇸 Brooklyn','🇺🇸 Queens','🇺🇸 Newark','🇺🇸 Jersey City'],
-  // Default
-  'default': ['🇨🇦 Vancouver','🇨🇦 Toronto','🇺🇸 Austin','🇺🇸 Miami','🇨🇦 Calgary']
-};
-
-function renderCityChips(chips) {
-  const container = document.getElementById('hero-city-chips');
-  if (!container) return;
-  container.innerHTML = chips.map(city => {
-    const searchCity = city.replace(/^🇨🇦 |^🇺🇸 /, '');
-    return `<button onclick="heroQuickSearch('${searchCity}')" style="background:rgba(62,240,122,0.08);border:1px solid rgba(62,240,122,0.2);color:var(--muted);padding:5px 14px;border-radius:50px;font-size:0.78rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--muted)'">${city}</button>`;
-  }).join('');
-}
-
-// Detect location and update chips
-function detectLocationChips() {
-  if (!navigator.geolocation) return;
-  navigator.geolocation.getCurrentPosition(
-    async (pos) => {
-      try {
-        const { latitude, longitude } = pos.coords;
-        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`);
-        const data = await res.json();
-        const city = (data.address?.city || data.address?.town || data.address?.county || '').toLowerCase();
-        const chips = CITY_REGIONS[city] || CITY_REGIONS['default'];
-        // Show user's city first if we recognize it
-        const userCity = data.address?.city || data.address?.town;
-        if (userCity) {
-          document.getElementById('hero-search-input').placeholder = `Search homes near ${userCity}...`;
-        }
-        renderCityChips(chips);
-      } catch(e) {}
-    },
-    () => {} // Silent fail if denied
-  );
-}
-
-// Run on load
-window.addEventListener('DOMContentLoaded', detectLocationChips);
 </script>
 
 
