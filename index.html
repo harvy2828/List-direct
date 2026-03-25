@@ -666,10 +666,11 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
 
   <!-- Hero Search Bar -->
   <div style="margin-top:36px;position:relative;z-index:100;animation:fadeUp 0.8s 0.3s ease both;width:100%;max-width:580px">
+
     <div style="display:flex;background:rgba(20,28,22,0.95);border:1px solid rgba(62,240,122,0.3);border-radius:60px;padding:6px 6px 6px 20px;gap:8px;align-items:center;backdrop-filter:blur(20px);box-shadow:0 8px 40px rgba(0,0,0,0.4)">
       <div style="display:flex;align-items:center;gap:8px;flex:1">
         <span style="font-size:1.1rem">🔍</span>
-        <input type="text" id="hero-search-input" placeholder="Search any city — Vancouver, Austin, Toronto..." 
+        <input type="text" id="hero-search-input" placeholder="Search any city — Vancouver, Toronto, Calgary..." 
           style="background:none;border:none;color:#e8f0e9;font-size:0.95rem;font-family:'DM Sans',sans-serif;outline:none;width:100%;padding:6px 0"
           onkeydown="if(event.key==='Enter') heroSearch()"
           autocomplete="off"
@@ -3185,7 +3186,89 @@ async function loadMemberCount() {
 window.addEventListener('DOMContentLoaded', loadMemberCount);
 
 // ── Hero Search ───────────────────────────────────────────────
-const US_CITIES = ['new york','los angeles','chicago','houston','phoenix','philadelphia','san antonio','san diego','dallas','san jose','austin','jacksonville','fort worth','columbus','charlotte','indianapolis','san francisco','seattle','denver','nashville','miami','atlanta','portland','las vegas','memphis','louisville','baltimore','milwaukee','albuquerque','tucson','fresno','sacramento','mesa','kansas city','omaha','raleigh','cleveland','virginia beach','colorado springs','tampa','new orleans','honolulu','anaheim','lexington','stockton','corpus christi','riverside','st louis','pittsburgh','anchorage','minneapolis','boston','detroit','el paso','washington','nashville','oklahoma city','orlando','boise','richmond'];
+// ── Hero Auto Country Detection ──────────────────────────────
+const US_STATES = [
+  'alabama','alaska','arizona','arkansas','california','colorado','connecticut',
+  'delaware','florida','georgia','hawaii','idaho','illinois','indiana','iowa',
+  'kansas','kentucky','louisiana','maine','maryland','massachusetts','michigan',
+  'minnesota','mississippi','missouri','montana','nebraska','nevada','new hampshire',
+  'new jersey','new mexico','new york','north carolina','north dakota','ohio',
+  'oklahoma','oregon','pennsylvania','rhode island','south carolina','south dakota',
+  'tennessee','texas','utah','vermont','virginia','washington','west virginia',
+  'wisconsin','wyoming'
+];
+
+const US_ABBR = [
+  'al','ak','az','ar','ca','co','ct','de','fl','ga','hi','id','il','in','ia',
+  'ks','ky','la','me','md','ma','mi','mn','ms','mo','mt','ne','nv','nh','nj',
+  'nm','ny','nc','nd','oh','ok','or','pa','ri','sc','sd','tn','tx','ut','vt',
+  'va','wa','wv','wi','wy','dc'
+];
+
+const US_CITIES = [
+  'new york','los angeles','chicago','houston','phoenix','philadelphia','san antonio',
+  'san diego','dallas','san jose','austin','jacksonville','fort worth','columbus',
+  'charlotte','indianapolis','san francisco','seattle','denver','nashville','miami',
+  'atlanta','portland','las vegas','memphis','louisville','baltimore','milwaukee',
+  'albuquerque','tucson','fresno','sacramento','mesa','kansas city','omaha','raleigh',
+  'cleveland','virginia beach','colorado springs','tampa','new orleans','honolulu',
+  'anaheim','lexington','stockton','corpus christi','riverside','st louis','pittsburgh',
+  'anchorage','minneapolis','boston','detroit','el paso','washington','oklahoma city',
+  'orlando','boise','richmond','spokane','salt lake city','buffalo','madison',
+  'scottsdale','gilbert','glendale','norfolk','henderson','reno','laredo','durham',
+  'jersey city','st petersburg','chula vista','fort wayne','chandler','lubbock',
+  'winston salem','garland','new haven','hialeah','baton rouge','irvine','chesapeake',
+  'fremont','scottsdale','north las vegas','birmingham','rochester','san bernardino'
+];
+
+const CA_PROVINCES = [
+  'ontario','quebec','british columbia','alberta','manitoba','saskatchewan',
+  'nova scotia','new brunswick','newfoundland','prince edward island','bc'
+];
+
+const CA_ABBR = ['on','qc','bc','ab','mb','sk','ns','nb','nl','pe','nt','yt','nu'];
+
+const CA_CITIES = [
+  'toronto','montreal','vancouver','calgary','edmonton','ottawa','winnipeg',
+  'quebec city','hamilton','brampton','surrey','mississauga','laval','halifax',
+  'london','markham','vaughan','gatineau','saskatoon','longueuil','kelowna',
+  'abbotsford','coquitlam','richmond','burnaby','north vancouver','west vancouver',
+  'victoria','saanich','langford','whitby','oshawa','barrie','sherbrooke',
+  'saguenay','levis','trois rivieres','terrebonne','st johns','moncton','lethbridge',
+  'red deer','airdrie','kamloops','nanaimo','maple ridge','new westminster'
+];
+
+function detectCountryFromQuery(query) {
+  const q = query.toLowerCase().trim();
+  const parts = q.split(/[,\s]+/);
+  
+  // Check each word in the query
+  for (const part of parts) {
+    const p = part.trim();
+    if (!p) continue;
+    
+    // Check US state abbreviations (e.g. "TX", "CA", "NY")
+    if (US_ABBR.includes(p)) return 'us';
+    
+    // Check CA province abbreviations
+    if (CA_ABBR.includes(p)) return 'ca';
+    
+    // Check full US state names
+    if (US_STATES.some(s => q.includes(s))) return 'us';
+    
+    // Check full CA province names
+    if (CA_PROVINCES.some(s => q.includes(s))) return 'ca';
+  }
+  
+  // Check US cities
+  if (US_CITIES.some(c => q.includes(c))) return 'us';
+  
+  // Check CA cities
+  if (CA_CITIES.some(c => q.includes(c))) return 'ca';
+  
+  // Default to Canada
+  return 'ca';
+}
 
 function heroSearch() {
   const query = document.getElementById('hero-search-input').value.trim();
@@ -3193,18 +3276,19 @@ function heroSearch() {
   const searchInput = document.getElementById('search-input');
   if (searchInput) searchInput.value = query;
 
-  // Auto detect country from city name
-  const lowerQuery = query.toLowerCase().replace(/,.*/, '').trim();
-  const isUS = US_CITIES.some(c => lowerQuery.includes(c));
-  // Directly set country without needing button element
-  searchCountry = isUS ? 'us' : 'ca';
+  // Auto detect country
+  const detected = detectCountryFromQuery(query);
+  searchCountry = detected;
+
+  // Hide MLS disclaimer
   const disclaimer = document.getElementById('mls-disclaimer');
   if (disclaimer) disclaimer.style.display = 'none';
-  // Update button styles
+
+  // Sync main search buttons
   const btnCa = document.getElementById('btn-ca');
   const btnUs = document.getElementById('btn-us');
-  if (btnCa) btnCa.classList.toggle('active', !isUS);
-  if (btnUs) btnUs.classList.toggle('active', isUS);
+  if (btnCa) btnCa.classList.toggle('active', detected === 'ca');
+  if (btnUs) btnUs.classList.toggle('active', detected === 'us');
 
   document.getElementById('search-section').scrollIntoView({behavior:'smooth'});
   setTimeout(() => runSearch(), 400);
