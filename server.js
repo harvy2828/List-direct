@@ -821,5 +821,64 @@ app.get('/api/mls/canada', async (req, res) => {
   }
 });
 
+
+// ── Rentcast US Listings ──────────────────────────────────────
+app.get('/api/listings/us', async (req, res) => {
+  const { city, state, minBeds, maxPrice, minPrice } = req.query;
+  try {
+    const params = new URLSearchParams({
+      limit: '20',
+      status: 'Active',
+    });
+
+    if (city) params.append('city', city);
+    if (state) params.append('state', state);
+    if (minBeds) params.append('bedrooms', minBeds);
+    if (maxPrice) params.append('maxPrice', maxPrice);
+    if (minPrice) params.append('minPrice', minPrice);
+
+    const response = await fetch(`https://api.rentcast.io/v1/listings/sale?${params.toString()}`, {
+      headers: {
+        'X-Api-Key': process.env.RENTCAST_API_KEY,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      const err = await response.text();
+      return res.status(response.status).json({ error: err, listings: [] });
+    }
+
+    const data = await response.json();
+    const listings = (data || []).map(l => ({
+      id: l.id || l.formattedAddress,
+      verified: false,
+      platform: false,
+      mls: false,
+      us: true,
+      price: parseInt(l.price) || 0,
+      currency: 'USD',
+      addr: l.addressLine1 || '',
+      city: l.city || city || '',
+      zip: l.zipCode || '',
+      beds: parseInt(l.bedrooms) || 0,
+      baths: parseFloat(l.bathrooms) || 0,
+      sqft: parseInt(l.squareFootage) || 0,
+      type: l.propertyType || 'Single Family',
+      days: l.daysOnMarket || 0,
+      match: Math.floor(Math.random() * 15) + 80,
+      img: l.photoUrl || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=280&fit=crop',
+      cashback: null,
+      desc: '',
+      listing: 'rentcast'
+    }));
+
+    res.json({ listings });
+  } catch (err) {
+    console.error('Rentcast error:', err.message);
+    res.json({ listings: [], error: err.message });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`ListDirect running on port ${PORT}`));

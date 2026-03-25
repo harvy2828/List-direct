@@ -1761,6 +1761,33 @@ async function fetchPlatformListings(query, beds, maxPrice) {
 
 
 // ── Fetch Canada MLS Listings (Repliers) ─────────────────────
+
+// ── Fetch US Listings (Rentcast) ──────────────────────────────
+async function fetchUSListings(query, beds, maxPrice) {
+  try {
+    // Parse city and state from query (e.g. "Austin, TX" or just "Austin")
+    let city = query, state = '';
+    if (query.includes(',')) {
+      const parts = query.split(',');
+      city = parts[0].trim();
+      state = parts[1].trim();
+    }
+
+    const params = new URLSearchParams({ city });
+    if (state) params.append('state', state);
+    if (beds > 0) params.append('minBeds', beds);
+    if (maxPrice > 0) params.append('maxPrice', maxPrice);
+
+    const res = await fetch('/api/listings/us?' + params.toString());
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.listings || [];
+  } catch(e) {
+    console.error('US listings error:', e);
+    return [];
+  }
+}
+
 async function fetchCanadaListings(query, beds, maxPrice) {
   try {
     const params = new URLSearchParams({ city: query });
@@ -1808,10 +1835,12 @@ async function runSearch() {
   // Fetch real platform listings from database
   const platformListings = await fetchPlatformListings(query, beds, maxPrice);
 
-  // Fetch real Canada MLS listings if Canada selected
+  // Fetch real listings based on country
   let mlsListings = [];
   if (searchCountry === 'ca') {
     mlsListings = await fetchCanadaListings(query, beds, maxPrice);
+  } else if (searchCountry === 'us') {
+    mlsListings = await fetchUSListings(query, beds, maxPrice);
   }
 
   // Generate AI market listings
