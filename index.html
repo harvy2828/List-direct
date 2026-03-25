@@ -663,10 +663,33 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
   <div style="display:inline-block;font-family:'Playfair Display',serif;font-size:clamp(1.2rem,3vw,1.8rem);font-weight:900;color:var(--green);margin-bottom:16px;position:relative;z-index:1;animation:fadeUp 0.6s ease both;letter-spacing:-0.5px">Skip the Agent. List Direct.</div>
   <h1>Sell Your Home.<br><em>Keep Your Money.</em></h1>
   <p class="hero-sub">ListDirect connects sellers and buyers directly — no middleman, no 6% commission. Our AI agent does the heavy lifting so you don't have to.</p>
-  <div class="hero-actions">
+
+  <!-- Hero Search Bar -->
+  <div style="margin-top:36px;position:relative;z-index:1;animation:fadeUp 0.8s 0.3s ease both;width:100%;max-width:580px">
+    <div style="display:flex;background:rgba(20,28,22,0.95);border:1px solid rgba(62,240,122,0.3);border-radius:60px;padding:6px 6px 6px 20px;gap:8px;align-items:center;backdrop-filter:blur(20px);box-shadow:0 8px 40px rgba(0,0,0,0.4)">
+      <div style="display:flex;align-items:center;gap:8px;flex:1">
+        <span style="font-size:1.1rem">🔍</span>
+        <input type="text" id="hero-search-input" placeholder="Search any city — Vancouver, Austin, Toronto..." 
+          style="background:none;border:none;color:#e8f0e9;font-size:0.95rem;font-family:'DM Sans',sans-serif;outline:none;width:100%;padding:6px 0"
+          onkeydown="if(event.key==='Enter') heroSearch()"
+        />
+      </div>
+      <button onclick="heroSearch()" style="background:var(--green);color:#0a0f0d;padding:11px 24px;border-radius:50px;border:none;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;flex-shrink:0">Search Homes →</button>
+    </div>
+    <!-- Dynamic location-based city chips -->
+    <div id="hero-city-chips" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px">
+      <!-- Populated dynamically based on location -->
+      <button onclick="heroQuickSearch('Vancouver')" style="background:rgba(62,240,122,0.08);border:1px solid rgba(62,240,122,0.2);color:var(--muted);padding:5px 14px;border-radius:50px;font-size:0.78rem;cursor:pointer;font-family:'DM Sans',sans-serif">🇨🇦 Vancouver</button>
+      <button onclick="heroQuickSearch('Toronto')" style="background:rgba(62,240,122,0.08);border:1px solid rgba(62,240,122,0.2);color:var(--muted);padding:5px 14px;border-radius:50px;font-size:0.78rem;cursor:pointer;font-family:'DM Sans',sans-serif">🇨🇦 Toronto</button>
+      <button onclick="heroQuickSearch('Austin')" style="background:rgba(62,240,122,0.08);border:1px solid rgba(62,240,122,0.2);color:var(--muted);padding:5px 14px;border-radius:50px;font-size:0.78rem;cursor:pointer;font-family:'DM Sans',sans-serif">🇺🇸 Austin</button>
+      <button onclick="heroQuickSearch('Miami')" style="background:rgba(62,240,122,0.08);border:1px solid rgba(62,240,122,0.2);color:var(--muted);padding:5px 14px;border-radius:50px;font-size:0.78rem;cursor:pointer;font-family:'DM Sans',sans-serif">🇺🇸 Miami</button>
+    </div>
+  </div>
+
+  <!-- Smaller action buttons below search -->
+  <div class="hero-actions" style="margin-top:24px">
     <button class="btn-primary" onclick="openPM()">List My Home Free</button>
-    <button class="btn-outline" style="border-color:rgba(62,240,122,0.4);color:var(--green)" onclick="document.getElementById('calculator').scrollIntoView({behavior:'smooth'})">💰 See My Savings</button>
-    <button class="btn-outline" onclick="document.getElementById('search-section').scrollIntoView({behavior:'smooth'})">🏠 Browse Homes</button>
+    <button class="btn-outline" style="border-color:rgba(62,240,122,0.4);color:var(--green)" onclick="document.getElementById('calculator').scrollIntoView({behavior:'smooth'})">💰 Savings Calculator</button>
     <button class="btn-outline" style="border-color:rgba(62,240,122,0.4);color:var(--green)" onclick="document.getElementById('ai-tools').scrollIntoView({behavior:'smooth'})">🤖 Try AI Tools</button>
   </div>
   <div style="margin-top:20px;position:relative;z-index:1;animation:fadeUp 0.8s 0.4s ease both">
@@ -3118,6 +3141,86 @@ async function loadMemberCount() {
   } catch(e) {}
 }
 window.addEventListener('DOMContentLoaded', loadMemberCount);
+
+// ── Hero Search ───────────────────────────────────────────────
+function heroSearch() {
+  const query = document.getElementById('hero-search-input').value.trim();
+  if (!query) return;
+  const searchInput = document.getElementById('search-input');
+  if (searchInput) searchInput.value = query;
+  document.getElementById('search-section').scrollIntoView({behavior:'smooth'});
+  setTimeout(() => runSearch(), 400);
+}
+
+function heroQuickSearch(city) {
+  document.getElementById('hero-search-input').value = city;
+  heroSearch();
+}
+
+// ── Location-based City Chips ─────────────────────────────────
+const CITY_REGIONS = {
+  // Canada - BC
+  'vancouver': ['🇨🇦 Vancouver','🇨🇦 Burnaby','🇨🇦 Richmond','🇨🇦 Surrey','🇨🇦 North Vancouver'],
+  'burnaby': ['🇨🇦 Vancouver','🇨🇦 Burnaby','🇨🇦 Richmond','🇨🇦 Surrey','🇨🇦 Coquitlam'],
+  'surrey': ['🇨🇦 Surrey','🇨🇦 Vancouver','🇨🇦 Langley','🇨🇦 Burnaby','🇨🇦 Abbotsford'],
+  'victoria': ['🇨🇦 Victoria','🇨🇦 Saanich','🇨🇦 Langford','🇨🇦 Colwood','🇨🇦 Oak Bay'],
+  // Canada - Ontario
+  'toronto': ['🇨🇦 Toronto','🇨🇦 Mississauga','🇨🇦 Brampton','🇨🇦 Scarborough','🇨🇦 North York'],
+  'mississauga': ['🇨🇦 Mississauga','🇨🇦 Toronto','🇨🇦 Brampton','🇨🇦 Oakville','🇨🇦 Burlington'],
+  'ottawa': ['🇨🇦 Ottawa','🇨🇦 Gatineau','🇨🇦 Kanata','🇨🇦 Nepean','🇨🇦 Gloucester'],
+  // Canada - Alberta
+  'calgary': ['🇨🇦 Calgary','🇨🇦 Edmonton','🇨🇦 Airdrie','🇨🇦 Cochrane','🇨🇦 Okotoks'],
+  'edmonton': ['🇨🇦 Edmonton','🇨🇦 Calgary','🇨🇦 St. Albert','🇨🇦 Sherwood Park','🇨🇦 Leduc'],
+  // US - Texas
+  'austin': ['🇺🇸 Austin','🇺🇸 Dallas','🇺🇸 Houston','🇺🇸 San Antonio','🇺🇸 Fort Worth'],
+  'dallas': ['🇺🇸 Dallas','🇺🇸 Fort Worth','🇺🇸 Plano','🇺🇸 Irving','🇺🇸 Arlington'],
+  'houston': ['🇺🇸 Houston','🇺🇸 Austin','🇺🇸 San Antonio','🇺🇸 Dallas','🇺🇸 Sugar Land'],
+  // US - Florida
+  'miami': ['🇺🇸 Miami','🇺🇸 Fort Lauderdale','🇺🇸 Orlando','🇺🇸 Tampa','🇺🇸 West Palm Beach'],
+  'orlando': ['🇺🇸 Orlando','🇺🇸 Miami','🇺🇸 Tampa','🇺🇸 Jacksonville','🇺🇸 Fort Lauderdale'],
+  // US - California
+  'los angeles': ['🇺🇸 Los Angeles','🇺🇸 San Diego','🇺🇸 San Francisco','🇺🇸 San Jose','🇺🇸 Irvine'],
+  'san francisco': ['🇺🇸 San Francisco','🇺🇸 Oakland','🇺🇸 San Jose','🇺🇸 Berkeley','🇺🇸 Palo Alto'],
+  // US - New York
+  'new york': ['🇺🇸 New York','🇺🇸 Brooklyn','🇺🇸 Queens','🇺🇸 Newark','🇺🇸 Jersey City'],
+  // Default
+  'default': ['🇨🇦 Vancouver','🇨🇦 Toronto','🇺🇸 Austin','🇺🇸 Miami','🇨🇦 Calgary']
+};
+
+function renderCityChips(chips) {
+  const container = document.getElementById('hero-city-chips');
+  if (!container) return;
+  container.innerHTML = chips.map(city => {
+    const searchCity = city.replace(/^🇨🇦 |^🇺🇸 /, '');
+    return `<button onclick="heroQuickSearch('${searchCity}')" style="background:rgba(62,240,122,0.08);border:1px solid rgba(62,240,122,0.2);color:var(--muted);padding:5px 14px;border-radius:50px;font-size:0.78rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--muted)'">${city}</button>`;
+  }).join('');
+}
+
+// Detect location and update chips
+function detectLocationChips() {
+  if (!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      try {
+        const { latitude, longitude } = pos.coords;
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`);
+        const data = await res.json();
+        const city = (data.address?.city || data.address?.town || data.address?.county || '').toLowerCase();
+        const chips = CITY_REGIONS[city] || CITY_REGIONS['default'];
+        // Show user's city first if we recognize it
+        const userCity = data.address?.city || data.address?.town;
+        if (userCity) {
+          document.getElementById('hero-search-input').placeholder = `Search homes near ${userCity}...`;
+        }
+        renderCityChips(chips);
+      } catch(e) {}
+    },
+    () => {} // Silent fail if denied
+  );
+}
+
+// Run on load
+window.addEventListener('DOMContentLoaded', detectLocationChips);
 </script>
 
 
