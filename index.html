@@ -1864,7 +1864,7 @@ async function runSearch() {
   document.getElementById('search-city-label').textContent = `in "${query}" (${countryLabel}, prices in ${currencyLabel})`;
   document.getElementById('banner-ai-results').classList.add('visible');
   document.getElementById('banner-list-yours').style.display = 'flex';
-  if (mlsListings && mlsListings.length > 0) document.getElementById('mls-disclaimer').style.display = 'block';
+  document.getElementById('mls-disclaimer').style.display = (searchCountry === 'ca' && mlsListings && mlsListings.length > 0) ? 'block' : 'none';
 
   renderCurrentResults();
 }
