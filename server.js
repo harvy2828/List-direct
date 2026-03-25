@@ -867,10 +867,8 @@ app.get('/api/listings/us', async (req, res) => {
       type: l.propertyType || 'Single Family',
       days: l.daysOnMarket || 0,
       match: Math.floor(Math.random() * 15) + 80,
-      img: l.photoUrl || (() => {
-        const addr = encodeURIComponent(((l.addressLine1 || '') + ' ' + (l.city || '') + ' ' + (l.state || '') + ' ' + (l.zipCode || '')).trim());
-        return `https://maps.googleapis.com/maps/api/streetview?size=400x280&location=${addr}&fov=90&pitch=10&source=outdoor&key=${process.env.GOOGLE_MAPS_API_KEY}`;
-      })(),
+      img: null,
+      streetview_addr: ((l.addressLine1 || '') + ' ' + (l.city || '') + ' ' + (l.state || '') + ' ' + (l.zipCode || '')).trim(),
       cashback: null,
       desc: '',
       listing: 'rentcast'

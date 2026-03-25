@@ -1785,7 +1785,24 @@ async function fetchUSListings(query, beds, maxPrice) {
     const res = await fetch('/api/listings/us?' + params.toString());
     if (!res.ok) return [];
     const data = await res.json();
-    return data.listings || [];
+    const listings = (data.listings || []).map(l => {
+      if (!l.img && l.streetview_addr) {
+        const addr = encodeURIComponent(l.streetview_addr);
+        l.img = `https://maps.googleapis.com/maps/api/streetview?size=400x280&location=${addr}&fov=90&pitch=10&source=outdoor&key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A`;
+      }
+      if (!l.img) {
+        const fallbacks = [
+          'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=280&fit=crop',
+          'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400&h=280&fit=crop',
+          'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400&h=280&fit=crop',
+          'https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=400&h=280&fit=crop',
+          'https://images.unsplash.com/photo-1571939228382-b2f2b585ce15?w=400&h=280&fit=crop',
+        ];
+        l.img = fallbacks[Math.floor(Math.random() * fallbacks.length)];
+      }
+      return l;
+    });
+    return listings;
   } catch(e) {
     console.error('US listings error:', e);
     return [];
