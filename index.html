@@ -3182,11 +3182,23 @@ async function loadMemberCount() {
 window.addEventListener('DOMContentLoaded', loadMemberCount);
 
 // ── Hero Search ───────────────────────────────────────────────
+const US_CITIES = ['new york','los angeles','chicago','houston','phoenix','philadelphia','san antonio','san diego','dallas','san jose','austin','jacksonville','fort worth','columbus','charlotte','indianapolis','san francisco','seattle','denver','nashville','miami','atlanta','portland','las vegas','memphis','louisville','baltimore','milwaukee','albuquerque','tucson','fresno','sacramento','mesa','kansas city','omaha','raleigh','cleveland','virginia beach','colorado springs','tampa','new orleans','honolulu','anaheim','lexington','stockton','corpus christi','riverside','st louis','pittsburgh','anchorage','minneapolis','boston','detroit','el paso','washington','nashville','oklahoma city','orlando','boise','richmond'];
+
 function heroSearch() {
   const query = document.getElementById('hero-search-input').value.trim();
   if (!query) return;
   const searchInput = document.getElementById('search-input');
   if (searchInput) searchInput.value = query;
+
+  // Auto detect country from city name
+  const lowerQuery = query.toLowerCase().replace(/,.*/, '').trim();
+  const isUS = US_CITIES.some(c => lowerQuery.includes(c));
+  if (isUS) {
+    setCountry('us', document.getElementById('btn-us'));
+  } else {
+    setCountry('ca', document.getElementById('btn-ca'));
+  }
+
   document.getElementById('search-section').scrollIntoView({behavior:'smooth'});
   setTimeout(() => runSearch(), 400);
 }
