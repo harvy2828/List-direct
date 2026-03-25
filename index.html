@@ -662,7 +662,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
   <div class="hero-badge"><div class="dot"></div> AI-Powered Home Selling Platform</div>
   <div style="display:inline-block;font-family:'Playfair Display',serif;font-size:clamp(1.2rem,3vw,1.8rem);font-weight:900;color:var(--green);margin-bottom:16px;position:relative;z-index:1;animation:fadeUp 0.6s ease both;letter-spacing:-0.5px">Skip the Agent. List Direct.</div>
   <h1>Sell Your Home.<br><em>Keep Your Money.</em></h1>
-  <p class="hero-sub">ListDirect connects sellers and buyers directly — no middleman, no 6% commission. Our AI agent does the heavy lifting so you don't have to.</p>
+  <p class="hero-sub">ListDirect connects sellers and buyers directly — no middleman, no 6% commission. Our AI does the heavy lifting so you don't have to. Prefer an agent? Our certified agents guarantee cashback at closing — still better than traditional.</p>
 
   <!-- Hero Search Bar -->
   <div style="margin-top:36px;position:relative;z-index:1;animation:fadeUp 0.8s 0.3s ease both;width:100%;max-width:580px">
@@ -672,6 +672,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
         <input type="text" id="hero-search-input" placeholder="Search any city — Vancouver, Austin, Toronto..." 
           style="background:none;border:none;color:#e8f0e9;font-size:0.95rem;font-family:'DM Sans',sans-serif;outline:none;width:100%;padding:6px 0"
           onkeydown="if(event.key==='Enter') heroSearch()"
+          autocomplete="off"
         />
       </div>
       <button onclick="heroSearch()" style="background:var(--green);color:#0a0f0d;padding:11px 24px;border-radius:50px;border:none;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;flex-shrink:0">Search Homes →</button>
@@ -2943,7 +2944,6 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closePM();})
 
 
 <!-- Google Places Autocomplete -->
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A&libraries=places&callback=initGooglePlaces" async defer></script>
 <style>
 .pac-container {
   background:var(--card) !important;
@@ -2969,7 +2969,23 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closePM();})
 </style>
 <script>
 function initGooglePlaces() {
-  // Search box autocomplete
+  // Hero search autocomplete
+  const heroInput = document.getElementById('hero-search-input');
+  if (heroInput) {
+    const heroAC = new google.maps.places.Autocomplete(heroInput, {
+      types: ['(cities)'],
+      fields: ['name', 'address_components']
+    });
+    heroAC.addListener('place_changed', () => {
+      const place = heroAC.getPlace();
+      if (place.name) {
+        heroInput.value = place.name;
+        heroSearch();
+      }
+    });
+  }
+
+  // Main search box autocomplete
   const searchInput = document.getElementById('search-input');
   if (searchInput) {
     const searchAC = new google.maps.places.Autocomplete(searchInput, {
