@@ -62,7 +62,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .mobile-menu-handle::after{content:'‹';color:var(--muted);font-size:1rem;margin-left:2px}
 
 /* ═══ HERO ═══ */
-.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;position:relative;overflow:hidden}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;position:relative;overflow:visible}
 .hero-bg{position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse 60% 50% at 50% 20%,rgba(62,240,122,0.09) 0%,transparent 70%),radial-gradient(ellipse 40% 40% at 80% 80%,rgba(39,196,94,0.06) 0%,transparent 60%)}
 .hero-grid{position:absolute;inset:0;z-index:0;background-image:linear-gradient(rgba(62,240,122,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(62,240,122,0.04) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 30%,transparent 100%)}
 .hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);padding:7px 18px;border-radius:50px;margin-bottom:28px;font-size:0.82rem;font-weight:500;color:var(--green);position:relative;z-index:1;animation:fadeUp 0.7s ease both}
@@ -665,7 +665,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
   <p class="hero-sub">ListDirect connects sellers and buyers directly — no middleman, no 6% commission. Our AI does the heavy lifting so you don't have to. Prefer an agent? Our certified agents guarantee cashback at closing — still better than traditional.</p>
 
   <!-- Hero Search Bar -->
-  <div style="margin-top:36px;position:relative;z-index:1;animation:fadeUp 0.8s 0.3s ease both;width:100%;max-width:580px">
+  <div style="margin-top:36px;position:relative;z-index:100;animation:fadeUp 0.8s 0.3s ease both;width:100%;max-width:580px">
     <div style="display:flex;background:rgba(20,28,22,0.95);border:1px solid rgba(62,240,122,0.3);border-radius:60px;padding:6px 6px 6px 20px;gap:8px;align-items:center;backdrop-filter:blur(20px);box-shadow:0 8px 40px rgba(0,0,0,0.4)">
       <div style="display:flex;align-items:center;gap:8px;flex:1">
         <span style="font-size:1.1rem">🔍</span>
