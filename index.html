@@ -1939,7 +1939,9 @@ function renderListings(list) {
 
     card.innerHTML = `
       <div class="listing-img">
-        <div class="listing-img-bg" style="background-image:url('${l.img}')"></div>
+        <div class="listing-img-bg" id="img-${l.id}" style="background-image:url('${l.img}')">
+          ${l.us ? `<img src="${l.img}" style="display:none" onerror="document.getElementById('img-${l.id}').style.backgroundImage='url(https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=280&fit=crop)'" />` : ''}
+        </div>
         ${tagHTML}
         <button class="listing-fav" onclick="toggleFav(event,this)" title="Save">♡</button>
         ${crownHTML}
