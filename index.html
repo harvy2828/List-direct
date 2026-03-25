@@ -3196,11 +3196,15 @@ function heroSearch() {
   // Auto detect country from city name
   const lowerQuery = query.toLowerCase().replace(/,.*/, '').trim();
   const isUS = US_CITIES.some(c => lowerQuery.includes(c));
-  if (isUS) {
-    setCountry('us', document.getElementById('btn-us'));
-  } else {
-    setCountry('ca', document.getElementById('btn-ca'));
-  }
+  // Directly set country without needing button element
+  searchCountry = isUS ? 'us' : 'ca';
+  const disclaimer = document.getElementById('mls-disclaimer');
+  if (disclaimer) disclaimer.style.display = 'none';
+  // Update button styles
+  const btnCa = document.getElementById('btn-ca');
+  const btnUs = document.getElementById('btn-us');
+  if (btnCa) btnCa.classList.toggle('active', !isUS);
+  if (btnUs) btnUs.classList.toggle('active', isUS);
 
   document.getElementById('search-section').scrollIntoView({behavior:'smooth'});
   setTimeout(() => runSearch(), 400);
