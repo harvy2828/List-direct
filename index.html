@@ -1536,6 +1536,9 @@ let searchCountry = 'ca';
 
 function setCountry(code, btn) {
   searchCountry = code;
+  // Hide MLS disclaimer when switching to US
+  const disclaimer = document.getElementById('mls-disclaimer');
+  if (disclaimer) disclaimer.style.display = 'none';
   document.querySelectorAll('.country-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   const hint = document.getElementById('country-hint');

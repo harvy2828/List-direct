@@ -867,7 +867,19 @@ app.get('/api/listings/us', async (req, res) => {
       type: l.propertyType || 'Single Family',
       days: l.daysOnMarket || 0,
       match: Math.floor(Math.random() * 15) + 80,
-      img: l.photoUrl || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=280&fit=crop',
+      img: l.photoUrl || (() => {
+        const photos = [
+          'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=280&fit=crop',
+          'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400&h=280&fit=crop',
+          'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400&h=280&fit=crop',
+          'https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=400&h=280&fit=crop',
+          'https://images.unsplash.com/photo-1600210492493-0946911123ea?w=400&h=280&fit=crop',
+          'https://images.unsplash.com/photo-1571939228382-b2f2b585ce15?w=400&h=280&fit=crop',
+          'https://images.unsplash.com/photo-1560184897-ae75f418493e?w=400&h=280&fit=crop',
+          'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&h=280&fit=crop',
+        ];
+        return photos[Math.floor(Math.random() * photos.length)];
+      })(),
       cashback: null,
       desc: '',
       listing: 'rentcast'
