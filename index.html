@@ -2023,21 +2023,52 @@ function toggleFav(e, btn) {
 // ═══════════════════════════════════════════
 // LISTING DETAIL MODAL (verified homes)
 // ═══════════════════════════════════════════
-function initStreetViewPanorama(containerId, address) {
+function initStreetViewPanorama(containerId, address, lat, lng) {
   const container = document.getElementById(containerId);
   if (!container) return;
-  if (!address) {
-    container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#7a9480;font-size:0.85rem;background:#0d1510">No address available</div>';
-    return;
+  container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#7a9480;font-size:0.85rem;background:#0d1510">Loading Street View...</div>';
+
+  function launchPanorama(position) {
+    if (!window.google || !window.google.maps) { setTimeout(() => launchPanorama(position), 400); return; }
+    const sv = new google.maps.StreetViewService();
+    sv.getPanorama({ location: position, radius: 200, preference: google.maps.StreetViewPreference.NEAREST }, function(data, status) {
+      const c = document.getElementById(containerId);
+      if (!c) return;
+      if (status === google.maps.StreetViewStatus.OK) {
+        c.innerHTML = '';
+        new google.maps.StreetViewPanorama(c, {
+          position: data.location.latLng,
+          pov: { heading: 165, pitch: 0 },
+          zoom: 1,
+          addressControl: false,
+          fullscreenControl: true,
+          motionTracking: false,
+          motionTrackingControl: false,
+          showRoadLabels: false,
+          linksControl: true,
+          panControl: true,
+          enableCloseButton: false
+        });
+      } else {
+        c.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#7a9480;font-size:0.85rem;background:#0d1510">Street View not available for this address</div>';
+      }
+    });
   }
-  const encoded = encodeURIComponent(address);
-  container.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;background:#0d1510;gap:12px">
-      <div style="font-size:2rem">🌍</div>
-      <div style="color:#e8f0e9;font-size:0.95rem;font-weight:600;text-align:center">${address}</div>
-      <a href="https://www.google.com/maps?q=${encoded}&layer=c" target="_blank" style="padding:10px 24px;background:var(--green);color:#0a0f0d;border-radius:50px;font-weight:700;font-size:0.9rem;text-decoration:none;font-family:'DM Sans',sans-serif">Open Street View →</a>
-      <div style="color:#7a9480;font-size:0.78rem">Opens in Google Maps</div>
-    </div>`;
+
+  if (lat && lng) {
+    launchPanorama({ lat: parseFloat(lat), lng: parseFloat(lng) });
+  } else if (address && window.google && window.google.maps) {
+    new google.maps.Geocoder().geocode({ address: address }, function(results, status) {
+      if (status === 'OK' && results[0]) {
+        launchPanorama(results[0].geometry.location);
+      } else {
+        const c = document.getElementById(containerId);
+        if (c) c.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#7a9480;font-size:0.85rem;background:#0d1510">Street View not available</div>';
+      }
+    });
+  } else {
+    setTimeout(() => initStreetViewPanorama(containerId, address, lat, lng), 500);
+  }
 }
 
 function switchLMView(type, val) {
@@ -2121,7 +2152,7 @@ function openLeadModal(l) {
       <div class="lhi-price">$${l.price.toLocaleString()}</div>
       <div class="lhi-addr">📍 ${l.addr}, ${l.city}</div>
       <div class="lhi-specs">${l.beds} bed · ${l.baths} bath · ${l.sqft.toLocaleString()} sq ft</div>
-      <button onclick="toggleLeadStreetView('${svAddr}')" id="lead-sv-btn" style="margin-top:8px;padding:4px 12px;border-radius:50px;border:1px solid var(--green);background:none;color:var(--green);font-size:0.75rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🌍 Street View</button>
+      <button onclick="toggleLeadStreetView('${svAddr}','${l.lat||''}','${l.lng||''}')" id="lead-sv-btn" style="margin-top:8px;padding:4px 12px;border-radius:50px;border:1px solid var(--green);background:none;color:var(--green);font-size:0.75rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🌍 Street View</button>
     </div>`;
   // Reset street view container
   const svContainer = document.getElementById('lead-sv-container');
@@ -2130,7 +2161,7 @@ function openLeadModal(l) {
   document.body.style.overflow = 'hidden';
 }
 
-function toggleLeadStreetView(addr) {
+function toggleLeadStreetView(addr, lat, lng) {
   let container = document.getElementById('lead-sv-container');
   const btn = document.getElementById('lead-sv-btn');
   if (container.style.display === 'block') {
@@ -2141,7 +2172,7 @@ function toggleLeadStreetView(addr) {
     btn.textContent = '✕ Close Street View';
     if (!container.dataset.loaded) {
       container.dataset.loaded = '1';
-      initStreetViewPanorama('lead-sv-container', addr);
+      initStreetViewPanorama('lead-sv-container', addr, lat, lng);
     }
   }
 }
