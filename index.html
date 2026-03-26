@@ -593,7 +593,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
 }
 .pac-icon { display:none !important; }
 </style>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A&libraries=places&callback=initGooglePlacesSearch" async defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A&libraries=places,geometry&callback=initGooglePlacesSearch" async defer></script>
   <meta name="description" content="Sell your home in Canada or the United States for just 1% at closing. Skip the agent or use a certified agent with guaranteed cashback. AI-powered pricing, listing writer, and offer review — free to use."/>
   <meta name="keywords" content="sell home without agent Canada, list home direct, 1% real estate fee, skip real estate agent, save on commission, AI real estate platform, sell house yourself Canada, flat fee real estate, guaranteed cashback agent, sell home without realtor"/>
   <meta property="og:title" content="ListDirect — Sell Your Home for 1% | Skip the Agent | Canada & USA"/>
@@ -2022,13 +2022,76 @@ function toggleFav(e, btn) {
 // ═══════════════════════════════════════════
 // LISTING DETAIL MODAL (verified homes)
 // ═══════════════════════════════════════════
+function initStreetViewPanorama(containerId, address) {
+  if (!address || !window.google) return;
+  const geocoder = new google.maps.Geocoder();
+  geocoder.geocode({ address: address }, function(results, status) {
+    if (status === 'OK') {
+      const loc = results[0].geometry.location;
+      const sv = new google.maps.StreetViewService();
+      sv.getPanorama({ location: loc, radius: 50, source: google.maps.StreetViewSource.OUTDOOR }, function(data, svStatus) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        if (svStatus === 'OK') {
+          new google.maps.StreetViewPanorama(container, {
+            position: loc,
+            pov: { heading: 165, pitch: 0 },
+            zoom: 1,
+            addressControl: false,
+            fullscreenControl: true,
+            motionTracking: false,
+            motionTrackingControl: false,
+            showRoadLabels: false,
+            linksControl: true,
+            panControl: true,
+            enableCloseButton: false
+          });
+        } else {
+          container.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#7a9480;font-size:0.9rem;background:#0d1510">Street View not available for this address</div>`;
+        }
+      });
+    }
+  });
+}
+
+function switchLMView(type, val) {
+  const photo = document.getElementById('lm-photo-view');
+  const sv = document.getElementById('lm-sv-view');
+  const btnPhoto = document.getElementById('lm-btn-photo');
+  const btnSv = document.getElementById('lm-btn-sv');
+  if (type === 'photo') {
+    photo.style.display = 'block';
+    sv.style.display = 'none';
+    btnPhoto.style.background = 'var(--green)'; btnPhoto.style.color = 'var(--bg)';
+    btnSv.style.background = 'none'; btnSv.style.color = 'var(--green)';
+  } else {
+    photo.style.display = 'none';
+    sv.style.display = 'block';
+    sv.style.height = '280px';
+    btnSv.style.background = 'var(--green)'; btnSv.style.color = 'var(--bg)';
+    btnPhoto.style.background = 'none'; btnPhoto.style.color = 'var(--green)';
+    if (!sv.dataset.loaded) {
+      sv.dataset.loaded = '1';
+      initStreetViewPanorama('lm-sv-view', val);
+    }
+  }
+}
+
 function openListingModal(l) {
   const content = document.getElementById('listing-modal-content');
+  const svAddr = l.addr ? `${l.addr}, ${l.city}` : '';
   content.innerHTML = `
     <div class="lm-imgs">
-      <div class="lm-main" style="background-image:url('${l.img}')"></div>
+      <div class="lm-main" id="lm-main-view" style="position:relative;overflow:hidden">
+        <div id="lm-photo-view" style="width:100%;height:100%;background-image:url('${l.img}');background-size:cover;background-position:center"></div>
+        <div id="lm-sv-view" style="width:100%;height:100%;display:none"></div>
+      </div>
       <div class="lm-thumb" style="background-image:url('${l.img2}')"></div>
       <div class="lm-thumb" style="background-image:url('${l.img3}')"></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <button onclick="switchLMView('photo','${l.img}')" id="lm-btn-photo" style="flex:1;padding:8px;border-radius:50px;border:1px solid var(--green);background:var(--green);color:var(--bg);font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">📷 Photos</button>
+      <button onclick="switchLMView('sv','${svAddr}')" id="lm-btn-sv" style="flex:1;padding:8px;border-radius:50px;border:1px solid var(--green);background:none;color:var(--green);font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🌍 Street View</button>
     </div>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
       <div class="lm-price" style="margin:0">$${l.price.toLocaleString()}</div>
@@ -2066,8 +2129,17 @@ function closeListingModalOutside(e) {
 // ═══════════════════════════════════════════
 function openLeadModal(l) {
   document.getElementById('lead-modal-title').textContent = 'Interested in this home?';
+  const svAddr = l.addr ? encodeURIComponent(`${l.addr}, ${l.city}`) : '';
+  const staticImg = l.img || `https://maps.googleapis.com/maps/api/streetview?size=460x200&location=${svAddr}&fov=90&pitch=10&source=outdoor&key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A`;
   document.getElementById('lead-home-preview').innerHTML = `
-    <div class="lead-home-img" style="background-image:url('${l.img}')"></div>
+    <div style="position:relative;height:200px;border-radius:10px;overflow:hidden;margin-bottom:10px">
+      <div id="lead-photo-view" style="width:100%;height:100%;background-image:url('${staticImg}');background-size:cover;background-position:center"></div>
+      <div id="lead-sv-view" style="width:100%;height:100%;display:none"></div>
+      <div style="position:absolute;bottom:8px;right:8px;display:flex;gap:6px">
+        <button onclick="switchLeadView('photo','${staticImg}')" id="lead-btn-photo" style="padding:5px 10px;border-radius:50px;border:none;background:rgba(10,15,13,0.85);color:#3EF07A;font-size:0.72rem;font-weight:700;cursor:pointer;backdrop-filter:blur(4px)">📷 Photo</button>
+        <button onclick="switchLeadView('sv','${l.addr ? `${l.addr}, ${l.city}` : ''}')" id="lead-btn-sv" style="padding:5px 10px;border-radius:50px;border:none;background:rgba(10,15,13,0.85);color:#3EF07A;font-size:0.72rem;font-weight:700;cursor:pointer;backdrop-filter:blur(4px)">🌍 Street View</button>
+      </div>
+    </div>
     <div class="lead-home-info">
       <div class="lhi-price">$${l.price.toLocaleString()}</div>
       <div class="lhi-addr">📍 ${l.addr}, ${l.city}</div>
@@ -2075,6 +2147,29 @@ function openLeadModal(l) {
     </div>`;
   document.getElementById('lead-modal').classList.add('open');
   document.body.style.overflow = 'hidden';
+}
+
+function switchLeadView(type, val) {
+  const photo = document.getElementById('lead-photo-view');
+  const sv = document.getElementById('lead-sv-view');
+  const btnPhoto = document.getElementById('lead-btn-photo');
+  const btnSv = document.getElementById('lead-btn-sv');
+  if (type === 'photo') {
+    photo.style.display = 'block';
+    sv.style.display = 'none';
+    btnPhoto.style.background = 'var(--green)'; btnPhoto.style.color = 'var(--bg)';
+    btnSv.style.background = 'rgba(10,15,13,0.85)'; btnSv.style.color = '#3EF07A';
+  } else {
+    photo.style.display = 'none';
+    sv.style.display = 'block';
+    sv.style.height = '100%';
+    btnSv.style.background = 'var(--green)'; btnSv.style.color = 'var(--bg)';
+    btnPhoto.style.background = 'rgba(10,15,13,0.85)'; btnPhoto.style.color = '#3EF07A';
+    if (!sv.dataset.loaded) {
+      sv.dataset.loaded = '1';
+      initStreetViewPanorama('lead-sv-view', val);
+    }
+  }
 }
 function closeLeadModal() {
   document.getElementById('lead-modal').classList.remove('open');
