@@ -34,7 +34,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 
 /* ═══ NAV ═══ */
 nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:18px 48px;background:rgba(10,15,13,0.97);backdrop-filter:blur(20px);border-bottom:1px solid rgba(62,240,122,0.15);transition:padding 0.3s}
-.nav-logo{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;color:var(--white);letter-spacing:-1px;cursor:pointer}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;color:var(--white);letter-spacing:-1px;cursor:pointer;margin-right:24px}
 .nav-logo span{color:var(--green)}
 .nav-links{display:flex;gap:32px;list-style:none}
 .nav-links a{color:var(--text);text-decoration:none;font-size:0.88rem;font-weight:500;transition:color 0.2s}
@@ -613,7 +613,6 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
 <nav>
   <div class="nav-logo" onclick="scrollTo(0,0)">List<span>Direct</span></div>
   <ul class="nav-links">
-    <li><a href="index.html">🏠 Home</a></li>
     <li><a href="#search-section">Search Homes</a></li>
     <li><a href="#how">How It Works</a></li>
     <li><a href="#paths">Your Path</a></li>
@@ -621,7 +620,6 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
     <li><a href="#calculator">Savings Calc</a></li>
     <li><a href="#faq">FAQ</a></li>
     <li><a href="about.html">About</a></li>
-    <li><a href="#ai-tools" class="nav-ai-link">🤖 AI Tools</a></li>
   </ul>
   <div class="nav-right">
     <a href="dashboard.html" class="nav-login" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px">👤 My Account</a>
