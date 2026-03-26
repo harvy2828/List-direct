@@ -848,7 +848,8 @@ async function loadFavorites() {
       const price = l ? '$' + l.price.toLocaleString() : '';
       const addr = l ? `📍 ${l.addr}, ${l.city}` : `📍 ${id}`;
       const specs = l ? `${l.beds} bed · ${l.baths} bath · ${l.sqft ? l.sqft.toLocaleString() + ' sq ft' : ''}` : '';
-      const searchUrl = l ? `index.html?search=${encodeURIComponent(l.city)}&highlight=${encodeURIComponent(id)}` : 'index.html#search-section';
+      const country = l && l.us ? 'us' : 'ca';
+      const searchUrl = l ? `index.html?search=${encodeURIComponent(l.city)}&highlight=${encodeURIComponent(id)}&country=${country}` : 'index.html#search-section';
       return `
         <div class="saved-card">
           <div class="saved-img" style="background-image:url('${img}')"></div>

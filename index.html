@@ -1960,7 +1960,7 @@ function renderListings(list) {
           ${l.us ? `<img src="${l.img}" style="display:none" onerror="document.getElementById('img-${l.id}').style.backgroundImage='url(https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=280&fit=crop)'" />` : ''}
         </div>
         ${tagHTML}
-        <button class="listing-fav" data-id="${l.id}" data-listing='${JSON.stringify({id:l.id,addr:l.addr,city:l.city,price:l.price,beds:l.beds,baths:l.baths,sqft:l.sqft,img:l.img,streetview_addr:l.streetview_addr,state:l.state||'',zip:l.zip||''}).replace(/'/g,"&apos;")}' onclick="toggleFav(event,this)" title="Save">♡</button>
+        <button class="listing-fav" data-id="${l.id}" data-listing='${JSON.stringify({id:l.id,addr:l.addr,city:l.city,price:l.price,beds:l.beds,baths:l.baths,sqft:l.sqft,img:l.img,streetview_addr:l.streetview_addr,state:l.state||'',zip:l.zip||'',us:l.us||false,verified:l.verified||false}).replace(/'/g,"&apos;")}' onclick="toggleFav(event,this)" title="Save">♡</button>
         ${crownHTML}
       </div>
       <div class="listing-body">
@@ -3372,7 +3372,13 @@ window.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
   const searchCity = params.get('search');
   const highlightId = params.get('highlight');
+  const searchCountryParam = params.get('country');
   if (searchCity) {
+    // Set correct country first
+    if (searchCountryParam) {
+      const btn = document.getElementById(searchCountryParam === 'us' ? 'btn-us' : 'btn-ca');
+      if (btn) setCountry(searchCountryParam, btn);
+    }
     document.getElementById('search-section').scrollIntoView({ behavior: 'smooth' });
     const input = document.getElementById('search-input');
     if (input) {
@@ -3380,17 +3386,21 @@ window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
         runSearch();
         if (highlightId) {
+          // Wait for listings to load then find and open the saved listing
           setTimeout(() => {
             const card = document.querySelector(`.listing-fav[data-id="${CSS.escape(highlightId)}"]`);
             if (card) {
-              const listing = card.closest('.listing-card');
-              if (listing) {
-                listing.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                listing.style.boxShadow = '0 0 0 3px var(--green)';
-                setTimeout(() => listing.style.boxShadow = '', 3000);
+              const listingCard = card.closest('.listing-card');
+              if (listingCard) {
+                listingCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                listingCard.style.boxShadow = '0 0 0 3px var(--green)';
+                setTimeout(() => {
+                  listingCard.click();
+                  listingCard.style.boxShadow = '';
+                }, 800);
               }
             }
-          }, 1500);
+          }, 2000);
         }
       }, 500);
     }
