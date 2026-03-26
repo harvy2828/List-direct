@@ -1441,6 +1441,7 @@ async function submitInlineReply(msgId, buyerEmail, buyerName) {
       body: JSON.stringify({ original_message_id: msgId, reply_text: text, buyer_email: buyerEmail, buyer_name: buyerName })
     });
     if (res.ok) {
+      const result = await res.json();
       // Add reply bubble to thread immediately
       const container = document.getElementById('thread-msgs-' + msgId);
       if (container) {
@@ -1454,7 +1455,11 @@ async function submitInlineReply(msgId, buyerEmail, buyerName) {
           </div>`;
       }
       input.value = '';
-      showToast('✅ Reply sent to ' + buyerEmail, 'success');
+      if (result.email_sent) {
+        showToast('✅ Reply sent! Email delivered to ' + buyerEmail, 'success');
+      } else {
+        showToast('✅ Reply saved — no email on file for buyer', 'success');
+      }
       // Update border to show read
       const thread = document.getElementById('thread-' + msgId);
       if (thread) thread.style.borderColor = 'var(--border)';

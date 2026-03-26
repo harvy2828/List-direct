@@ -688,6 +688,7 @@ app.post('/api/messages/reply', async (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Not authenticated' });
   const { original_message_id, reply_text, buyer_email, buyer_name } = req.body;
+  if (!reply_text) return res.status(400).json({ error: 'Reply text is required' });
   try {
     const { data: { user } } = await supabase.auth.getUser(token);
     const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user.id).single();
@@ -700,28 +701,31 @@ app.post('/api/messages/reply', async (req, res) => {
       sender_name: sellerName,
       reply_text,
       created_at: new Date().toISOString()
-    }]).catch(() => {}); // Don't fail if table doesn't exist yet
+    }]).catch((e) => console.log('Reply store error (non-fatal):', e.message));
 
-    // Send reply email to buyer
-    await sendEmail({
-      to: buyer_email,
-      subject: '💬 Reply from your ListDirect inquiry',
-      html: `<div style="font-family:Arial,sans-serif;background:#0a0f0d;color:#e8f0e9;padding:32px;border-radius:12px;max-width:600px">
-        <h2 style="color:#3ef07a">The seller replied to your inquiry!</h2>
-        <p style="color:#7a9480">Hi ${buyer_name},</p>
-        <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin:16px 0">
-          <p style="color:#e8f0e9">"${reply_text}"</p>
-          <p style="color:#7a9480;margin-top:8px">— ${sellerName}</p>
-        </div>
-        <a href="https://listdirect.ai" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-top:8px">View on ListDirect →</a>
-      </div>`
-    });
+    // Send reply email to buyer if we have their email
+    if (buyer_email && buyer_email !== 'undefined' && buyer_email !== 'null') {
+      await sendEmail({
+        to: buyer_email,
+        subject: '💬 Reply from your ListDirect inquiry',
+        html: `<div style="font-family:Arial,sans-serif;background:#0a0f0d;color:#e8f0e9;padding:32px;border-radius:12px;max-width:600px">
+          <h2 style="color:#3ef07a">The seller replied to your inquiry!</h2>
+          <p style="color:#7a9480">Hi ${buyer_name || 'there'},</p>
+          <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin:16px 0">
+            <p style="color:#e8f0e9">"${reply_text}"</p>
+            <p style="color:#7a9480;margin-top:8px">— ${sellerName}</p>
+          </div>
+          <a href="https://listdirect.ai" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-top:8px">View on ListDirect →</a>
+        </div>`
+      });
+    }
 
     // Mark original as read
-    await supabase.from('messages').update({ read: true }).eq('id', original_message_id);
+    await supabase.from('messages').update({ read: true }).eq('id', original_message_id).catch(() => {});
 
-    res.json({ success: true });
+    res.json({ success: true, email_sent: !!(buyer_email && buyer_email !== 'undefined') });
   } catch (err) {
+    console.error('Reply error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
