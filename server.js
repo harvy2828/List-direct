@@ -719,8 +719,11 @@ app.post('/api/messages/reply', async (req, res) => {
             <p style="color:#e8f0e9">"${reply_text}"</p>
             <p style="color:#7a9480;margin-top:8px">— ${sellerName}</p>
           </div>
-          <p style="color:#7a9480;margin-top:16px">To reply to the seller, email them directly at: <a href="mailto:${sellerEmail}" style="color:#3ef07a;font-weight:700">${sellerEmail}</a></p>
-          <a href="https://listdirect.ai" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-top:16px">View on ListDirect →</a>
+          <div style="background:#1a3d28;border:1px solid rgba(62,240,122,0.3);border-radius:12px;padding:16px;margin:16px 0">
+            <p style="color:#3ef07a;font-weight:700;margin:0 0 6px">💬 Want to reply?</p>
+            <p style="color:#e8f0e9;margin:0">Simply reply to this email and your message will go directly to the seller at <strong>${sellerEmail}</strong></p>
+          </div>
+          <a href="https://listdirect.ai" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-top:8px">View on ListDirect →</a>
         </div>`
       });
     }
