@@ -808,12 +808,28 @@ async function loadFavorites() {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     if (!res.ok) return;
-    const favs = await res.json();
-    document.getElementById('stat-saved').textContent = favs.length;
+    const data = await res.json();
+    const favs = data.favorites || [];
+
+    // Merge with localStorage favs
+    const localFavs = JSON.parse(localStorage.getItem('ld_favs') || '[]');
+    const allFavIds = [...new Set([...favs.map(f => f.listing_id), ...localFavs])];
+
+    document.getElementById('stat-saved').textContent = allFavIds.length;
     const container = document.getElementById('saved-container');
-    if (!favs.length) {
+    if (!allFavIds.length) {
       container.innerHTML = `<div class="empty-state"><div class="empty-icon">❤️</div><div class="empty-title">No saved homes yet</div><div class="empty-sub">Browse listings and tap the ♡ to save homes you love</div><button class="btn-sm btn-sm-green" onclick="window.location.href='index.html#search-section'">Browse Homes →</button></div>`;
+      return;
     }
+    container.innerHTML = `<div class="saved-grid">${allFavIds.map(id => `
+      <div class="saved-card">
+        <div class="saved-img" style="background-image:url('https://maps.googleapis.com/maps/api/streetview?size=400x200&location=${encodeURIComponent(id)}&fov=90&pitch=10&source=outdoor&key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A')"></div>
+        <div class="saved-body">
+          <div class="saved-addr">📍 ${id}</div>
+          <button onclick="window.location.href='index.html#search-section'" style="margin-top:8px;background:none;border:1px solid var(--green);color:var(--green);padding:6px 14px;border-radius:50px;font-size:0.8rem;cursor:pointer;font-family:'DM Sans',sans-serif">View →</button>
+        </div>
+      </div>`).join('')}
+    </div>`;
   } catch(e) {}
 }
 

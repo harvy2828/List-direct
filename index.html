@@ -2017,22 +2017,29 @@ function filterDefaultListings() {
 let savedFavIds = new Set();
 
 async function loadFavourites() {
+  // Always load from localStorage first
+  const local = JSON.parse(localStorage.getItem('ld_favs') || '[]');
+  savedFavIds = new Set(local);
+
+  // If logged in, also load from database and merge
   const token = localStorage.getItem('ld_token');
-  if (!token) return;
-  try {
-    const res = await fetch('/api/favorites', { headers: { 'Authorization': 'Bearer ' + token } });
-    const data = await res.json();
-    if (data && data.favorites) {
-      savedFavIds = new Set(data.favorites.map(f => f.listing_id));
-      // Update any visible hearts
-      document.querySelectorAll('.listing-fav[data-id]').forEach(btn => {
-        if (savedFavIds.has(btn.dataset.id)) {
-          btn.classList.add('faved');
-          btn.textContent = '♥';
-        }
-      });
+  if (token) {
+    try {
+      const res = await fetch('/api/favorites', { headers: { 'Authorization': 'Bearer ' + token } });
+      const data = await res.json();
+      if (data && data.favorites) {
+        data.favorites.forEach(f => savedFavIds.add(f.listing_id));
+      }
+    } catch(e) {}
+  }
+
+  // Update hearts on screen
+  document.querySelectorAll('.listing-fav[data-id]').forEach(btn => {
+    if (savedFavIds.has(btn.dataset.id)) {
+      btn.classList.add('faved');
+      btn.textContent = '♥';
     }
-  } catch(e) {}
+  });
 }
 
 async function toggleFav(e, btn) {
@@ -2041,41 +2048,34 @@ async function toggleFav(e, btn) {
   const token = localStorage.getItem('ld_token');
   const isFaved = btn.classList.contains('faved');
 
-  console.log('toggleFav called:', { listingId, token: token ? 'exists' : 'missing', isFaved });
-
-  // Optimistic UI update
+  // Toggle UI
   btn.classList.toggle('faved');
   btn.textContent = btn.classList.contains('faved') ? '♥' : '♡';
 
-  if (!token) {
-    console.log('No token — user not logged in');
-    btn.title = 'Sign in to save favourites';
-    return;
+  // Always save to localStorage
+  if (!isFaved) {
+    savedFavIds.add(listingId);
+  } else {
+    savedFavIds.delete(listingId);
   }
+  localStorage.setItem('ld_favs', JSON.stringify([...savedFavIds]));
 
-  try {
-    if (!isFaved) {
-      const res = await fetch('/api/favorites', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-        body: JSON.stringify({ listing_id: listingId })
-      });
-      const data = await res.json();
-      console.log('Save fav response:', data);
-      savedFavIds.add(listingId);
-    } else {
-      const res = await fetch('/api/favorites/' + encodeURIComponent(listingId), {
-        method: 'DELETE',
-        headers: { 'Authorization': 'Bearer ' + token }
-      });
-      const data = await res.json();
-      console.log('Delete fav response:', data);
-      savedFavIds.delete(listingId);
-    }
-  } catch(err) {
-    console.error('Fav error:', err);
-    btn.classList.toggle('faved');
-    btn.textContent = btn.classList.contains('faved') ? '♥' : '♡';
+  // If logged in, also save to database
+  if (token) {
+    try {
+      if (!isFaved) {
+        await fetch('/api/favorites', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ listing_id: listingId })
+        });
+      } else {
+        await fetch('/api/favorites/' + encodeURIComponent(listingId), {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+      }
+    } catch(err) {}
   }
 }
 
