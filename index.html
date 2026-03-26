@@ -1992,6 +1992,32 @@ function renderListings(list) {
     grid.appendChild(card);
     setTimeout(() => card.classList.add('visible'), 30 + i * 50);
   });
+  // Re-apply saved hearts after render
+  setTimeout(() => {
+    document.querySelectorAll('.listing-fav[data-id]').forEach(btn => {
+      if (savedFavIds.has(btn.dataset.id)) {
+        btn.classList.add('faved');
+        btn.textContent = '♥';
+      }
+    });
+    // Check if we need to highlight/open a specific listing
+    const urlParams = new URLSearchParams(window.location.search);
+    const highlightId = urlParams.get('highlight');
+    if (highlightId) {
+      const card = document.querySelector(`.listing-fav[data-id="${CSS.escape(highlightId)}"]`);
+      if (card) {
+        const listingCard = card.closest('.listing-card');
+        if (listingCard) {
+          listingCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          listingCard.style.boxShadow = '0 0 0 3px var(--green)';
+          setTimeout(() => {
+            listingCard.click();
+            listingCard.style.boxShadow = '';
+          }, 600);
+        }
+      }
+    }
+  }, 300);
 }
 
 function setTypeFilter(btn, val) {
@@ -3385,23 +3411,7 @@ window.addEventListener('DOMContentLoaded', () => {
       input.value = searchCity;
       setTimeout(() => {
         runSearch();
-        if (highlightId) {
-          // Wait for listings to load then find and open the saved listing
-          setTimeout(() => {
-            const card = document.querySelector(`.listing-fav[data-id="${CSS.escape(highlightId)}"]`);
-            if (card) {
-              const listingCard = card.closest('.listing-card');
-              if (listingCard) {
-                listingCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                listingCard.style.boxShadow = '0 0 0 3px var(--green)';
-                setTimeout(() => {
-                  listingCard.click();
-                  listingCard.style.boxShadow = '';
-                }, 800);
-              }
-            }
-          }, 2000);
-        }
+
       }, 500);
     }
   }
