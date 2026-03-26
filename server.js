@@ -6,7 +6,7 @@ const Stripe = require('stripe');
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 // ── Email via Resend ──────────────────────────────────────────
-async function sendEmail({ to, subject, html }) {
+async function sendEmail({ to, subject, html, reply_to }) {
   try {
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -16,7 +16,7 @@ async function sendEmail({ to, subject, html }) {
       },
       body: JSON.stringify({
         from: 'ListDirect <onboarding@resend.dev>',
-        reply_to: 'infolistdirect@gmail.com',
+        reply_to: reply_to || 'infolistdirect@gmail.com',
         to,
         subject,
         html
@@ -708,6 +708,7 @@ app.post('/api/messages/reply', async (req, res) => {
     if (buyer_email && buyer_email !== 'undefined' && buyer_email !== 'null') {
       await sendEmail({
         to: buyer_email,
+        reply_to: user.email,
         subject: '💬 Reply from your ListDirect inquiry',
         html: `<div style="font-family:Arial,sans-serif;background:#0a0f0d;color:#e8f0e9;padding:32px;border-radius:12px;max-width:600px">
           <h2 style="color:#3ef07a">The seller replied to your inquiry!</h2>
