@@ -2067,7 +2067,6 @@ function switchLMView(type, val) {
   } else {
     photo.style.display = 'none';
     sv.style.display = 'block';
-    sv.style.height = '280px';
     btnSv.style.background = 'var(--green)'; btnSv.style.color = 'var(--bg)';
     btnPhoto.style.background = 'none'; btnPhoto.style.color = 'var(--green)';
     if (!sv.dataset.loaded) {
@@ -2082,9 +2081,9 @@ function openListingModal(l) {
   const svAddr = l.addr ? `${l.addr}, ${l.city}` : '';
   content.innerHTML = `
     <div class="lm-imgs">
-      <div class="lm-main" id="lm-main-view" style="position:relative;overflow:hidden">
-        <div id="lm-photo-view" style="width:100%;height:100%;background-image:url('${l.img}');background-size:cover;background-position:center"></div>
-        <div id="lm-sv-view" style="width:100%;height:100%;display:none"></div>
+      <div class="lm-main" id="lm-main-view" style="position:relative;overflow:hidden;padding:0">
+        <div id="lm-photo-view" style="position:absolute;inset:0;background-image:url('${l.img}');background-size:cover;background-position:center"></div>
+        <div id="lm-sv-view" style="position:absolute;inset:0;display:none"></div>
       </div>
       <div class="lm-thumb" style="background-image:url('${l.img2}')"></div>
       <div class="lm-thumb" style="background-image:url('${l.img3}')"></div>
