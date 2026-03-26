@@ -803,8 +803,8 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
     <div class="search-box">
       <!-- Country toggle -->
       <div class="search-country-row">
-        <button class="country-btn active" id="btn-ca" onclick="setCountry('ca',this)">🇨🇦 Canada</button>
-        <button class="country-btn" id="btn-us" onclick="setCountry('us',this)">🇺🇸 United States</button>
+        <button class="country-btn active" id="btn-ca" onclick="setCountry('ca',this)"><img src="https://flagcdn.com/20x15/ca.png" alt="CA" style="width:20px;height:15px;margin-right:6px;vertical-align:middle;border-radius:2px"> Canada</button>
+        <button class="country-btn" id="btn-us" onclick="setCountry('us',this)"><img src="https://flagcdn.com/20x15/us.png" alt="US" style="width:20px;height:15px;margin-right:6px;vertical-align:middle;border-radius:2px"> United States</button>
         <span class="country-hint" id="country-hint">Searching US cities & ZIP codes</span>
       </div>
       <div class="search-top-row">
@@ -3013,7 +3013,7 @@ updateMortgage();
 .pm-title{font-family:'Playfair Display',serif;font-size:1.7rem;font-weight:900;color:#fff;margin-bottom:6px}
 .pm-sub{font-size:0.88rem;color:#7a9480;margin-bottom:24px;line-height:1.6}
 .pm-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
-.pm-card{border-radius:16px;padding:22px 18px;cursor:pointer;position:relative;text-align:left;width:100%;font-family:'DM Sans',sans-serif;transition:transform 0.15s;border:2px solid transparent;display:block}
+.pm-card{border-radius:16px;padding:22px 18px;cursor:pointer;position:relative;text-align:left;width:100%;font-family:'DM Sans',sans-serif;transition:transform 0.15s;border:2px solid transparent;display:flex;flex-direction:column}
 .pm-card:hover{transform:translateY(-3px)}
 .pm-card-ai{background:rgba(62,240,122,0.07);border-color:rgba(62,240,122,0.45)}
 .pm-card-agent{background:rgba(245,200,66,0.05);border-color:rgba(245,200,66,0.25)}
@@ -3032,8 +3032,8 @@ updateMortgage();
 .pm-snum-ai{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;color:#3ef07a;line-height:1;display:block}
 .pm-snum-ag{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;color:#f5c842;line-height:1;display:block}
 .pm-snote{font-size:0.68rem;color:#7a9480;margin-top:2px;display:block}
-.pm-btn-ai{width:100%;background:#3ef07a;color:#0a0f0d;border:none;padding:11px;border-radius:50px;font-weight:700;font-size:0.88rem;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:4px}
-.pm-btn-ag{width:100%;background:transparent;color:#f5c842;border:1px solid rgba(245,200,66,0.4);padding:11px;border-radius:50px;font-weight:700;font-size:0.88rem;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:4px}
+.pm-btn-ai{width:100%;background:#3ef07a;color:#0a0f0d;border:none;padding:11px;border-radius:50px;font-weight:700;font-size:0.88rem;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:auto}
+.pm-btn-ag{width:100%;background:transparent;color:#f5c842;border:1px solid rgba(245,200,66,0.4);padding:11px;border-radius:50px;font-weight:700;font-size:0.88rem;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:auto}
 .pm-note{font-size:0.73rem;color:#7a9480;text-align:center}
 @media(max-width:500px){.pm-cards{grid-template-columns:1fr}.pm-card{padding:18px 14px}}
 </style>
