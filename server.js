@@ -695,13 +695,14 @@ app.post('/api/messages/reply', async (req, res) => {
     const sellerName = profile?.full_name || 'The Seller';
 
     // Store reply in Supabase
-    await supabase.from('message_replies').insert([{
+    const { error: replyError } = await supabase.from('message_replies').insert([{
       message_id: original_message_id,
       sender_id: user.id,
       sender_name: sellerName,
       reply_text,
       created_at: new Date().toISOString()
-    }]).catch((e) => console.log('Reply store error (non-fatal):', e.message));
+    }]);
+    if (replyError) console.log('Reply store error (non-fatal):', replyError.message);
 
     // Send reply email to buyer if we have their email
     if (buyer_email && buyer_email !== 'undefined' && buyer_email !== 'null') {
@@ -721,7 +722,7 @@ app.post('/api/messages/reply', async (req, res) => {
     }
 
     // Mark original as read
-    await supabase.from('messages').update({ read: true }).eq('id', original_message_id).catch(() => {});
+    await supabase.from('messages').update({ read: true }).eq('id', original_message_id);
 
     res.json({ success: true, email_sent: !!(buyer_email && buyer_email !== 'undefined') });
   } catch (err) {
