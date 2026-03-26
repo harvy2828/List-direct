@@ -2030,25 +2030,14 @@ function initStreetViewPanorama(containerId, address) {
     container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#7a9480;font-size:0.85rem;background:#0d1510">No address available</div>';
     return;
   }
-  container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#7a9480;font-size:0.85rem;background:#0d1510">Loading Street View...</div>';
-  // Use iframe embed — most reliable, no billing required
   const encoded = encodeURIComponent(address);
-  const apiKey = 'AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A';
-  const iframe = document.createElement('iframe');
-  iframe.style.width = '100%';
-  iframe.style.height = '100%';
-  iframe.style.border = 'none';
-  iframe.allowFullscreen = true;
-  iframe.src = `https://www.google.com/maps/embed/v1/streetview?key=${apiKey}&location=${encoded}&heading=210&pitch=10&fov=90`;
-  iframe.onload = function() { container.innerHTML = ''; container.appendChild(iframe); };
-  iframe.onerror = function() { container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#7a9480;font-size:0.85rem;background:#0d1510">Street View not available for this address</div>'; };
-  // Set a timeout in case onload doesn't fire
-  const tempContainer = document.createElement('div');
-  tempContainer.style.width = '100%';
-  tempContainer.style.height = '100%';
-  tempContainer.appendChild(iframe);
-  container.innerHTML = '';
-  container.appendChild(tempContainer);
+  container.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;background:#0d1510;gap:12px">
+      <div style="font-size:2rem">🌍</div>
+      <div style="color:#e8f0e9;font-size:0.95rem;font-weight:600;text-align:center">${address}</div>
+      <a href="https://www.google.com/maps?q=${encoded}&layer=c" target="_blank" style="padding:10px 24px;background:var(--green);color:#0a0f0d;border-radius:50px;font-weight:700;font-size:0.9rem;text-decoration:none;font-family:'DM Sans',sans-serif">Open Street View →</a>
+      <div style="color:#7a9480;font-size:0.78rem">Opens in Google Maps</div>
+    </div>`;
 }
 
 function switchLMView(type, val) {
