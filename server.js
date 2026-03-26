@@ -691,8 +691,10 @@ app.post('/api/messages/reply', async (req, res) => {
   if (!reply_text) return res.status(400).json({ error: 'Reply text is required' });
   try {
     const { data: { user } } = await supabase.auth.getUser(token);
-    const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user.id).single();
+    const { data: profile } = await supabase.from('profiles').select('full_name, email').eq('id', user.id).single();
     const sellerName = profile?.full_name || 'The Seller';
+    const sellerEmail = user.email || profile?.email || 'infolistdirect@gmail.com';
+    console.log('Seller email for reply-to:', sellerEmail);
 
     // Store reply in Supabase
     const { error: replyError } = await supabase.from('message_replies').insert([{
@@ -708,7 +710,7 @@ app.post('/api/messages/reply', async (req, res) => {
     if (buyer_email && buyer_email !== 'undefined' && buyer_email !== 'null') {
       await sendEmail({
         to: buyer_email,
-        reply_to: user.email,
+        reply_to: sellerEmail,
         subject: '💬 Reply from your ListDirect inquiry',
         html: `<div style="font-family:Arial,sans-serif;background:#0a0f0d;color:#e8f0e9;padding:32px;border-radius:12px;max-width:600px">
           <h2 style="color:#3ef07a">The seller replied to your inquiry!</h2>
