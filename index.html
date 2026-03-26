@@ -143,9 +143,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .match-score .ms-bar{width:50px;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
 .match-score .ms-fill{height:100%;border-radius:3px;background:var(--green)}
 .listing-days{font-size:0.78rem;color:var(--muted)}
-.photo-badge{position:absolute;bottom:8px;left:8px;padding:3px 8px;border-radius:50px;font-size:0.65rem;font-weight:600;backdrop-filter:blur(8px);z-index:2}
-.photo-badge-sv{background:rgba(10,15,13,0.75);color:#7ee8a2;border:1px solid rgba(126,232,162,0.3)}
-.photo-badge-sample{background:rgba(10,15,13,0.75);color:var(--muted);border:1px solid rgba(255,255,255,0.1)}
 .mls-attribution{font-size:0.68rem;color:var(--muted);border-top:1px solid var(--border);margin-top:10px;padding-top:8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .mls-logo{background:var(--border);color:var(--muted);font-size:0.6rem;font-weight:700;padding:2px 5px;border-radius:3px;letter-spacing:0.05em;flex-shrink:0}
 .listing-cashback{font-size:0.75rem;color:var(--gold);font-weight:600;display:flex;align-items:center;gap:4px}
@@ -1376,10 +1373,10 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
   <div class="modal">
     <button class="modal-close" onclick="closeLeadModal()">✕</button>
     <h2 id="lead-modal-title">Interested in this home?</h2>
-    <p id="lead-modal-sub">This home isn't listed on ListDirect yet. We'll reach out to the seller on your behalf — and if they list with us, you could save thousands.</p>
+    <p id="lead-modal-sub">Leave your contact info and if the seller decides to list directly and save on commission, we'll connect you two together. No obligation.</p>
     <div class="lead-home-preview" id="lead-home-preview"></div>
     <div class="lead-value-props">
-      <div class="lvp-item"><span class="lvp-icon">📩</span> We contact the seller and let them know you're interested</div>
+      <div class="lvp-item"><span class="lvp-icon">📩</span> If the seller lists with us, we'll connect you two together</div>
       <div class="lvp-item"><span class="lvp-icon">💰</span> If they list with ListDirect, you avoid a buyer's agent fee</div>
       <div class="lvp-item"><span class="lvp-icon">🔔</span> You get notified the moment it's available on our platform</div>
       <div class="lvp-item"><span class="lvp-icon">🛡️</span> No obligation. Free for buyers.</div>
@@ -1959,13 +1956,12 @@ function renderListings(list) {
 
     card.innerHTML = `
       <div class="listing-img">
-        <div class="listing-img-bg" id="img-${l.id}" style="background-image:url('${l.img || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=280&fit=crop'}')">
+        <div class="listing-img-bg" id="img-${l.id}" style="background-image:url('${l.img}')">
           ${l.us ? `<img src="${l.img}" style="display:none" onerror="document.getElementById('img-${l.id}').style.backgroundImage='url(https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=280&fit=crop)'" />` : ''}
         </div>
         ${tagHTML}
         <button class="listing-fav" onclick="toggleFav(event,this)" title="Save">♡</button>
         ${crownHTML}
-
       </div>
       <div class="listing-body">
         <div class="listing-price">$${l.price.toLocaleString()}<span style="font-size:0.6rem;font-weight:500;color:var(--muted);margin-left:4px">${l.currency||'USD'}</span></div>
