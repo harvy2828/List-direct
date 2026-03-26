@@ -691,7 +691,17 @@ app.post('/api/messages/reply', async (req, res) => {
   try {
     const { data: { user } } = await supabase.auth.getUser(token);
     const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user.id).single();
-    
+    const sellerName = profile?.full_name || 'The Seller';
+
+    // Store reply in Supabase
+    await supabase.from('message_replies').insert([{
+      message_id: original_message_id,
+      sender_id: user.id,
+      sender_name: sellerName,
+      reply_text,
+      created_at: new Date().toISOString()
+    }]).catch(() => {}); // Don't fail if table doesn't exist yet
+
     // Send reply email to buyer
     await sendEmail({
       to: buyer_email,
@@ -701,7 +711,7 @@ app.post('/api/messages/reply', async (req, res) => {
         <p style="color:#7a9480">Hi ${buyer_name},</p>
         <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin:16px 0">
           <p style="color:#e8f0e9">"${reply_text}"</p>
-          <p style="color:#7a9480;margin-top:8px">— ${profile?.full_name || 'The Seller'}</p>
+          <p style="color:#7a9480;margin-top:8px">— ${sellerName}</p>
         </div>
         <a href="https://listdirect.ai" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-top:8px">View on ListDirect →</a>
       </div>`
@@ -713,6 +723,19 @@ app.post('/api/messages/reply', async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/messages/:id/replies', async (req, res) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Not authenticated' });
+  try {
+    const { data, error } = await supabase.from('message_replies')
+      .select('*').eq('message_id', req.params.id).order('created_at', { ascending: true });
+    if (error) return res.json({ replies: [] });
+    res.json({ replies: data || [] });
+  } catch (err) {
+    res.json({ replies: [] });
   }
 });
 
