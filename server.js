@@ -264,7 +264,20 @@ app.get('/api/favorites', async (req, res) => {
     const { data: { user } } = await supabase.auth.getUser(token);
     const { data, error } = await supabase.from('favorites').select('*').eq('user_id', user.id);
     if (error) return res.status(400).json({ error: error.message });
-    res.json(data);
+    res.json({ favorites: data });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/favorites/:listing_id', async (req, res) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Not authenticated' });
+  try {
+    const { data: { user } } = await supabase.auth.getUser(token);
+    const { error } = await supabase.from('favorites').delete().eq('user_id', user.id).eq('listing_id', req.params.listing_id);
+    if (error) return res.status(400).json({ error: error.message });
+    res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

@@ -1960,7 +1960,7 @@ function renderListings(list) {
           ${l.us ? `<img src="${l.img}" style="display:none" onerror="document.getElementById('img-${l.id}').style.backgroundImage='url(https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=280&fit=crop)'" />` : ''}
         </div>
         ${tagHTML}
-        <button class="listing-fav" onclick="toggleFav(event,this)" title="Save">♡</button>
+        <button class="listing-fav" data-id="${l.id}" onclick="toggleFav(event,this)" title="Save">♡</button>
         ${crownHTML}
       </div>
       <div class="listing-body">
@@ -2013,10 +2013,66 @@ function filterDefaultListings() {
   });
   renderListings(list);
 }
-function toggleFav(e, btn) {
+// Track saved favourites
+let savedFavIds = new Set();
+
+async function loadFavourites() {
+  const token = localStorage.getItem('ld_token');
+  if (!token) return;
+  try {
+    const res = await fetch('/api/favorites', { headers: { 'Authorization': 'Bearer ' + token } });
+    const data = await res.json();
+    if (data && data.favorites) {
+      savedFavIds = new Set(data.favorites.map(f => f.listing_id));
+      // Update any visible hearts
+      document.querySelectorAll('.listing-fav[data-id]').forEach(btn => {
+        if (savedFavIds.has(btn.dataset.id)) {
+          btn.classList.add('faved');
+          btn.textContent = '♥';
+        }
+      });
+    }
+  } catch(e) {}
+}
+
+async function toggleFav(e, btn) {
   e.stopPropagation();
+  const listingId = btn.dataset.id;
+  const token = localStorage.getItem('ld_token');
+  const isFaved = btn.classList.contains('faved');
+
+  // Optimistic UI update
   btn.classList.toggle('faved');
   btn.textContent = btn.classList.contains('faved') ? '♥' : '♡';
+
+  if (!token) {
+    // Not logged in — show a hint
+    btn.title = 'Sign in to save favourites';
+    return;
+  }
+
+  try {
+    if (!isFaved) {
+      // Save to database
+      await fetch('/api/favorites', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ listing_id: listingId })
+      });
+      savedFavIds.add(listingId);
+    } else {
+      // Remove from database
+      await fetch('/api/favorites/' + listingId, {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      savedFavIds.delete(listingId);
+    }
+  } catch(e) {
+    // Revert on error
+    btn.classList.toggle('faved');
+    btn.textContent = btn.classList.contains('faved') ? '♥' : '♡';
+  }
 }
 
 // ═══════════════════════════════════════════
@@ -3302,6 +3358,7 @@ async function loadMemberCount() {
   } catch(e) {}
 }
 window.addEventListener('DOMContentLoaded', loadMemberCount);
+window.addEventListener('DOMContentLoaded', loadFavourites);
 
 // ── Hero Search ───────────────────────────────────────────────
 // ── Hero Auto Country Detection ──────────────────────────────
