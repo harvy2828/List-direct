@@ -2094,7 +2094,7 @@ function switchLMView(type, val) {
 
 function openListingModal(l) {
   const content = document.getElementById('listing-modal-content');
-  const svAddr = l.addr ? `${l.addr}, ${l.city}` : '';
+  const svAddr = l.streetview_addr || (l.addr ? `${l.addr}, ${l.city}, ${l.state || ''} ${l.zip || ''}` : '');
   content.innerHTML = `
     <div class="lm-imgs">
       <div class="lm-main" id="lm-main-view" style="position:relative;overflow:hidden;padding:0">
@@ -2144,7 +2144,7 @@ function closeListingModalOutside(e) {
 // ═══════════════════════════════════════════
 function openLeadModal(l) {
   document.getElementById('lead-modal-title').textContent = 'Interested in this home?';
-  const svAddr = l.addr ? `${l.addr}, ${l.city}` : '';
+  const svAddr = l.streetview_addr || (l.addr ? `${l.addr}, ${l.city}, ${l.state || ''} ${l.zip || ''}` : '');
   document.getElementById('lead-home-preview').innerHTML = `
     <div class="lead-home-img" style="background-image:url('${l.img}')"></div>
     <div class="lead-home-info">
