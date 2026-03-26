@@ -1960,7 +1960,7 @@ function renderListings(list) {
           ${l.us ? `<img src="${l.img}" style="display:none" onerror="document.getElementById('img-${l.id}').style.backgroundImage='url(https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=280&fit=crop)'" />` : ''}
         </div>
         ${tagHTML}
-        <button class="listing-fav" data-id="${l.id}" onclick="toggleFav(event,this)" title="Save">♡</button>
+        <button class="listing-fav" data-id="${l.id}" data-listing='${JSON.stringify({id:l.id,addr:l.addr,city:l.city,price:l.price,beds:l.beds,baths:l.baths,sqft:l.sqft,img:l.img,streetview_addr:l.streetview_addr,state:l.state||'',zip:l.zip||''}).replace(/'/g,"&apos;")}' onclick="toggleFav(event,this)" title="Save">♡</button>
         ${crownHTML}
       </div>
       <div class="listing-body">
@@ -2045,6 +2045,7 @@ async function loadFavourites() {
 async function toggleFav(e, btn) {
   e.stopPropagation();
   const listingId = btn.dataset.id;
+  const listingData = btn.dataset.listing ? JSON.parse(btn.dataset.listing.replace(/&apos;/g, "'")) : null;
   const token = localStorage.getItem('ld_token');
   const isFaved = btn.classList.contains('faved');
 
@@ -2052,12 +2053,16 @@ async function toggleFav(e, btn) {
   btn.classList.toggle('faved');
   btn.textContent = btn.classList.contains('faved') ? '♥' : '♡';
 
-  // Always save to localStorage
-  if (!isFaved) {
+  // Save full listing objects to localStorage
+  const savedListings = JSON.parse(localStorage.getItem('ld_fav_listings') || '{}');
+  if (!isFaved && listingData) {
+    savedListings[listingId] = listingData;
     savedFavIds.add(listingId);
   } else {
+    delete savedListings[listingId];
     savedFavIds.delete(listingId);
   }
+  localStorage.setItem('ld_fav_listings', JSON.stringify(savedListings));
   localStorage.setItem('ld_favs', JSON.stringify([...savedFavIds]));
 
   // If logged in, also save to database
@@ -3363,6 +3368,34 @@ async function loadMemberCount() {
 }
 window.addEventListener('DOMContentLoaded', loadMemberCount);
 window.addEventListener('DOMContentLoaded', loadFavourites);
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const searchCity = params.get('search');
+  const highlightId = params.get('highlight');
+  if (searchCity) {
+    document.getElementById('search-section').scrollIntoView({ behavior: 'smooth' });
+    const input = document.getElementById('search-input');
+    if (input) {
+      input.value = searchCity;
+      setTimeout(() => {
+        runSearch();
+        if (highlightId) {
+          setTimeout(() => {
+            const card = document.querySelector(`.listing-fav[data-id="${CSS.escape(highlightId)}"]`);
+            if (card) {
+              const listing = card.closest('.listing-card');
+              if (listing) {
+                listing.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                listing.style.boxShadow = '0 0 0 3px var(--green)';
+                setTimeout(() => listing.style.boxShadow = '', 3000);
+              }
+            }
+          }, 1500);
+        }
+      }, 500);
+    }
+  }
+});
 
 // ── Hero Search ───────────────────────────────────────────────
 // ── Hero Auto Country Detection ──────────────────────────────

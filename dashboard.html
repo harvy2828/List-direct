@@ -799,21 +799,40 @@ async function loadMyListings() {
   } catch(e) {}
 }
 
+function removeFav(id, card) {
+  // Remove from localStorage
+  const savedListings = JSON.parse(localStorage.getItem('ld_fav_listings') || '{}');
+  const favIds = JSON.parse(localStorage.getItem('ld_favs') || '[]');
+  delete savedListings[id];
+  const newIds = favIds.filter(f => f !== id);
+  localStorage.setItem('ld_fav_listings', JSON.stringify(savedListings));
+  localStorage.setItem('ld_favs', JSON.stringify(newIds));
+  // Remove from UI
+  card.remove();
+  const remaining = document.querySelectorAll('.saved-card').length;
+  document.getElementById('stat-saved').textContent = remaining;
+  if (!remaining) loadFavorites();
+  // Also remove from DB if logged in
+  const token = localStorage.getItem('ld_token');
+  if (token) {
+    fetch('/api/favorites/' + encodeURIComponent(id), { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } }).catch(()=>{});
+  }
+}
+
 // ── Load Favorites ────────────────────────────────────────────
 async function loadFavorites() {
   const token = localStorage.getItem('ld_token');
-  if (!token) return;
   try {
     const res = await fetch('/api/favorites', {
       headers: { 'Authorization': `Bearer ${token}` }
     });
-    if (!res.ok) return;
-    const data = await res.json();
-    const favs = data.favorites || [];
+    const data = res.ok ? await res.json() : { favorites: [] };
+    const dbFavIds = (data.favorites || []).map(f => f.listing_id);
 
-    // Merge with localStorage favs
-    const localFavs = JSON.parse(localStorage.getItem('ld_favs') || '[]');
-    const allFavIds = [...new Set([...favs.map(f => f.listing_id), ...localFavs])];
+    // Get full listing objects from localStorage
+    const savedListings = JSON.parse(localStorage.getItem('ld_fav_listings') || '{}');
+    const localFavIds = JSON.parse(localStorage.getItem('ld_favs') || '[]');
+    const allFavIds = [...new Set([...dbFavIds, ...localFavIds])];
 
     document.getElementById('stat-saved').textContent = allFavIds.length;
     const container = document.getElementById('saved-container');
@@ -821,14 +840,29 @@ async function loadFavorites() {
       container.innerHTML = `<div class="empty-state"><div class="empty-icon">❤️</div><div class="empty-title">No saved homes yet</div><div class="empty-sub">Browse listings and tap the ♡ to save homes you love</div><button class="btn-sm btn-sm-green" onclick="window.location.href='index.html#search-section'">Browse Homes →</button></div>`;
       return;
     }
-    container.innerHTML = `<div class="saved-grid">${allFavIds.map(id => `
-      <div class="saved-card">
-        <div class="saved-img" style="background-image:url('https://maps.googleapis.com/maps/api/streetview?size=400x200&location=${encodeURIComponent(id)}&fov=90&pitch=10&source=outdoor&key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A')"></div>
-        <div class="saved-body">
-          <div class="saved-addr">📍 ${id}</div>
-          <button onclick="window.location.href='index.html#search-section'" style="margin-top:8px;background:none;border:1px solid var(--green);color:var(--green);padding:6px 14px;border-radius:50px;font-size:0.8rem;cursor:pointer;font-family:'DM Sans',sans-serif">View →</button>
-        </div>
-      </div>`).join('')}
+    const apiKey = 'AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A';
+    container.innerHTML = `<div class="saved-grid">${allFavIds.map(id => {
+      const l = savedListings[id];
+      const svAddr = l ? encodeURIComponent(l.streetview_addr || `${l.addr}, ${l.city}`) : encodeURIComponent(id);
+      const img = l && l.img ? l.img : `https://maps.googleapis.com/maps/api/streetview?size=400x200&location=${svAddr}&fov=90&pitch=10&source=outdoor&key=${apiKey}`;
+      const price = l ? '$' + l.price.toLocaleString() : '';
+      const addr = l ? `📍 ${l.addr}, ${l.city}` : `📍 ${id}`;
+      const specs = l ? `${l.beds} bed · ${l.baths} bath · ${l.sqft ? l.sqft.toLocaleString() + ' sq ft' : ''}` : '';
+      const searchUrl = l ? `index.html?search=${encodeURIComponent(l.city)}&highlight=${encodeURIComponent(id)}` : 'index.html#search-section';
+      return `
+        <div class="saved-card">
+          <div class="saved-img" style="background-image:url('${img}')"></div>
+          <div class="saved-body">
+            ${price ? `<div class="saved-price">${price}</div>` : ''}
+            <div class="saved-addr">${addr}</div>
+            ${specs ? `<div class="saved-addr" style="margin-top:3px">${specs}</div>` : ''}
+            <div style="display:flex;gap:8px;margin-top:10px">
+              <button onclick="window.location.href='${searchUrl}'" style="flex:1;background:var(--green);border:none;color:#0a0f0d;padding:7px 14px;border-radius:50px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">View →</button>
+              <button onclick="removeFav('${id}',this.closest('.saved-card'))" style="background:none;border:1px solid var(--border);color:var(--muted);padding:7px 12px;border-radius:50px;font-size:0.8rem;cursor:pointer;font-family:'DM Sans',sans-serif">✕</button>
+            </div>
+          </div>
+        </div>`;
+    }).join('')}
     </div>`;
   } catch(e) {}
 }
