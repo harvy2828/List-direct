@@ -850,6 +850,7 @@ app.get('/api/listings/us', async (req, res) => {
     }
 
     const data = await response.json();
+    if (data && data[0]) console.log('Rentcast sample fields:', Object.keys(data[0]));
     const listings = (data || []).map(l => ({
       id: l.id || l.formattedAddress,
       verified: false,
@@ -869,6 +870,8 @@ app.get('/api/listings/us', async (req, res) => {
       match: Math.floor(Math.random() * 15) + 80,
       img: null,
       streetview_addr: ((l.addressLine1 || '') + ' ' + (l.city || '') + ' ' + (l.state || '') + ' ' + (l.zipCode || '')).trim(),
+      lat: l.latitude || null,
+      lng: l.longitude || null,
       cashback: null,
       desc: '',
       listing: 'rentcast'
