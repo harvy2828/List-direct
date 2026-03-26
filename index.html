@@ -153,8 +153,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .country-btn{background:var(--bg);border:1px solid var(--border);color:var(--muted);padding:8px 18px;border-radius:50px;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s}
 .country-btn:hover{border-color:rgba(62,240,122,0.3);color:var(--text)}
 .country-btn.active{background:var(--greenlow);border-color:rgba(62,240,122,0.4);color:var(--green)}
-.country-label{display:none}
-@media(max-width:900px){.country-label{display:inline}}
 .country-hint{font-size:0.75rem;color:var(--muted);margin-left:4px}
 .search-state-banner{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 20px;margin-bottom:20px;display:none;align-items:center;gap:12px;font-size:0.88rem}
 .search-state-banner.visible{display:flex}
@@ -293,7 +291,7 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 0 8px rgba(62,240,1
 .path-card:hover{border-color:rgba(62,240,122,0.4)}
 .path-card.featured{border-color:rgba(62,240,122,0.3)}
 .path-card.featured::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at top left,rgba(62,240,122,0.06) 0%,transparent 60%);pointer-events:none}
-.path-best{display:inline-block;background:var(--green);color:var(--bg);font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:4px 12px;border-radius:50px;margin-bottom:20px}
+.path-best{display:inline-block;background:var(--green);color:var(--bg);font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:4px 12px;border-radius:50px;margin-bottom:20px;align-self:flex-start}
 .path-icon{font-size:2.4rem;margin-bottom:16px}
 .path-card h3{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:var(--white);margin-bottom:8px}
 .path-card .tagline{color:var(--green);font-size:0.88rem;font-weight:600;margin-bottom:16px}
@@ -805,8 +803,8 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
     <div class="search-box">
       <!-- Country toggle -->
       <div class="search-country-row">
-        <button class="country-btn active" id="btn-ca" onclick="setCountry('ca',this)">🇨🇦 <span class="country-label">Canada</span></button>
-        <button class="country-btn" id="btn-us" onclick="setCountry('us',this)">🇺🇸 <span class="country-label">United States</span></button>
+        <button class="country-btn active" id="btn-ca" onclick="setCountry('ca',this)">🇨🇦 Canada</button>
+        <button class="country-btn" id="btn-us" onclick="setCountry('us',this)">🇺🇸 United States</button>
         <span class="country-hint" id="country-hint">Searching US cities & ZIP codes</span>
       </div>
       <div class="search-top-row">
