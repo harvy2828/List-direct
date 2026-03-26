@@ -15,7 +15,7 @@ async function sendEmail({ to, subject, html, reply_to }) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: 'ListDirect <onboarding@resend.dev>',
+        from: 'ListDirect <noreply@listdirect.ai>',
         reply_to: reply_to || 'infolistdirect@gmail.com',
         to,
         subject,
@@ -719,7 +719,8 @@ app.post('/api/messages/reply', async (req, res) => {
             <p style="color:#e8f0e9">"${reply_text}"</p>
             <p style="color:#7a9480;margin-top:8px">— ${sellerName}</p>
           </div>
-          <a href="https://listdirect.ai" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-top:8px">View on ListDirect →</a>
+          <p style="color:#7a9480;margin-top:16px">To reply to the seller, email them directly at: <a href="mailto:${sellerEmail}" style="color:#3ef07a;font-weight:700">${sellerEmail}</a></p>
+          <a href="https://listdirect.ai" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-top:16px">View on ListDirect →</a>
         </div>`
       });
     }
