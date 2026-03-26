@@ -2026,48 +2026,29 @@ function toggleFav(e, btn) {
 function initStreetViewPanorama(containerId, address) {
   const container = document.getElementById(containerId);
   if (!container) return;
-  container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#7a9480;font-size:0.85rem;background:#0d1510">Loading Street View...</div>';
   if (!address) {
     container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#7a9480;font-size:0.85rem;background:#0d1510">No address available</div>';
     return;
   }
-  function tryStreetView() {
-    if (!window.google || !window.google.maps) {
-      setTimeout(tryStreetView, 500);
-      return;
-    }
-    const geocoder = new google.maps.Geocoder();
-    geocoder.geocode({ address: address }, function(results, status) {
-      if (status === 'OK' && results[0]) {
-        const loc = results[0].geometry.location;
-        const sv = new google.maps.StreetViewService();
-        sv.getPanorama({ location: loc, radius: 200, preference: google.maps.StreetViewPreference.NEAREST }, function(data, svStatus) {
-          if (!container) return;
-          if (svStatus === google.maps.StreetViewStatus.OK) {
-            container.innerHTML = '';
-            new google.maps.StreetViewPanorama(container, {
-              position: data.location.latLng,
-              pov: { heading: 165, pitch: 0 },
-              zoom: 1,
-              addressControl: false,
-              fullscreenControl: true,
-              motionTracking: false,
-              motionTrackingControl: false,
-              showRoadLabels: false,
-              linksControl: true,
-              panControl: true,
-              enableCloseButton: false
-            });
-          } else {
-            container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#7a9480;font-size:0.85rem;background:#0d1510">Street View not available for this address</div>';
-          }
-        });
-      } else {
-        container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#7a9480;font-size:0.85rem;background:#0d1510">Could not locate this address</div>';
-      }
-    });
-  }
-  tryStreetView();
+  container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#7a9480;font-size:0.85rem;background:#0d1510">Loading Street View...</div>';
+  // Use iframe embed — most reliable, no billing required
+  const encoded = encodeURIComponent(address);
+  const apiKey = 'AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A';
+  const iframe = document.createElement('iframe');
+  iframe.style.width = '100%';
+  iframe.style.height = '100%';
+  iframe.style.border = 'none';
+  iframe.allowFullscreen = true;
+  iframe.src = `https://www.google.com/maps/embed/v1/streetview?key=${apiKey}&location=${encoded}&heading=210&pitch=10&fov=90`;
+  iframe.onload = function() { container.innerHTML = ''; container.appendChild(iframe); };
+  iframe.onerror = function() { container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#7a9480;font-size:0.85rem;background:#0d1510">Street View not available for this address</div>'; };
+  // Set a timeout in case onload doesn't fire
+  const tempContainer = document.createElement('div');
+  tempContainer.style.width = '100%';
+  tempContainer.style.height = '100%';
+  tempContainer.appendChild(iframe);
+  container.innerHTML = '';
+  container.appendChild(tempContainer);
 }
 
 function switchLMView(type, val) {
