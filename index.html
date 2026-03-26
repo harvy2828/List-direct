@@ -2024,35 +2024,50 @@ function toggleFav(e, btn) {
 // LISTING DETAIL MODAL (verified homes)
 // ═══════════════════════════════════════════
 function initStreetViewPanorama(containerId, address) {
-  if (!address || !window.google) return;
-  const geocoder = new google.maps.Geocoder();
-  geocoder.geocode({ address: address }, function(results, status) {
-    if (status === 'OK') {
-      const loc = results[0].geometry.location;
-      const sv = new google.maps.StreetViewService();
-      sv.getPanorama({ location: loc, radius: 50, source: google.maps.StreetViewSource.OUTDOOR }, function(data, svStatus) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-        if (svStatus === 'OK') {
-          new google.maps.StreetViewPanorama(container, {
-            position: loc,
-            pov: { heading: 165, pitch: 0 },
-            zoom: 1,
-            addressControl: false,
-            fullscreenControl: true,
-            motionTracking: false,
-            motionTrackingControl: false,
-            showRoadLabels: false,
-            linksControl: true,
-            panControl: true,
-            enableCloseButton: false
-          });
-        } else {
-          container.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#7a9480;font-size:0.9rem;background:#0d1510">Street View not available for this address</div>`;
-        }
-      });
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#7a9480;font-size:0.85rem;background:#0d1510">Loading Street View...</div>';
+  if (!address) {
+    container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#7a9480;font-size:0.85rem;background:#0d1510">No address available</div>';
+    return;
+  }
+  function tryStreetView() {
+    if (!window.google || !window.google.maps) {
+      setTimeout(tryStreetView, 500);
+      return;
     }
-  });
+    const geocoder = new google.maps.Geocoder();
+    geocoder.geocode({ address: address }, function(results, status) {
+      if (status === 'OK' && results[0]) {
+        const loc = results[0].geometry.location;
+        const sv = new google.maps.StreetViewService();
+        sv.getPanorama({ location: loc, radius: 200, preference: google.maps.StreetViewPreference.NEAREST }, function(data, svStatus) {
+          if (!container) return;
+          if (svStatus === google.maps.StreetViewStatus.OK) {
+            container.innerHTML = '';
+            new google.maps.StreetViewPanorama(container, {
+              position: data.location.latLng,
+              pov: { heading: 165, pitch: 0 },
+              zoom: 1,
+              addressControl: false,
+              fullscreenControl: true,
+              motionTracking: false,
+              motionTrackingControl: false,
+              showRoadLabels: false,
+              linksControl: true,
+              panControl: true,
+              enableCloseButton: false
+            });
+          } else {
+            container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#7a9480;font-size:0.85rem;background:#0d1510">Street View not available for this address</div>';
+          }
+        });
+      } else {
+        container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#7a9480;font-size:0.85rem;background:#0d1510">Could not locate this address</div>';
+      }
+    });
+  }
+  tryStreetView();
 }
 
 function switchLMView(type, val) {
