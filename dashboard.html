@@ -304,6 +304,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
           <button class="dash-nav-item active" onclick="showPanel('overview',this)"><span class="dni-icon">🏠</span> Overview</button>
           <button class="dash-nav-item" onclick="showPanel('my-listings',this)"><span class="dni-icon">🏡</span> My Listings</button>
           <button class="dash-nav-item" onclick="showPanel('new-listing',this)"><span class="dni-icon">➕</span> List a Home</button>
+          <button class="dash-nav-item" onclick="window.location.href='index.html?scroll=search'"><span class="dni-icon">🔍</span> Search Homes</button>
+          <button class="dash-nav-item" onclick="window.location.href='index.html?scroll=ai-tools'"><span class="dni-icon">🤖</span> AI Tools</button>
           <button class="dash-nav-item" onclick="showPanel('saved',this)"><span class="dni-icon">❤️</span> Saved Homes</button>
           <button class="dash-nav-item" onclick="showPanel('inquiries',this)"><span class="dni-icon">💬</span> Inquiries <span id="inquiry-nav-badge" style="display:none;background:var(--red);color:white;font-size:0.65rem;font-weight:700;padding:2px 6px;border-radius:50px;margin-left:auto">0</span></button>
           <button class="dash-nav-item" onclick="showPanel('settings',this)"><span class="dni-icon">⚙️</span> Settings</button>
@@ -369,8 +371,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
           <div class="panel-sub">Messages from buyers interested in your listings</div>
           <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">
             <button class="btn-sm btn-sm-green" onclick="showPanel('new-listing',null)">🏠 List a Home</button>
-            <button class="btn-sm btn-sm-outline" onclick="window.location.href='index.html#search-section'">🔍 Search Homes</button>
-            <button class="btn-sm btn-sm-outline" onclick="window.location.href='index.html#ai-tools'">🤖 AI Tools</button>
+            <button class="btn-sm btn-sm-outline" onclick="window.location.href='index.html?scroll=search'">🔍 Search Homes</button>
+            <button class="btn-sm btn-sm-outline" onclick="window.location.href='index.html?scroll=ai-tools'">🤖 AI Tools</button>
           </div>
           <div id="inquiries-container">
             <div class="empty-state">

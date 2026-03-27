@@ -3482,6 +3482,13 @@ window.addEventListener('DOMContentLoaded', loadFavourites);
 window.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
   const searchCity = params.get('search');
+  const scrollTo = params.get('scroll');
+  if (scrollTo) {
+    setTimeout(() => {
+      const el = document.getElementById(scrollTo === 'search' ? 'search-section' : 'ai-tools');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }, 500);
+  }
   const highlightId = params.get('highlight');
   const searchCountryParam = params.get('country');
   if (searchCity) {
