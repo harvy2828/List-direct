@@ -371,8 +371,16 @@ app.post('/api/auth/update-profile', async (req, res) => {
     const { data: { user }, error: authErr } = await supabase.auth.getUser(token);
     if (authErr || !user) return res.status(401).json({ error: 'Not authenticated' });
     const adminSupabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+    // Build clean metadata without any non-ASCII from existing data
+    const cleanMeta = {};
+    if (user.user_metadata) {
+      Object.keys(user.user_metadata).forEach(k => {
+        const v = user.user_metadata[k];
+        cleanMeta[k] = typeof v === 'string' ? v.replace(/[^\x00-\x7F]/g, '').trim() : v;
+      });
+    }
     const { error: updateErr } = await adminSupabase.auth.admin.updateUserById(user.id, {
-      user_metadata: { ...user.user_metadata, full_name, phone, location, license_number, bio, cashback_offer }
+      user_metadata: { ...cleanMeta, full_name, phone, location, license_number, bio, cashback_offer }
     });
     if (updateErr) return res.status(400).json({ error: updateErr.message });
     await supabase.from('profiles').update({ full_name, phone, location, license_number, bio, cashback_offer }).eq('id', user.id);
