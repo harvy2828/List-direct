@@ -19,11 +19,11 @@ function emailFooter() {
   </div>`;
 }
 function emailWrap(content) {
-  return `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;border:1px solid #1f2d22;border-radius:12px;overflow:hidden">
-    ${emailHeader()}
-    <div style="background:#0a0f0d;padding:32px;color:#e8f0e9">${content}</div>
-    ${emailFooter()}
-  </div>`;
+  return `<table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;border-radius:12px;overflow:hidden;border:1px solid #1f2d22;font-family:Arial,sans-serif" bgcolor="#0a0f0d">
+    <tr><td style="padding:0;background-color:#0a0f0d" bgcolor="#0a0f0d">${emailHeader()}</td></tr>
+    <tr><td style="padding:32px;background-color:#0a0f0d;color:#e8f0e9" bgcolor="#0a0f0d">${content}</td></tr>
+    <tr><td style="padding:0;background-color:#060c09" bgcolor="#060c09">${emailFooter()}</td></tr>
+  </table>`;
 }
 
 // ── Email via Resend ──────────────────────────────────────────
