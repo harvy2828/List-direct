@@ -2221,6 +2221,7 @@ function openListingModal(l) {
     </div>`;
   document.getElementById('listing-modal').classList.add('open');
   document.body.style.overflow = 'hidden';
+  if (l.id) fetch('/api/listings/' + encodeURIComponent(l.id) + '/view', { method: 'POST' }).catch(() => {});
 }
 function closeListingModal() {
   document.getElementById('listing-modal').classList.remove('open');
