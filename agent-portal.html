@@ -830,8 +830,10 @@ async function handleSignIn() {
     }
     currentUser = data.user;
     localStorage.setItem('ld_agent_token', data.session.access_token);
-    // Make sure they are not logged into the regular portal
     localStorage.removeItem('ld_token');
+    // Clean any special chars from stored metadata
+    fetch('/api/auth/clean-metadata', { method:'POST', headers:{'Authorization':'Bearer '+data.session.access_token} })
+      .then(() => {}).catch(() => {});
     showDashboard();
   } catch(e) {
     showLoading(false);
@@ -907,18 +909,20 @@ function showDashboard() {
   document.getElementById('auth-section').style.display = 'none';
   document.getElementById('dash-section').style.display = 'block';
   const meta = currentUser?.user_metadata || {};
-  const name = meta.full_name || currentUser?.email?.split('@')[0] || 'Agent';
+  const cleanStr = s => (s||'').replace(/[^\x00-\x7F]/g,'').trim();
+  const name = cleanStr(meta.full_name) || currentUser?.email?.split('@')[0] || 'Agent';
   const initials = name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
   document.getElementById('dash-name').textContent = name.split(' ')[0];
   document.getElementById('dash-fullname').textContent = name;
-  document.getElementById('dash-location').textContent = meta.location || '📍 Location not set';
+  document.getElementById('dash-location').textContent = cleanStr(meta.location) || '📍 Location not set';
   document.getElementById('dash-avatar-img').textContent = initials || '🤝';
   document.getElementById('profile-avatar-preview').textContent = initials || '🤝';
   document.getElementById('prof-name').value = name;
-  document.getElementById('prof-location').value = meta.location || '';
+  document.getElementById('prof-location').value = cleanStr(meta.location);
   if (meta.cashback_offer) {
-    document.getElementById('dash-cashback-rate').textContent = meta.cashback_offer + '%';
-    document.getElementById('prof-cashback').value = meta.cashback_offer;
+    const cb = cleanStr(String(meta.cashback_offer));
+    document.getElementById('dash-cashback-rate').textContent = cb + '%';
+    document.getElementById('prof-cashback').value = cb;
   }
   // Check if agent needs to agree to terms
   setTimeout(checkShowAgreement, 500);

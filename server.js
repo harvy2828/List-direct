@@ -390,6 +390,27 @@ app.post('/api/auth/update-profile', async (req, res) => {
   }
 });
 
+// ── Auth: Clean User Metadata (one-time fix) ─────────────────
+app.post('/api/auth/clean-metadata', async (req, res) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Not authenticated' });
+  try {
+    const { data: { user }, error: authErr } = await supabase.auth.getUser(token);
+    if (authErr || !user) return res.status(401).json({ error: 'Not authenticated' });
+    const adminSupabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+    const cleanStr = s => typeof s === 'string' ? s.replace(/[^ -]/g, '').trim() : s;
+    const cleanMeta = {};
+    Object.keys(user.user_metadata || {}).forEach(k => {
+      cleanMeta[k] = cleanStr(user.user_metadata[k]);
+    });
+    const { error } = await adminSupabase.auth.admin.updateUserById(user.id, { user_metadata: cleanMeta });
+    if (error) return res.status(400).json({ error: error.message });
+    res.json({ success: true, cleaned: cleanMeta });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── Get Certified Agents ──────────────────────────────────────
 app.get('/api/agents', async (req, res) => {
   try {
