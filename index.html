@@ -3303,7 +3303,8 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closePM();})
 function initGooglePlaces() {
   // Hero search autocomplete
   const heroInput = document.getElementById('hero-search-input');
-  if (heroInput) {
+  if (heroInput && !heroInput.dataset.acInit) {
+    heroInput.dataset.acInit = '1';
     const heroAC = new google.maps.places.Autocomplete(heroInput, {
       types: ['(cities)'],
       fields: ['name', 'address_components']
@@ -3319,7 +3320,8 @@ function initGooglePlaces() {
 
   // Main search box autocomplete
   const searchInput = document.getElementById('search-input');
-  if (searchInput) {
+  if (searchInput && !searchInput.dataset.acInit) {
+    searchInput.dataset.acInit = '1';
     const searchAC = new google.maps.places.Autocomplete(searchInput, {
       types: ['(cities)'],
       fields: ['name','address_components','geometry','formatted_address']
@@ -3332,23 +3334,32 @@ function initGooglePlaces() {
     });
   }
 
+  // Reinitialize on every focus to prevent stale state
+  [heroInput, searchInput].forEach(input => {
+    if (!input) return;
+    input.addEventListener('focus', () => {
+      if (!window.google || !window.google.maps) return;
+      input.dataset.acInit = '';
+      initGooglePlaces();
+    });
+  });
+
   // AI Pricing tool address autocomplete
   const pAddr = document.getElementById('p-addr');
-  if (pAddr) {
+  if (pAddr && !pAddr.dataset.acInit) {
+    pAddr.dataset.acInit = '1';
     const pAC = new google.maps.places.Autocomplete(pAddr, {
       fields: ['address_components', 'formatted_address', 'geometry']
     });
     pAC.addListener('place_changed', () => {
       const place = pAC.getPlace();
       if (place.address_components) {
-        // Auto-fill city field
         const cityComp = place.address_components.find(c => c.types.includes('locality'));
         const stateComp = place.address_components.find(c => c.types.includes('administrative_area_level_1'));
         const cityField = document.getElementById('p-city');
         if (cityField && cityComp && stateComp) {
           cityField.value = cityComp.long_name + ', ' + stateComp.short_name;
         }
-        // Auto-select country
         const countryComp = place.address_components.find(c => c.types.includes('country'));
         if (countryComp) {
           const countrySelect = document.getElementById('p-country');
@@ -3360,17 +3371,17 @@ function initGooglePlaces() {
     });
   }
 
-  // AI Listing writer address autocomplete
   const lAddr = document.getElementById('l-addr');
-  if (lAddr) {
+  if (lAddr && !lAddr.dataset.acInit) {
+    lAddr.dataset.acInit = '1';
     new google.maps.places.Autocomplete(lAddr, {
       fields: ['address_components', 'formatted_address']
     });
   }
 
-  // AI Offer review address autocomplete  
   const oAddr = document.getElementById('o-addr');
-  if (oAddr) {
+  if (oAddr && !oAddr.dataset.acInit) {
+    oAddr.dataset.acInit = '1';
     new google.maps.places.Autocomplete(oAddr, {
       fields: ['address_components', 'formatted_address']
     });
