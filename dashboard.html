@@ -322,8 +322,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
           <div class="panel-title">Your Dashboard</div>
           <div class="panel-sub">A snapshot of your activity on ListDirect</div>
           <div class="stats-row">
-            <div class="stat-card" onclick="showPanel('my-listings',null)" style="cursor:pointer" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border)'"><div class="sc-num" id="stat-listings">0</div><div class="sc-label">Active Listings</div></div>
-            <div class="stat-card" onclick="showPanel('saved',null)" style="cursor:pointer" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border)'"><div class="sc-num" id="stat-saved">0</div><div class="sc-label">Saved Homes</div></div>
+            <div class="stat-card" onclick="showPanel('my-listings',null)" style="cursor:pointer" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border)'"><div class="sc-num" id="stat-listings">—</div><div class="sc-label">Active Listings</div></div>
+            <div class="stat-card" onclick="showPanel('saved',null)" style="cursor:pointer" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border)'"><div class="sc-num" id="stat-saved">—</div><div class="sc-label">Saved Homes</div></div>
             <div class="stat-card" onclick="showPanel('my-listings',null)" style="cursor:pointer" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border)'"><div class="sc-num" id="stat-views">—</div><div class="sc-label">Listing Views</div></div>
             <div class="stat-card" onclick="showPanel('inquiries',null)" style="cursor:pointer" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border)'"><div class="sc-num" id="stat-inquiries">—</div><div class="sc-label">Inquiries</div></div>
           </div>
@@ -813,7 +813,7 @@ async function loadMyListings() {
     document.getElementById('stat-listings').textContent = listings.length;
     // Sum up total views across all listings
     const totalViews = listings.reduce((sum, l) => sum + (l.view_count || 0), 0);
-    document.getElementById('stat-views').textContent = totalViews || 0;
+    document.getElementById('stat-views').textContent = totalViews;
     const container = document.getElementById('my-listings-container');
     if (!listings.length) {
       container.innerHTML = `<div class="empty-state"><div class="empty-icon">🏠</div><div class="empty-title">No listings yet</div><div class="empty-sub">List your first home and get priority placement in search results</div><button class="btn-sm btn-sm-green" onclick="showPanel('new-listing',null)">List My Home →</button></div>`;
