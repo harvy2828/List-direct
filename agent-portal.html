@@ -525,6 +525,46 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
           </div>
         </div>
 
+        <!-- ACTIVE LISTINGS -->
+        <div class="panel" id="panel-listings">
+          <button onclick="showPanel('overview',null)" style="display:inline-flex;align-items:center;gap:6px;background:#1a2b1d;border:1px solid rgba(62,240,122,0.3);color:#3ef07a;padding:6px 14px;border-radius:50px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:12px">← Back to Overview</button>
+          <div class="panel-title">Active Listings</div>
+          <div class="panel-sub">Manage listings for sellers you are working with</div>
+
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px">
+            <div style="font-weight:700;color:var(--white);margin-bottom:6px">➕ Add a New Listing</div>
+            <div style="font-size:0.85rem;color:var(--muted);margin-bottom:16px">Post a listing for a seller who has accepted you as their agent</div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Seller Full Name</label>
+              <input type="text" id="al-seller-name" placeholder="e.g. John Smith" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none"/></div>
+              <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Property Address</label>
+              <input type="text" id="al-address" placeholder="e.g. 123 Oak St, Vancouver, BC" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none"/></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Asking Price</label>
+                <input type="text" id="al-price" placeholder="$850,000" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none"/></div>
+                <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Bedrooms</label>
+                <input type="number" id="al-beds" placeholder="3" min="0" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none"/></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Bathrooms</label>
+                <input type="number" id="al-baths" placeholder="2" min="0" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none"/></div>
+                <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Sq Ft</label>
+                <input type="number" id="al-sqft" placeholder="1200" min="0" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none"/></div>
+              </div>
+              <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Description</label>
+              <textarea id="al-desc" placeholder="Describe the property..." rows="3" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none;resize:vertical"></textarea></div>
+              <button onclick="submitAgentListing()" style="background:#3ef07a;color:#0a0f0d;border:none;padding:12px 24px;border-radius:50px;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:'DM Sans',sans-serif;width:100%">📋 Submit Listing →</button>
+              <div id="al-msg" style="font-size:0.85rem;text-align:center;display:none"></div>
+            </div>
+          </div>
+
+          <div class="empty-state" id="al-empty" style="padding:32px">
+            <div class="empty-icon">🏠</div>
+            <div class="empty-title">No active listings yet</div>
+            <div class="empty-sub">Once you accept a lead and post their property above, it will appear here</div>
+          </div>
+        </div>
+
         <!-- REFERRAL CALCULATOR -->
         <div class="panel" id="panel-calculator">
           <button onclick="showPanel('overview',null)" style="display:inline-flex;align-items:center;gap:6px;background:#1a2b1d;border:1px solid rgba(62,240,122,0.3);color:#3ef07a;padding:6px 14px;border-radius:50px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:12px">← Back to Overview</button>
@@ -1033,7 +1073,8 @@ async function handleAgentForgotPassword() {
 
 <!-- AGENT PAYMENT MODAL -->
 <div id="agent-payment-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:500;align-items:center;justify-content:center;padding:24px">
-  <div style="background:var(--card);border:1px solid var(--border);border-radius:24px;padding:36px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:24px;padding:36px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;position:relative">
+    <button onclick="closeAgentPaymentModal();showPanel('overview',null)" style="position:absolute;top:16px;right:16px;background:var(--bg2);border:1px solid var(--border);color:var(--muted);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center">✕</button>
     <div style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--white);margin-bottom:6px">Pay Referral Fee</div>
     <div style="font-size:0.85rem;color:var(--muted);margin-bottom:24px">ListDirect charges 10% of your commission on deals closed through our platform</div>
 
@@ -1089,6 +1130,57 @@ const STRIPE_PK_AGENT = 'pk_test_51TCoc7CFLBqpuNpBCRDDcIB0CaHfz2DIunhqpYp1joGsCD
 let agentStripe = null;
 let agentCardEl = null;
 let selectedAgentPayMethod = 'card';
+
+function submitAgentListing() {
+  const name = document.getElementById('al-seller-name').value.trim();
+  const address = document.getElementById('al-address').value.trim();
+  const price = document.getElementById('al-price').value.trim();
+  const beds = document.getElementById('al-beds').value;
+  const baths = document.getElementById('al-baths').value;
+  const sqft = document.getElementById('al-sqft').value;
+  const desc = document.getElementById('al-desc').value.trim();
+  const msg = document.getElementById('al-msg');
+
+  if (!name || !address || !price) {
+    msg.style.display = 'block';
+    msg.style.color = '#e85454';
+    msg.textContent = 'Please fill in seller name, address and price.';
+    return;
+  }
+
+  const token = localStorage.getItem('ld_agent_token');
+  if (!token) return;
+
+  const priceNum = parseInt(price.replace(/[^0-9]/g, ''));
+  
+  fetch('/api/listings', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+    body: JSON.stringify({
+      address, city: address.split(',')[1]?.trim() || '',
+      state: address.split(',')[2]?.trim() || '',
+      price: priceNum, bedrooms: parseInt(beds) || 0,
+      bathrooms: parseFloat(baths) || 0, sqft: parseInt(sqft) || 0,
+      description: desc || 'Listed by certified ListDirect agent.',
+      seller_name: name, listing_type: 'agent'
+    })
+  }).then(r => r.json()).then(d => {
+    if (d.id || d.listing) {
+      msg.style.display = 'block';
+      msg.style.color = '#3ef07a';
+      msg.textContent = '✅ Listing submitted successfully!';
+      document.getElementById('al-empty').style.display = 'none';
+    } else {
+      msg.style.display = 'block';
+      msg.style.color = '#e85454';
+      msg.textContent = d.error || 'Failed to submit listing.';
+    }
+  }).catch(() => {
+    msg.style.display = 'block';
+    msg.style.color = '#e85454';
+    msg.textContent = 'Connection error. Please try again.';
+  });
+}
 
 function openAgentPaymentModal() {
   document.getElementById('agent-payment-modal').style.display = 'flex';

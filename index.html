@@ -678,10 +678,16 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
     </button>
   </div>
 </nav>
-<!-- Mobile Logged-In Bar -->
+<!-- Mobile Logged-In Bar (Seller) -->
 <div id="mobile-user-bar" style="display:none;position:fixed;top:65px;left:0;right:0;z-index:199;background:linear-gradient(90deg,#0d1f12,#0a1a0f);border-bottom:1px solid rgba(62,240,122,0.25);padding:8px 16px;align-items:center;justify-content:space-between">
   <span style="font-size:0.8rem;color:#7a9480;font-family:'DM Sans',sans-serif">👋 Hi <strong style="color:#e8f0e9" id="mobile-user-name">there</strong></span>
   <a href="dashboard.html" style="background:#3ef07a;color:#0a0f0d;padding:6px 16px;border-radius:50px;font-size:0.78rem;font-weight:700;text-decoration:none;font-family:'DM Sans',sans-serif">My Dashboard →</a>
+</div>
+
+<!-- Mobile Logged-In Bar (Agent) -->
+<div id="mobile-agent-bar" style="display:none;position:fixed;top:65px;left:0;right:0;z-index:199;background:linear-gradient(90deg,#1a1200,#0f0d00);border-bottom:1px solid rgba(245,200,66,0.25);padding:8px 16px;align-items:center;justify-content:space-between">
+  <span style="font-size:0.8rem;color:#9a8a40;font-family:'DM Sans',sans-serif">🤝 Hi <strong style="color:#e8f0e9" id="mobile-agent-name">Agent</strong></span>
+  <a href="agent-portal.html" style="background:#f5c842;color:#1a1200;padding:6px 16px;border-radius:50px;font-size:0.78rem;font-weight:700;text-decoration:none;font-family:'DM Sans',sans-serif">Agent Portal →</a>
 </div>
 
 <div class="mobile-menu-overlay" id="menu-overlay" onclick="toggleMenu()"></div>
@@ -3444,11 +3450,32 @@ function initGooglePlaces() {
 // ── Google Places for Search Box ──────────────────────────────
 // ── Mobile Logged-In Bar ──────────────────────────────────────
 function initMobileUserBar() {
+  // Only show on mobile
   if (window.innerWidth > 900) return;
   const token = localStorage.getItem('ld_token');
+  const agentToken = localStorage.getItem('ld_agent_token');
   const bar = document.getElementById('mobile-user-bar');
-  if (!bar) return;
-  if (token) {
+  const agentBar = document.getElementById('mobile-agent-bar');
+
+  // Check agent token first
+  if (agentToken && agentBar) {
+    fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + agentToken } })
+      .then(r => r.json())
+      .then(d => {
+        if (d && d.user) {
+          // Show agent bar regardless of role metadata — if they have an agent token they're an agent
+          const name = d.user.user_metadata?.full_name || d.user.email?.split('@')[0] || 'Agent';
+          const firstName = name.split(' ')[0];
+          document.getElementById('mobile-agent-name').textContent = firstName;
+          agentBar.style.display = 'flex';
+        } else {
+          localStorage.removeItem('ld_agent_token');
+        }
+      }).catch(() => {});
+  }
+
+  // Check seller token
+  if (token && bar) {
     fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + token } })
       .then(r => r.json())
       .then(d => {
@@ -3459,7 +3486,7 @@ function initMobileUserBar() {
           bar.style.display = 'flex';
         }
       }).catch(() => {});
-  } else {
+  } else if (bar) {
     bar.style.display = 'none';
   }
 }
