@@ -120,6 +120,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .listing-form{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:600px){.form-grid{grid-template-columns:1fr}}
+@media(max-width:768px){.quick-actions-grid{display:grid!important;grid-template-columns:1fr 1fr 1fr!important}}
 .form-grid .full{grid-column:1/-1}
 
 /* PHOTO UPLOAD */
@@ -330,7 +331,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
           <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px">
             <div style="font-weight:700;color:var(--white);margin-bottom:8px">🚀 Quick Actions</div>
             <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px">
-              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px">
+              <div class="quick-actions-grid" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px">
                 <button class="btn-sm btn-sm-green" onclick="showPanel('new-listing',null)">➕ List a Home</button>
                 <button class="btn-sm btn-sm-outline" onclick="window.location.href='index.html?scroll=ai-tools'">🤖 AI Tools</button>
                 <button class="btn-sm btn-sm-outline" onclick="window.location.href='index.html?scroll=mortgage'">💵 Mortgage Calc</button>
