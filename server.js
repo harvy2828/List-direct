@@ -818,7 +818,7 @@ app.post('/api/messages/reply', async (req, res) => {
             <a href="mailto:${sellerEmail}" style="display:inline-block;background:#3ef07a;color:#0a0f0d;padding:10px 20px;border-radius:50px;font-weight:700;font-size:0.9rem;text-decoration:none">${sellerEmail}</a>
           </div>
           <a href="https://listdirect.ai" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-top:8px">View on ListDirect →</a>
-        `)`
+        `)
       });
     }
 
