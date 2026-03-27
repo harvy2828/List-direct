@@ -1012,12 +1012,13 @@ function handleProfilePhoto(input) {
 async function saveProfile() {
   const token = localStorage.getItem('ld_agent_token');
   if (!token) return;
-  const name = document.getElementById('prof-name').value.trim();
-  const phone = document.getElementById('prof-phone')?.value.trim() || '';
-  const location = document.getElementById('prof-location')?.value.trim() || '';
-  const license = document.getElementById('prof-license')?.value.trim() || '';
-  const bio = document.getElementById('prof-bio')?.value.trim() || '';
-  const cashback = document.getElementById('prof-cashback')?.value || '1%';
+  const clean = s => (s||'').replace(/[^\x00-\x7F]/g,'').trim();
+  const name = clean(document.getElementById('prof-name')?.value);
+  const phone = clean(document.getElementById('prof-phone')?.value);
+  const location = clean(document.getElementById('prof-location')?.value);
+  const license = clean(document.getElementById('prof-license')?.value);
+  const bio = clean(document.getElementById('prof-bio')?.value);
+  const cashback = clean(document.getElementById('prof-cashback')?.value) || '1%';
   if (!name) return showToast('Please enter your full name.', 'error');
   showLoading(true);
   try {
