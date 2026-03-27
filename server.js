@@ -7,8 +7,7 @@ const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 // ── Email via Resend ──────────────────────────────────────────
 async function sendEmail({ to, subject, html, reply_to }) {
-  // Wrap with dark background body so email clients show black background
-  const wrappedHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;padding:20px;background-color:#0a0f0d;font-family:Arial,sans-serif">${html}</body></html>`;
+  const wrappedHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><meta name="supported-color-schemes" content="dark"></head><body style="margin:0;padding:0;background-color:#0a0f0d" bgcolor="#0a0f0d"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#0a0f0d" bgcolor="#0a0f0d"><tr><td align="center" style="padding:20px;background-color:#0a0f0d" bgcolor="#0a0f0d"><table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%"><tr><td style="background-color:#0a0f0d;padding:0" bgcolor="#0a0f0d">${html}</td></tr></table></td></tr></table></body></html>`;
   try {
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
