@@ -706,6 +706,23 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
   }
   updateRefCalc();
+
+  // Pre-fill apply form if user is logged in as seller - wrapped safely
+  try {
+    const sellerToken = localStorage.getItem('ld_token');
+    if (sellerToken) {
+      const res = await fetch('/api/auth/me', { headers: { 'Authorization': `Bearer ${sellerToken}` } });
+      if (res.ok) {
+        const data = await res.json();
+        const name = data.user?.user_metadata?.full_name || '';
+        const email = data.user?.email || '';
+        const nameEl = document.getElementById('ap-name');
+        const emailEl = document.getElementById('ap-email');
+        if (nameEl && name) nameEl.value = name;
+        if (emailEl && email) emailEl.value = email;
+      }
+    }
+  } catch(e) {}
 });
 
 // ── Auth Tabs ─────────────────────────────────────────────────
@@ -800,7 +817,14 @@ async function handleApply() {
     });
     const data = await res.json();
     showLoading(false);
-    if (!res.ok) return showError(data.error || 'Application failed.');
+    if (!res.ok) {
+      showLoading(false);
+      const errMsg = data.error || 'Application failed.';
+      if (errMsg.toLowerCase().includes('already registered') || errMsg.toLowerCase().includes('already been registered') || errMsg.toLowerCase().includes('user already') || errMsg.toLowerCase().includes('duplicate')) {
+        return showError('⚠️ This email is already registered as a seller account. Please use a different email to apply as an agent.');
+      }
+      return showError(errMsg);
+    }
     document.getElementById('apply-form').innerHTML = `
       <div style="text-align:center;padding:20px 0">
         <div style="font-size:3rem;margin-bottom:16px">🎉</div>
