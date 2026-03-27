@@ -3488,7 +3488,8 @@ window.addEventListener('DOMContentLoaded', () => {
   const searchCity = params.get('search');
   const scrollTo = params.get('scroll');
   if (scrollTo) {
-    const el = document.getElementById(scrollTo === 'search' ? 'search-section' : 'ai-tools');
+    const elMap = { search: 'search-section', 'ai-tools': 'ai-tools', calculator: 'calculator' };
+    const el = document.getElementById(elMap[scrollTo] || scrollTo);
     if (el) el.scrollIntoView({ behavior: 'auto' });
   }
   const highlightId = params.get('highlight');
