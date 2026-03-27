@@ -358,17 +358,23 @@ app.post('/api/auth/update-password', async (req, res) => {
 app.post('/api/auth/update-profile', async (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Not authenticated' });
-  const { full_name, phone, location, license_number, bio, cashback_offer } = req.body;
+  let { full_name, phone, location, license_number, bio, cashback_offer } = req.body;
+  // Sanitize - remove non-ASCII characters that cause ByteString errors
+  const sanitize = (str) => str ? String(str).replace(/[^\x00-\x7F]/g, '').trim() : '';
+  full_name = sanitize(full_name);
+  phone = sanitize(phone);
+  location = sanitize(location);
+  license_number = sanitize(license_number);
+  bio = sanitize(bio);
+  cashback_offer = sanitize(cashback_offer) || '1%';
   try {
     const { data: { user }, error: authErr } = await supabase.auth.getUser(token);
     if (authErr || !user) return res.status(401).json({ error: 'Not authenticated' });
-    // Use service role key for admin operations
     const adminSupabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
     const { error: updateErr } = await adminSupabase.auth.admin.updateUserById(user.id, {
       user_metadata: { ...user.user_metadata, full_name, phone, location, license_number, bio, cashback_offer }
     });
     if (updateErr) return res.status(400).json({ error: updateErr.message });
-    // Also update profiles table
     await supabase.from('profiles').update({ full_name, phone, location, license_number, bio, cashback_offer }).eq('id', user.id);
     res.json({ success: true });
   } catch (err) {
