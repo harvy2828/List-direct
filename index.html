@@ -622,12 +622,38 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
     <img src="/icon-192.png" style="width:36px;height:36px;border-radius:8px">
     <div>
       <div style="color:#e8f0e9;font-size:0.82rem;font-weight:700">Add ListDirect to Home Screen</div>
-      <div style="color:#7a9480;font-size:0.72rem" id="pwa-banner-hint">Install for quick access</div>
+      <div style="color:#7a9480;font-size:0.72rem">Quick access like a real app</div>
     </div>
   </div>
   <div style="display:flex;gap:8px;flex-shrink:0">
     <button onclick="dismissPWA()" style="background:none;border:1px solid #2a3d2e;color:#7a9480;padding:6px 12px;border-radius:50px;font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif">Later</button>
     <button onclick="installPWA()" id="pwa-install-btn" style="background:#3ef07a;color:#0a0f0d;border:none;padding:6px 14px;border-radius:50px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Add</button>
+  </div>
+</div>
+
+<!-- PWA iOS Instructions Modal -->
+<div id="pwa-modal" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);align-items:flex-end;justify-content:center">
+  <div style="background:#111810;border:1px solid rgba(62,240,122,0.3);border-radius:20px 20px 0 0;padding:28px 24px 40px;width:100%;max-width:500px;font-family:'DM Sans',sans-serif">
+    <div style="text-align:center;margin-bottom:20px">
+      <img src="/icon-192.png" style="width:56px;height:56px;border-radius:14px;margin-bottom:12px">
+      <div style="color:#e8f0e9;font-size:1.1rem;font-weight:700">Add to Home Screen</div>
+      <div style="color:#7a9480;font-size:0.82rem;margin-top:4px">Follow these 3 steps in Safari</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:24px">
+      <div style="display:flex;align-items:center;gap:14px;background:#1a2b1d;border-radius:12px;padding:14px">
+        <div style="background:#3ef07a;color:#0a0f0d;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;flex-shrink:0">1</div>
+        <div style="color:#e8f0e9;font-size:0.88rem">Tap the <strong style="color:#3ef07a">Share ⬆</strong> button at the bottom of Safari</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;background:#1a2b1d;border-radius:12px;padding:14px">
+        <div style="background:#3ef07a;color:#0a0f0d;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;flex-shrink:0">2</div>
+        <div style="color:#e8f0e9;font-size:0.88rem">Scroll down and tap <strong style="color:#3ef07a">"Add to Home Screen"</strong></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;background:#1a2b1d;border-radius:12px;padding:14px">
+        <div style="background:#3ef07a;color:#0a0f0d;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;flex-shrink:0">3</div>
+        <div style="color:#e8f0e9;font-size:0.88rem">Tap <strong style="color:#3ef07a">"Add"</strong> in the top right — done! 🎉</div>
+      </div>
+    </div>
+    <button onclick="closePWAModal()" style="width:100%;background:#3ef07a;color:#0a0f0d;border:none;padding:14px;border-radius:50px;font-size:1rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Got it!</button>
   </div>
 </div>
 
@@ -3781,26 +3807,31 @@ const isIOS = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
 const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
 function showPWABanner() {
-  if (isInStandaloneMode) return; // already installed
+  if (isInStandaloneMode) return;
   if (localStorage.getItem('pwa-dismissed')) return;
   const banner = document.getElementById('pwa-banner');
   if (!banner) return;
   if (isIOS) {
-    document.getElementById('pwa-banner-hint').textContent = 'Tap Share ⬆ then "Add to Home Screen"';
     document.getElementById('pwa-install-btn').textContent = 'How?';
-    banner.style.display = 'flex';
   }
+  banner.style.display = 'flex';
 }
 
 function installPWA() {
   if (deferredPrompt) {
+    // Android native prompt
     deferredPrompt.prompt();
     deferredPrompt.userChoice.then(() => { deferredPrompt = null; dismissPWA(); });
   } else if (isIOS) {
-    document.getElementById('pwa-banner-hint').textContent = 'Tap Share ⬆ at bottom → "Add to Home Screen"';
-    document.getElementById('pwa-install-btn').textContent = 'Got it!';
-    setTimeout(dismissPWA, 3000);
+    // Show iOS step-by-step modal
+    document.getElementById('pwa-banner').style.display = 'none';
+    document.getElementById('pwa-modal').style.display = 'flex';
   }
+}
+
+function closePWAModal() {
+  document.getElementById('pwa-modal').style.display = 'none';
+  localStorage.setItem('pwa-dismissed', '1');
 }
 
 function dismissPWA() {
@@ -3820,7 +3851,6 @@ window.addEventListener('beforeinstallprompt', e => {
 
 window.addEventListener('appinstalled', () => dismissPWA());
 
-// Show after 3 seconds
 setTimeout(showPWABanner, 3000);
 </script>
 
