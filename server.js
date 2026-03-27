@@ -18,7 +18,7 @@ function emailFooter() {
   return `<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#060c09">
     <tr><td bgcolor="#060c09" style="background-color:#060c09;padding:20px 32px;text-align:center;border-top:1px solid #1f2d22">
       <a href="https://listdirect.ai" style="color:#3ef07a;font-family:Arial,sans-serif;font-size:0.8rem;text-decoration:none">listdirect.ai</a><br>
-      <span style="color:#3a4d3e;font-family:Arial,sans-serif;font-size:0.75rem;">© 2026 ListDirect. All rights reserved.</span>
+      <span style="color:#3a4d3e;font-family:Arial,sans-serif;font-size:0.75rem;">&copy; 2026 ListDirect. All rights reserved.</span>
     </td></tr>
   </table>`;
 }
@@ -108,23 +108,23 @@ app.post('/api/auth/signup', async (req, res) => {
       // Email to admin about new agent application
       await sendEmail({
         to: 'infolistdirect@gmail.com',
-        subject: '🤝 New Agent Application — ' + (req.body.full_name || 'Unknown'),
+        subject: '🤝 New Agent Application &mdash; ' + (req.body.full_name || 'Unknown'),
         html: `
           <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a0f0d;color:#e8f0e9;border-radius:12px;padding:32px">
             <h2 style="color:#3ef07a;margin-bottom:4px">New Agent Application</h2>
             <p style="color:#7a9480;margin-bottom:24px">Someone applied to join your certified agent network</p>
             <table style="width:100%;border-collapse:collapse">
-              <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">Name</td><td style="padding:10px;color:#e8f0e9;border-bottom:1px solid #1f2d22"><strong>${req.body.full_name || '—'}</strong></td></tr>
+              <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">Name</td><td style="padding:10px;color:#e8f0e9;border-bottom:1px solid #1f2d22"><strong>${req.body.full_name || '&mdash;'}</strong></td></tr>
               <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">Email</td><td style="padding:10px;color:#e8f0e9;border-bottom:1px solid #1f2d22">${req.body.email}</td></tr>
-              <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">Phone</td><td style="padding:10px;color:#e8f0e9;border-bottom:1px solid #1f2d22">${req.body.phone || '—'}</td></tr>
-              <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">License</td><td style="padding:10px;color:#e8f0e9;border-bottom:1px solid #1f2d22">${req.body.license_number || '—'}</td></tr>
-              <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">Location</td><td style="padding:10px;color:#e8f0e9;border-bottom:1px solid #1f2d22">${req.body.location || '—'}</td></tr>
-              <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">Specialty</td><td style="padding:10px;color:#e8f0e9;border-bottom:1px solid #1f2d22">${req.body.specialty || '—'}</td></tr>
+              <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">Phone</td><td style="padding:10px;color:#e8f0e9;border-bottom:1px solid #1f2d22">${req.body.phone || '&mdash;'}</td></tr>
+              <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">License</td><td style="padding:10px;color:#e8f0e9;border-bottom:1px solid #1f2d22">${req.body.license_number || '&mdash;'}</td></tr>
+              <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">Location</td><td style="padding:10px;color:#e8f0e9;border-bottom:1px solid #1f2d22">${req.body.location || '&mdash;'}</td></tr>
+              <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">Specialty</td><td style="padding:10px;color:#e8f0e9;border-bottom:1px solid #1f2d22">${req.body.specialty || '&mdash;'}</td></tr>
               <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">Cashback Offer</td><td style="padding:10px;color:#f5c842;border-bottom:1px solid #1f2d22">${req.body.cashback_offer || '1'}% to sellers</td></tr>
-              <tr><td style="padding:10px;color:#7a9480">Bio</td><td style="padding:10px;color:#e8f0e9">${req.body.bio || '—'}</td></tr>
+              <tr><td style="padding:10px;color:#7a9480">Bio</td><td style="padding:10px;color:#e8f0e9">${req.body.bio || '&mdash;'}</td></tr>
             </table>
             <div style="margin-top:24px;text-align:center">
-              <a href="https://listdirect.ai/admin.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">Review Application →</a>
+              <a href="https://listdirect.ai/admin.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">Review Application &#8594;</a>
             </div>
           </div>
         `
@@ -147,7 +147,7 @@ app.post('/api/auth/signup', async (req, res) => {
               <li>Browse certified agents with guaranteed cashback</li>
             </ul>
             <div style="margin-top:24px;text-align:center">
-              <a href="https://listdirect.ai/dashboard.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">Go to My Account →</a>
+              <a href="https://listdirect.ai/dashboard.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">Go to My Account &#8594;</a>
             </div>
             <p style="color:#3d5240;font-size:0.8rem;margin-top:32px;text-align:center">Questions? Email us at infolistdirect@gmail.com</p>
           </div>
@@ -452,7 +452,7 @@ app.get('/api/admin/agents', async (req, res) => {
 
     const agents = (profiles || []).map(p => ({
       ...p,
-      email: userMap[p.id] || p.email || '—'
+      email: userMap[p.id] || p.email || '&mdash;'
     }));
 
     res.json({ agents });
@@ -501,7 +501,7 @@ app.patch('/api/admin/agents/:id', async (req, res) => {
                 </ul>
               </div>
               <div style="margin-top:24px;text-align:center">
-                <a href="https://listdirect.ai/agent-portal.html" style="background:#f5c842;color:#1a1200;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">Go to Agent Portal →</a>
+                <a href="https://listdirect.ai/agent-portal.html" style="background:#f5c842;color:#1a1200;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">Go to Agent Portal &#8594;</a>
               </div>
               <p style="color:#3d5240;font-size:0.8rem;margin-top:32px;text-align:center">Questions? Email us at infolistdirect@gmail.com</p>
             </div>
@@ -545,8 +545,8 @@ app.post('/api/payments/create-intent', async (req, res) => {
     // Notify admin of new payment
     await sendEmail({
       to: 'infolistdirect@gmail.com',
-      subject: '💰 New Payment Initiated — Seller Platform Fee',
-      html: `<div style="font-family:Arial,sans-serif;background:#0a0f0d;color:#e8f0e9;padding:24px;border-radius:12px"><h2 style="color:#3ef07a">New Seller Payment</h2><p>Amount: <strong>$${(fee/100).toLocaleString()}</strong></p><p>Sale Price: <strong>$${parseInt(sale_price).toLocaleString()}</strong></p><p>Method: <strong>${payment_type}</strong></p><a href="https://listdirect.ai/admin.html" style="background:#3ef07a;color:#0a0f0d;padding:10px 20px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-top:12px">View in Admin →</a></div>`
+      subject: '💰 New Payment Initiated &mdash; Seller Platform Fee',
+      html: `<div style="font-family:Arial,sans-serif;background:#0a0f0d;color:#e8f0e9;padding:24px;border-radius:12px"><h2 style="color:#3ef07a">New Seller Payment</h2><p>Amount: <strong>$${(fee/100).toLocaleString()}</strong></p><p>Sale Price: <strong>$${parseInt(sale_price).toLocaleString()}</strong></p><p>Method: <strong>${payment_type}</strong></p><a href="https://listdirect.ai/admin.html" style="background:#3ef07a;color:#0a0f0d;padding:10px 20px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-top:12px">View in Admin &#8594;</a></div>`
     });
     
     res.json({ client_secret: paymentIntent.client_secret, amount: fee });
@@ -619,7 +619,7 @@ app.post('/api/notify/agent-request', async (req, res) => {
     // Email to admin
     await sendEmail({
       to: 'infolistdirect@gmail.com',
-      subject: `🏠 New Agent Request — ${seller_name} selected ${agent_name}`,
+      subject: `🏠 New Agent Request &mdash; ${seller_name} selected ${agent_name}`,
       html: `
         <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a0f0d;color:#e8f0e9;border-radius:12px;padding:32px">
           <h2 style="color:#f5c842">New Agent Request!</h2>
@@ -632,7 +632,7 @@ app.post('/api/notify/agent-request', async (req, res) => {
             <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">Property Address</td><td style="padding:10px;color:#e8f0e9;border-bottom:1px solid #1f2d22">${seller_address}</td></tr>
             <tr><td style="padding:10px;color:#7a9480">Asking Price</td><td style="padding:10px;color:#3ef07a">${seller_price}</td></tr>
           </table>
-          <a href="https://listdirect.ai/admin.html" style="display:inline-block;margin-top:24px;background:#f5c842;color:#1a1200;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700">View in Admin →</a>
+          <a href="https://listdirect.ai/admin.html" style="display:inline-block;margin-top:24px;background:#f5c842;color:#1a1200;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700">View in Admin &#8594;</a>
         </div>
       `
     });
@@ -641,7 +641,7 @@ app.post('/api/notify/agent-request', async (req, res) => {
     if (agent_email) {
       await sendEmail({
         to: agent_email,
-        subject: `🏠 New Seller Lead — ${seller_name} wants to work with you!`,
+        subject: `🏠 New Seller Lead &mdash; ${seller_name} wants to work with you!`,
         html: `
           <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a0f0d;color:#e8f0e9;border-radius:12px;padding:32px">
             <h2 style="color:#f5c842">You have a new lead!</h2>
@@ -657,7 +657,7 @@ app.post('/api/notify/agent-request', async (req, res) => {
               <p style="color:#f5c842;font-weight:700;margin-bottom:8px">Remember your commitment:</p>
               <p style="color:#7a9480">You have agreed to give this seller a minimum <strong style="color:#f5c842">${cashback}</strong> cashback at closing, and to pay ListDirect a 10% referral fee from your commission.</p>
             </div>
-            <a href="https://listdirect.ai/agent-portal.html" style="display:inline-block;margin-top:8px;background:#f5c842;color:#1a1200;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700">Go to Agent Portal →</a>
+            <a href="https://listdirect.ai/agent-portal.html" style="display:inline-block;margin-top:8px;background:#f5c842;color:#1a1200;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700">Go to Agent Portal &#8594;</a>
           </div>
         `
       });
@@ -744,7 +744,7 @@ app.post('/api/offers', async (req, res) => {
       await sendEmail({
         to: sellerAuth.user.email,
         reply_to: buyer_email,
-        subject: `💰 New Offer — $${parseInt(offer_amount).toLocaleString()} on your listing!`,
+        subject: `💰 New Offer &mdash; $${parseInt(offer_amount).toLocaleString()} on your listing!`,
         html: `<div style="font-family:Arial,sans-serif;background:#0a0f0d;color:#e8f0e9;padding:32px;border-radius:12px;max-width:600px">
           <h2 style="color:#3ef07a">💰 You received an offer!</h2>
           <div style="background:#1a3d28;border:1px solid rgba(62,240,122,0.3);border-radius:12px;padding:20px;margin:16px 0;text-align:center">
@@ -758,8 +758,8 @@ app.post('/api/offers', async (req, res) => {
             ${buyer_phone ? `<p><strong style="color:#e8f0e9">Phone:</strong> <span style="color:#7a9480">${buyer_phone}</span></p>` : ''}
             ${message ? `<p><strong style="color:#e8f0e9">Note:</strong> <span style="color:#7a9480">${message}</span></p>` : ''}
           </div>
-          <a href="mailto:${buyer_email}" style="display:inline-block;background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;margin-right:10px">Reply to Buyer →</a>
-          <a href="https://listdirect.ai/dashboard.html" style="display:inline-block;background:none;border:1px solid #3ef07a;color:#3ef07a;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700">View in Dashboard →</a>
+          <a href="mailto:${buyer_email}" style="display:inline-block;background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;margin-right:10px">Reply to Buyer &#8594;</a>
+          <a href="https://listdirect.ai/dashboard.html" style="display:inline-block;background:none;border:1px solid #3ef07a;color:#3ef07a;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700">View in Dashboard &#8594;</a>
         </div>`
       });
     }
@@ -798,7 +798,7 @@ app.post('/api/messages', async (req, res) => {
     if (sellerAuth?.user?.email) {
       await sendEmail({
         to: sellerAuth.user.email,
-        subject: '💬 New Inquiry — ' + sender_name + ' is interested in your listing!',
+        subject: '💬 New Inquiry &mdash; ' + sender_name + ' is interested in your listing!',
         html: `<div style="font-family:Arial,sans-serif;background:#0a0f0d;color:#e8f0e9;padding:32px;border-radius:12px;max-width:600px">
           <h2 style="color:#3ef07a">New Inquiry on Your Listing!</h2>
           <p style="color:#7a9480">Someone is interested in your property.</p>
@@ -807,7 +807,7 @@ app.post('/api/messages', async (req, res) => {
             <p><strong>Email:</strong> ${sender_email}</p>
             <p style="margin-top:12px;color:#e8f0e9">"${message}"</p>
           </div>
-          <a href="https://listdirect.ai/dashboard.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-top:8px">Reply in Dashboard →</a>
+          <a href="https://listdirect.ai/dashboard.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-top:8px">Reply in Dashboard &#8594;</a>
         </div>`
       });
     }
@@ -871,14 +871,14 @@ app.post('/api/messages/reply', async (req, res) => {
           <p style="color:#7a9480;margin:0 0 20px">Hi ${buyer_name || 'there'},</p>
           <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin:16px 0">
             <p style="color:#e8f0e9;margin:0">"${reply_text}"</p>
-            <p style="color:#7a9480;margin:8px 0 0">— ${sellerName}</p>
+            <p style="color:#7a9480;margin:8px 0 0">&mdash; ${sellerName}</p>
           </div>
           <div style="background:#1a3d28;border:1px solid rgba(62,240,122,0.3);border-radius:12px;padding:16px;margin:16px 0">
             <p style="color:#3ef07a;font-weight:700;margin:0 0 6px">💬 Want to reply?</p>
             <p style="color:#e8f0e9;margin:0 0 12px">Simply reply to this email and your message will go directly to the seller.</p>
             <a href="mailto:${sellerEmail}" style="display:inline-block;background:#3ef07a;color:#0a0f0d;padding:10px 20px;border-radius:50px;font-weight:700;font-size:0.9rem;text-decoration:none">${sellerEmail}</a>
           </div>
-          <a href="https://listdirect.ai" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-top:8px">View on ListDirect →</a>
+          <a href="https://listdirect.ai" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-top:8px">View on ListDirect &#8594;</a>
         `)
       });
     }
