@@ -367,6 +367,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
             <div class="panel-title" style="margin-bottom:0">Inquiries</div>
           </div>
           <div class="panel-sub">Messages from buyers interested in your listings</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">
+            <button class="btn-sm btn-sm-green" onclick="showPanel('new-listing',null)">🏠 List a Home</button>
+            <button class="btn-sm btn-sm-outline" onclick="window.location.href='index.html#search-section'">🔍 Search Homes</button>
+            <button class="btn-sm btn-sm-outline" onclick="window.location.href='index.html#ai-tools'">🤖 AI Tools</button>
+          </div>
           <div id="inquiries-container">
             <div class="empty-state">
               <div class="empty-icon" id="inq-icon">💬</div>
