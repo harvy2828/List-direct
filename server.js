@@ -16,7 +16,7 @@ async function sendEmail({ to, subject, html, reply_to }) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: 'ListDirect <onboarding@resend.dev>',
+        from: 'ListDirect <noreply@listdirect.ai>',
         reply_to: reply_to || 'infolistdirect@gmail.com',
         to,
         subject,
