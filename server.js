@@ -628,6 +628,53 @@ app.patch('/api/listings/:id', async (req, res) => {
 });
 
 
+// ── Offers: Submit ────────────────────────────────────────────
+app.post('/api/offers', async (req, res) => {
+  const { seller_id, property, offer_amount, buyer_name, buyer_email, buyer_phone, message } = req.body;
+  if (!buyer_name || !buyer_email || !offer_amount) return res.status(400).json({ error: 'Missing required fields' });
+  try {
+    // Store offer in messages table with type 'offer'
+    await supabase.from('messages').insert([{
+      seller_id,
+      sender_name: buyer_name,
+      sender_email: buyer_email,
+      message: `💰 OFFER: $${parseInt(offer_amount).toLocaleString()}\n\nProperty: ${property}\nPhone: ${buyer_phone || 'Not provided'}\n\n${message ? 'Note: ' + message : ''}`,
+      read: false,
+      created_at: new Date().toISOString()
+    }]);
+
+    // Notify seller via email
+    const { data: sellerAuth } = await supabase.auth.admin.getUserById(seller_id).catch(() => ({ data: null }));
+    if (sellerAuth?.user?.email) {
+      await sendEmail({
+        to: sellerAuth.user.email,
+        reply_to: buyer_email,
+        subject: `💰 New Offer — $${parseInt(offer_amount).toLocaleString()} on your listing!`,
+        html: `<div style="font-family:Arial,sans-serif;background:#0a0f0d;color:#e8f0e9;padding:32px;border-radius:12px;max-width:600px">
+          <h2 style="color:#3ef07a">💰 You received an offer!</h2>
+          <div style="background:#1a3d28;border:1px solid rgba(62,240,122,0.3);border-radius:12px;padding:20px;margin:16px 0;text-align:center">
+            <div style="font-size:0.85rem;color:#7a9480;margin-bottom:4px">Offer Amount</div>
+            <div style="font-family:Georgia,serif;font-size:2.5rem;font-weight:900;color:#3ef07a">$${parseInt(offer_amount).toLocaleString()}</div>
+          </div>
+          <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin:16px 0">
+            <p><strong style="color:#e8f0e9">Property:</strong> <span style="color:#7a9480">${property}</span></p>
+            <p><strong style="color:#e8f0e9">Buyer:</strong> <span style="color:#7a9480">${buyer_name}</span></p>
+            <p><strong style="color:#e8f0e9">Email:</strong> <span style="color:#7a9480">${buyer_email}</span></p>
+            ${buyer_phone ? `<p><strong style="color:#e8f0e9">Phone:</strong> <span style="color:#7a9480">${buyer_phone}</span></p>` : ''}
+            ${message ? `<p><strong style="color:#e8f0e9">Note:</strong> <span style="color:#7a9480">${message}</span></p>` : ''}
+          </div>
+          <a href="mailto:${buyer_email}" style="display:inline-block;background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;margin-right:10px">Reply to Buyer →</a>
+          <a href="https://listdirect.ai/dashboard.html" style="display:inline-block;background:none;border:1px solid #3ef07a;color:#3ef07a;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700">View in Dashboard →</a>
+        </div>`
+      });
+    }
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Offer error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── Messages: Send ────────────────────────────────────────────
 app.post('/api/messages', async (req, res) => {
   const { listing_id, seller_id, sender_name, sender_email, message } = req.body;
