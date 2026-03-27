@@ -3492,12 +3492,15 @@ window.addEventListener('DOMContentLoaded', () => {
     const el = document.getElementById(elMap[scrollTo] || scrollTo);
     if (el) {
       el.scrollIntoView({ behavior: 'auto' });
-      // If mortgage, also open the mortgage tool tab
       if (scrollTo === 'mortgage') {
         setTimeout(() => {
-          const mortgageTab = document.querySelector('[onclick*="tool-mortgage"]') || document.querySelector('[data-tool="mortgage"]');
-          if (mortgageTab) mortgageTab.click();
-        }, 300);
+          const mortgageBtn = document.querySelector('.ai-tab-btn[onclick*="mortgage"]');
+          if (mortgageBtn) mortgageBtn.click();
+          else {
+            const panel = document.getElementById('tool-mortgage');
+            if (panel) panel.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 400);
       }
     }
   }
