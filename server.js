@@ -362,8 +362,9 @@ app.post('/api/auth/update-profile', async (req, res) => {
   try {
     const { data: { user }, error: authErr } = await supabase.auth.getUser(token);
     if (authErr || !user) return res.status(401).json({ error: 'Not authenticated' });
-    // Use admin client to update metadata — avoids session expiry issues
-    const { error: updateErr } = await supabase.auth.admin.updateUserById(user.id, {
+    // Use service role key for admin operations
+    const adminSupabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+    const { error: updateErr } = await adminSupabase.auth.admin.updateUserById(user.id, {
       user_metadata: { ...user.user_metadata, full_name, phone, location, license_number, bio, cashback_offer }
     });
     if (updateErr) return res.status(400).json({ error: updateErr.message });
