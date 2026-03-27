@@ -361,12 +361,10 @@ app.post('/api/auth/update-profile', async (req, res) => {
   const { full_name, phone, location, license_number, bio, cashback_offer } = req.body;
   try {
     const { data: { user }, error: authErr } = await supabase.auth.getUser(token);
-    if (authErr || !user) return res.status(401).json({ error: 'Invalid token' });
-    const userSupabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
-      global: { headers: { Authorization: `Bearer ${token}` } }
-    });
-    const { error: updateErr } = await userSupabase.auth.updateUser({
-      data: { full_name, phone, location, license_number, bio, cashback_offer }
+    if (authErr || !user) return res.status(401).json({ error: 'Not authenticated' });
+    // Use admin client to update metadata — avoids session expiry issues
+    const { error: updateErr } = await supabase.auth.admin.updateUserById(user.id, {
+      user_metadata: { ...user.user_metadata, full_name, phone, location, license_number, bio, cashback_offer }
     });
     if (updateErr) return res.status(400).json({ error: updateErr.message });
     // Also update profiles table
