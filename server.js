@@ -173,6 +173,18 @@ app.get('/api/auth/me', async (req, res) => {
   }
 });
 
+app.post('/api/auth/refresh', async (req, res) => {
+  const { refresh_token } = req.body;
+  if (!refresh_token) return res.status(400).json({ error: 'Refresh token required' });
+  try {
+    const { data, error } = await supabase.auth.refreshSession({ refresh_token });
+    if (error || !data.session) return res.status(401).json({ error: 'Session expired' });
+    res.json({ session: data.session });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── Listings: Create ──────────────────────────────────────────
 app.post('/api/listings', async (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');

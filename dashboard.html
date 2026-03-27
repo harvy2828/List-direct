@@ -591,8 +591,30 @@ window.addEventListener('DOMContentLoaded', async () => {
         showDashboard();
         loadMyListings();
         loadFavorites();
+        loadInquiries();
       } else {
+        // Try to refresh the token
+        const refreshToken = localStorage.getItem('ld_refresh_token');
+        if (refreshToken) {
+          try {
+            const refreshRes = await fetch('/api/auth/refresh', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ refresh_token: refreshToken })
+            });
+            if (refreshRes.ok) {
+              const refreshData = await refreshRes.json();
+              if (refreshData.session) {
+                localStorage.setItem('ld_token', refreshData.session.access_token);
+                localStorage.setItem('ld_refresh_token', refreshData.session.refresh_token);
+                window.location.reload();
+                return;
+              }
+            }
+          } catch(e) {}
+        }
         localStorage.removeItem('ld_token');
+        localStorage.removeItem('ld_refresh_token');
         showLoading(false);
       }
     } catch(e) {
@@ -673,12 +695,13 @@ async function handleSignIn() {
     currentUser = data.user;
     currentSession = data.session;
     localStorage.setItem('ld_token', data.session.access_token);
+    if (data.session.refresh_token) localStorage.setItem('ld_refresh_token', data.session.refresh_token);
     // Make sure they are not logged into agent portal
     localStorage.removeItem('ld_agent_token');
     showDashboard();
     loadMyListings();
     loadFavorites();
-    setTimeout(loadInquiries, 500);
+    loadInquiries();
   } catch(e) {
     showLoading(false);
     showAuthError('Connection error. Please try again.');
