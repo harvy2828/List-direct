@@ -11,6 +11,12 @@
 </script>
 
 <meta charset="UTF-8"/>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#3ef07a">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ListDirect">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>ListDirect — Sell Your Home for 1% | Skip the Agent | Canada & USA</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
@@ -610,6 +616,21 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
 <body>
 
 <!-- NAV -->
+<!-- PWA Install Banner -->
+<div id="pwa-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#0d1f12;border-top:1px solid rgba(62,240,122,0.3);padding:12px 16px;align-items:center;justify-content:space-between;gap:12px;font-family:'DM Sans',sans-serif">
+  <div style="display:flex;align-items:center;gap:10px">
+    <img src="/icon-192.png" style="width:36px;height:36px;border-radius:8px">
+    <div>
+      <div style="color:#e8f0e9;font-size:0.82rem;font-weight:700">Add ListDirect to Home Screen</div>
+      <div style="color:#7a9480;font-size:0.72rem" id="pwa-banner-hint">Install for quick access</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px;flex-shrink:0">
+    <button onclick="dismissPWA()" style="background:none;border:1px solid #2a3d2e;color:#7a9480;padding:6px 12px;border-radius:50px;font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif">Later</button>
+    <button onclick="installPWA()" id="pwa-install-btn" style="background:#3ef07a;color:#0a0f0d;border:none;padding:6px 14px;border-radius:50px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Add</button>
+  </div>
+</div>
+
 <nav>
   <div class="nav-logo" onclick="scrollTo(0,0)">List<span>Direct</span></div>
   <ul class="nav-links">
@@ -3753,5 +3774,64 @@ function heroQuickSearch(city) {
   </div>
 </div>
 
+<script>
+// PWA Install Logic
+let deferredPrompt = null;
+const isIOS = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
+const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+function showPWABanner() {
+  if (isInStandaloneMode) return; // already installed
+  if (localStorage.getItem('pwa-dismissed')) return;
+  const banner = document.getElementById('pwa-banner');
+  if (!banner) return;
+  if (isIOS) {
+    document.getElementById('pwa-banner-hint').textContent = 'Tap Share ⬆ then "Add to Home Screen"';
+    document.getElementById('pwa-install-btn').textContent = 'How?';
+    banner.style.display = 'flex';
+  }
+}
+
+function installPWA() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => { deferredPrompt = null; dismissPWA(); });
+  } else if (isIOS) {
+    document.getElementById('pwa-banner-hint').textContent = 'Tap Share ⬆ at bottom → "Add to Home Screen"';
+    document.getElementById('pwa-install-btn').textContent = 'Got it!';
+    setTimeout(dismissPWA, 3000);
+  }
+}
+
+function dismissPWA() {
+  const banner = document.getElementById('pwa-banner');
+  if (banner) banner.style.display = 'none';
+  localStorage.setItem('pwa-dismissed', '1');
+}
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const banner = document.getElementById('pwa-banner');
+  if (banner && !isInStandaloneMode && !localStorage.getItem('pwa-dismissed')) {
+    banner.style.display = 'flex';
+  }
+});
+
+window.addEventListener('appinstalled', () => dismissPWA());
+
+// Show after 3 seconds
+setTimeout(showPWABanner, 3000);
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(() => console.log('ListDirect SW registered'))
+      .catch(err => console.log('SW error:', err));
+  });
+}
+</script>
 </body>
 </html>
