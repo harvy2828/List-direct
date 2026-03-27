@@ -806,6 +806,9 @@ async function loadMyListings() {
     const listings = await res.json();
     listingsCache = listings;
     document.getElementById('stat-listings').textContent = listings.length;
+    // Sum up total views across all listings
+    const totalViews = listings.reduce((sum, l) => sum + (l.view_count || 0), 0);
+    document.getElementById('stat-views').textContent = totalViews || 0;
     const container = document.getElementById('my-listings-container');
     if (!listings.length) {
       container.innerHTML = `<div class="empty-state"><div class="empty-icon">🏠</div><div class="empty-title">No listings yet</div><div class="empty-sub">List your first home and get priority placement in search results</div><button class="btn-sm btn-sm-green" onclick="showPanel('new-listing',null)">List My Home →</button></div>`;

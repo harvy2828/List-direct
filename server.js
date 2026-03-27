@@ -588,6 +588,18 @@ app.post('/api/notify/agent-request', async (req, res) => {
 });
 
 
+// ── Listings: Track View ──────────────────────────────────────
+app.post('/api/listings/:id/view', async (req, res) => {
+  try {
+    const { data: listing } = await supabase.from('listings').select('view_count').eq('id', req.params.id).single();
+    const currentViews = listing?.view_count || 0;
+    await supabase.from('listings').update({ view_count: currentViews + 1 }).eq('id', req.params.id);
+    res.json({ success: true });
+  } catch (err) {
+    res.json({ success: false });
+  }
+});
+
 // ── Listings: Update ──────────────────────────────────────────
 app.patch('/api/listings/:id', async (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
