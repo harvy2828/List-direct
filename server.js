@@ -23,7 +23,7 @@ function emailFooter() {
   </table>`;
 }
 function emailWrap(content) {
-  return `<table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%" bgcolor="#0a0f0d">
+  return `<table width="600" cellpadding="0" cellspacing="0" border="1" style="max-width:600px;width:100%;border-collapse:collapse;border:2px solid #1f2d22;border-radius:12px" bgcolor="#0a0f0d">
     <tr><td bgcolor="#0a0f0d" style="background-color:#0a0f0d;padding:0">${emailHeader()}</td></tr>
     <tr><td bgcolor="#0a0f0d" style="background-color:#0a0f0d;padding:32px;color:#e8f0e9;font-family:Arial,sans-serif">${content}</td></tr>
     <tr><td bgcolor="#060c09" style="background-color:#060c09;padding:0">${emailFooter()}</td></tr>
