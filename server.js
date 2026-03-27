@@ -5,6 +5,27 @@ const { createClient } = require('@supabase/supabase-js');
 const Stripe = require('stripe');
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
+// ── Email Header/Footer ────────────────────────────────────────
+function emailHeader() {
+  return `<div style="background:#0a0f0d;padding:24px 32px;border-bottom:2px solid #3ef07a;text-align:center">
+    <span style="font-family:Georgia,serif;font-size:1.6rem;font-weight:900;color:#3ef07a;letter-spacing:-0.5px">List<span style="color:#ffffff">Direct</span></span>
+    <p style="margin:4px 0 0;font-size:0.75rem;color:#7a9480;font-family:Arial,sans-serif;letter-spacing:1px;text-transform:uppercase">Skip the Agent. List Direct.</p>
+  </div>`;
+}
+function emailFooter() {
+  return `<div style="background:#060c09;padding:20px 32px;border-top:1px solid #1f2d22;text-align:center">
+    <a href="https://listdirect.ai" style="color:#3ef07a;font-family:Arial,sans-serif;font-size:0.8rem;text-decoration:none">listdirect.ai</a>
+    <p style="color:#3a4d3e;font-family:Arial,sans-serif;font-size:0.75rem;margin:6px 0 0">© 2026 ListDirect. All rights reserved.</p>
+  </div>`;
+}
+function emailWrap(content) {
+  return `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;border:1px solid #1f2d22;border-radius:12px;overflow:hidden">
+    ${emailHeader()}
+    <div style="background:#0a0f0d;padding:32px;color:#e8f0e9">${content}</div>
+    ${emailFooter()}
+  </div>`;
+}
+
 // ── Email via Resend ──────────────────────────────────────────
 async function sendEmail({ to, subject, html, reply_to }) {
   const wrappedHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><meta name="supported-color-schemes" content="dark"></head><body style="margin:0;padding:0;background-color:#0a0f0d" bgcolor="#0a0f0d"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#0a0f0d" bgcolor="#0a0f0d"><tr><td align="center" style="padding:20px;background-color:#0a0f0d" bgcolor="#0a0f0d"><table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%"><tr><td style="background-color:#0a0f0d;padding:0" bgcolor="#0a0f0d">${html}</td></tr></table></td></tr></table></body></html>`;
@@ -784,12 +805,12 @@ app.post('/api/messages/reply', async (req, res) => {
         to: buyer_email,
         reply_to: sellerEmail,
         subject: '💬 Reply from your ListDirect inquiry',
-        html: `<div style="font-family:Arial,sans-serif;background:#0a0f0d;color:#e8f0e9;padding:32px;border-radius:12px;max-width:600px">
-          <h2 style="color:#3ef07a">The seller replied to your inquiry!</h2>
-          <p style="color:#7a9480">Hi ${buyer_name || 'there'},</p>
+        html: emailWrap(`
+          <h2 style="color:#3ef07a;margin:0 0 8px">The seller replied to your inquiry!</h2>
+          <p style="color:#7a9480;margin:0 0 20px">Hi ${buyer_name || 'there'},</p>
           <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin:16px 0">
-            <p style="color:#e8f0e9">"${reply_text}"</p>
-            <p style="color:#7a9480;margin-top:8px">— ${sellerName}</p>
+            <p style="color:#e8f0e9;margin:0">"${reply_text}"</p>
+            <p style="color:#7a9480;margin:8px 0 0">— ${sellerName}</p>
           </div>
           <div style="background:#1a3d28;border:1px solid rgba(62,240,122,0.3);border-radius:12px;padding:16px;margin:16px 0">
             <p style="color:#3ef07a;font-weight:700;margin:0 0 6px">💬 Want to reply?</p>
@@ -797,7 +818,7 @@ app.post('/api/messages/reply', async (req, res) => {
             <a href="mailto:${sellerEmail}" style="display:inline-block;background:#3ef07a;color:#0a0f0d;padding:10px 20px;border-radius:50px;font-weight:700;font-size:0.9rem;text-decoration:none">${sellerEmail}</a>
           </div>
           <a href="https://listdirect.ai" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-top:8px">View on ListDirect →</a>
-        </div>`
+        `)`
       });
     }
 
