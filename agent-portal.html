@@ -368,10 +368,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
           <div class="panel-title">Your Dashboard</div>
           <div class="panel-sub">Here's a snapshot of your performance on ListDirect</div>
           <div class="stats-row">
-            <div class="stat-card"><div class="stat-num green" id="stat-leads">3</div><div class="stat-label">New Leads</div></div>
-            <div class="stat-card"><div class="stat-num" id="stat-active">2</div><div class="stat-label">Active Listings</div></div>
-            <div class="stat-card"><div class="stat-num gold" id="stat-earned">$0</div><div class="stat-label">Total Earned</div></div>
-            <div class="stat-card"><div class="stat-num red" id="stat-owed">$0</div><div class="stat-label">Referral Fees Owed</div></div>
+            <div class="stat-card" onclick="showPanel('leads',null)" style="cursor:pointer" title="View Leads"><div class="stat-num green" id="stat-leads">3</div><div class="stat-label">New Leads</div></div>
+            <div class="stat-card" onclick="showPanel('listings',null)" style="cursor:pointer" title="View Listings"><div class="stat-num" id="stat-active">2</div><div class="stat-label">Active Listings</div></div>
+            <div class="stat-card" onclick="showPanel('earnings',null)" style="cursor:pointer" title="View Earnings"><div class="stat-num gold" id="stat-earned">$0</div><div class="stat-label">Total Earned</div></div>
+            <div class="stat-card" onclick="openAgentPaymentModal()" style="cursor:pointer" title="Pay Referral Fee"><div class="stat-num red" id="stat-owed">$0</div><div class="stat-label">Referral Fees Owed</div></div>
           </div>
 
           <!-- Quick actions -->
@@ -1211,7 +1211,7 @@ function submitAgreement() {
       <strong style="color:var(--gold)">1. Cashback Commitment</strong><br/>
       I agree to provide sellers a minimum cashback rebate (as stated on my profile) at or before closing on every transaction sourced through ListDirect.<br/><br/>
       
-      <strong style="color:var(--gold)">2. Referral Fee</strong><br/>
+      <strong style="color:var(--gold)">2. Referral Fee — 10%</strong><br/>
       I agree to pay ListDirect a <strong style="color:var(--red)">10% referral fee</strong> from my commission on every deal closed through the ListDirect platform. This fee is due within 30 days of closing.<br/><br/>
       
       <strong style="color:var(--gold)">3. Professional Conduct</strong><br/>
