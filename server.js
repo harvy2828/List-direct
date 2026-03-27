@@ -354,6 +354,29 @@ app.post('/api/auth/update-password', async (req, res) => {
 });
 
 
+// ── Auth: Update Profile ──────────────────────────────────────
+app.post('/api/auth/update-profile', async (req, res) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Not authenticated' });
+  const { full_name, phone, location, license_number, bio, cashback_offer } = req.body;
+  try {
+    const { data: { user }, error: authErr } = await supabase.auth.getUser(token);
+    if (authErr || !user) return res.status(401).json({ error: 'Invalid token' });
+    const userSupabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: `Bearer ${token}` } }
+    });
+    const { error: updateErr } = await userSupabase.auth.updateUser({
+      data: { full_name, phone, location, license_number, bio, cashback_offer }
+    });
+    if (updateErr) return res.status(400).json({ error: updateErr.message });
+    // Also update profiles table
+    await supabase.from('profiles').update({ full_name, phone, location, license_number, bio, cashback_offer }).eq('id', user.id);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── Get Certified Agents ──────────────────────────────────────
 app.get('/api/agents', async (req, res) => {
   try {

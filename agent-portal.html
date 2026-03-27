@@ -356,7 +356,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
           <button class="nav-item" onclick="showPanel('cashback',this)"><span class="ni-icon">💸</span> Cashback Tracker</button>
           <button class="nav-item" onclick="showPanel('calculator',this)"><span class="ni-icon">🧮</span> Referral Calculator</button>
           <button class="nav-item" onclick="showPanel('profile',this)"><span class="ni-icon">👤</span> My Profile</button>
-          <button class="nav-item" onclick="handleSignOut()" style="margin-top:8px;color:var(--red)"><span class="ni-icon">🚪</span> Sign Out</button>
+          <div style="border-top:1px solid var(--border);margin:8px 0"></div>
+          <a href="index.html#search-section" class="nav-item" style="text-decoration:none"><span class="ni-icon">🔍</span> Property Search</a>
+          <a href="index.html#ai-tools" class="nav-item" style="text-decoration:none"><span class="ni-icon">🤖</span> AI Tools</a>
+          <div style="border-top:1px solid var(--border);margin:8px 0"></div>
+          <button class="nav-item" onclick="handleSignOut()" style="margin-top:4px;color:var(--red)"><span class="ni-icon">🚪</span> Sign Out</button>
         </div>
       </div>
 
@@ -538,7 +542,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
               <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Seller Full Name</label>
               <input type="text" id="al-seller-name" placeholder="e.g. John Smith" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none"/></div>
               <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Property Address</label>
-              <input type="text" id="al-address" placeholder="e.g. 123 Oak St, Vancouver, BC" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none"/></div>
+              <input type="text" id="al-address" placeholder="e.g. 123 Oak St, Vancouver, BC" autocomplete="off" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none"/></div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
                 <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Asking Price</label>
                 <input type="text" id="al-price" placeholder="$850,000" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none"/></div>
@@ -553,6 +557,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
               </div>
               <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Description</label>
               <textarea id="al-desc" placeholder="Describe the property..." rows="3" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none;resize:vertical"></textarea></div>
+              <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Property Photos</label>
+              <input type="file" id="al-photos" accept="image/*" multiple style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.85rem;font-family:'DM Sans',sans-serif;cursor:pointer"/>
+              <div style="font-size:0.75rem;color:var(--muted);margin-top:4px">Upload up to 10 photos (JPG, PNG)</div></div>
               <button onclick="submitAgentListing()" style="background:#3ef07a;color:#0a0f0d;border:none;padding:12px 24px;border-radius:50px;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:'DM Sans',sans-serif;width:100%">📋 Submit Listing →</button>
               <div id="al-msg" style="font-size:0.85rem;text-align:center;display:none"></div>
             </div>
@@ -1003,7 +1010,34 @@ function handleProfilePhoto(input) {
 }
 
 async function saveProfile() {
-  showToast('Profile saved! ✅', 'success');
+  const token = localStorage.getItem('ld_agent_token');
+  if (!token) return;
+  const name = document.getElementById('prof-name').value.trim();
+  const phone = document.getElementById('prof-phone')?.value.trim() || '';
+  const location = document.getElementById('prof-location')?.value.trim() || '';
+  const license = document.getElementById('prof-license')?.value.trim() || '';
+  const bio = document.getElementById('prof-bio')?.value.trim() || '';
+  const cashback = document.getElementById('prof-cashback')?.value || '1%';
+  if (!name) return showToast('Please enter your full name.', 'error');
+  showLoading(true);
+  try {
+    const res = await fetch('/api/auth/update-profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ full_name: name, phone, location, license_number: license, bio, cashback_offer: cashback })
+    });
+    const data = await res.json();
+    showLoading(false);
+    if (res.ok) {
+      showToast('Profile saved! ✅', 'success');
+      if (currentUser) currentUser.user_metadata = { ...currentUser.user_metadata, full_name: name, phone, location, license_number: license, bio, cashback_offer: cashback };
+    } else {
+      showToast(data.error || 'Failed to save profile.', 'error');
+    }
+  } catch(e) {
+    showLoading(false);
+    showToast('Connection error.', 'error');
+  }
 }
 
 // ── Helpers ───────────────────────────────────────────────────
@@ -1027,6 +1061,18 @@ function initAgentPlaces() {
     { id: 'ap-location', type: 'geocode' },
     { id: 'prof-location', type: 'geocode' },
   ];
+  // Also add to listing address
+  const alAddr = document.getElementById('al-address');
+  if (alAddr) {
+    alAddr.addEventListener('focus', function() {
+      new google.maps.places.Autocomplete(alAddr, {
+        componentRestrictions: { country: ['us', 'ca'] },
+        fields: ['formatted_address', 'address_components'],
+        types: ['address']
+      });
+    });
+  }
+
   fields.forEach(function(cfg) {
     const el = document.getElementById(cfg.id);
     if (!el) return;
