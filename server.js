@@ -7,22 +7,26 @@ const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 // ── Email Header/Footer ────────────────────────────────────────
 function emailHeader() {
-  return `<div style="background:#0a0f0d;padding:24px 32px;border-bottom:2px solid #3ef07a;text-align:center">
-    <span style="font-family:Georgia,serif;font-size:1.6rem;font-weight:900;color:#3ef07a;letter-spacing:-0.5px">List<span style="color:#ffffff">Direct</span></span>
-    <p style="margin:4px 0 0;font-size:0.75rem;color:#7a9480;font-family:Arial,sans-serif;letter-spacing:1px;text-transform:uppercase">Skip the Agent. List Direct.</p>
-  </div>`;
+  return `<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#0a0f0d">
+    <tr><td bgcolor="#0a0f0d" style="background-color:#0a0f0d;padding:24px 32px;text-align:center;border-bottom:2px solid #3ef07a">
+      <span style="font-family:Georgia,serif;font-size:1.6rem;font-weight:900;color:#3ef07a;letter-spacing:-0.5px">List<span style="color:#ffffff">Direct</span></span><br>
+      <span style="font-size:0.75rem;color:#7a9480;font-family:Arial,sans-serif;letter-spacing:1px;text-transform:uppercase">Skip the Agent. List Direct.</span>
+    </td></tr>
+  </table>`;
 }
 function emailFooter() {
-  return `<div style="background:#060c09;padding:20px 32px;border-top:1px solid #1f2d22;text-align:center">
-    <a href="https://listdirect.ai" style="color:#3ef07a;font-family:Arial,sans-serif;font-size:0.8rem;text-decoration:none">listdirect.ai</a>
-    <p style="color:#3a4d3e;font-family:Arial,sans-serif;font-size:0.75rem;margin:6px 0 0">© 2026 ListDirect. All rights reserved.</p>
-  </div>`;
+  return `<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#060c09">
+    <tr><td bgcolor="#060c09" style="background-color:#060c09;padding:20px 32px;text-align:center;border-top:1px solid #1f2d22">
+      <a href="https://listdirect.ai" style="color:#3ef07a;font-family:Arial,sans-serif;font-size:0.8rem;text-decoration:none">listdirect.ai</a><br>
+      <span style="color:#3a4d3e;font-family:Arial,sans-serif;font-size:0.75rem;">© 2026 ListDirect. All rights reserved.</span>
+    </td></tr>
+  </table>`;
 }
 function emailWrap(content) {
-  return `<table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;border-radius:12px;overflow:hidden;border:1px solid #1f2d22;font-family:Arial,sans-serif" bgcolor="#0a0f0d">
-    <tr><td style="padding:0;background-color:#0a0f0d" bgcolor="#0a0f0d">${emailHeader()}</td></tr>
-    <tr><td style="padding:32px;background-color:#0a0f0d;color:#e8f0e9" bgcolor="#0a0f0d">${content}</td></tr>
-    <tr><td style="padding:0;background-color:#060c09" bgcolor="#060c09">${emailFooter()}</td></tr>
+  return `<table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%" bgcolor="#0a0f0d">
+    <tr><td bgcolor="#0a0f0d" style="background-color:#0a0f0d;padding:0">${emailHeader()}</td></tr>
+    <tr><td bgcolor="#0a0f0d" style="background-color:#0a0f0d;padding:32px;color:#e8f0e9;font-family:Arial,sans-serif">${content}</td></tr>
+    <tr><td bgcolor="#060c09" style="background-color:#060c09;padding:0">${emailFooter()}</td></tr>
   </table>`;
 }
 
