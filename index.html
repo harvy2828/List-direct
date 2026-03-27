@@ -3484,10 +3484,8 @@ window.addEventListener('DOMContentLoaded', () => {
   const searchCity = params.get('search');
   const scrollTo = params.get('scroll');
   if (scrollTo) {
-    setTimeout(() => {
-      const el = document.getElementById(scrollTo === 'search' ? 'search-section' : 'ai-tools');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-    }, 500);
+    const el = document.getElementById(scrollTo === 'search' ? 'search-section' : 'ai-tools');
+    if (el) el.scrollIntoView({ behavior: 'auto' });
   }
   const highlightId = params.get('highlight');
   const searchCountryParam = params.get('country');
