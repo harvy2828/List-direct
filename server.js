@@ -7,6 +7,8 @@ const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 // ── Email via Resend ──────────────────────────────────────────
 async function sendEmail({ to, subject, html, reply_to }) {
+  // Wrap with dark background body so email clients show black background
+  const wrappedHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;padding:20px;background-color:#0a0f0d;font-family:Arial,sans-serif">${html}</body></html>`;
   try {
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -19,7 +21,7 @@ async function sendEmail({ to, subject, html, reply_to }) {
         reply_to: reply_to || 'infolistdirect@gmail.com',
         to,
         subject,
-        html
+        html: wrappedHtml
       })
     });
     const data = await res.json();
