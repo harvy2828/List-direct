@@ -3488,21 +3488,9 @@ window.addEventListener('DOMContentLoaded', () => {
   const searchCity = params.get('search');
   const scrollTo = params.get('scroll');
   if (scrollTo) {
-    const elMap = { search: 'search-section', 'ai-tools': 'ai-tools', calculator: 'calculator', mortgage: 'ai-tools' };
+    const elMap = { search: 'search-section', 'ai-tools': 'ai-tools', calculator: 'calculator', mortgage: 'tool-mortgage' };
     const el = document.getElementById(elMap[scrollTo] || scrollTo);
-    if (el) {
-      el.scrollIntoView({ behavior: 'auto' });
-      if (scrollTo === 'mortgage') {
-        setTimeout(() => {
-          const mortgageBtn = document.querySelector('.ai-tab-btn[onclick*="mortgage"]');
-          if (mortgageBtn) mortgageBtn.click();
-          else {
-            const panel = document.getElementById('tool-mortgage');
-            if (panel) panel.scrollIntoView({ behavior: 'smooth' });
-          }
-        }, 400);
-      }
-    }
+    if (el) el.scrollIntoView({ behavior: 'auto' });
   }
   const highlightId = params.get('highlight');
   const searchCountryParam = params.get('country');
