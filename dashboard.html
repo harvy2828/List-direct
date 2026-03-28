@@ -1112,7 +1112,8 @@ async function handleForgotPassword() {
       showToast('✅ Reset link sent! Check your email.', 'success');
       hideForgotPassword();
     } else {
-      showToast('Could not send reset email. Please try again.', 'error');
+      const data = await res.json().catch(() => ({}));
+      showToast(data.error || 'Could not send reset email. Please try again.', 'error');
     }
   } catch(e) {
     showLoading(false);

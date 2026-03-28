@@ -326,13 +326,17 @@ app.delete('/api/favorites/:listing_id', async (req, res) => {
 app.post('/api/auth/reset-password', async (req, res) => {
   const { email } = req.body;
   try {
-    const siteUrl = process.env.SITE_URL || 'https://listdirect.ai';
+    const siteUrl = 'https://listdirect.ai';
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: siteUrl + '/reset-password.html'
     });
-    if (error) return res.status(400).json({ error: error.message });
+    if (error) {
+      console.error('Reset password error:', error.message);
+      return res.status(400).json({ error: error.message });
+    }
     res.json({ success: true });
   } catch (err) {
+    console.error('Reset password exception:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
