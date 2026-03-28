@@ -1180,7 +1180,7 @@ async function handleAgentForgotPassword() {
     const res = await fetch('/api/auth/reset-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, redirectTo: window.location.origin + '/agent-portal.html' })
+      body: JSON.stringify({ email })
     });
     showLoading(false);
     showToast('✅ Reset link sent! Check your email.', 'gold');
