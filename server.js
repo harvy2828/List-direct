@@ -342,10 +342,10 @@ app.post('/api/auth/update-password', async (req, res) => {
   const { password } = req.body;
   if (!token) return res.status(401).json({ error: 'Not authenticated' });
   try {
-    const userSupabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
-      global: { headers: { Authorization: `Bearer ${token}` } }
-    });
-    const { error } = await userSupabase.auth.updateUser({ password });
+    const { data: { user }, error: authErr } = await supabase.auth.getUser(token);
+    if (authErr || !user) return res.status(401).json({ error: 'Not authenticated' });
+    const adminSupabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+    const { error } = await adminSupabase.auth.admin.updateUserById(user.id, { password });
     if (error) return res.status(400).json({ error: error.message });
     res.json({ success: true });
   } catch (err) {
@@ -370,8 +370,12 @@ app.post('/api/auth/update-profile', async (req, res) => {
     const bio = clean(req.body.bio);
     const cashback_offer = clean(req.body.cashback_offer) || '1';
     // Only update profiles table - skip Auth metadata entirely
+    const specialty = clean(req.body.specialty);
+    const years_experience = clean(req.body.years_experience);
+    const languages = clean(req.body.languages);
+    const designations = clean(req.body.designations);
     const { error: profErr } = await supabase.from('profiles')
-      .upsert({ id: user.id, full_name, phone, location, license_number, bio, cashback_offer }, { onConflict: 'id' });
+      .upsert({ id: user.id, full_name, phone, location, license_number, bio, cashback_offer, specialty, years_experience, languages, designations }, { onConflict: 'id' });
     if (profErr) return res.status(400).json({ error: profErr.message });
     res.json({ success: true });
   } catch (err) {

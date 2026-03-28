@@ -1073,7 +1073,13 @@ async function saveProfile() {
     const res = await fetch('/api/auth/update-profile', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ full_name: name, phone, location, license_number: license, bio, cashback_offer: cashback })
+      body: JSON.stringify({ 
+        full_name: name, phone, location, license_number: license, bio, cashback_offer: cashback,
+        specialty: clean(document.getElementById('prof-specialty')?.value),
+        years_experience: clean(document.getElementById('prof-years')?.value),
+        languages: clean(document.getElementById('prof-languages')?.value),
+        designations: clean(document.getElementById('prof-designations')?.value)
+      })
     });
     const data = await res.json();
     showLoading(false);
