@@ -324,10 +324,11 @@ app.delete('/api/favorites/:listing_id', async (req, res) => {
 
 // ── Auth: Reset Password (send email) ────────────────────────
 app.post('/api/auth/reset-password', async (req, res) => {
-  const { email, redirectTo } = req.body;
+  const { email } = req.body;
   try {
+    const siteUrl = process.env.SITE_URL || 'https://listdirect.ai';
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: redirectTo || process.env.SITE_URL + '/dashboard.html'
+      redirectTo: siteUrl + '/reset-password.html'
     });
     if (error) return res.status(400).json({ error: error.message });
     res.json({ success: true });
@@ -344,10 +345,25 @@ app.post('/api/auth/update-password', async (req, res) => {
   try {
     const { data: { user }, error: authErr } = await supabase.auth.getUser(token);
     if (authErr || !user) return res.status(401).json({ error: 'Not authenticated' });
-    // Send password reset email - most reliable approach
-    const redirectTo = (process.env.SITE_URL || 'https://listdirect.ai') + '/agent-portal.html';
-    await supabase.auth.resetPasswordForEmail(user.email, { redirectTo });
-    res.json({ success: true, email_sent: true });
+    // Use user token client to change password directly
+    const userClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: `Bearer ${token}` } }
+    });
+    const { error } = await userClient.auth.updateUser({ password: String(password) });
+    if (error) return res.status(400).json({ error: error.message });
+    // Send confirmation email
+    await sendEmail({
+      to: user.email,
+      subject: 'Your ListDirect password has been changed',
+      html: emailWrap(`
+        <h2 style="color:#3ef07a;margin:0 0 8px">Password Changed</h2>
+        <p style="color:#7a9480;margin:0 0 16px">Hi there,</p>
+        <p style="color:#e8f0e9">Your ListDirect password was successfully updated.</p>
+        <p style="color:#7a9480;margin-top:12px;font-size:0.88rem">If you did not make this change, contact us immediately at <a href="mailto:noreply@listdirect.ai" style="color:#3ef07a">noreply@listdirect.ai</a></p>
+        <a href="https://listdirect.ai" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-top:20px">Go to ListDirect</a>
+      `)
+    });
+    res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
