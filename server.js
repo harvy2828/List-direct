@@ -322,18 +322,40 @@ app.delete('/api/favorites/:listing_id', async (req, res) => {
 });
 
 
-// ── Auth: Reset Password (send email) ────────────────────────
+// ── Auth: Reset Password (send email via Resend) ─────────────
 app.post('/api/auth/reset-password', async (req, res) => {
   const { email } = req.body;
   try {
     const siteUrl = 'https://listdirect.ai';
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: siteUrl + '/reset-password.html'
-    });
-    if (error) {
-      console.error('Reset password error:', error.message);
-      return res.status(400).json({ error: error.message });
+    // Generate reset token via Supabase admin
+    const adminSupabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+    // Get user by email first
+    const { data: { users }, error: listErr } = await adminSupabase.auth.admin.listUsers();
+    if (listErr) return res.status(400).json({ error: listErr.message });
+    const user = users.find(u => u.email === email);
+    if (!user) {
+      // Don't reveal if email exists - just say sent
+      return res.json({ success: true });
     }
+    // Generate a magic link / recovery link
+    const { data: linkData, error: linkErr } = await adminSupabase.auth.admin.generateLink({
+      type: 'recovery',
+      email: email,
+      options: { redirectTo: siteUrl + '/reset-password.html' }
+    });
+    if (linkErr) return res.status(400).json({ error: linkErr.message });
+    // Send via Resend
+    await sendEmail({
+      to: email,
+      subject: 'Reset Your ListDirect Password',
+      html: emailWrap(`
+        <h2 style="color:#3ef07a;margin:0 0 8px">Reset Your Password</h2>
+        <p style="color:#7a9480;margin:0 0 20px">Hi there,</p>
+        <p style="color:#e8f0e9;margin-bottom:24px">We received a request to reset your ListDirect password. Click the button below to set a new password:</p>
+        <a href="${linkData.properties.action_link}" style="background:#3ef07a;color:#0a0f0d;padding:14px 32px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-bottom:20px">Reset Password</a>
+        <p style="color:#7a9480;font-size:0.85rem;margin-top:16px">This link expires in 1 hour. If you did not request a password reset, you can ignore this email.</p>
+      `)
+    });
     res.json({ success: true });
   } catch (err) {
     console.error('Reset password exception:', err.message);
