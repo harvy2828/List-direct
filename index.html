@@ -2399,7 +2399,9 @@ async function submitOffer() {
 // ═══════════════════════════════════════════
 // LEAD CAPTURE (non-verified/market homes)
 // ═══════════════════════════════════════════
+let currentLeadListing = null;
 function openLeadModal(l) {
+  currentLeadListing = l;
   document.getElementById('lead-modal-title').textContent = 'Interested in this home?';
   const svAddr = l.streetview_addr || (l.addr ? `${l.addr}, ${l.city}, ${l.state || ''} ${l.zip || ''}` : '');
   document.getElementById('lead-home-preview').innerHTML = `
@@ -2436,10 +2438,28 @@ function closeLeadModal() {
   document.getElementById('lead-modal').classList.remove('open');
   document.body.style.overflow = '';
 }
-function submitLead() {
+async function submitLead() {
   const btn = document.querySelector('#lead-modal .modal-submit');
+  const name = document.getElementById('lead-name').value.trim();
+  const email = document.getElementById('lead-email').value.trim();
+  const phone = document.getElementById('lead-phone').value.trim();
+  if (!name || !email) { alert('Please enter your name and email.'); return; }
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+  try {
+    await fetch('/api/lead-capture', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name, email, phone,
+        address: currentLeadListing ? `${currentLeadListing.addr}, ${currentLeadListing.city}` : 'Unknown',
+        price: currentLeadListing ? currentLeadListing.price : 0
+      })
+    });
+  } catch(e) {}
   btn.textContent = '✓ Request Sent!';
   btn.style.background = '#27c45e';
+  btn.disabled = false;
   setTimeout(closeLeadModal, 1500);
   setTimeout(() => { btn.textContent = 'Contact Seller on My Behalf →'; btn.style.background = ''; }, 2200);
 }
