@@ -5,7 +5,7 @@ const { createClient } = require('@supabase/supabase-js');
 const Stripe = require('stripe');
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
-// -- Email Header/Footer ----------------------------------------
+// ── Email Header/Footer ────────────────────────────────────────
 function emailHeader() {
   return `<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#0a0f0d">
     <tr><td bgcolor="#0a0f0d" style="background-color:#0a0f0d;padding:24px 32px;text-align:center;border-bottom:2px solid #3ef07a">
@@ -18,7 +18,7 @@ function emailFooter() {
   return `<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#060c09">
     <tr><td bgcolor="#060c09" style="background-color:#060c09;padding:20px 32px;text-align:center;border-top:1px solid #1f2d22">
       <a href="https://listdirect.ai" style="color:#3ef07a;font-family:Arial,sans-serif;font-size:0.8rem;text-decoration:none">listdirect.ai</a><br>
-      <span style="color:#3a4d3e;font-family:Arial,sans-serif;font-size:0.75rem;">&copy; 2026 ListDirect. All rights reserved.</span>
+      <span style="color:#3a4d3e;font-family:Arial,sans-serif;font-size:0.75rem;">© 2026 ListDirect. All rights reserved.</span>
     </td></tr>
   </table>`;
 }
@@ -30,7 +30,7 @@ function emailWrap(content) {
   </table>`;
 }
 
-// -- Email via Resend ------------------------------------------
+// ── Email via Resend ──────────────────────────────────────────
 async function sendEmail({ to, subject, html, reply_to }) {
   const wrappedHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><meta name="supported-color-schemes" content="dark"></head><body style="margin:0;padding:0;background-color:#0a0f0d" bgcolor="#0a0f0d"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#0a0f0d" bgcolor="#0a0f0d"><tr><td align="center" style="padding:20px;background-color:#0a0f0d" bgcolor="#0a0f0d"><table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%"><tr><td style="background-color:#0a0f0d;padding:0" bgcolor="#0a0f0d">${html}</td></tr></table></td></tr></table></body></html>`;
   try {
@@ -66,7 +66,7 @@ const supabase = createClient(
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
-// -- Claude AI proxy ------------------------------------------
+// ── Claude AI proxy ──────────────────────────────────────────
 app.post('/api/claude', async (req, res) => {
   try {
     const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -92,7 +92,7 @@ app.post('/api/claude', async (req, res) => {
   }
 });
 
-// -- Auth: Sign Up ---------------------------------------------
+// ── Auth: Sign Up ─────────────────────────────────────────────
 app.post('/api/auth/signup', async (req, res) => {
   const { email, password, full_name, role } = req.body;
   try {
@@ -108,23 +108,23 @@ app.post('/api/auth/signup', async (req, res) => {
       // Email to admin about new agent application
       await sendEmail({
         to: 'infolistdirect@gmail.com',
-        subject: '? New Agent Application &mdash; ' + (req.body.full_name || 'Unknown'),
+        subject: '🤝 New Agent Application — ' + (req.body.full_name || 'Unknown'),
         html: `
           <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a0f0d;color:#e8f0e9;border-radius:12px;padding:32px">
             <h2 style="color:#3ef07a;margin-bottom:4px">New Agent Application</h2>
             <p style="color:#7a9480;margin-bottom:24px">Someone applied to join your certified agent network</p>
             <table style="width:100%;border-collapse:collapse">
-              <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">Name</td><td style="padding:10px;color:#e8f0e9;border-bottom:1px solid #1f2d22"><strong>${req.body.full_name || '&mdash;'}</strong></td></tr>
+              <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">Name</td><td style="padding:10px;color:#e8f0e9;border-bottom:1px solid #1f2d22"><strong>${req.body.full_name || '—'}</strong></td></tr>
               <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">Email</td><td style="padding:10px;color:#e8f0e9;border-bottom:1px solid #1f2d22">${req.body.email}</td></tr>
-              <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">Phone</td><td style="padding:10px;color:#e8f0e9;border-bottom:1px solid #1f2d22">${req.body.phone || '&mdash;'}</td></tr>
-              <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">License</td><td style="padding:10px;color:#e8f0e9;border-bottom:1px solid #1f2d22">${req.body.license_number || '&mdash;'}</td></tr>
-              <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">Location</td><td style="padding:10px;color:#e8f0e9;border-bottom:1px solid #1f2d22">${req.body.location || '&mdash;'}</td></tr>
-              <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">Specialty</td><td style="padding:10px;color:#e8f0e9;border-bottom:1px solid #1f2d22">${req.body.specialty || '&mdash;'}</td></tr>
+              <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">Phone</td><td style="padding:10px;color:#e8f0e9;border-bottom:1px solid #1f2d22">${req.body.phone || '—'}</td></tr>
+              <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">License</td><td style="padding:10px;color:#e8f0e9;border-bottom:1px solid #1f2d22">${req.body.license_number || '—'}</td></tr>
+              <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">Location</td><td style="padding:10px;color:#e8f0e9;border-bottom:1px solid #1f2d22">${req.body.location || '—'}</td></tr>
+              <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">Specialty</td><td style="padding:10px;color:#e8f0e9;border-bottom:1px solid #1f2d22">${req.body.specialty || '—'}</td></tr>
               <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">Cashback Offer</td><td style="padding:10px;color:#f5c842;border-bottom:1px solid #1f2d22">${req.body.cashback_offer || '1'}% to sellers</td></tr>
-              <tr><td style="padding:10px;color:#7a9480">Bio</td><td style="padding:10px;color:#e8f0e9">${req.body.bio || '&mdash;'}</td></tr>
+              <tr><td style="padding:10px;color:#7a9480">Bio</td><td style="padding:10px;color:#e8f0e9">${req.body.bio || '—'}</td></tr>
             </table>
             <div style="margin-top:24px;text-align:center">
-              <a href="https://listdirect.ai/admin.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">Review Application &#8594;</a>
+              <a href="https://listdirect.ai/admin.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">Review Application →</a>
             </div>
           </div>
         `
@@ -133,7 +133,7 @@ app.post('/api/auth/signup', async (req, res) => {
       // Email to new regular user - welcome
       await sendEmail({
         to: req.body.email,
-        subject: 'Welcome to ListDirect! ?',
+        subject: 'Welcome to ListDirect! 🏡',
         html: `
           <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a0f0d;color:#e8f0e9;border-radius:12px;padding:32px">
             <h1 style="color:#3ef07a;font-size:2rem;margin-bottom:4px">Welcome to ListDirect!</h1>
@@ -147,7 +147,7 @@ app.post('/api/auth/signup', async (req, res) => {
               <li>Browse certified agents with guaranteed cashback</li>
             </ul>
             <div style="margin-top:24px;text-align:center">
-              <a href="https://listdirect.ai/dashboard.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">Go to My Account &#8594;</a>
+              <a href="https://listdirect.ai/dashboard.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">Go to My Account →</a>
             </div>
             <p style="color:#3d5240;font-size:0.8rem;margin-top:32px;text-align:center">Questions? Email us at infolistdirect@gmail.com</p>
           </div>
@@ -161,7 +161,7 @@ app.post('/api/auth/signup', async (req, res) => {
   }
 });
 
-// -- Auth: Sign In ---------------------------------------------
+// ── Auth: Sign In ─────────────────────────────────────────────
 app.post('/api/auth/signin', async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -173,7 +173,7 @@ app.post('/api/auth/signin', async (req, res) => {
   }
 });
 
-// -- Auth: Sign Out --------------------------------------------
+// ── Auth: Sign Out ────────────────────────────────────────────
 app.post('/api/auth/signout', async (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (token) {
@@ -185,7 +185,7 @@ app.post('/api/auth/signout', async (req, res) => {
   res.json({ success: true });
 });
 
-// -- Auth: Get current user ------------------------------------
+// ── Auth: Get current user ────────────────────────────────────
 app.get('/api/auth/me', async (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Not authenticated' });
@@ -211,7 +211,7 @@ app.post('/api/auth/refresh', async (req, res) => {
   }
 });
 
-// -- Listings: Create ------------------------------------------
+// ── Listings: Create ──────────────────────────────────────────
 app.post('/api/listings', async (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Not authenticated' });
@@ -245,7 +245,7 @@ app.post('/api/listings', async (req, res) => {
   }
 });
 
-// -- Listings: Get user's listings -----------------------------
+// ── Listings: Get user's listings ─────────────────────────────
 app.get('/api/listings/mine', async (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Not authenticated' });
@@ -260,7 +260,7 @@ app.get('/api/listings/mine', async (req, res) => {
   }
 });
 
-// -- Photos: Upload --------------------------------------------
+// ── Photos: Upload ────────────────────────────────────────────
 app.post('/api/photos/upload', upload.single('photo'), async (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Not authenticated' });
@@ -280,7 +280,7 @@ app.post('/api/photos/upload', upload.single('photo'), async (req, res) => {
   }
 });
 
-// -- Favorites -------------------------------------------------
+// ── Favorites ─────────────────────────────────────────────────
 app.post('/api/favorites', async (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Not authenticated' });
@@ -322,7 +322,7 @@ app.delete('/api/favorites/:listing_id', async (req, res) => {
 });
 
 
-// -- Auth: Reset Password (send email) ------------------------
+// ── Auth: Reset Password (send email) ────────────────────────
 app.post('/api/auth/reset-password', async (req, res) => {
   const { email, redirectTo } = req.body;
   try {
@@ -336,7 +336,7 @@ app.post('/api/auth/reset-password', async (req, res) => {
   }
 });
 
-// -- Auth: Update Password -------------------------------------
+// ── Auth: Update Password ─────────────────────────────────────
 app.post('/api/auth/update-password', async (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   const { password } = req.body;
@@ -354,39 +354,32 @@ app.post('/api/auth/update-password', async (req, res) => {
 });
 
 
-// -- Auth: Update Profile --------------------------------------
+// ── Auth: Update Profile ──────────────────────────────────────
 app.post('/api/auth/update-profile', async (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Not authenticated' });
-  let { full_name, phone, location, license_number, bio, cashback_offer } = req.body;
-  // Sanitize - remove non-ASCII characters that cause ByteString errors
-  const sanitize = (str) => str ? String(str).replace(/[^\x00-\x7F]/g, '').trim() : '';
-  full_name = sanitize(full_name);
-  phone = sanitize(phone);
-  location = sanitize(location);
-  license_number = sanitize(license_number);
-  bio = sanitize(bio);
-  cashback_offer = sanitize(cashback_offer) || '1%';
   try {
     const { data: { user }, error: authErr } = await supabase.auth.getUser(token);
     if (authErr || !user) return res.status(401).json({ error: 'Not authenticated' });
-    // Use service key if available, otherwise use token-scoped client
-    const serviceKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY;
-    const adminClient = createClient(process.env.SUPABASE_URL, serviceKey);
-    const { error: updateErr } = await adminClient.from('profiles').update({ 
-      full_name, phone, location, license_number, bio, cashback_offer 
-    }).eq('id', user.id);
-    if (updateErr) {
-      console.error('Profile update error:', updateErr.message);
-      return res.status(400).json({ error: updateErr.message });
-    }
+    // Strip ALL non-ASCII from every incoming value
+    const clean = v => typeof v === 'string' ? v.replace(/[^\x00-\x7F]/g, '').trim() : (v || '');
+    const full_name = clean(req.body.full_name);
+    const phone = clean(req.body.phone);
+    const location = clean(req.body.location);
+    const license_number = clean(req.body.license_number);
+    const bio = clean(req.body.bio);
+    const cashback_offer = clean(req.body.cashback_offer) || '1';
+    // Only update profiles table - skip Auth metadata entirely
+    const { error: profErr } = await supabase.from('profiles')
+      .upsert({ id: user.id, full_name, phone, location, license_number, bio, cashback_offer }, { onConflict: 'id' });
+    if (profErr) return res.status(400).json({ error: profErr.message });
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// -- Auth: Clean User Metadata (one-time fix) -----------------
+// ── Auth: Clean User Metadata (one-time fix) ─────────────────
 app.post('/api/auth/clean-metadata', async (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Not authenticated' });
@@ -407,7 +400,7 @@ app.post('/api/auth/clean-metadata', async (req, res) => {
   }
 });
 
-// -- Get Certified Agents --------------------------------------
+// ── Get Certified Agents ──────────────────────────────────────
 app.get('/api/agents', async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -424,7 +417,7 @@ app.get('/api/agents', async (req, res) => {
 });
 
 
-// -- Admin: Get All Agents -------------------------------------
+// ── Admin: Get All Agents ─────────────────────────────────────
 app.get('/api/admin/agents', async (req, res) => {
   const adminKey = req.headers['x-admin-key'];
   if (adminKey !== process.env.ADMIN_PASSWORD) {
@@ -448,7 +441,7 @@ app.get('/api/admin/agents', async (req, res) => {
 
     const agents = (profiles || []).map(p => ({
       ...p,
-      email: userMap[p.id] || p.email || '&mdash;'
+      email: userMap[p.id] || p.email || '—'
     }));
 
     res.json({ agents });
@@ -457,7 +450,7 @@ app.get('/api/admin/agents', async (req, res) => {
   }
 });
 
-// -- Admin: Update Agent ---------------------------------------
+// ── Admin: Update Agent ───────────────────────────────────────
 app.patch('/api/admin/agents/:id', async (req, res) => {
   const adminKey = req.headers['x-admin-key'];
   if (adminKey !== process.env.ADMIN_PASSWORD) {
@@ -480,7 +473,7 @@ app.patch('/api/admin/agents/:id', async (req, res) => {
       if (agentEmail) {
         await sendEmail({
           to: agentEmail,
-          subject: "? You're now a ListDirect Certified Agent!",
+          subject: "🎉 You're now a ListDirect Certified Agent!",
           html: `
             <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a0f0d;color:#e8f0e9;border-radius:12px;padding:32px">
               <h1 style="color:#f5c842;font-size:2rem;margin-bottom:4px">Congratulations!</h1>
@@ -497,7 +490,7 @@ app.patch('/api/admin/agents/:id', async (req, res) => {
                 </ul>
               </div>
               <div style="margin-top:24px;text-align:center">
-                <a href="https://listdirect.ai/agent-portal.html" style="background:#f5c842;color:#1a1200;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">Go to Agent Portal &#8594;</a>
+                <a href="https://listdirect.ai/agent-portal.html" style="background:#f5c842;color:#1a1200;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">Go to Agent Portal →</a>
               </div>
               <p style="color:#3d5240;font-size:0.8rem;margin-top:32px;text-align:center">Questions? Email us at infolistdirect@gmail.com</p>
             </div>
@@ -513,7 +506,7 @@ app.patch('/api/admin/agents/:id', async (req, res) => {
 });
 
 
-// -- Stripe: Create Payment Intent (Seller 1%) -----------------
+// ── Stripe: Create Payment Intent (Seller 1%) ─────────────────
 app.post('/api/payments/create-intent', async (req, res) => {
   const { sale_price, payment_type, user_id, listing_id } = req.body;
   const token = req.headers.authorization?.replace('Bearer ', '');
@@ -541,8 +534,8 @@ app.post('/api/payments/create-intent', async (req, res) => {
     // Notify admin of new payment
     await sendEmail({
       to: 'infolistdirect@gmail.com',
-      subject: '? New Payment Initiated &mdash; Seller Platform Fee',
-      html: `<div style="font-family:Arial,sans-serif;background:#0a0f0d;color:#e8f0e9;padding:24px;border-radius:12px"><h2 style="color:#3ef07a">New Seller Payment</h2><p>Amount: <strong>$${(fee/100).toLocaleString()}</strong></p><p>Sale Price: <strong>$${parseInt(sale_price).toLocaleString()}</strong></p><p>Method: <strong>${payment_type}</strong></p><a href="https://listdirect.ai/admin.html" style="background:#3ef07a;color:#0a0f0d;padding:10px 20px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-top:12px">View in Admin &#8594;</a></div>`
+      subject: '💰 New Payment Initiated — Seller Platform Fee',
+      html: `<div style="font-family:Arial,sans-serif;background:#0a0f0d;color:#e8f0e9;padding:24px;border-radius:12px"><h2 style="color:#3ef07a">New Seller Payment</h2><p>Amount: <strong>$${(fee/100).toLocaleString()}</strong></p><p>Sale Price: <strong>$${parseInt(sale_price).toLocaleString()}</strong></p><p>Method: <strong>${payment_type}</strong></p><a href="https://listdirect.ai/admin.html" style="background:#3ef07a;color:#0a0f0d;padding:10px 20px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-top:12px">View in Admin →</a></div>`
     });
     
     res.json({ client_secret: paymentIntent.client_secret, amount: fee });
@@ -551,7 +544,7 @@ app.post('/api/payments/create-intent', async (req, res) => {
   }
 });
 
-// -- Stripe: Create Payment Intent (Agent 10%) -----------------
+// ── Stripe: Create Payment Intent (Agent 10%) ─────────────────
 app.post('/api/payments/agent-fee', async (req, res) => {
   const { commission_amount, payment_type, agent_id, deal_id } = req.body;
   const token = req.headers.authorization?.replace('Bearer ', '');
@@ -580,7 +573,7 @@ app.post('/api/payments/agent-fee', async (req, res) => {
   }
 });
 
-// -- Mark Check Payment ----------------------------------------
+// ── Mark Check Payment ────────────────────────────────────────
 app.post('/api/payments/mark-check', async (req, res) => {
   const adminKey = req.headers['x-admin-key'];
   if (adminKey !== process.env.ADMIN_PASSWORD) return res.status(401).json({ error: 'Unauthorized' });
@@ -594,7 +587,7 @@ app.post('/api/payments/mark-check', async (req, res) => {
   }
 });
 
-// -- Get Payments (Admin) --------------------------------------
+// ── Get Payments (Admin) ──────────────────────────────────────
 app.get('/api/admin/payments', async (req, res) => {
   const adminKey = req.headers['x-admin-key'];
   if (adminKey !== process.env.ADMIN_PASSWORD) return res.status(401).json({ error: 'Unauthorized' });
@@ -608,14 +601,14 @@ app.get('/api/admin/payments', async (req, res) => {
 });
 
 
-// -- Notify: Agent Request -------------------------------------
+// ── Notify: Agent Request ─────────────────────────────────────
 app.post('/api/notify/agent-request', async (req, res) => {
   const { agent_name, agent_email, seller_name, seller_email, seller_phone, seller_address, seller_price, cashback } = req.body;
   try {
     // Email to admin
     await sendEmail({
       to: 'infolistdirect@gmail.com',
-      subject: `? New Agent Request &mdash; ${seller_name} selected ${agent_name}`,
+      subject: `🏠 New Agent Request — ${seller_name} selected ${agent_name}`,
       html: `
         <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a0f0d;color:#e8f0e9;border-radius:12px;padding:32px">
           <h2 style="color:#f5c842">New Agent Request!</h2>
@@ -628,7 +621,7 @@ app.post('/api/notify/agent-request', async (req, res) => {
             <tr><td style="padding:10px;color:#7a9480;border-bottom:1px solid #1f2d22">Property Address</td><td style="padding:10px;color:#e8f0e9;border-bottom:1px solid #1f2d22">${seller_address}</td></tr>
             <tr><td style="padding:10px;color:#7a9480">Asking Price</td><td style="padding:10px;color:#3ef07a">${seller_price}</td></tr>
           </table>
-          <a href="https://listdirect.ai/admin.html" style="display:inline-block;margin-top:24px;background:#f5c842;color:#1a1200;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700">View in Admin &#8594;</a>
+          <a href="https://listdirect.ai/admin.html" style="display:inline-block;margin-top:24px;background:#f5c842;color:#1a1200;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700">View in Admin →</a>
         </div>
       `
     });
@@ -637,7 +630,7 @@ app.post('/api/notify/agent-request', async (req, res) => {
     if (agent_email) {
       await sendEmail({
         to: agent_email,
-        subject: `? New Seller Lead &mdash; ${seller_name} wants to work with you!`,
+        subject: `🏠 New Seller Lead — ${seller_name} wants to work with you!`,
         html: `
           <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a0f0d;color:#e8f0e9;border-radius:12px;padding:32px">
             <h2 style="color:#f5c842">You have a new lead!</h2>
@@ -653,7 +646,7 @@ app.post('/api/notify/agent-request', async (req, res) => {
               <p style="color:#f5c842;font-weight:700;margin-bottom:8px">Remember your commitment:</p>
               <p style="color:#7a9480">You have agreed to give this seller a minimum <strong style="color:#f5c842">${cashback}</strong> cashback at closing, and to pay ListDirect a 10% referral fee from your commission.</p>
             </div>
-            <a href="https://listdirect.ai/agent-portal.html" style="display:inline-block;margin-top:8px;background:#f5c842;color:#1a1200;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700">Go to Agent Portal &#8594;</a>
+            <a href="https://listdirect.ai/agent-portal.html" style="display:inline-block;margin-top:8px;background:#f5c842;color:#1a1200;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700">Go to Agent Portal →</a>
           </div>
         `
       });
@@ -667,7 +660,7 @@ app.post('/api/notify/agent-request', async (req, res) => {
 });
 
 
-// -- Listings: Track View --------------------------------------
+// ── Listings: Track View ──────────────────────────────────────
 app.post('/api/listings/:id/view', async (req, res) => {
   try {
     const { data: listing } = await supabase.from('listings').select('view_count').eq('id', req.params.id).single();
@@ -679,7 +672,7 @@ app.post('/api/listings/:id/view', async (req, res) => {
   }
 });
 
-// -- Listings: Update ------------------------------------------
+// ── Listings: Update ──────────────────────────────────────────
 app.patch('/api/listings/:id', async (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Not authenticated' });
@@ -719,7 +712,7 @@ app.patch('/api/listings/:id', async (req, res) => {
 });
 
 
-// -- Offers: Submit --------------------------------------------
+// ── Offers: Submit ────────────────────────────────────────────
 app.post('/api/offers', async (req, res) => {
   const { seller_id, property, offer_amount, buyer_name, buyer_email, buyer_phone, message } = req.body;
   if (!buyer_name || !buyer_email || !offer_amount) return res.status(400).json({ error: 'Missing required fields' });
@@ -729,7 +722,7 @@ app.post('/api/offers', async (req, res) => {
       seller_id,
       sender_name: buyer_name,
       sender_email: buyer_email,
-      message: `? OFFER: $${parseInt(offer_amount).toLocaleString()}\n\nProperty: ${property}\nPhone: ${buyer_phone || 'Not provided'}\n\n${message ? 'Note: ' + message : ''}`,
+      message: `💰 OFFER: $${parseInt(offer_amount).toLocaleString()}\n\nProperty: ${property}\nPhone: ${buyer_phone || 'Not provided'}\n\n${message ? 'Note: ' + message : ''}`,
       read: false,
       created_at: new Date().toISOString()
     }]);
@@ -740,9 +733,9 @@ app.post('/api/offers', async (req, res) => {
       await sendEmail({
         to: sellerAuth.user.email,
         reply_to: buyer_email,
-        subject: `? New Offer &mdash; $${parseInt(offer_amount).toLocaleString()} on your listing!`,
+        subject: `💰 New Offer — $${parseInt(offer_amount).toLocaleString()} on your listing!`,
         html: `<div style="font-family:Arial,sans-serif;background:#0a0f0d;color:#e8f0e9;padding:32px;border-radius:12px;max-width:600px">
-          <h2 style="color:#3ef07a">? You received an offer!</h2>
+          <h2 style="color:#3ef07a">💰 You received an offer!</h2>
           <div style="background:#1a3d28;border:1px solid rgba(62,240,122,0.3);border-radius:12px;padding:20px;margin:16px 0;text-align:center">
             <div style="font-size:0.85rem;color:#7a9480;margin-bottom:4px">Offer Amount</div>
             <div style="font-family:Georgia,serif;font-size:2.5rem;font-weight:900;color:#3ef07a">$${parseInt(offer_amount).toLocaleString()}</div>
@@ -754,8 +747,8 @@ app.post('/api/offers', async (req, res) => {
             ${buyer_phone ? `<p><strong style="color:#e8f0e9">Phone:</strong> <span style="color:#7a9480">${buyer_phone}</span></p>` : ''}
             ${message ? `<p><strong style="color:#e8f0e9">Note:</strong> <span style="color:#7a9480">${message}</span></p>` : ''}
           </div>
-          <a href="mailto:${buyer_email}" style="display:inline-block;background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;margin-right:10px">Reply to Buyer &#8594;</a>
-          <a href="https://listdirect.ai/dashboard.html" style="display:inline-block;background:none;border:1px solid #3ef07a;color:#3ef07a;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700">View in Dashboard &#8594;</a>
+          <a href="mailto:${buyer_email}" style="display:inline-block;background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;margin-right:10px">Reply to Buyer →</a>
+          <a href="https://listdirect.ai/dashboard.html" style="display:inline-block;background:none;border:1px solid #3ef07a;color:#3ef07a;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700">View in Dashboard →</a>
         </div>`
       });
     }
@@ -766,7 +759,7 @@ app.post('/api/offers', async (req, res) => {
   }
 });
 
-// -- Messages: Send --------------------------------------------
+// ── Messages: Send ────────────────────────────────────────────
 app.post('/api/messages', async (req, res) => {
   const { listing_id, seller_id, sender_name, sender_email, message } = req.body;
   const token = req.headers.authorization?.replace('Bearer ', '');
@@ -794,7 +787,7 @@ app.post('/api/messages', async (req, res) => {
     if (sellerAuth?.user?.email) {
       await sendEmail({
         to: sellerAuth.user.email,
-        subject: '? New Inquiry &mdash; ' + sender_name + ' is interested in your listing!',
+        subject: '💬 New Inquiry — ' + sender_name + ' is interested in your listing!',
         html: `<div style="font-family:Arial,sans-serif;background:#0a0f0d;color:#e8f0e9;padding:32px;border-radius:12px;max-width:600px">
           <h2 style="color:#3ef07a">New Inquiry on Your Listing!</h2>
           <p style="color:#7a9480">Someone is interested in your property.</p>
@@ -803,7 +796,7 @@ app.post('/api/messages', async (req, res) => {
             <p><strong>Email:</strong> ${sender_email}</p>
             <p style="margin-top:12px;color:#e8f0e9">"${message}"</p>
           </div>
-          <a href="https://listdirect.ai/dashboard.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-top:8px">Reply in Dashboard &#8594;</a>
+          <a href="https://listdirect.ai/dashboard.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-top:8px">Reply in Dashboard →</a>
         </div>`
       });
     }
@@ -814,7 +807,7 @@ app.post('/api/messages', async (req, res) => {
   }
 });
 
-// -- Messages: Get Inquiries (for seller) ----------------------
+// ── Messages: Get Inquiries (for seller) ──────────────────────
 app.get('/api/messages/inquiries', async (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Not authenticated' });
@@ -833,7 +826,7 @@ app.get('/api/messages/inquiries', async (req, res) => {
   }
 });
 
-// -- Messages: Reply -------------------------------------------
+// ── Messages: Reply ───────────────────────────────────────────
 app.post('/api/messages/reply', async (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Not authenticated' });
@@ -861,20 +854,20 @@ app.post('/api/messages/reply', async (req, res) => {
       await sendEmail({
         to: buyer_email,
         reply_to: sellerEmail,
-        subject: '? Reply from your ListDirect inquiry',
+        subject: '💬 Reply from your ListDirect inquiry',
         html: emailWrap(`
           <h2 style="color:#3ef07a;margin:0 0 8px">The seller replied to your inquiry!</h2>
           <p style="color:#7a9480;margin:0 0 20px">Hi ${buyer_name || 'there'},</p>
           <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin:16px 0">
             <p style="color:#e8f0e9;margin:0">"${reply_text}"</p>
-            <p style="color:#7a9480;margin:8px 0 0">&mdash; ${sellerName}</p>
+            <p style="color:#7a9480;margin:8px 0 0">— ${sellerName}</p>
           </div>
           <div style="background:#1a3d28;border:1px solid rgba(62,240,122,0.3);border-radius:12px;padding:16px;margin:16px 0">
-            <p style="color:#3ef07a;font-weight:700;margin:0 0 6px">? Want to reply?</p>
+            <p style="color:#3ef07a;font-weight:700;margin:0 0 6px">💬 Want to reply?</p>
             <p style="color:#e8f0e9;margin:0 0 12px">Simply reply to this email and your message will go directly to the seller.</p>
             <a href="mailto:${sellerEmail}" style="display:inline-block;background:#3ef07a;color:#0a0f0d;padding:10px 20px;border-radius:50px;font-weight:700;font-size:0.9rem;text-decoration:none">${sellerEmail}</a>
           </div>
-          <a href="https://listdirect.ai" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-top:8px">View on ListDirect &#8594;</a>
+          <a href="https://listdirect.ai" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-top:8px">View on ListDirect →</a>
         `)
       });
     }
@@ -902,7 +895,7 @@ app.get('/api/messages/:id/replies', async (req, res) => {
   }
 });
 
-// -- Messages: Mark Read ---------------------------------------
+// ── Messages: Mark Read ───────────────────────────────────────
 app.patch('/api/messages/:id/read', async (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Not authenticated' });
@@ -915,7 +908,7 @@ app.patch('/api/messages/:id/read', async (req, res) => {
 });
 
 
-// -- Listings: Search Public -----------------------------------
+// ── Listings: Search Public ───────────────────────────────────
 app.get('/api/listings/search', async (req, res) => {
   const { q, beds, maxPrice } = req.query;
   try {
@@ -944,7 +937,7 @@ app.get('/api/listings/search', async (req, res) => {
 });
 
 
-// -- Members: Count --------------------------------------------
+// ── Members: Count ────────────────────────────────────────────
 app.get('/api/members/count', async (req, res) => {
   try {
     const { count: sellerCount } = await supabase
@@ -962,7 +955,7 @@ app.get('/api/members/count', async (req, res) => {
 });
 
 
-// -- Repliers MLS Listings (Canada) ---------------------------
+// ── Repliers MLS Listings (Canada) ───────────────────────────
 app.get('/api/mls/canada', async (req, res) => {
   const { city, minBeds, maxPrice, minPrice, type } = req.query;
   try {
@@ -1021,7 +1014,7 @@ app.get('/api/mls/canada', async (req, res) => {
 });
 
 
-// -- Rentcast US Listings --------------------------------------
+// ── Rentcast US Listings ──────────────────────────────────────
 app.get('/api/listings/us', async (req, res) => {
   const { city, state, minBeds, maxPrice, minPrice } = req.query;
   try {
