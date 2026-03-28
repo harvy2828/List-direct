@@ -345,9 +345,11 @@ app.post('/api/auth/update-password', async (req, res) => {
   try {
     const { data: { user }, error: authErr } = await supabase.auth.getUser(token);
     if (authErr || !user) return res.status(401).json({ error: 'Not authenticated' });
-    // Use service key just for password update - no metadata touched so no ByteString issues
-    const adminSupabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
-    const { error } = await adminSupabase.auth.admin.updateUserById(user.id, { password: String(password) });
+    // Use user's own token to update password - most reliable approach
+    const userClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: `Bearer ${token}` } }
+    });
+    const { error } = await userClient.auth.updateUser({ password: String(password) });
     if (error) return res.status(400).json({ error: error.message });
     // Send confirmation email
     await sendEmail({
