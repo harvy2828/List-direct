@@ -345,7 +345,13 @@ app.post('/api/auth/update-password', async (req, res) => {
     const { data: { user }, error: authErr } = await supabase.auth.getUser(token);
     if (authErr || !user) return res.status(401).json({ error: 'Not authenticated' });
     const adminSupabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
-    const { error } = await adminSupabase.auth.admin.updateUserById(user.id, { password });
+    // Clean existing metadata first to remove any special chars that cause ByteString errors
+    const cleanStr = s => typeof s === 'string' ? s.replace(/[^\x00-\x7F]/g, '').trim() : s;
+    const cleanMeta = {};
+    Object.keys(user.user_metadata || {}).forEach(k => { cleanMeta[k] = cleanStr(user.user_metadata[k]); });
+    await adminSupabase.auth.admin.updateUserById(user.id, { user_metadata: cleanMeta });
+    // Now update password
+    const { error } = await adminSupabase.auth.admin.updateUserById(user.id, { password: String(password) });
     if (error) return res.status(400).json({ error: error.message });
     res.json({ success: true });
   } catch (err) {
@@ -374,7 +380,8 @@ app.post('/api/auth/update-profile', async (req, res) => {
     const years_experience = clean(req.body.years_experience);
     const languages = clean(req.body.languages);
     const designations = clean(req.body.designations);
-    const { error: profErr } = await supabase.from('profiles')
+    const adminSupabase2 = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+    const { error: profErr } = await adminSupabase2.from('profiles')
       .upsert({ id: user.id, full_name, phone, location, license_number, bio, cashback_offer, specialty, years_experience, languages, designations }, { onConflict: 'id' });
     if (profErr) return res.status(400).json({ error: profErr.message });
     res.json({ success: true });
