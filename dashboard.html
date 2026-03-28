@@ -1005,7 +1005,25 @@ async function changePassword() {
   if (!np || !cp) return showToast('Please fill in both password fields', 'error');
   if (np !== cp) return showToast('Passwords do not match', 'error');
   if (np.length < 6) return showToast('Password must be at least 6 characters', 'error');
-  showToast('Password updated! ✅', 'success');
+  const token = localStorage.getItem('ld_token');
+  if (!token) return showToast('Not authenticated', 'error');
+  try {
+    const res = await fetch('/api/auth/update-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ password: np })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      document.getElementById('set-newpass').value = '';
+      document.getElementById('set-confirmpass').value = '';
+      showToast('Password updated! ✅', 'success');
+    } else {
+      showToast(data.error || 'Password change failed.', 'error');
+    }
+  } catch(e) {
+    showToast('Connection error.', 'error');
+  }
 }
 
 // ── Helpers ───────────────────────────────────────────────────

@@ -3463,8 +3463,8 @@ function initMobileUserBar() {
       .then(r => r.json())
       .then(d => {
         if (d && d.user) {
-          // Show agent bar regardless of role metadata — if they have an agent token they're an agent
-          const name = d.user.user_metadata?.full_name || d.user.email?.split('@')[0] || 'Agent';
+          // Prefer profiles table name over metadata
+          const name = d.profile?.full_name || d.user.user_metadata?.full_name || d.user.email?.split('@')[0] || 'Agent';
           const firstName = name.split(' ')[0];
           document.getElementById('mobile-agent-name').textContent = firstName;
           agentBar.style.display = 'flex';
