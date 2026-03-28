@@ -343,14 +343,13 @@ app.post('/api/auth/update-password', async (req, res) => {
   const { password } = req.body;
   if (!token) return res.status(401).json({ error: 'Not authenticated' });
   try {
-    const { data: { user }, error: authErr } = await supabase.auth.getUser(token);
-    if (authErr || !user) return res.status(401).json({ error: 'Not authenticated' });
-    // Use user's own token to update password - most reliable approach
+    // Works for both regular session tokens and recovery tokens
     const userClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
       global: { headers: { Authorization: `Bearer ${token}` } }
     });
     const { error } = await userClient.auth.updateUser({ password: String(password) });
     if (error) return res.status(400).json({ error: error.message });
+    const { data: { user } } = await supabase.auth.getUser(token).catch(() => ({ data: { user: null } }));
     // Send confirmation email
     await sendEmail({
       to: user.email,
