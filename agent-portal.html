@@ -712,18 +712,18 @@ let currentUser = null;
   const type = params.get('type');
   
   if (accessToken && type === 'signup') {
-    // Store token and clear the URL hash
-    const isAgentPortal = window.location.pathname.includes('agent-portal');
-    if (isAgentPortal) {
-      localStorage.setItem('ld_agent_token', accessToken);
-    } else {
-      localStorage.setItem('ld_token', accessToken);
-    }
-    // Clean URL
+    localStorage.setItem('ld_agent_token', accessToken);
     history.replaceState(null, '', window.location.pathname);
-    // Show success message briefly then load dashboard
     document.addEventListener('DOMContentLoaded', function() {
       showToast('✅ Email confirmed! Welcome to ListDirect.', 'success');
+    });
+  } else if (accessToken && type === 'recovery') {
+    // Password reset link clicked — store token and show reset form
+    localStorage.setItem('ld_agent_token', accessToken);
+    history.replaceState(null, '', window.location.pathname);
+    document.addEventListener('DOMContentLoaded', function() {
+      // Show a password reset modal
+      document.getElementById('password-reset-modal').style.display = 'flex';
     });
   }
 })();
@@ -934,8 +934,11 @@ function showDashboard() {
         document.getElementById('dash-name').textContent = name.split(' ')[0];
         document.getElementById('dash-fullname').textContent = name;
         document.getElementById('dash-location').textContent = location || 'Location not set';
-        document.getElementById('dash-avatar-img').textContent = initials || '🤝';
-        document.getElementById('profile-avatar-preview').textContent = initials || '🤝';
+        // Only set initials if no avatar
+        if (!profile.avatar_url) {
+          document.getElementById('dash-avatar-img').textContent = initials || '🤝';
+          document.getElementById('profile-avatar-preview').textContent = initials || '🤝';
+        }
         document.getElementById('prof-name').value = name;
         document.getElementById('prof-location').value = location;
         if (document.getElementById('prof-phone')) document.getElementById('prof-phone').value = phone;
@@ -1099,7 +1102,7 @@ async function saveProfile() {
         if (!passRes.ok) return showToast(passData.error || 'Password change failed.', 'error');
         document.getElementById('prof-newpass').value = '';
         document.getElementById('prof-confirmpass').value = '';
-        if (passData.email_sent) return showToast('Password reset email sent! Check your inbox.', 'success');
+        return showToast('Password reset email sent to your inbox! Click the link to set your new password.', 'success');
       }
       showToast('Profile saved! ✅', 'success');
       if (currentUser) currentUser.user_metadata = { ...currentUser.user_metadata, full_name: name, phone, location, license_number: license, bio, cashback_offer: cashback };
@@ -1449,5 +1452,45 @@ function submitAgreement() {
   </div>
 </div>
 
+<!-- Password Reset Modal -->
+<div id="password-reset-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999;align-items:center;justify-content:center;padding:24px">
+  <div style="background:#111810;border:1px solid rgba(245,200,66,0.3);border-radius:20px;padding:32px;max-width:420px;width:100%;font-family:'DM Sans',sans-serif">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:2rem;margin-bottom:8px">🔐</div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:900;color:#e8f0e9">Set New Password</div>
+      <div style="font-size:0.82rem;color:#7a9480;margin-top:4px">Enter your new password below</div>
+    </div>
+    <input type="password" id="reset-new-pass" placeholder="New password" style="width:100%;background:#1a2b1d;border:1px solid #2a3d2e;color:#e8f0e9;padding:12px 16px;border-radius:12px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:12px"/>
+    <input type="password" id="reset-confirm-pass" placeholder="Confirm new password" style="width:100%;background:#1a2b1d;border:1px solid #2a3d2e;color:#e8f0e9;padding:12px 16px;border-radius:12px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:16px"/>
+    <button onclick="submitPasswordReset()" style="width:100%;background:#f5c842;color:#1a1200;border:none;padding:13px;border-radius:50px;font-weight:700;font-size:0.95rem;cursor:pointer;font-family:'DM Sans',sans-serif">Set New Password</button>
+  </div>
+</div>
+
+<script>
+async function submitPasswordReset() {
+  const np = document.getElementById('reset-new-pass').value;
+  const cp = document.getElementById('reset-confirm-pass').value;
+  if (!np || np !== cp) return showToast('Passwords do not match', 'error');
+  if (np.length < 6) return showToast('Password must be at least 6 characters', 'error');
+  const token = localStorage.getItem('ld_agent_token');
+  if (!token) return showToast('Session expired. Please request a new reset link.', 'error');
+  try {
+    const res = await fetch('/api/auth/update-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ password: np })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      document.getElementById('password-reset-modal').style.display = 'none';
+      showToast('✅ Password updated! Please sign in.', 'success');
+    } else {
+      showToast(data.error || 'Failed to update password.', 'error');
+    }
+  } catch(e) {
+    showToast('Connection error.', 'error');
+  }
+}
+</script>
 </body>
 </html>
