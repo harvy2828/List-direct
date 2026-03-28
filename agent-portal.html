@@ -908,24 +908,38 @@ function showDashboard() {
   showLoading(false);
   document.getElementById('auth-section').style.display = 'none';
   document.getElementById('dash-section').style.display = 'block';
-  const meta = currentUser?.user_metadata || {};
-  const cleanStr = s => (s||'').replace(/[^\x00-\x7F]/g,'').trim();
-  const name = cleanStr(meta.full_name) || currentUser?.email?.split('@')[0] || 'Agent';
-  const initials = name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
-  document.getElementById('dash-name').textContent = name.split(' ')[0];
-  document.getElementById('dash-fullname').textContent = name;
-  document.getElementById('dash-location').textContent = cleanStr(meta.location) || '📍 Location not set';
-  document.getElementById('dash-avatar-img').textContent = initials || '🤝';
-  document.getElementById('profile-avatar-preview').textContent = initials || '🤝';
-  document.getElementById('prof-name').value = name;
-  document.getElementById('prof-location').value = cleanStr(meta.location);
-  if (meta.cashback_offer) {
-    const cb = cleanStr(String(meta.cashback_offer));
-    document.getElementById('dash-cashback-rate').textContent = cb + '%';
-    document.getElementById('prof-cashback').value = cb;
+  // Load fresh profile data from profiles table
+  const token = localStorage.getItem('ld_agent_token');
+  if (token) {
+    fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + token } })
+      .then(r => r.json())
+      .then(d => {
+        const profile = d.profile || {};
+        const meta = d.user?.user_metadata || {};
+        const cleanStr = s => (s||'').replace(/[^\x00-\x7F]/g,'').trim();
+        // Prefer profiles table data over metadata
+        const name = cleanStr(profile.full_name) || cleanStr(meta.full_name) || d.user?.email?.split('@')[0] || 'Agent';
+        const location = cleanStr(profile.location) || cleanStr(meta.location) || '';
+        const cashback = cleanStr(String(profile.cashback_offer || meta.cashback_offer || '1'));
+        const phone = cleanStr(profile.phone || meta.phone || '');
+        const license = cleanStr(profile.license_number || meta.license_number || '');
+        const bio = cleanStr(profile.bio || meta.bio || '');
+        const initials = name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+        document.getElementById('dash-name').textContent = name.split(' ')[0];
+        document.getElementById('dash-fullname').textContent = name;
+        document.getElementById('dash-location').textContent = location || 'Location not set';
+        document.getElementById('dash-avatar-img').textContent = initials || '🤝';
+        document.getElementById('profile-avatar-preview').textContent = initials || '🤝';
+        document.getElementById('prof-name').value = name;
+        document.getElementById('prof-location').value = location;
+        if (document.getElementById('prof-phone')) document.getElementById('prof-phone').value = phone;
+        if (document.getElementById('prof-license')) document.getElementById('prof-license').value = license;
+        if (document.getElementById('prof-bio')) document.getElementById('prof-bio').value = bio;
+        document.getElementById('dash-cashback-rate').textContent = cashback + '%';
+        document.getElementById('prof-cashback').value = cashback;
+        setTimeout(checkShowAgreement, 500);
+      }).catch(() => { setTimeout(checkShowAgreement, 500); });
   }
-  // Check if agent needs to agree to terms
-  setTimeout(checkShowAgreement, 500);
 }
 
 // ── Panels ────────────────────────────────────────────────────
