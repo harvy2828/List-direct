@@ -379,6 +379,29 @@ app.post('/api/auth/update-profile', async (req, res) => {
   }
 });
 
+// ── Agent: Upload Avatar ─────────────────────────────────────
+app.post('/api/agent/avatar', upload.single('photo'), async (req, res) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Not authenticated' });
+  try {
+    const { data: { user }, error: authErr } = await supabase.auth.getUser(token);
+    if (authErr || !user) return res.status(401).json({ error: 'Not authenticated' });
+    const file = req.file;
+    if (!file) return res.status(400).json({ error: 'No file uploaded' });
+    const ext = file.originalname.split('.').pop().toLowerCase();
+    const fileName = user.id + '/avatar.' + ext;
+    const { error: upErr } = await supabase.storage.from('agent-avatars').upload(fileName, file.buffer, {
+      contentType: file.mimetype, upsert: true
+    });
+    if (upErr) return res.status(400).json({ error: upErr.message });
+    const { data: { publicUrl } } = supabase.storage.from('agent-avatars').getPublicUrl(fileName);
+    await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', user.id);
+    res.json({ success: true, url: publicUrl });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── Auth: Clean User Metadata (one-time fix) ─────────────────
 app.post('/api/auth/clean-metadata', async (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');

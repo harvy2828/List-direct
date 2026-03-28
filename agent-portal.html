@@ -918,6 +918,11 @@ function showDashboard() {
         const meta = d.user?.user_metadata || {};
         const cleanStr = s => (s||'').replace(/[^\x00-\x7F]/g,'').trim();
         // Prefer profiles table data over metadata
+        // Load avatar if saved
+        if (profile.avatar_url) {
+          document.getElementById('profile-avatar-preview').innerHTML = `<img src="${profile.avatar_url}" alt="photo" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`;
+          document.getElementById('dash-avatar-img').innerHTML = `<img src="${profile.avatar_url}" alt="photo" style="width:100%;height:100%;object-fit:cover"/>`;
+        }
         const name = cleanStr(profile.full_name) || cleanStr(meta.full_name) || d.user?.email?.split('@')[0] || 'Agent';
         const location = cleanStr(profile.location) || cleanStr(meta.location) || '';
         const cashback = cleanStr(String(profile.cashback_offer || meta.cashback_offer || '1'));
@@ -1018,13 +1023,37 @@ function updateRefCalc() {
 }
 
 // ── Profile ───────────────────────────────────────────────────
-function handleProfilePhoto(input) {
+async function handleProfilePhoto(input) {
   const file = input.files[0];
   if (!file) return;
-  const url = URL.createObjectURL(file);
-  const preview = document.getElementById('profile-avatar-preview');
-  preview.innerHTML = `<img src="${url}" alt="photo"/>`;
-  document.getElementById('dash-avatar-img').innerHTML = `<img src="${url}" alt="photo"/>`;
+  // Show local preview immediately
+  const localUrl = URL.createObjectURL(file);
+  document.getElementById('profile-avatar-preview').innerHTML = `<img src="${localUrl}" alt="photo" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`;
+  document.getElementById('dash-avatar-img').innerHTML = `<img src="${localUrl}" alt="photo" style="width:100%;height:100%;object-fit:cover"/>`;
+  // Upload to server
+  const token = localStorage.getItem('ld_agent_token');
+  if (!token) return;
+  const formData = new FormData();
+  formData.append('photo', file);
+  showToast('Uploading photo...', 'success');
+  try {
+    const res = await fetch('/api/agent/avatar', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token },
+      body: formData
+    });
+    const data = await res.json();
+    if (res.ok && data.url) {
+      // Update with permanent URL
+      document.getElementById('profile-avatar-preview').innerHTML = `<img src="${data.url}" alt="photo" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`;
+      document.getElementById('dash-avatar-img').innerHTML = `<img src="${data.url}" alt="photo" style="width:100%;height:100%;object-fit:cover"/>`;
+      showToast('Photo saved! ✅', 'success');
+    } else {
+      showToast(data.error || 'Upload failed', 'error');
+    }
+  } catch(e) {
+    showToast('Upload error', 'error');
+  }
 }
 
 async function saveProfile() {
