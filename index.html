@@ -1892,6 +1892,16 @@ async function runSearch() {
 
   if (!query) { renderCurrentResults(); return; }
 
+  // Auto detect country from query and sync buttons
+  const detected = detectCountryFromQuery(query);
+  if (detected !== searchCountry) {
+    searchCountry = detected;
+    const btnCa = document.getElementById('btn-ca');
+    const btnUs = document.getElementById('btn-us');
+    if (btnCa) btnCa.classList.toggle('active', detected === 'ca');
+    if (btnUs) btnUs.classList.toggle('active', detected === 'us');
+  }
+
   const countryLabel = searchCountry === 'ca' ? '🇨🇦 Canada' : '🇺🇸 United States';
   const currencyLabel = searchCountry === 'ca' ? 'CAD' : 'USD';
 
