@@ -1017,7 +1017,11 @@ async function changePassword() {
     if (res.ok) {
       document.getElementById('set-newpass').value = '';
       document.getElementById('set-confirmpass').value = '';
-      showToast('Password updated! ✅', 'success');
+      if (data.email_sent) {
+        showToast('Check your email for a password reset link! ✅', 'success');
+      } else {
+        showToast('Password updated! ✅', 'success');
+      }
     } else {
       showToast(data.error || 'Password change failed.', 'error');
     }

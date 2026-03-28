@@ -344,15 +344,21 @@ app.post('/api/auth/update-password', async (req, res) => {
   try {
     const { data: { user }, error: authErr } = await supabase.auth.getUser(token);
     if (authErr || !user) return res.status(401).json({ error: 'Not authenticated' });
-    const adminSupabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
-    // Clean existing metadata first to remove any special chars that cause ByteString errors
-    const cleanStr = s => typeof s === 'string' ? s.replace(/[^\x00-\x7F]/g, '').trim() : s;
-    const cleanMeta = {};
-    Object.keys(user.user_metadata || {}).forEach(k => { cleanMeta[k] = cleanStr(user.user_metadata[k]); });
-    await adminSupabase.auth.admin.updateUserById(user.id, { user_metadata: cleanMeta });
-    // Now update password
-    const { error } = await adminSupabase.auth.admin.updateUserById(user.id, { password: String(password) });
-    if (error) return res.status(400).json({ error: error.message });
+    // Use user token client - avoids service key ByteString issues
+    const userClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: `Bearer ${token}` } }
+    });
+    const { error } = await userClient.auth.updateUser({ password: String(password) });
+    if (error) {
+      // If session expired, send reset email instead
+      if (error.message.includes('session') || error.message.includes('ByteString') || error.message.includes('Auth')) {
+        await supabase.auth.resetPasswordForEmail(user.email, {
+          redirectTo: (process.env.SITE_URL || 'https://listdirect.ai') + '/agent-portal.html'
+        });
+        return res.json({ success: true, email_sent: true });
+      }
+      return res.status(400).json({ error: error.message });
+    }
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -380,8 +386,11 @@ app.post('/api/auth/update-profile', async (req, res) => {
     const years_experience = clean(req.body.years_experience);
     const languages = clean(req.body.languages);
     const designations = clean(req.body.designations);
-    const adminSupabase2 = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
-    const { error: profErr } = await adminSupabase2.from('profiles')
+    // Use user's token so auth.uid() = user.id and RLS passes
+    const userClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: `Bearer ${token}` } }
+    });
+    const { error: profErr } = await userClient.from('profiles')
       .upsert({ id: user.id, full_name, phone, location, license_number, bio, cashback_offer, specialty, years_experience, languages, designations }, { onConflict: 'id' });
     if (profErr) return res.status(400).json({ error: profErr.message });
     res.json({ success: true });

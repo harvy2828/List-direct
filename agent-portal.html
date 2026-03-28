@@ -1099,6 +1099,7 @@ async function saveProfile() {
         if (!passRes.ok) return showToast(passData.error || 'Password change failed.', 'error');
         document.getElementById('prof-newpass').value = '';
         document.getElementById('prof-confirmpass').value = '';
+        if (passData.email_sent) return showToast('Password reset email sent! Check your inbox.', 'success');
       }
       showToast('Profile saved! ✅', 'success');
       if (currentUser) currentUser.user_metadata = { ...currentUser.user_metadata, full_name: name, phone, location, license_number: license, bio, cashback_offer: cashback };
