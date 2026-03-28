@@ -1954,11 +1954,11 @@ async function runSearch() {
   document.getElementById('mls-disclaimer').style.display = (searchCountry === 'ca' && mlsListings && mlsListings.length > 0) ? 'block' : 'none';
 
   renderCurrentResults();
-  // Auto-scroll to results - scroll to search section header not grid
+  // Auto-scroll to results
   setTimeout(() => {
-    const section = document.getElementById('search-section');
-    if (section) {
-      const offset = section.getBoundingClientRect().top + window.pageYOffset - 80;
+    const grid = document.getElementById('listings-grid');
+    if (grid) {
+      const offset = grid.getBoundingClientRect().top + window.pageYOffset - 120;
       window.scrollTo({ top: offset, behavior: 'smooth' });
     }
   }, 300);
