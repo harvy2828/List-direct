@@ -957,6 +957,14 @@ function showPanel(name, btn) {
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
   document.getElementById('panel-' + name).classList.add('active');
   if (btn) btn.classList.add('active');
+  // Auto-scroll to panel content on mobile and desktop
+  setTimeout(() => {
+    const panel = document.getElementById('panel-' + name);
+    if (panel) {
+      const offset = panel.getBoundingClientRect().top + window.pageYOffset - 80;
+      window.scrollTo({ top: offset, behavior: 'smooth' });
+    }
+  }, 50);
 }
 
 // ── Lead Actions ──────────────────────────────────────────────

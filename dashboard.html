@@ -797,6 +797,14 @@ function showPanel(name, btn) {
   if (btn) btn.classList.add('active');
   if (name === 'my-listings') loadMyListings();
   if (name === 'saved') loadFavorites();
+  // Auto-scroll to panel content on mobile and desktop
+  setTimeout(() => {
+    const panel = document.getElementById('panel-' + name);
+    if (panel) {
+      const offset = panel.getBoundingClientRect().top + window.pageYOffset - 80;
+      window.scrollTo({ top: offset, behavior: 'smooth' });
+    }
+  }, 50);
 }
 
 // ── Load My Listings ──────────────────────────────────────────
