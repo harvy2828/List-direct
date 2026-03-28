@@ -344,22 +344,10 @@ app.post('/api/auth/update-password', async (req, res) => {
   try {
     const { data: { user }, error: authErr } = await supabase.auth.getUser(token);
     if (authErr || !user) return res.status(401).json({ error: 'Not authenticated' });
-    // Use user token client - avoids service key ByteString issues
-    const userClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
-      global: { headers: { Authorization: `Bearer ${token}` } }
-    });
-    const { error } = await userClient.auth.updateUser({ password: String(password) });
-    if (error) {
-      // If session expired, send reset email instead
-      if (error.message.includes('session') || error.message.includes('ByteString') || error.message.includes('Auth')) {
-        await supabase.auth.resetPasswordForEmail(user.email, {
-          redirectTo: (process.env.SITE_URL || 'https://listdirect.ai') + '/agent-portal.html'
-        });
-        return res.json({ success: true, email_sent: true });
-      }
-      return res.status(400).json({ error: error.message });
-    }
-    res.json({ success: true });
+    // Send password reset email - most reliable approach
+    const redirectTo = (process.env.SITE_URL || 'https://listdirect.ai') + '/agent-portal.html';
+    await supabase.auth.resetPasswordForEmail(user.email, { redirectTo });
+    res.json({ success: true, email_sent: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -386,11 +374,8 @@ app.post('/api/auth/update-profile', async (req, res) => {
     const years_experience = clean(req.body.years_experience);
     const languages = clean(req.body.languages);
     const designations = clean(req.body.designations);
-    // Use user's token so auth.uid() = user.id and RLS passes
-    const userClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
-      global: { headers: { Authorization: `Bearer ${token}` } }
-    });
-    const { error: profErr } = await userClient.from('profiles')
+    // Use anon key directly - RLS disabled on profiles table
+    const { error: profErr } = await supabase.from('profiles')
       .upsert({ id: user.id, full_name, phone, location, license_number, bio, cashback_offer, specialty, years_experience, languages, designations }, { onConflict: 'id' });
     if (profErr) return res.status(400).json({ error: profErr.message });
     res.json({ success: true });
