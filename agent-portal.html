@@ -535,6 +535,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
           <div class="panel-title">Active Listings</div>
           <div class="panel-sub">Manage listings for sellers you are working with</div>
 
+          <!-- Existing Listings -->
+          <div id="agent-listings-list" style="margin-bottom:20px"></div>
+
           <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px">
             <div style="font-weight:700;color:var(--white);margin-bottom:6px">➕ Add a New Listing</div>
             <div style="font-size:0.85rem;color:var(--muted);margin-bottom:16px">Post a listing for a seller who has accepted you as their agent</div>
@@ -957,6 +960,7 @@ function showPanel(name, btn) {
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
   document.getElementById('panel-' + name).classList.add('active');
   if (btn) btn.classList.add('active');
+  if (name === 'listings') loadAgentListings();
   // Auto-scroll to panel content on mobile and desktop
   setTimeout(() => {
     const panel = document.getElementById('panel-' + name);
@@ -1180,6 +1184,98 @@ function initAgentPlaces() {
 function showAgentForgotPassword() {
   document.getElementById('agent-forgot-form').style.display = 'block';
 }
+// ── Load Agent Listings ───────────────────────────────────────
+async function loadAgentListings() {
+  const token = localStorage.getItem('ld_agent_token');
+  if (!token) return;
+  const container = document.getElementById('agent-listings-list');
+  container.innerHTML = '<div style="color:var(--muted);font-size:0.88rem;padding:8px 0">Loading listings...</div>';
+  try {
+    const res = await fetch('/api/listings/mine', { headers: { 'Authorization': 'Bearer ' + token } });
+    const data = await res.json();
+    if (!data || !data.length) { container.innerHTML = ''; return; }
+    container.innerHTML = `
+      <div style="font-weight:700;color:var(--white);margin-bottom:12px">📋 Your Active Listings (${data.length})</div>
+      ${data.map(l => `
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:700;color:var(--white);font-size:0.95rem;margin-bottom:2px">${l.address || 'No address'}</div>
+            <div style="color:var(--green);font-weight:700;font-size:0.9rem">$${parseInt(l.price||0).toLocaleString()}</div>
+            <div style="color:var(--muted);font-size:0.8rem;margin-top:2px">${l.bedrooms||0} bed · ${l.bathrooms||0} bath · ${(l.sqft||0).toLocaleString()} sqft</div>
+            <div style="display:inline-block;margin-top:6px;padding:2px 10px;border-radius:50px;font-size:0.72rem;font-weight:700;background:${l.status==='active'?'#1a3d28':'#2a1a1a'};color:${l.status==='active'?'#3ef07a':'#e85454'}">${(l.status||'active').toUpperCase()}</div>
+          </div>
+          <button onclick="openEditListing('${l.id}')" style="background:#1a2b1d;border:1px solid rgba(62,240,122,0.3);color:#3ef07a;padding:7px 14px;border-radius:50px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;flex-shrink:0">✏️ Edit</button>
+        </div>
+      `).join('')}
+    `;
+  } catch(e) {
+    container.innerHTML = '';
+  }
+}
+
+let editListingId = null;
+let allAgentListings = [];
+
+async function openEditListing(id) {
+  const token = localStorage.getItem('ld_agent_token');
+  if (!token) return;
+  try {
+    const res = await fetch('/api/listings/mine', { headers: { 'Authorization': 'Bearer ' + token } });
+    const data = await res.json();
+    const l = data.find(x => x.id === id);
+    if (!l) return;
+    editListingId = id;
+    document.getElementById('edit-address').value = l.address || '';
+    document.getElementById('edit-price').value = l.price || '';
+    document.getElementById('edit-beds').value = l.bedrooms || '';
+    document.getElementById('edit-baths').value = l.bathrooms || '';
+    document.getElementById('edit-sqft').value = l.sqft || '';
+    document.getElementById('edit-desc').value = l.description || '';
+    document.getElementById('edit-listing-modal').style.display = 'flex';
+  } catch(e) {}
+}
+
+function closeEditListing() {
+  document.getElementById('edit-listing-modal').style.display = 'none';
+  editListingId = null;
+}
+
+async function saveEditListing() {
+  const token = localStorage.getItem('ld_agent_token');
+  if (!token || !editListingId) return;
+  const btn = document.getElementById('edit-save-btn');
+  btn.textContent = 'Saving...';
+  btn.disabled = true;
+  try {
+    const res = await fetch('/api/listings/' + editListingId, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({
+        address: document.getElementById('edit-address').value,
+        price: parseInt(document.getElementById('edit-price').value.replace(/[^0-9]/g,'')),
+        bedrooms: parseInt(document.getElementById('edit-beds').value) || 0,
+        bathrooms: parseFloat(document.getElementById('edit-baths').value) || 0,
+        sqft: parseInt(document.getElementById('edit-sqft').value) || 0,
+        description: document.getElementById('edit-desc').value
+      })
+    });
+    const data = await res.json();
+    btn.textContent = 'Save Changes';
+    btn.disabled = false;
+    if (res.ok) {
+      closeEditListing();
+      loadAgentListings();
+      showToast('Listing updated! ✅', 'success');
+    } else {
+      showToast(data.error || 'Failed to update.', 'error');
+    }
+  } catch(e) {
+    btn.textContent = 'Save Changes';
+    btn.disabled = false;
+    showToast('Connection error.', 'error');
+  }
+}
+
 async function handleAgentForgotPassword() {
   const email = document.getElementById('agent-reset-email').value.trim();
   if (!email) return showToast('Please enter your email', 'error');
@@ -1500,5 +1596,29 @@ async function submitPasswordReset() {
   }
 }
 </script>
+<!-- EDIT LISTING MODAL -->
+<div id="edit-listing-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:600;align-items:center;justify-content:center;padding:24px">
+  <div style="background:#141c16;border:1px solid #1f2d22;border-radius:24px;padding:32px;max-width:500px;width:100%;max-height:90vh;overflow-y:auto;position:relative">
+    <button onclick="closeEditListing()" style="position:absolute;top:16px;right:16px;background:var(--bg2);border:1px solid var(--border);color:var(--muted);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center">✕</button>
+    <div style="font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:900;color:var(--white);margin-bottom:20px">Edit Listing</div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Property Address</label>
+      <input type="text" id="edit-address" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none"/></div>
+      <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Asking Price</label>
+      <input type="text" id="edit-price" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none"/></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+        <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Beds</label>
+        <input type="number" id="edit-beds" min="0" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none"/></div>
+        <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Baths</label>
+        <input type="number" id="edit-baths" min="0" step="0.5" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none"/></div>
+        <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Sq Ft</label>
+        <input type="number" id="edit-sqft" min="0" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none"/></div>
+      </div>
+      <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Description</label>
+      <textarea id="edit-desc" rows="3" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none;resize:vertical"></textarea></div>
+      <button id="edit-save-btn" onclick="saveEditListing()" style="background:#3ef07a;color:#0a0f0d;border:none;padding:13px;border-radius:50px;font-weight:700;font-size:1rem;cursor:pointer;font-family:'DM Sans',sans-serif;width:100%;margin-top:4px">Save Changes</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
