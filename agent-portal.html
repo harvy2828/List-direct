@@ -351,7 +351,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
         </div>
         <div class="sidebar">
           <button class="nav-item active" onclick="showPanel('overview',this)"><span class="ni-icon">🏠</span> Overview</button>
-          <button class="nav-item" onclick="showPanel('leads',this)"><span class="ni-icon">📥</span> My Leads <span class="ni-badge" id="new-leads-count">3</span></button>
+          <button class="nav-item" onclick="showPanel('leads',this)"><span class="ni-icon">📥</span> My Leads <span class="ni-badge" id="new-leads-count" style="display:none">0</span></button>
           <button class="nav-item" onclick="showPanel('earnings',this)"><span class="ni-icon">💰</span> Earnings & Fees</button>
           <button class="nav-item" onclick="showPanel('cashback',this)"><span class="ni-icon">💸</span> Cashback Tracker</button>
           <button class="nav-item" onclick="showPanel('calculator',this)"><span class="ni-icon">🧮</span> Referral Calculator</button>
@@ -372,8 +372,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
           <div class="panel-title">Your Dashboard</div>
           <div class="panel-sub">Here's a snapshot of your performance on ListDirect</div>
           <div class="stats-row">
-            <div class="stat-card" onclick="showPanel('leads',null)" style="cursor:pointer" title="View Leads"><div class="stat-num green" id="stat-leads">3</div><div class="stat-label">New Leads</div></div>
-            <div class="stat-card" onclick="showPanel('listings',null)" style="cursor:pointer" title="View Listings"><div class="stat-num" id="stat-active">2</div><div class="stat-label">Active Listings</div></div>
+            <div class="stat-card" onclick="showPanel('leads',null)" style="cursor:pointer" title="View Leads"><div class="stat-num green" id="stat-leads">0</div><div class="stat-label">New Leads</div></div>
+            <div class="stat-card" onclick="showPanel('listings',null)" style="cursor:pointer" title="View Listings"><div class="stat-num" id="stat-active">0</div><div class="stat-label">Active Listings</div></div>
             <div class="stat-card" onclick="showPanel('earnings',null)" style="cursor:pointer" title="View Earnings"><div class="stat-num gold" id="stat-earned">$0</div><div class="stat-label">Total Earned</div></div>
             <div class="stat-card" onclick="openAgentPaymentModal()" style="cursor:pointer" title="Pay Referral Fee"><div class="stat-num red" id="stat-owed">$0</div><div class="stat-label">Referral Fees Owed</div></div>
           </div>
@@ -408,64 +408,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
           <div class="panel-title">My Leads</div>
           <div class="panel-sub">Sellers who have requested you through ListDirect</div>
           <div class="leads-list" id="leads-list">
-            <!-- Sample leads - in production these come from Supabase -->
-            <div class="lead-card new">
-              <div class="lead-top">
-                <div>
-                  <div class="lead-name">Michael & Sarah Thompson</div>
-                  <div class="lead-contact">📧 mthompson@gmail.com · 📞 (512) 555-0192</div>
-                </div>
-                <span class="lead-badge badge-new">🆕 New</span>
-              </div>
-              <div class="lead-property">
-                <strong>📍 2847 Maple Creek Dr, Austin, TX 78701</strong><br>
-                3 bed · 2 bath · 1,820 sq ft · Asking $389,000<br>
-                <span style="color:var(--muted)">Requested you on March 18, 2026</span>
-              </div>
-              <div class="lead-actions">
-                <button class="btn-sm btn-gold-sm" onclick="acceptLead(this)">✅ Accept Lead</button>
-                <button class="btn-sm btn-outline-sm" onclick="contactLead('mthompson@gmail.com')">📧 Contact Seller</button>
-                <button class="btn-sm btn-red-sm" onclick="declineLead(this)">✗ Decline</button>
-              </div>
-            </div>
-
-            <div class="lead-card new">
-              <div class="lead-top">
-                <div>
-                  <div class="lead-name">Jennifer Rodriguez</div>
-                  <div class="lead-contact">📧 jrodriguez@outlook.com · 📞 (737) 555-0847</div>
-                </div>
-                <span class="lead-badge badge-new">🆕 New</span>
-              </div>
-              <div class="lead-property">
-                <strong>📍 104 Riverside Blvd, Austin, TX 78704</strong><br>
-                4 bed · 3 bath · 2,450 sq ft · Asking $549,000<br>
-                <span style="color:var(--muted)">Requested you on March 17, 2026</span>
-              </div>
-              <div class="lead-actions">
-                <button class="btn-sm btn-gold-sm" onclick="acceptLead(this)">✅ Accept Lead</button>
-                <button class="btn-sm btn-outline-sm" onclick="contactLead('jrodriguez@outlook.com')">📧 Contact Seller</button>
-                <button class="btn-sm btn-red-sm" onclick="declineLead(this)">✗ Decline</button>
-              </div>
-            </div>
-
-            <div class="lead-card">
-              <div class="lead-top">
-                <div>
-                  <div class="lead-name">David Park</div>
-                  <div class="lead-contact">📧 dpark@gmail.com · 📞 (512) 555-0334</div>
-                </div>
-                <span class="lead-badge badge-contacted">📞 Contacted</span>
-              </div>
-              <div class="lead-property">
-                <strong>📍 512 Harbor View Ct, Austin, TX 78702</strong><br>
-                2 bed · 2 bath · 1,200 sq ft · Asking $299,000<br>
-                <span style="color:var(--muted)">Requested you on March 15, 2026</span>
-              </div>
-              <div class="lead-actions">
-                <button class="btn-sm btn-outline-sm" onclick="contactLead('dpark@gmail.com')">📧 Follow Up</button>
-                <button class="btn-sm btn-outline-sm" onclick="markClosed(this)">🎉 Mark Closed</button>
-              </div>
+            <div class="empty-state">
+              <div class="empty-icon">📥</div>
+              <div class="empty-title">No leads yet</div>
+              <div class="empty-sub">When sellers request you through ListDirect, their details will appear here</div>
             </div>
           </div>
         </div>
@@ -972,6 +918,11 @@ function showDashboard() {
         if (document.getElementById('prof-license')) document.getElementById('prof-license').value = license;
         if (document.getElementById('prof-bio')) document.getElementById('prof-bio').value = bio;
         document.getElementById('dash-cashback-rate').textContent = cashback + '%';
+        // Load real listing count
+        fetch('/api/listings/mine', { headers: { 'Authorization': 'Bearer ' + token } })
+          .then(r => r.json()).then(listings => {
+            document.getElementById('stat-active').textContent = Array.isArray(listings) ? listings.length : 0;
+          }).catch(() => {});
         document.getElementById('prof-cashback').value = cashback;
         setTimeout(checkShowAgreement, 500);
       }).catch(() => { setTimeout(checkShowAgreement, 500); });
