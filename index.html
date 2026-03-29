@@ -1813,6 +1813,9 @@ async function fetchPlatformListings(query, beds, maxPrice) {
       days: Math.floor((Date.now() - new Date(l.created_at)) / 86400000) || 0,
       match: 98,
       img: l.photos?.[0] || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=280&fit=crop&auto=format',
+      img2: l.photos?.[1] || null,
+      img3: l.photos?.[2] || null,
+      allPhotos: l.photos || [],
       cashback: l.listing_path === 'agent' ? '1%' : null,
       desc: l.description || '',
       platform: true // flag as our own listing
@@ -2037,6 +2040,11 @@ function renderListings(list) {
         <div class="listing-img-bg" id="img-${l.id}" style="background-image:url('${l.img}')">
           ${l.us ? `<img src="${l.img}" style="display:none" onerror="document.getElementById('img-${l.id}').style.backgroundImage='url(https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=280&fit=crop)'" />` : ''}
         </div>
+        ${(l.allPhotos && l.allPhotos.length > 1) ? `
+          <button onclick="event.stopPropagation();cyclePhoto('${l.id}','${JSON.stringify(l.allPhotos).replace(/'/g,"&apos;")}','prev')" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);border:none;color:white;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;z-index:10">‹</button>
+          <button onclick="event.stopPropagation();cyclePhoto('${l.id}','${JSON.stringify(l.allPhotos).replace(/'/g,"&apos;")}','next')" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);border:none;color:white;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;z-index:10">›</button>
+          <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.5);color:white;font-size:0.7rem;padding:2px 8px;border-radius:50px" id="photo-count-${l.id}">1/${l.allPhotos.length}</div>
+        ` : ''}
         ${tagHTML}
         <button class="listing-fav" data-id="${l.id}" data-listing='${JSON.stringify({id:l.id,addr:l.addr,city:l.city,price:l.price,beds:l.beds,baths:l.baths,sqft:l.sqft,img:l.img,streetview_addr:l.streetview_addr,state:l.state||'',zip:l.zip||'',us:l.us||false,verified:l.verified||false}).replace(/'/g,"&apos;")}' onclick="toggleFav(event,this)" title="Save">♡</button>
         ${crownHTML}
@@ -2096,6 +2104,21 @@ function renderListings(list) {
       }
     }
   }, 300);
+}
+
+const photoIndex = {};
+function cyclePhoto(id, photosJson, dir) {
+  try {
+    const photos = JSON.parse(photosJson);
+    if (!photos.length) return;
+    if (!photoIndex[id]) photoIndex[id] = 0;
+    photoIndex[id] = dir === 'next'
+      ? (photoIndex[id] + 1) % photos.length
+      : (photoIndex[id] - 1 + photos.length) % photos.length;
+    document.getElementById('img-' + id).style.backgroundImage = "url('" + photos[photoIndex[id]] + "')";
+    const counter = document.getElementById('photo-count-' + id);
+    if (counter) counter.textContent = (photoIndex[id]+1) + '/' + photos.length;
+  } catch(e) {}
 }
 
 function setTypeFilter(btn, val) {
