@@ -2037,7 +2037,7 @@ function renderListings(list) {
 
     card.innerHTML = `
       <div class="listing-img">
-        <div class="listing-img-bg" id="img-${l.id}" style="background-image:url('${l.img}');cursor:${(l.allPhotos && l.allPhotos.length > 0) ? 'zoom-in' : 'default'}" onclick="event.stopPropagation();openLightbox('${JSON.stringify(l.allPhotos||[l.img]).replace(/'/g,"&apos;")}', ${photoIndex[l.id]||0})">
+        <div class="listing-img-bg" id="img-${l.id}" style="background-image:url('${l.img}');cursor:zoom-in">
           ${l.us ? `<img src="${l.img}" style="display:none" onerror="document.getElementById('img-${l.id}').style.backgroundImage='url(https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=280&fit=crop)'" />` : ''}
         </div>
         ${(l.allPhotos && l.allPhotos.length > 1) ? `
@@ -2071,8 +2071,12 @@ function renderListings(list) {
 
     card.addEventListener('click', e => {
       if (e.target.closest('.listing-fav')) return;
-      if (e.target.closest('.listing-img-bg')) return; // lightbox handles this
       if (e.target.closest('button') && e.target.closest('.listing-img')) return;
+      if (e.target.closest('.listing-img-bg')) {
+        const photos = l.allPhotos && l.allPhotos.length ? l.allPhotos : [l.img];
+        openLightbox(JSON.stringify(photos), photoIndex[l.id] || 0);
+        return;
+      }
       if (l.verified) openListingModal(l);
       else openLeadModal(l);
     });
