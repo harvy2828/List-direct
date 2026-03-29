@@ -236,8 +236,9 @@ app.post('/api/listings', async (req, res) => {
     const listing = {
       user_id: user.id,
       address: body.address || '',
-      city: body.city || '',
-      state: body.state || '',
+      // Parse city/state from address if not provided separately
+      city: body.city || (body.address ? body.address.split(',').slice(1,2).join('').trim() : ''),
+      state: body.state || (body.address ? body.address.split(',').slice(2,3).join('').trim().split(' ')[0] : ''),
       zip: body.zip || '',
       price: body.price ? parseInt(body.price) : null,
       bedrooms: body.bedrooms ? parseInt(body.bedrooms) : null,
@@ -548,6 +549,19 @@ app.get('/api/admin/stats', async (req, res) => {
   }
 });
 
+// ── Admin: All Listings ────────────────────────────
+app.get('/api/admin/listings', async (req, res) => {
+  const key = req.headers['x-admin-key'];
+  if (key !== process.env.ADMIN_KEY) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const { data, error } = await supabase.from('listings').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    res.json({ listings: data || [] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── Get Certified Agents ──────────────────────────────────────
 app.get('/api/agents', async (req, res) => {
   try {
@@ -821,6 +835,21 @@ app.post('/api/listings/:id/view', async (req, res) => {
 });
 
 // ── Listings: Update ──────────────────────────────────────────
+app.delete('/api/listings/:id', async (req, res) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Not authenticated' });
+  try {
+    const { data: { user } } = await supabase.auth.getUser(token);
+    if (!user) return res.status(401).json({ error: 'Invalid token' });
+    const { id } = req.params;
+    const { error } = await supabase.from('listings').delete().eq('id', id).eq('user_id', user.id);
+    if (error) return res.status(400).json({ error: error.message });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.patch('/api/listings/:id', async (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Not authenticated' });

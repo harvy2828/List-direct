@@ -545,7 +545,21 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
               <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Seller Full Name</label>
               <input type="text" id="al-seller-name" placeholder="e.g. John Smith" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none"/></div>
               <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Property Address</label>
-              <input type="text" id="al-address" placeholder="e.g. 123 Oak St, Vancouver, BC" autocomplete="off" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none"/></div>
+              <input type="text" id="al-address" placeholder="e.g. 123 Oak St, Vancouver, BC" autocomplete="off" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none"/>
+              <input type="hidden" id="al-city"/>
+              <input type="hidden" id="al-state"/>
+              <input type="hidden" id="al-zip"/></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Year Built</label>
+                <input type="number" id="al-year" placeholder="2005" min="1800" max="2025" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none"/></div>
+                <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Property Type</label>
+                <select id="al-type" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none">
+                  <option value="house">House</option>
+                  <option value="condo">Condo</option>
+                  <option value="townhouse">Townhouse</option>
+                  <option value="land">Land</option>
+                </select></div>
+              </div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
                 <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Asking Price</label>
                 <input type="text" id="al-price" placeholder="$850,000" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none"/></div>
@@ -1151,12 +1165,27 @@ function initAgentPlaces() {
   // Also add to listing address
   const alAddr = document.getElementById('al-address');
   if (alAddr) {
-    alAddr.addEventListener('focus', function() {
-      new google.maps.places.Autocomplete(alAddr, {
-        componentRestrictions: { country: ['us', 'ca'] },
-        fields: ['formatted_address', 'address_components'],
-        types: ['address']
+    const alAc = new google.maps.places.Autocomplete(alAddr, {
+      componentRestrictions: { country: ['us', 'ca'] },
+      fields: ['formatted_address', 'address_components'],
+      types: ['address']
+    });
+    alAc.addListener('place_changed', function() {
+      const place = alAc.getPlace();
+      if (!place.address_components) return;
+      let streetNum = '', street = '', city = '', state = '', zip = '';
+      place.address_components.forEach(function(c) {
+        if (c.types.includes('street_number')) streetNum = c.long_name;
+        if (c.types.includes('route')) street = c.long_name;
+        if (c.types.includes('locality')) city = c.long_name;
+        if (c.types.includes('administrative_area_level_1')) state = c.short_name;
+        if (c.types.includes('postal_code')) zip = c.long_name;
       });
+      const streetAddr = (streetNum + ' ' + street).trim();
+      if (streetAddr) alAddr.value = streetAddr;
+      document.getElementById('al-city').value = city;
+      document.getElementById('al-state').value = state;
+      document.getElementById('al-zip').value = zip;
     });
   }
 
@@ -1204,7 +1233,10 @@ async function loadAgentListings() {
             <div style="color:var(--muted);font-size:0.8rem;margin-top:2px">${l.bedrooms||0} bed · ${l.bathrooms||0} bath · ${(l.sqft||0).toLocaleString()} sqft</div>
             <div style="display:inline-block;margin-top:6px;padding:2px 10px;border-radius:50px;font-size:0.72rem;font-weight:700;background:${l.status==='active'?'#1a3d28':'#2a1a1a'};color:${l.status==='active'?'#3ef07a':'#e85454'}">${(l.status||'active').toUpperCase()}</div>
           </div>
-          <button onclick="openEditListing('${l.id}')" style="background:#1a2b1d;border:1px solid rgba(62,240,122,0.3);color:#3ef07a;padding:7px 14px;border-radius:50px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;flex-shrink:0">✏️ Edit</button>
+          <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
+            <button onclick="openEditListing('${l.id}')" style="background:#1a2b1d;border:1px solid rgba(62,240,122,0.3);color:#3ef07a;padding:7px 14px;border-radius:50px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">✏️ Edit</button>
+            <button onclick="deleteListing('${l.id}')" style="background:#3d1a1a;border:1px solid rgba(232,84,84,0.3);color:#e85454;padding:7px 14px;border-radius:50px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🗑 Delete</button>
+          </div>
         </div>
       `).join('')}
     `;
@@ -1273,6 +1305,26 @@ async function saveEditListing() {
     btn.textContent = 'Save Changes';
     btn.disabled = false;
     showToast('Connection error.', 'error');
+  }
+}
+
+async function deleteListing(id) {
+  if (!confirm('Are you sure you want to delete this listing? This cannot be undone.')) return;
+  const token = localStorage.getItem('ld_agent_token');
+  if (!token) return;
+  try {
+    const res = await fetch('/api/listings/' + id, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (res.ok) {
+      showToast('Listing deleted ✅', 'success');
+      loadAgentListings();
+    } else {
+      showToast('Failed to delete listing', 'error');
+    }
+  } catch(e) {
+    showToast('Connection error', 'error');
   }
 }
 
@@ -1376,18 +1428,24 @@ function submitAgentListing() {
   const token = localStorage.getItem('ld_agent_token');
   if (!token) return;
 
-  const priceNum = parseInt(price.replace(/[^0-9]/g, ''));
+  const priceNum = Math.round(parseFloat(price.replace(/[^0-9.]/g, '')) || 0);
   
   fetch('/api/listings', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
     body: JSON.stringify({
-      address, city: address.split(',')[1]?.trim() || '',
-      state: address.split(',')[2]?.trim() || '',
-      price: priceNum, bedrooms: parseInt(beds) || 0,
-      bathrooms: parseFloat(baths) || 0, sqft: parseInt(sqft) || 0,
+      address,
+      city: document.getElementById('al-city').value || address.split(',')[1]?.trim() || '',
+      state: document.getElementById('al-state').value || address.split(',')[2]?.trim() || '',
+      zip: document.getElementById('al-zip').value || '',
+      price: priceNum,
+      bedrooms: parseInt(beds) || 0,
+      bathrooms: parseFloat(baths) || 0,
+      sqft: parseInt(sqft) || 0,
+      year_built: parseInt(document.getElementById('al-year').value) || null,
+      property_type: document.getElementById('al-type').value || 'house',
       description: desc || 'Listed by certified ListDirect agent.',
-      seller_name: name, listing_type: 'agent'
+      seller_name: name, listing_path: 'agent'
     })
   }).then(r => r.json()).then(d => {
     if (d.id || d.listing) {
