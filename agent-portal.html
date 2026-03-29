@@ -1463,7 +1463,7 @@ function submitAgentListing() {
       property_type: document.getElementById('al-type').value || 'house',
       description: desc || 'Listed by certified ListDirect agent.',
       seller_name: name,
-      listing_path: 'agent'
+      listing_path: 'direct'
     })
   }).then(r => r.json()).then(d => {
     if (d.id || d.listing) {

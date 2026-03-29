@@ -1954,10 +1954,6 @@ async function runSearch() {
   document.getElementById('banner-list-yours').style.display = 'flex';
   document.getElementById('mls-disclaimer').style.display = (searchCountry === 'ca' && mlsListings && mlsListings.length > 0) ? 'block' : 'none';
 
-  // Debug banner
-  const debugEl = document.getElementById('debug-banner');
-  if (debugEl) debugEl.textContent = `DB listings: ${platformListings.length} | Query: "${query}"`;
-
   renderCurrentResults();
   // Auto-scroll to results
   setTimeout(() => {
