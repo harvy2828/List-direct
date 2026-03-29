@@ -148,6 +148,15 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
       <button class="btn-signout" onclick="signOut()">🚪 Sign Out</button>
     </div>
 
+    <!-- Platform Stats -->
+    <div class="stats-row" style="margin-bottom:16px">
+      <div class="stat-card"><div class="stat-num green" id="stat-total-users">—</div><div class="stat-label">Total Signups</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-sellers">—</div><div class="stat-label">Sellers</div></div>
+      <div class="stat-card"><div class="stat-num gold" id="stat-total-agents">—</div><div class="stat-label">Agents</div></div>
+      <div class="stat-card"><div class="stat-num green" id="stat-active-listings">—</div><div class="stat-label">Active Listings</div></div>
+      <div class="stat-card"><div class="stat-num gold" id="stat-revenue">—</div><div class="stat-label">Total Revenue</div></div>
+    </div>
+    <!-- Agent Application Stats -->
     <div class="stats-row">
       <div class="stat-card"><div class="stat-num gold" id="stat-pending">0</div><div class="stat-label">Pending Applications</div></div>
       <div class="stat-card"><div class="stat-num green" id="stat-approved">0</div><div class="stat-label">Approved Agents</div></div>
@@ -186,6 +195,7 @@ function checkPassword() {
     sessionStorage.setItem('ld_admin', 'true');
     document.getElementById('login-section').style.display = 'none';
     document.getElementById('admin-section').style.display = 'block';
+    loadStats();
     loadAgents();
   } else {
     document.getElementById('login-error').classList.add('show');
@@ -202,6 +212,7 @@ function signOut() {
 // Check if already logged in
 window.addEventListener('DOMContentLoaded', () => {
   if (sessionStorage.getItem('ld_admin') === 'true') {
+    loadStats();
     document.getElementById('login-section').style.display = 'none';
     document.getElementById('admin-section').style.display = 'block';
     loadAgents();
@@ -209,6 +220,20 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // ── Load Agents ───────────────────────────────────────────────
+async function loadStats() {
+  try {
+    const res = await fetch('/api/admin/stats', { headers: { 'x-admin-key': ADMIN_PASSWORD } });
+    const d = await res.json();
+    if (res.ok) {
+      document.getElementById('stat-total-users').textContent = d.totalUsers || 0;
+      document.getElementById('stat-sellers').textContent = d.sellers || 0;
+      document.getElementById('stat-total-agents').textContent = d.agents || 0;
+      document.getElementById('stat-active-listings').textContent = d.activeListings || 0;
+      document.getElementById('stat-revenue').textContent = '$' + (d.totalRevenue || 0).toLocaleString();
+    }
+  } catch(e) {}
+}
+
 async function loadAgents() {
   showLoading(true);
   try {

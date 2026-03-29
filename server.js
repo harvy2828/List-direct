@@ -130,6 +130,20 @@ app.post('/api/auth/signup', async (req, res) => {
         `
       });
     } else {
+      // Notify admin of new seller signup
+      await sendEmail({
+        to: 'infolistdirect@gmail.com',
+        subject: '🏡 New Seller Signup — ' + (req.body.full_name || req.body.email),
+        html: emailWrap(`
+          <h2 style="color:#3ef07a;margin:0 0 8px">New Seller Signed Up!</h2>
+          <p style="color:#7a9480;margin:0 0 20px">A new seller just created an account on ListDirect.</p>
+          <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin-bottom:16px">
+            <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Name:</strong> ${req.body.full_name || '—'}</p>
+            <p style="color:#e8f0e9;margin:0"><strong style="color:#3ef07a">Email:</strong> ${req.body.email}</p>
+          </div>
+          <a href="https://listdirect.ai/admin.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">View Admin →</a>
+        `)
+      });
       // Email to new regular user - welcome
       await sendEmail({
         to: req.body.email,
@@ -239,6 +253,22 @@ app.post('/api/listings', async (req, res) => {
     };
     const { data, error } = await supabase.from('listings').insert([listing]).select().single();
     if (error) return res.status(400).json({ error: error.message });
+    // Notify admin of new listing
+    await sendEmail({
+      to: 'infolistdirect@gmail.com',
+      subject: '🏠 New Listing — ' + (listing.address || 'Unknown address'),
+      html: emailWrap(`
+        <h2 style="color:#3ef07a;margin:0 0 8px">New Home Listed!</h2>
+        <p style="color:#7a9480;margin:0 0 20px">A seller just listed their home on ListDirect.</p>
+        <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin-bottom:16px">
+          <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Address:</strong> ${listing.address}</p>
+          <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Price:</strong> $${parseInt(listing.price||0).toLocaleString()}</p>
+          <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Beds/Baths:</strong> ${listing.bedrooms||0} bed · ${listing.bathrooms||0} bath</p>
+          <p style="color:#e8f0e9;margin:0"><strong style="color:#3ef07a">Type:</strong> ${listing.listing_path || 'direct'}</p>
+        </div>
+        <a href="https://listdirect.ai/admin.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">View Admin →</a>
+      `)
+    }).catch(() => {});
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -490,6 +520,29 @@ app.post('/api/lead-capture', async (req, res) => {
       `)
     });
     res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Admin: Stats ─────────────────────────────────────────────
+app.get('/api/admin/stats', async (req, res) => {
+  const key = req.headers['x-admin-key'];
+  if (key !== process.env.ADMIN_KEY) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const adminSupabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+    // Total users
+    const { data: { users } } = await adminSupabase.auth.admin.listUsers({ perPage: 1000 });
+    const totalUsers = users ? users.length : 0;
+    const sellers = users ? users.filter(u => !u.user_metadata?.role || u.user_metadata?.role === 'seller').length : 0;
+    const agents = users ? users.filter(u => u.user_metadata?.role === 'agent').length : 0;
+    // Total listings
+    const { count: totalListings } = await adminSupabase.from('listings').select('*', { count: 'exact', head: true });
+    const { count: activeListings } = await adminSupabase.from('listings').select('*', { count: 'exact', head: true }).eq('status', 'active');
+    // Total payments
+    const { data: payments } = await adminSupabase.from('payments').select('amount');
+    const totalRevenue = payments ? payments.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0) : 0;
+    res.json({ totalUsers, sellers, agents, totalListings, activeListings, totalRevenue });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
