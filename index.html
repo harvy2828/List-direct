@@ -1801,7 +1801,8 @@ async function fetchPlatformListings(query, beds, maxPrice) {
       verified: true,
       listing: l.listing_path || 'direct',
       price: parseInt(l.price) || 0,
-      currency: l.state && ['BC','AB','ON','QC','MB','SK','NS','NB','NL','PE','NT','YT','NU'].includes(l.state) ? 'CAD' : 'USD',
+      currency: (l.state && ['BC','AB','ON','QC','MB','SK','NS','NB','NL','PE','NT','YT','NU'].includes(l.state)) || 
+               (l.city && ['Vancouver','Victoria','Toronto','Calgary','Edmonton','Ottawa','Montreal','Winnipeg','Halifax','Saskatoon','Regina'].some(c => l.city.includes(c))) ? 'CAD' : 'USD',
       addr: l.address || '',
       city: l.city || '',
       zip: l.zip || '',
@@ -1938,6 +1939,9 @@ async function runSearch() {
 
   document.getElementById('search-loading').classList.remove('visible');
   isSearching = false;
+
+  // Debug - show platform listing count temporarily
+  document.getElementById('search-city-label').textContent = `Platform: ${platformListings.length} | MLS: ${mlsListings.length} | AI: ${aiListings.length}`;
 
   // Platform listings first, then MLS, then AI
   const all = [...platformListings, ...mlsListings, ...verifiedMatches.filter(v => !platformListings.find(p => p.id === v.id) && !mlsListings.find(m => m.id === v.id)), ...aiListings.filter(l => {
