@@ -1225,10 +1225,15 @@ async function openEditListing(id) {
     if (!l) return;
     editListingId = id;
     document.getElementById('edit-address').value = l.address || '';
+    document.getElementById('edit-city').value = l.city || '';
+    document.getElementById('edit-state').value = l.state || '';
+    document.getElementById('edit-zip').value = l.zip || '';
     document.getElementById('edit-price').value = l.price || '';
     document.getElementById('edit-beds').value = l.bedrooms || '';
     document.getElementById('edit-baths').value = l.bathrooms || '';
     document.getElementById('edit-sqft').value = l.sqft || '';
+    document.getElementById('edit-year').value = l.year_built || '';
+    document.getElementById('edit-type').value = l.property_type || 'house';
     document.getElementById('edit-desc').value = l.description || '';
     document.getElementById('edit-listing-modal').style.display = 'flex';
   } catch(e) {}
@@ -1246,17 +1251,42 @@ async function saveEditListing() {
   btn.textContent = 'Saving...';
   btn.disabled = true;
   try {
+    // Upload new photos if provided
+    const photoFiles = document.getElementById('edit-photos').files;
+    const photoUrls = [];
+    for (const file of Array.from(photoFiles).slice(0, 8)) {
+      try {
+        const fd = new FormData();
+        fd.append('photo', file);
+        const r = await fetch('/api/photos/upload', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token },
+          body: fd
+        });
+        if (r.ok) {
+          const d = await r.json();
+          photoUrls.push(d.url);
+        }
+      } catch(e) {}
+    }
+    const body = {
+      address: document.getElementById('edit-address').value,
+      city: document.getElementById('edit-city').value,
+      state: document.getElementById('edit-state').value,
+      zip: document.getElementById('edit-zip').value,
+      price: parseInt(document.getElementById('edit-price').value.replace(/[^0-9]/g,'')),
+      bedrooms: parseInt(document.getElementById('edit-beds').value) || 0,
+      bathrooms: parseFloat(document.getElementById('edit-baths').value) || 0,
+      sqft: parseInt(document.getElementById('edit-sqft').value) || 0,
+      year_built: parseInt(document.getElementById('edit-year').value) || null,
+      property_type: document.getElementById('edit-type').value || 'house',
+      description: document.getElementById('edit-desc').value
+    };
+    if (photoUrls.length > 0) body.photos = photoUrls;
     const res = await fetch('/api/listings/' + editListingId, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({
-        address: document.getElementById('edit-address').value,
-        price: parseInt(document.getElementById('edit-price').value.replace(/[^0-9]/g,'')),
-        bedrooms: parseInt(document.getElementById('edit-beds').value) || 0,
-        bathrooms: parseFloat(document.getElementById('edit-baths').value) || 0,
-        sqft: parseInt(document.getElementById('edit-sqft').value) || 0,
-        description: document.getElementById('edit-desc').value
-      })
+      body: JSON.stringify(body)
     });
     const data = await res.json();
     btn.textContent = 'Save Changes';
@@ -1375,7 +1405,7 @@ let agentStripe = null;
 let agentCardEl = null;
 let selectedAgentPayMethod = 'card';
 
-function submitAgentListing() {
+async function submitAgentListing() {
   const name = document.getElementById('al-seller-name').value.trim();
   const address = document.getElementById('al-address').value.trim();
   const price = document.getElementById('al-price').value.trim();
@@ -1396,42 +1426,64 @@ function submitAgentListing() {
   if (!token) return;
 
   const priceNum = Math.round(parseFloat(price.replace(/[^0-9.]/g, '')) || 0);
-  
-  fetch('/api/listings', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-    body: JSON.stringify({
-      address,
-      city: document.getElementById('al-city').value.trim(),
-      state: document.getElementById('al-state').value.trim(),
-      zip: document.getElementById('al-zip').value.trim(),
-      country: document.getElementById('al-country').value,
-      price: priceNum,
-      bedrooms: parseInt(beds) || 0,
-      bathrooms: parseFloat(baths) || 0,
-      sqft: parseInt(sqft) || 0,
-      year_built: parseInt(document.getElementById('al-year').value) || null,
-      property_type: document.getElementById('al-type').value || 'house',
-      description: desc || 'Listed by certified ListDirect agent.',
-      seller_name: name,
-      listing_path: 'direct'
-    })
-  }).then(r => r.json()).then(d => {
+
+  // Upload photos first — same as seller
+  const photoUrls = [];
+  const photoFiles = document.getElementById('al-photos').files;
+  for (const file of Array.from(photoFiles).slice(0, 8)) {
+    try {
+      const fd = new FormData();
+      fd.append('photo', file);
+      const r = await fetch('/api/photos/upload', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token },
+        body: fd
+      });
+      if (r.ok) {
+        const d = await r.json();
+        photoUrls.push(d.url);
+      }
+    } catch(e) {}
+  }
+  try {
+    const res = await fetch('/api/listings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({
+        address,
+        city: document.getElementById('al-city').value.trim(),
+        state: document.getElementById('al-state').value.trim(),
+        zip: document.getElementById('al-zip').value.trim(),
+        country: document.getElementById('al-country').value,
+        price: priceNum,
+        bedrooms: parseInt(beds) || 0,
+        bathrooms: parseFloat(baths) || 0,
+        sqft: parseInt(sqft) || 0,
+        year_built: parseInt(document.getElementById('al-year').value) || null,
+        property_type: document.getElementById('al-type').value || 'house',
+        description: desc || 'Listed by certified ListDirect agent.',
+        seller_name: name,
+        listing_path: 'direct',
+        photos: photoUrls
+      })
+    });
+    const d = await res.json();
     if (d.id || d.listing) {
       msg.style.display = 'block';
       msg.style.color = '#3ef07a';
       msg.textContent = '✅ Listing submitted successfully!';
       document.getElementById('al-empty').style.display = 'none';
+      loadAgentListings();
     } else {
       msg.style.display = 'block';
       msg.style.color = '#e85454';
       msg.textContent = d.error || 'Failed to submit listing.';
     }
-  }).catch(() => {
+  } catch(e) {
     msg.style.display = 'block';
     msg.style.color = '#e85454';
     msg.textContent = 'Connection error. Please try again.';
-  });
+  }
 }
 
 function openAgentPaymentModal() {
@@ -1629,10 +1681,20 @@ async function submitPasswordReset() {
     <button onclick="closeEditListing()" style="position:absolute;top:16px;right:16px;background:var(--bg2);border:1px solid var(--border);color:var(--muted);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center">✕</button>
     <div style="font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:900;color:var(--white);margin-bottom:20px">Edit Listing</div>
     <div style="display:flex;flex-direction:column;gap:12px">
-      <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Property Address</label>
+      <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Street Address</label>
       <input type="text" id="edit-address" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none"/></div>
-      <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Asking Price</label>
-      <input type="text" id="edit-price" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none"/></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">City</label>
+        <input type="text" id="edit-city" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none"/></div>
+        <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">State / Province</label>
+        <input type="text" id="edit-state" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none"/></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">ZIP / Postal Code</label>
+        <input type="text" id="edit-zip" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none"/></div>
+        <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Asking Price</label>
+        <input type="text" id="edit-price" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none"/></div>
+      </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
         <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Beds</label>
         <input type="number" id="edit-beds" min="0" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none"/></div>
@@ -1641,8 +1703,22 @@ async function submitPasswordReset() {
         <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Sq Ft</label>
         <input type="number" id="edit-sqft" min="0" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none"/></div>
       </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Year Built</label>
+        <input type="number" id="edit-year" min="1800" max="2025" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none"/></div>
+        <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Property Type</label>
+        <select id="edit-type" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none">
+          <option value="house">House</option>
+          <option value="condo">Condo</option>
+          <option value="townhouse">Townhouse</option>
+          <option value="land">Land</option>
+        </select></div>
+      </div>
       <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Description</label>
       <textarea id="edit-desc" rows="3" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none;resize:vertical"></textarea></div>
+      <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Add / Replace Photos</label>
+      <input type="file" id="edit-photos" accept="image/*" multiple style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.85rem;font-family:'DM Sans',sans-serif;cursor:pointer"/>
+      <div style="font-size:0.75rem;color:var(--muted);margin-top:4px">Upload new photos to replace existing ones</div></div>
       <button id="edit-save-btn" onclick="saveEditListing()" style="background:#3ef07a;color:#0a0f0d;border:none;padding:13px;border-radius:50px;font-weight:700;font-size:1rem;cursor:pointer;font-family:'DM Sans',sans-serif;width:100%;margin-top:4px">Save Changes</button>
     </div>
   </div>
