@@ -2037,7 +2037,7 @@ function renderListings(list) {
 
     card.innerHTML = `
       <div class="listing-img">
-        <div class="listing-img-bg" id="img-${l.id}" style="background-image:url('${l.img}');cursor:zoom-in">
+        <div class="listing-img-bg" id="img-${l.id}" style="background-image:url('${l.img}')">
           ${l.us ? `<img src="${l.img}" style="display:none" onerror="document.getElementById('img-${l.id}').style.backgroundImage='url(https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=280&fit=crop)'" />` : ''}
         </div>
         ${(l.allPhotos && l.allPhotos.length > 1) ? `
@@ -2072,11 +2072,6 @@ function renderListings(list) {
     card.addEventListener('click', e => {
       if (e.target.closest('.listing-fav')) return;
       if (e.target.closest('button') && e.target.closest('.listing-img')) return;
-      if (e.target.closest('.listing-img-bg')) {
-        const photos = l.allPhotos && l.allPhotos.length ? l.allPhotos : [l.img];
-        openLightbox(JSON.stringify(photos), photoIndex[l.id] || 0);
-        return;
-      }
       if (l.verified) openListingModal(l);
       else openLeadModal(l);
     });
@@ -2327,17 +2322,20 @@ function switchLMView(type, val) {
 function openListingModal(l) {
   const content = document.getElementById('listing-modal-content');
   const svAddr = l.streetview_addr || (l.addr ? `${l.addr}, ${l.city}, ${l.state || ''} ${l.zip || ''}` : '');
+  const photos = l.allPhotos && l.allPhotos.length ? l.allPhotos : [l.img, l.img2, l.img3].filter(Boolean);
+  const thumbsHTML = photos.slice(0, 6).map((p, i) => 
+    `<div class="lm-thumb" style="background-image:url('${p}');cursor:zoom-in" onclick="openLightbox('${JSON.stringify(photos).replace(/'/g,"&apos;")}',${i})"></div>`
+  ).join('');
   content.innerHTML = `
     <div class="lm-imgs">
       <div class="lm-main" id="lm-main-view" style="position:relative;overflow:hidden;padding:0">
-        <div id="lm-photo-view" style="position:absolute;inset:0;background-image:url('${l.img}');background-size:cover;background-position:center"></div>
+        <div id="lm-photo-view" style="position:absolute;inset:0;background-image:url('${photos[0]||l.img}');background-size:cover;background-position:center;cursor:zoom-in" onclick="openLightbox('${JSON.stringify(photos).replace(/'/g,"&apos;")}',0)"></div>
         <div id="lm-sv-view" style="position:absolute;inset:0;display:none"></div>
       </div>
-      <div class="lm-thumb" style="background-image:url('${l.img2}')"></div>
-      <div class="lm-thumb" style="background-image:url('${l.img3}')"></div>
+      ${thumbsHTML}
     </div>
     <div style="display:flex;gap:8px;margin-bottom:14px">
-      <button onclick="switchLMView('photo','${l.img}')" id="lm-btn-photo" style="flex:1;padding:8px;border-radius:50px;border:1px solid var(--green);background:var(--green);color:var(--bg);font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">📷 Photos</button>
+      <button onclick="switchLMView('photo','${photos[0]||l.img}')" id="lm-btn-photo" style="flex:1;padding:8px;border-radius:50px;border:1px solid var(--green);background:var(--green);color:var(--bg);font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">📷 Photos</button>
       <button onclick="switchLMView('sv','${svAddr}')" id="lm-btn-sv" style="flex:1;padding:8px;border-radius:50px;border:1px solid var(--green);background:none;color:var(--green);font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🌍 Street View</button>
     </div>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
