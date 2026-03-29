@@ -1940,9 +1940,6 @@ async function runSearch() {
   document.getElementById('search-loading').classList.remove('visible');
   isSearching = false;
 
-  // Debug - show platform listing count temporarily
-  document.getElementById('search-city-label').textContent = `Platform: ${platformListings.length} | MLS: ${mlsListings.length} | AI: ${aiListings.length}`;
-
   // Platform listings first, then MLS, then AI
   const all = [...platformListings, ...mlsListings, ...verifiedMatches.filter(v => !platformListings.find(p => p.id === v.id) && !mlsListings.find(m => m.id === v.id)), ...aiListings.filter(l => {
     if (typeFilter !== 'all' && l.type !== typeFilter) return false;
@@ -1956,6 +1953,10 @@ async function runSearch() {
   document.getElementById('banner-ai-results').classList.add('visible');
   document.getElementById('banner-list-yours').style.display = 'flex';
   document.getElementById('mls-disclaimer').style.display = (searchCountry === 'ca' && mlsListings && mlsListings.length > 0) ? 'block' : 'none';
+
+  // Debug banner
+  const debugEl = document.getElementById('debug-banner');
+  if (debugEl) debugEl.textContent = `DB listings: ${platformListings.length} | Query: "${query}"`;
 
   renderCurrentResults();
   // Auto-scroll to results
