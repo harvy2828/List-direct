@@ -533,7 +533,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
               <textarea id="al-desc" placeholder="Describe the property..." rows="3" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none;resize:vertical"></textarea></div>
               <div><label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);display:block;margin-bottom:5px">Property Photos</label>
               <input type="file" id="al-photos" accept="image/*" multiple style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:0.85rem;font-family:'DM Sans',sans-serif;cursor:pointer"/>
-              <div style="font-size:0.75rem;color:var(--muted);margin-top:4px">Upload up to 10 photos (JPG, PNG)</div></div>
+              <div style="font-size:0.75rem;color:var(--muted);margin-top:4px">Upload up to 20 photos (JPG, PNG)</div></div>
               <button onclick="submitAgentListing()" style="background:#3ef07a;color:#0a0f0d;border:none;padding:12px 24px;border-radius:50px;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:'DM Sans',sans-serif;width:100%">📋 Submit Listing →</button>
               <div id="al-msg" style="font-size:0.85rem;text-align:center;display:none"></div>
             </div>
@@ -1255,7 +1255,7 @@ async function saveEditListing() {
     // Upload new photos if provided
     const photoFiles = document.getElementById('edit-photos').files;
     const photoUrls = [];
-    for (const file of Array.from(photoFiles).slice(0, 8)) {
+    for (const file of Array.from(photoFiles).slice(0, 20)) {
       try {
         const fd = new FormData();
         fd.append('photo', file);
@@ -1431,7 +1431,7 @@ async function submitAgentListing() {
   // Upload photos first — same as seller
   const photoUrls = [];
   const photoFiles = document.getElementById('al-photos').files;
-  for (const file of Array.from(photoFiles).slice(0, 8)) {
+  for (const file of Array.from(photoFiles).slice(0, 20)) {
     try {
       const fd = new FormData();
       fd.append('photo', file);

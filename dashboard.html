@@ -919,7 +919,7 @@ function handlePhotoSelect(input) {
   const previews = document.getElementById('photo-previews');
   previews.innerHTML = '';
   selectedPhotos = Array.from(input.files);
-  selectedPhotos.slice(0, 8).forEach((file, i) => {
+  selectedPhotos.slice(0, 20).forEach((file, i) => {
     const url = URL.createObjectURL(file);
     const div = document.createElement('div');
     div.className = 'photo-thumb';
@@ -948,7 +948,7 @@ async function submitListing() {
 
   // Upload photos first
   const photoUrls = [];
-  for (const file of selectedPhotos.slice(0, 8)) {
+  for (const file of selectedPhotos.slice(0, 20)) {
     try {
       const fd = new FormData();
       fd.append('photo', file);

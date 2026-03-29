@@ -2037,7 +2037,7 @@ function renderListings(list) {
 
     card.innerHTML = `
       <div class="listing-img">
-        <div class="listing-img-bg" id="img-${l.id}" style="background-image:url('${l.img}')">
+        <div class="listing-img-bg" id="img-${l.id}" style="background-image:url('${l.img}');cursor:${(l.allPhotos && l.allPhotos.length > 0) ? 'zoom-in' : 'default'}" onclick="event.stopPropagation();openLightbox('${JSON.stringify(l.allPhotos||[l.img]).replace(/'/g,"&apos;")}', ${photoIndex[l.id]||0})">
           ${l.us ? `<img src="${l.img}" style="display:none" onerror="document.getElementById('img-${l.id}').style.backgroundImage='url(https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=280&fit=crop)'" />` : ''}
         </div>
         ${(l.allPhotos && l.allPhotos.length > 1) ? `
@@ -2104,6 +2104,40 @@ function renderListings(list) {
       }
     }
   }, 300);
+}
+
+// ── Photo Lightbox ────────────────────────────────────────────
+let lbPhotos = [], lbIndex = 0;
+
+function openLightbox(photosJson, startIndex) {
+  try {
+    lbPhotos = JSON.parse(photosJson);
+    if (!lbPhotos.length) return;
+    lbIndex = startIndex || 0;
+    updateLightbox();
+    document.getElementById('photo-lightbox').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  } catch(e) {}
+}
+
+function closeLightbox() {
+  document.getElementById('photo-lightbox').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function lbNext() {
+  lbIndex = (lbIndex + 1) % lbPhotos.length;
+  updateLightbox();
+}
+
+function lbPrev() {
+  lbIndex = (lbIndex - 1 + lbPhotos.length) % lbPhotos.length;
+  updateLightbox();
+}
+
+function updateLightbox() {
+  document.getElementById('lb-img').src = lbPhotos[lbIndex];
+  document.getElementById('lb-counter').textContent = (lbIndex + 1) + ' / ' + lbPhotos.length;
 }
 
 const photoIndex = {};
@@ -3814,6 +3848,17 @@ function heroQuickSearch(city) {
 // ── Location-based City Chips ─────────────────────────────────
 </script>
 
+
+<!-- PHOTO LIGHTBOX -->
+<div id="photo-lightbox" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:9999;align-items:center;justify-content:center;flex-direction:column" onclick="closeLightbox()">
+  <button onclick="event.stopPropagation();closeLightbox()" style="position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.15);border:none;color:white;width:44px;height:44px;border-radius:50%;cursor:pointer;font-size:1.4rem;display:flex;align-items:center;justify-content:center">✕</button>
+  <div style="position:relative;max-width:90vw;max-height:80vh;display:flex;align-items:center" onclick="event.stopPropagation()">
+    <button onclick="lbPrev()" style="position:absolute;left:-50px;background:rgba(255,255,255,0.15);border:none;color:white;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:1.4rem;display:flex;align-items:center;justify-content:center;z-index:10">‹</button>
+    <img id="lb-img" src="" style="max-width:90vw;max-height:80vh;object-fit:contain;border-radius:12px"/>
+    <button onclick="lbNext()" style="position:absolute;right:-50px;background:rgba(255,255,255,0.15);border:none;color:white;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:1.4rem;display:flex;align-items:center;justify-content:center;z-index:10">›</button>
+  </div>
+  <div id="lb-counter" style="color:rgba(255,255,255,0.6);font-size:0.88rem;margin-top:16px"></div>
+</div>
 
 <!-- MESSAGE SELLER MODAL -->
 <div id="message-seller-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:600;align-items:center;justify-content:center;padding:24px">
