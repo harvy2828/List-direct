@@ -1306,7 +1306,7 @@ async function submitWithAccount() {
     const data = await res.json();
     if (!res.ok) { errEl.textContent = data.error || 'Signup failed.'; errEl.style.display = 'block'; document.getElementById('sm-btn').textContent = 'Create Account & Publish Listing →'; document.getElementById('sm-btn').disabled = false; return; }
 
-    // Post the pending listing now that we have a token
+    // Post the pending listing - use session token if available, otherwise save for later
     const pendingListing = JSON.parse(localStorage.getItem('ld_pending_listing') || '{}');
     if (pendingListing.address && data.session?.access_token) {
       try {
@@ -1318,6 +1318,8 @@ async function submitWithAccount() {
         localStorage.removeItem('ld_pending_listing');
       } catch(e) {}
     }
+    // If no session (email confirmation required), keep pending listing in localStorage
+    // It will be posted when they sign in via signInAndPublish()
 
     sucEl.innerHTML = '📧 Account created! Check your email at <strong>' + email + '</strong> to confirm, then sign in to see your listing in your dashboard.';
     sucEl.style.display = 'block';

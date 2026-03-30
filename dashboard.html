@@ -561,12 +561,53 @@ function formatZipInput(el) {
 }
 
 const SUPABASE_URL = 'https://pscxbpgszpajkwqvuajq.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzY3hicGdzenBhamtvcXZ1YWpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE0NzgwNDksImV4cCI6MjA1NzA1NDA0OX0.KImP43xdaqWdwyqzNakvmhVzIU3DltCFhek5WsgPWw0';
 let currentUser = null;
 let currentSession = null;
 let selectedPhotos = [];
 
 // ── Init ──────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', async () => {
+  // Handle email confirmation token from URL
+  const params = new URLSearchParams(window.location.search);
+  const tokenHash = params.get('token_hash');
+  const type = params.get('type');
+  if (tokenHash && type === 'signup') {
+    showLoading(true);
+    try {
+      const res = await fetch(`${SUPABASE_URL}/auth/v1/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
+        body: JSON.stringify({ token_hash: tokenHash, type: 'signup' })
+      });
+      const data = await res.json();
+      if (res.ok && data.access_token) {
+        localStorage.setItem('ld_token', data.access_token);
+        window.history.replaceState({}, '', '/dashboard.html');
+        // Post any pending listing from listdirect-list.html
+        const pendingListing = JSON.parse(localStorage.getItem('ld_pending_listing') || '{}');
+        if (pendingListing.address) {
+          try {
+            await fetch('/api/listings', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + data.access_token },
+              body: JSON.stringify(pendingListing)
+            });
+            localStorage.removeItem('ld_pending_listing');
+          } catch(e) {}
+        }
+        showLoading(false);
+        currentUser = data.user;
+        showDashboard();
+        loadMyListings();
+        loadFavorites();
+        loadInquiries();
+        return;
+      }
+    } catch(e) {}
+    showLoading(false);
+  }
+
   const token = localStorage.getItem('ld_token');
   if (token) {
     showLoading(true);
