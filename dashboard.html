@@ -829,11 +829,16 @@ function showPanel(name, btn) {
   if (name === 'my-listings') loadMyListings();
   if (name === 'saved') loadFavorites();
   if (name === 'new-listing') {
-    const el = document.getElementById('nl-addr');
-    if (el) el.dataset.acDone = '';
-    setTimeout(() => {
-      if (window.google && window.google.maps && window.google.maps.places) initDashPlaces();
-    }, 150);
+    const addrEl = document.getElementById('nl-addr');
+    if (addrEl) addrEl.dataset.acDone = '';
+    const tryInit = (attempts) => {
+      if (window.google && window.google.maps && window.google.maps.places) {
+        initDashPlaces();
+      } else if (attempts > 0) {
+        setTimeout(() => tryInit(attempts - 1), 300);
+      }
+    };
+    setTimeout(() => tryInit(20), 100);
   }
   // Auto-scroll to panel content on mobile and desktop
   setTimeout(() => {

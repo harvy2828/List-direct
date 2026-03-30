@@ -603,11 +603,16 @@ function showStep(n) {
   currentStep = n;
   // Reinitialize address autocomplete when step 2 becomes visible
   if (n === 2) {
-    const el = document.getElementById('s2-addr');
-    if (el) el.dataset.acDone = '';
-    setTimeout(() => {
-      if (window.google && window.google.maps && window.google.maps.places) initAddressAutocomplete();
-    }, 150);
+    const addrEl = document.getElementById('s2-addr');
+    if (addrEl) addrEl.dataset.acDone = '';
+    const tryInit = (attempts) => {
+      if (window.google && window.google.maps && window.google.maps.places) {
+        initAddressAutocomplete();
+      } else if (attempts > 0) {
+        setTimeout(() => tryInit(attempts - 1), 300);
+      }
+    };
+    setTimeout(() => tryInit(20), 100);
   }
 }
 
