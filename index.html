@@ -1889,7 +1889,15 @@ async function fetchCanadaListings(query, beds, maxPrice) {
 }
 
 async function runSearch() {
-  if (isSearching) return;
+  // Safety reset — if stuck for more than 10s, allow new search
+  if (isSearching) {
+    if (!window._searchStarted || Date.now() - window._searchStarted > 10000) {
+      isSearching = false;
+    } else {
+      return;
+    }
+  }
+  window._searchStarted = Date.now();
   const query = document.getElementById('search-input').value.trim();
   const beds = parseInt(document.getElementById('filter-beds').value) || 0;
   const maxPrice = parseInt(document.getElementById('filter-price').value) || 0;
@@ -1942,6 +1950,7 @@ async function runSearch() {
 
   document.getElementById('search-loading').classList.remove('visible');
   isSearching = false;
+  window._searchStarted = null;
 
   // Platform listings first, then MLS, then AI
   const all = [...platformListings, ...mlsListings, ...verifiedMatches.filter(v => !platformListings.find(p => p.id === v.id) && !mlsListings.find(m => m.id === v.id)), ...aiListings.filter(l => {
