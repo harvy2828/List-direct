@@ -2044,8 +2044,8 @@ function renderListings(list) {
           ${l.us ? `<img src="${l.img}" style="display:none" onerror="document.getElementById('img-${l.id}').style.backgroundImage='url(https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=280&fit=crop)'" />` : ''}
         </div>
         ${(l.allPhotos && l.allPhotos.length > 1) ? `
-          <button onclick="event.stopPropagation();cyclePhotoById('${l.id}','prev')" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);border:none;color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;z-index:10">‹</button>
-          <button onclick="event.stopPropagation();cyclePhotoById('${l.id}','next')" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);border:none;color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;z-index:10">›</button>
+          <button data-arrow="prev" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);border:none;color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;z-index:10">‹</button>
+          <button data-arrow="next" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);border:none;color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;z-index:10">›</button>
           <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.5);color:white;font-size:0.7rem;padding:2px 8px;border-radius:50px" id="photo-count-${l.id}">1/${l.allPhotos.length}</div>
         ` : ''}
         ${tagHTML}
@@ -2091,10 +2091,18 @@ function renderListings(list) {
         const diff = touchStartX - e.changedTouches[0].clientX;
         if (Math.abs(diff) > 40) {
           e.stopPropagation();
-          cyclePhoto(l.id, JSON.stringify(l.allPhotos), diff > 0 ? 'next' : 'prev');
+          cyclePhotoById(l.id, diff > 0 ? 'next' : 'prev');
         }
       });
     }
+
+    // Arrow buttons — add listeners directly after card is in DOM
+    card.querySelectorAll('[data-arrow]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        cyclePhotoById(l.id, btn.dataset.arrow);
+      });
+    });
 
     grid.appendChild(card);
     setTimeout(() => card.classList.add('visible'), 30 + i * 50);
