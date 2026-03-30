@@ -2334,7 +2334,7 @@ function openListingModal(l) {
       <div class="lm-thumb" style="background-image:url('${photos[2]||l.img3||''}');cursor:${photos[2]?'zoom-in':'default'}" ${photos[2]?`onclick="openLightbox('${photosJson}',2)"`:''}></div>
     </div>
     <div style="display:flex;gap:8px;margin-bottom:14px">
-      <button onclick="switchLMView('photo','${photos[0]||l.img}')" id="lm-btn-photo" style="flex:1;padding:8px;border-radius:50px;border:1px solid var(--green);background:var(--green);color:var(--bg);font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">📷 Photos</button>
+      <button onclick="openLightbox('${photosJson}',0)" id="lm-btn-photo" style="flex:1;padding:8px;border-radius:50px;border:1px solid var(--green);background:var(--green);color:var(--bg);font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">📷 All Photos (${photos.length})</button>
       <button onclick="switchLMView('sv','${svAddr}')" id="lm-btn-sv" style="flex:1;padding:8px;border-radius:50px;border:1px solid var(--green);background:none;color:var(--green);font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🌍 Street View</button>
     </div>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
