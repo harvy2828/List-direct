@@ -2110,6 +2110,16 @@ function renderListings(list) {
 // ── Photo Lightbox ────────────────────────────────────────────
 let lbPhotos = [], lbIndex = 0;
 
+function openModalLightbox(index) {
+  const photos = window._modalPhotos || [];
+  if (!photos.length) return;
+  lbPhotos = photos;
+  lbIndex = index || 0;
+  updateLightbox();
+  document.getElementById('photo-lightbox').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
 function openLightbox(photosJson, startIndex) {
   try {
     lbPhotos = JSON.parse(photosJson);
@@ -2323,18 +2333,19 @@ function openListingModal(l) {
   const content = document.getElementById('listing-modal-content');
   const svAddr = l.streetview_addr || (l.addr ? `${l.addr}, ${l.city}, ${l.state || ''} ${l.zip || ''}` : '');
   const photos = l.allPhotos && l.allPhotos.length ? l.allPhotos : [l.img, l.img2, l.img3].filter(Boolean);
-  const photosJson = JSON.stringify(photos).replace(/'/g,"&apos;");
+  // Store photos globally so onclick can reference without JSON escaping issues
+  window._modalPhotos = photos;
   content.innerHTML = `
     <div class="lm-imgs">
       <div class="lm-main" id="lm-main-view" style="position:relative;overflow:hidden;padding:0">
-        <div id="lm-photo-view" style="position:absolute;inset:0;background-image:url('${photos[0]||l.img}');background-size:cover;background-position:center;cursor:zoom-in" onclick="openLightbox('${photosJson}',0)"></div>
+        <div id="lm-photo-view" style="position:absolute;inset:0;background-image:url('${photos[0]||l.img}');background-size:cover;background-position:center;cursor:zoom-in" onclick="openModalLightbox(0)"></div>
         <div id="lm-sv-view" style="position:absolute;inset:0;display:none"></div>
       </div>
-      <div class="lm-thumb" style="background-image:url('${photos[1]||l.img2||''}');cursor:${photos[1]?'zoom-in':'default'}" ${photos[1]?`onclick="openLightbox('${photosJson}',1)"`:''}></div>
-      <div class="lm-thumb" style="background-image:url('${photos[2]||l.img3||''}');cursor:${photos[2]?'zoom-in':'default'}" ${photos[2]?`onclick="openLightbox('${photosJson}',2)"`:''}></div>
+      <div class="lm-thumb" style="background-image:url('${photos[1]||l.img2||''}');cursor:${photos[1]?'zoom-in':'default'}" ${photos[1]?'onclick="openModalLightbox(1)"':''}></div>
+      <div class="lm-thumb" style="background-image:url('${photos[2]||l.img3||''}');cursor:${photos[2]?'zoom-in':'default'}" ${photos[2]?'onclick="openModalLightbox(2)"':''}></div>
     </div>
     <div style="display:flex;gap:8px;margin-bottom:14px">
-      <button onclick="openLightbox('${photosJson}',0)" id="lm-btn-photo" style="flex:1;padding:8px;border-radius:50px;border:1px solid var(--green);background:var(--green);color:var(--bg);font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">📷 All Photos (${photos.length})</button>
+      <button onclick="openModalLightbox(0)" id="lm-btn-photo" style="flex:1;padding:8px;border-radius:50px;border:1px solid var(--green);background:var(--green);color:var(--bg);font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">📷 All Photos (${photos.length})</button>
       <button onclick="switchLMView('sv','${svAddr}')" id="lm-btn-sv" style="flex:1;padding:8px;border-radius:50px;border:1px solid var(--green);background:none;color:var(--green);font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🌍 Street View</button>
     </div>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
