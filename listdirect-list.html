@@ -218,7 +218,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 @media(max-width:900px){.desktop-nav-right{display:none!important}}
 </style>
 
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A&libraries=places&callback=initGooglePlaces" async defer></script>
+
   <meta name="description" content="List your home for sale in minutes. AI writes your description, prices your home, and reviews every offer. Free to list — pay only 1% when your home sells. Available across Canada and the USA."/>
   <meta name="keywords" content="list home for sale Canada, sell home online, for sale by owner Canada, AI listing description, home listing platform"/>
   <meta property="og:title" content="List Your Home — ListDirect | Free to List, 1% at Closing"/>
@@ -1189,7 +1189,8 @@ async function fetchAIComps(city, state, zip, country) {
 }
 
 // ── Google Places Init ────────────────────────────────────────
-function initGooglePlaces() {
+function initGooglePlaces() { initAddressAutocomplete(); }
+function _initGooglePlaces_orig() {
   const addrEl = document.getElementById('s2-addr');
   if (!addrEl) return;
   const ac = new google.maps.places.Autocomplete(addrEl, {
