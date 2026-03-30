@@ -603,14 +603,11 @@ function showStep(n) {
   currentStep = n;
   // Reinitialize address autocomplete when step 2 becomes visible
   if (n === 2) {
-    const tryInit = (attempts) => {
-      if (window.google && window.google.maps && window.google.maps.places) {
-        initAddressAutocomplete();
-      } else if (attempts > 0) {
-        setTimeout(() => tryInit(attempts - 1), 300);
-      }
-    };
-    setTimeout(() => tryInit(10), 100);
+    const el = document.getElementById('s2-addr');
+    if (el) el.dataset.acDone = '';
+    setTimeout(() => {
+      if (window.google && window.google.maps && window.google.maps.places) initAddressAutocomplete();
+    }, 150);
   }
 }
 
@@ -1119,7 +1116,8 @@ const GOOGLE_API_KEY = 'AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A';
 
 function initAddressAutocomplete() {
   const addrInput = document.getElementById('s2-addr');
-  if (!addrInput) return;
+  if (!addrInput || addrInput.dataset.acDone) return;
+  addrInput.dataset.acDone = '1';
 
   const autocomplete = new google.maps.places.Autocomplete(addrInput, {
     types: ['address'],

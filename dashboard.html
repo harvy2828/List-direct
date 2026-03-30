@@ -441,7 +441,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
         <div class="dash-panel" id="panel-new-listing-OLD-REMOVED">
           <div class="listing-form">
             <div class="form-grid">
-              <div class="ff full"><label>Street Address</label><input type="text" id="nl-addr" placeholder="123 Oak Street"/></div>
+              <div class="ff full"><label>Street Address</label><input type="text" id="nl-addr" placeholder="123 Oak Street" autocomplete="off"/></div>
               <div class="ff"><label>City</label><input type="text" id="nl-city" placeholder="e.g. Austin"/></div>
               <div class="ff"><label>State / Province</label><input type="text" id="nl-state" placeholder="e.g. TX or ON"/></div>
               <div class="ff"><label>ZIP / Postal Code</label><input type="text" id="nl-zip" placeholder="78701 or M5V 2T6" oninput="formatZipInput(this)" maxlength="10" inputmode="text" autocomplete="postal-code"/></div>
@@ -798,14 +798,11 @@ function showPanel(name, btn) {
   if (name === 'my-listings') loadMyListings();
   if (name === 'saved') loadFavorites();
   if (name === 'new-listing') {
-    const tryInit = (attempts) => {
-      if (window.google && window.google.maps && window.google.maps.places) {
-        initDashPlaces();
-      } else if (attempts > 0) {
-        setTimeout(() => tryInit(attempts - 1), 300);
-      }
-    };
-    setTimeout(() => tryInit(10), 100);
+    const el = document.getElementById('nl-addr');
+    if (el) el.dataset.acDone = '';
+    setTimeout(() => {
+      if (window.google && window.google.maps && window.google.maps.places) initDashPlaces();
+    }, 150);
   }
   // Auto-scroll to panel content on mobile and desktop
   setTimeout(() => {
@@ -1072,7 +1069,8 @@ document.addEventListener('keydown', e => {
 // ── Google Places for Dashboard ───────────────────────────────
 function initDashPlaces() {
   const el = document.getElementById('nl-addr');
-  if (!el) return;
+  if (!el || el.dataset.acDone) return;
+  el.dataset.acDone = '1';
   const ac = new google.maps.places.Autocomplete(el, {
     componentRestrictions: { country: ['us', 'ca'] },
     fields: ['address_components'],
