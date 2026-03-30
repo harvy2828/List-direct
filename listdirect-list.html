@@ -1296,9 +1296,18 @@ async function submitWithAccount() {
     const data = await res.json();
     if (!res.ok) { errEl.textContent = data.error || 'Signup failed.'; errEl.style.display = 'block'; document.getElementById('sm-btn').textContent = 'Create Account & Publish Listing →'; document.getElementById('sm-btn').disabled = false; return; }
 
-    // Save listing to pending in localStorage
+    // Post the pending listing now that we have a token
     const pendingListing = JSON.parse(localStorage.getItem('ld_pending_listing') || '{}');
-    localStorage.setItem('ld_pending_listing', JSON.stringify(pendingListing));
+    if (pendingListing.address && data.session?.access_token) {
+      try {
+        await fetch('/api/listings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + data.session.access_token },
+          body: JSON.stringify(pendingListing)
+        });
+        localStorage.removeItem('ld_pending_listing');
+      } catch(e) {}
+    }
 
     sucEl.innerHTML = '📧 Account created! Check your email at <strong>' + email + '</strong> to confirm, then sign in to see your listing in your dashboard.';
     sucEl.style.display = 'block';
