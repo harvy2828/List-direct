@@ -869,7 +869,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
       <div class="search-top-row">
         <div class="search-input-wrap" style="flex:3">
           <span class="s-icon">📍</span>
-          <input type="text" id="search-input" placeholder="City, ZIP, or neighborhood…" onkeydown="if(event.key==='Enter')runSearch()"/>
+          <input type="text" id="search-input" placeholder="City, ZIP, or neighborhood…" onkeydown="if(event.key==='Enter'){setTimeout(runSearch,100)}"/>
         </div>
         <select class="search-select" id="filter-beds" onchange="runSearch()">
           <option value="">Any Beds</option>
@@ -884,7 +884,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
           <option value="750000" id="price-opt-750">Under $750k</option>
           <option value="1000000" id="price-opt-1m">Under $1M</option>
         </select>
-        <button class="search-btn" onclick="runSearch()">Search</button>
+        <button class="search-btn" onclick="setTimeout(runSearch,100)">Search</button>
       </div>
       <div class="filter-row">
         <span class="filter-label">Type:</span>
@@ -1934,15 +1934,9 @@ async function runSearch() {
     return true;
   });
 
-  // Fetch platform listings FIRST and render immediately so they always show
-  const platformListings = await fetchPlatformListings(query, beds, maxPrice);
-  if (platformListings.length > 0) {
-    currentResults = platformListings;
-    renderCurrentResults();
-  }
-
-  // Then fetch MLS and AI in parallel
-  const [mlsListings, aiListings] = await Promise.all([
+  // Fetch all sources in parallel for speed
+  const [platformListings, mlsListings, aiListings] = await Promise.all([
+    fetchPlatformListings(query, beds, maxPrice),
     searchCountry === 'ca' ? fetchCanadaListings(query, beds, maxPrice) :
     searchCountry === 'us' ? fetchUSListings(query, beds, maxPrice) : Promise.resolve([]),
     generateAIListings(query, beds, maxPrice)
@@ -3572,7 +3566,10 @@ function initGooglePlaces() {
     searchAC.addListener('place_changed', () => {
       const place = searchAC.getPlace();
       if (place.name) {
-        runSearch();
+        // Use city name not full formatted address
+        const city = place.address_components?.find(c => c.types.includes('locality'))?.long_name || place.name;
+        document.getElementById('search-input').value = city;
+        setTimeout(runSearch, 200);
       }
     });
   }
