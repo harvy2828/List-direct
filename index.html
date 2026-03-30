@@ -2044,8 +2044,8 @@ function renderListings(list) {
           ${l.us ? `<img src="${l.img}" style="display:none" onerror="document.getElementById('img-${l.id}').style.backgroundImage='url(https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=280&fit=crop)'" />` : ''}
         </div>
         ${(l.allPhotos && l.allPhotos.length > 1) ? `
-          <button onclick="event.stopPropagation();cyclePhoto('${l.id}','${JSON.stringify(l.allPhotos).replace(/'/g,"&apos;")}','prev')" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);border:none;color:white;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;z-index:10">‹</button>
-          <button onclick="event.stopPropagation();cyclePhoto('${l.id}','${JSON.stringify(l.allPhotos).replace(/'/g,"&apos;")}','next')" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);border:none;color:white;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;z-index:10">›</button>
+          <button onclick="event.stopPropagation();cyclePhotoById('${l.id}','prev')" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);border:none;color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;z-index:10">‹</button>
+          <button onclick="event.stopPropagation();cyclePhotoById('${l.id}','next')" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);border:none;color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;z-index:10">›</button>
           <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.5);color:white;font-size:0.7rem;padding:2px 8px;border-radius:50px" id="photo-count-${l.id}">1/${l.allPhotos.length}</div>
         ` : ''}
         ${tagHTML}
@@ -2078,6 +2078,9 @@ function renderListings(list) {
       if (l.verified) openListingModal(l);
       else openLeadModal(l);
     });
+
+    // Store photos for this card
+    if (l.allPhotos && l.allPhotos.length) cardPhotos[l.id] = l.allPhotos;
 
     // Swipe on photo to cycle through photos without opening modal
     const imgDiv = card.querySelector('.listing-img-bg');
@@ -2182,6 +2185,21 @@ function updateLightbox() {
 }
 
 const photoIndex = {};
+const cardPhotos = {}; // Store photos per card id
+
+function cyclePhotoById(id, dir) {
+  const photos = cardPhotos[id];
+  if (!photos || !photos.length) return;
+  if (photoIndex[id] === undefined) photoIndex[id] = 0;
+  photoIndex[id] = dir === 'next'
+    ? (photoIndex[id] + 1) % photos.length
+    : (photoIndex[id] - 1 + photos.length) % photos.length;
+  const el = document.getElementById('img-' + id);
+  if (el) el.style.backgroundImage = "url('" + photos[photoIndex[id]] + "')";
+  const counter = document.getElementById('photo-count-' + id);
+  if (counter) counter.textContent = (photoIndex[id]+1) + '/' + photos.length;
+}
+
 function cyclePhoto(id, photosJson, dir) {
   try {
     const photos = JSON.parse(photosJson);
