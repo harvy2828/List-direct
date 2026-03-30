@@ -2375,8 +2375,30 @@ function openListingModal(l) {
     </div>
     <p class="lm-desc">${l.desc}</p>
     ${l.cashback
-      ? `<div style="background:var(--goldlow);border:1px solid rgba(245,200,66,0.25);border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:0.88rem;color:var(--gold);font-weight:600">💰 Agent Cashback: ${l.cashback} rebate at closing — guaranteed</div>`
-      : `<div style="background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:0.88rem;color:var(--green);font-weight:600">🚀 Direct Listing — 1% platform fee, no agent commission</div>`}
+      ? `<div style="background:var(--goldlow);border:1px solid rgba(245,200,66,0.25);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.88rem;color:var(--gold);font-weight:600">💰 Agent Cashback: ${l.cashback} rebate at closing — guaranteed</div>`
+      : `<div style="background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.88rem;color:var(--green);font-weight:600">🚀 Direct Listing — 1% platform fee, no agent commission</div>`}
+    ${(()=>{
+      const price = l.price || 0;
+      const ldFee = Math.round(price * 0.01);
+      const tradFee = Math.round(price * 0.06);
+      const savings = tradFee - ldFee;
+      const fmt = n => '$' + n.toLocaleString();
+      return `<div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:16px;margin-bottom:20px">
+        <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#7a9480;margin-bottom:12px">💡 Cost Breakdown</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span style="color:#7a9480;font-size:0.88rem">ListDirect fee (1%)</span>
+          <span style="color:#3ef07a;font-weight:700">${fmt(ldFee)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <span style="color:#7a9480;font-size:0.88rem">Traditional agent (~6%)</span>
+          <span style="color:#e85454;font-weight:700;text-decoration:line-through">${fmt(tradFee)}</span>
+        </div>
+        <div style="border-top:1px solid #1f2d22;padding-top:10px;display:flex;justify-content:space-between;align-items:center">
+          <span style="color:#e8f0e9;font-weight:700">Seller saves</span>
+          <span style="color:#3ef07a;font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900">${fmt(savings)}</span>
+        </div>
+      </div>`;
+    })()}
     <div class="lm-btns">
       <button class="lm-btn-primary" onclick="openMessageSeller('${l.id||''}','${l.seller_id||''}','${l.addr}, ${l.city}',${l.price})">💬 Message Seller</button>
       <button class="lm-btn-outline" onclick="openOfferModalDirect('${l.seller_id||''}','${l.addr}, ${l.city}',${l.price})">💰 Make an Offer</button>
