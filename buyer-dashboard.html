@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-EYCY016PBH"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-EYCY016PBH');
+</script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Buyer Dashboard — ListDirect</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0a0f0d;--bg2:#111810;--card:#141c16;--card2:#192019;
+  --border:#1f2d22;--green:#3ef07a;--green2:#27c45e;
+  --greenlow:rgba(62,240,122,0.08);--greenmid:rgba(62,240,122,0.15);
+  --text:#e8f0e9;--muted:#7a9480;--white:#fff;
+  --gold:#f5c842;--goldlow:rgba(245,200,66,0.08);
+  --red:#e85454;--radius:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:16px;line-height:1.6;min-height:100vh}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--green);border-radius:3px}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:16px 48px;background:rgba(10,15,13,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;color:var(--white);letter-spacing:-1px;text-decoration:none}
+.nav-logo span{color:var(--green)}
+.nav-back{background:none;border:1px solid var(--border);color:var(--muted);padding:8px 18px;border-radius:50px;font-size:0.86rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;text-decoration:none}
+.nav-back:hover{border-color:var(--green);color:var(--green)}
+@media(max-width:600px){nav{padding:14px 16px}}
+
+/* AUTH */
+.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:100px 24px 60px}
+.auth-box{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:48px 40px;max-width:460px;width:100%}
+.auth-logo{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:var(--white);text-align:center;margin-bottom:8px}
+.auth-logo span{color:var(--green)}
+.auth-sub{text-align:center;color:var(--muted);font-size:0.92rem;margin-bottom:32px}
+.auth-tabs{display:flex;background:var(--bg);border-radius:50px;padding:4px;margin-bottom:28px}
+.auth-tab{flex:1;padding:10px;border-radius:50px;background:none;border:none;color:var(--muted);font-size:0.88rem;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif}
+.auth-tab.active{background:var(--green);color:var(--bg)}
+.ff{margin-bottom:16px}
+.ff label{display:block;font-size:0.74rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:7px}
+.ff input,.ff select,.ff textarea{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:13px 16px;border-radius:12px;font-size:0.95rem;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s}
+.ff input:focus,.ff select:focus{border-color:var(--green)}
+.ff input::placeholder{color:#3a4e3e}
+.ff select option{background:var(--card)}
+.btn-primary{width:100%;background:var(--green);color:var(--bg);padding:14px;border-radius:50px;border:none;font-weight:700;font-size:1rem;cursor:pointer;margin-top:8px;transition:all 0.15s;font-family:'DM Sans',sans-serif}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(62,240,122,0.4)}
+.btn-primary:disabled{opacity:0.6;cursor:not-allowed;transform:none;box-shadow:none}
+.auth-error{background:rgba(232,84,84,0.1);border:1px solid rgba(232,84,84,0.3);border-radius:10px;padding:12px 16px;font-size:0.88rem;color:var(--red);margin-bottom:16px;display:none}
+.auth-error.show{display:block}
+.auth-success{background:var(--greenlow);border:1px solid rgba(62,240,122,0.3);border-radius:10px;padding:12px 16px;font-size:0.88rem;color:var(--green);margin-bottom:16px;display:none}
+.auth-success.show{display:block}
+.auth-divider{text-align:center;color:var(--muted);font-size:0.82rem;margin:20px 0;position:relative}
+.auth-divider::before,.auth-divider::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:var(--border)}
+.auth-divider::before{left:0}.auth-divider::after{right:0}
+
+/* DASHBOARD */
+.dash-wrap{padding:80px 24px 60px;max-width:1100px;margin:0 auto}
+.dash-header{margin-bottom:40px}
+.dash-greeting{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3vw,2.6rem);font-weight:900;color:var(--white);margin-bottom:6px}
+.dash-greeting span{color:var(--green)}
+.dash-sub{color:var(--muted);font-size:0.95rem}
+.dash-grid{display:grid;grid-template-columns:280px 1fr;gap:24px}
+@media(max-width:800px){.dash-grid{grid-template-columns:1fr}}
+
+/* SIDEBAR */
+.dash-sidebar{display:flex;flex-direction:column;gap:8px}
+.dash-nav-item{display:flex;align-items:center;gap:12px;padding:13px 18px;border-radius:12px;cursor:pointer;transition:all 0.2s;color:var(--muted);font-weight:500;font-size:0.92rem;border:none;background:none;font-family:'DM Sans',sans-serif;width:100%;text-align:left}
+.dash-nav-item:hover{background:var(--greenlow);color:var(--text)}
+.dash-nav-item.active{background:var(--greenlow);color:var(--green);border:1px solid rgba(62,240,122,0.2)}
+.dash-nav-item .dni-icon{font-size:1.1rem;flex-shrink:0}
+.dash-profile-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:8px;text-align:center}
+.dpc-avatar{width:64px;height:64px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:700;color:var(--bg);margin:0 auto 12px;font-family:'Playfair Display',serif}
+.dpc-name{font-weight:700;color:var(--white);margin-bottom:4px}
+.dpc-email{font-size:0.78rem;color:var(--muted)}
+.dpc-role{display:inline-block;background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);color:var(--green);font-size:0.7rem;font-weight:700;padding:3px 12px;border-radius:50px;margin-top:8px;text-transform:uppercase;letter-spacing:0.08em}
+
+/* PANELS */
+.dash-panel{display:none}
+.dash-panel.active{display:block}
+.panel-title{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;color:var(--white);margin-bottom:6px}
+.panel-sub{color:var(--muted);font-size:0.88rem;margin-bottom:28px}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:28px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center;cursor:pointer;transition:border-color 0.2s}
+.stat-card:hover{border-color:var(--green)}
+.sc-num{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:var(--green);margin-bottom:4px}
+.sc-label{font-size:0.78rem;color:var(--muted)}
+
+/* SAVED CARDS */
+.saved-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.saved-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:border-color 0.2s}
+.saved-card:hover{border-color:rgba(62,240,122,0.3)}
+.saved-img{height:150px;background-size:cover;background-position:center;background-color:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:2rem}
+.saved-body{padding:14px}
+.saved-price{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900;color:var(--white);margin-bottom:4px}
+.saved-addr{font-size:0.8rem;color:var(--muted);margin-bottom:10px}
+.saved-actions{display:flex;gap:8px}
+
+/* MESSAGES */
+.msg-thread{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:10px;cursor:pointer;transition:border-color 0.2s}
+.msg-thread:hover{border-color:rgba(62,240,122,0.3)}
+.msg-thread-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.msg-thread-name{font-weight:700;color:var(--white);font-size:0.92rem}
+.msg-thread-time{font-size:0.75rem;color:var(--muted)}
+.msg-thread-preview{font-size:0.83rem;color:var(--muted)}
+.msg-thread-addr{font-size:0.78rem;color:var(--green);margin-bottom:4px}
+.msg-unread{display:inline-block;background:var(--green);color:var(--bg);font-size:0.65rem;font-weight:700;padding:2px 7px;border-radius:50px;margin-left:6px}
+
+/* MSG DETAIL */
+.msg-detail{display:none;background:var(--card);border:1px solid var(--border);border-radius:16px;height:500px;flex-direction:column}
+.msg-detail.open{display:flex}
+.msg-detail-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.msg-detail-back{background:none;border:none;color:var(--green);cursor:pointer;font-size:1.2rem;padding:4px}
+.msg-detail-name{font-weight:700;color:var(--white)}
+.msg-detail-addr{font-size:0.78rem;color:var(--muted)}
+.msg-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+.msg-bubble{max-width:80%;padding:10px 14px;border-radius:14px;font-size:0.88rem;line-height:1.5}
+.msg-bubble.sent{background:var(--green);color:var(--bg);align-self:flex-end;border-bottom-right-radius:4px}
+.msg-bubble.recv{background:var(--bg2);color:var(--text);align-self:flex-start;border-bottom-left-radius:4px;border:1px solid var(--border)}
+.msg-time{font-size:0.7rem;color:var(--muted);margin-top:2px}
+.msg-input-row{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px}
+.msg-input-row input{flex:1;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:50px;font-size:0.88rem;font-family:'DM Sans',sans-serif;outline:none}
+.msg-input-row input:focus{border-color:var(--green)}
+.msg-send-btn{background:var(--green);color:var(--bg);border:none;padding:10px 18px;border-radius:50px;font-weight:700;font-size:0.85rem;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap}
+
+/* QUICK ACTIONS */
+.quick-actions{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:28px}
+.qa-btn{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 14px;text-align:center;cursor:pointer;transition:all 0.2s;text-decoration:none;display:block}
+.qa-btn:hover{border-color:var(--green);background:var(--greenlow)}
+.qa-icon{font-size:1.6rem;margin-bottom:8px}
+.qa-label{font-size:0.8rem;font-weight:600;color:var(--text)}
+
+/* SETTINGS */
+.settings-form{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px}
+.settings-section{margin-bottom:28px;padding-bottom:28px;border-bottom:1px solid var(--border)}
+.settings-section:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.settings-section h3{font-size:1rem;font-weight:700;color:var(--white);margin-bottom:16px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr}}
+.form-grid .full{grid-column:1/-1}
+
+/* AI TOOLS */
+.ai-tools-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.ai-tool-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;transition:border-color 0.2s}
+.ai-tool-card:hover{border-color:rgba(62,240,122,0.3)}
+.ai-tool-icon{font-size:2rem;margin-bottom:12px}
+.ai-tool-title{font-weight:700;color:var(--white);margin-bottom:6px}
+.ai-tool-desc{font-size:0.83rem;color:var(--muted);margin-bottom:16px}
+
+/* CALCULATOR */
+.calc-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:20px}
+.calc-card h3{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--white);margin-bottom:20px}
+.calc-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-size:0.9rem}
+.calc-result{background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:10px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 20px;font-size:0.88rem;color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,0.4);transform:translateY(100px);opacity:0;transition:all 0.3s;z-index:999;max-width:300px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{border-color:rgba(62,240,122,0.4);color:var(--green)}
+.toast.error{border-color:rgba(232,84,84,0.4);color:var(--red)}
+
+/* LOADING */
+.loading-overlay{position:fixed;inset:0;background:rgba(10,15,13,0.9);display:none;align-items:center;justify-content:center;z-index:999}
+.loading-overlay.show{display:flex}
+.loader{width:44px;height:44px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:48px 24px;background:var(--card);border:1px solid var(--border);border-radius:16px}
+.empty-icon{font-size:2.4rem;margin-bottom:12px}
+.empty-title{font-weight:700;color:var(--white);margin-bottom:8px}
+.empty-sub{font-size:0.88rem;color:var(--muted);margin-bottom:20px}
+
+.btn-sm{padding:7px 14px;border-radius:50px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;border:none}
+.btn-sm-outline{background:none;border:1px solid var(--border);color:var(--muted)}
+.btn-sm-outline:hover{border-color:var(--green);color:var(--green)}
+.btn-sm-green{background:var(--green);color:var(--bg)}
+.btn-sm-green:hover{box-shadow:0 3px 12px rgba(62,240,122,0.4)}
+.btn-sm-red{background:rgba(232,84,84,0.15);border:1px solid rgba(232,84,84,0.3);color:var(--red)}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">List<span>Direct</span></a>
+  <a href="index.html" class="nav-back">← Back to Search</a>
+</nav>
+
+<div class="loading-overlay" id="loading-overlay"><div class="loader"></div></div>
+<div class="toast" id="toast"></div>
+
+<!-- AUTH SECTION -->
+<div id="auth-section">
+  <div class="auth-wrap">
+    <div class="auth-box">
+      <div class="auth-logo">List<span>Direct</span></div>
+      <p class="auth-sub">Find your perfect home and save thousands</p>
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-signup" onclick="switchAuthTab('signup')">Create Account</button>
+        <button class="auth-tab" id="tab-signin" onclick="switchAuthTab('signin')">Sign In</button>
+      </div>
+
+      <!-- SIGNUP -->
+      <div id="signup-form">
+        <div class="auth-error" id="su-error"></div>
+        <div class="auth-success" id="su-success"></div>
+        <div class="ff"><label>Full Name</label><input type="text" id="su-name" placeholder="Jane Smith"/></div>
+        <div class="ff"><label>Email</label><input type="email" id="su-email" placeholder="jane@example.com"/></div>
+        <div class="ff"><label>Password</label><input type="password" id="su-password" placeholder="Min 6 characters"/></div>
+        <button class="btn-primary" id="su-btn" onclick="handleSignUp()">Create Buyer Account →</button>
+        <p style="text-align:center;font-size:0.8rem;color:var(--muted);margin-top:16px">Free forever · No credit card needed</p>
+      </div>
+
+      <!-- SIGNIN -->
+      <div id="signin-form" style="display:none">
+        <div class="auth-error" id="si-error"></div>
+        <div class="ff"><label>Email</label><input type="email" id="si-email" placeholder="jane@example.com"/></div>
+        <div class="ff"><label>Password</label><input type="password" id="si-password" placeholder="Your password"/></div>
+        <button class="btn-primary" id="si-btn" onclick="handleSignIn()">Sign In →</button>
+        <div style="text-align:center;margin-top:14px">
+          <button onclick="showForgot()" style="background:none;border:none;color:var(--muted);font-size:0.83rem;cursor:pointer;font-family:'DM Sans',sans-serif">Forgot password?</button>
+        </div>
+        <div id="forgot-form" style="display:none;margin-top:16px">
+          <div class="ff"><label>Email</label><input type="email" id="fp-email" placeholder="Your email"/></div>
+          <button class="btn-primary" onclick="handleForgot()">Send Reset Link</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD SECTION -->
+<div id="dash-section" style="display:none">
+  <div class="dash-wrap">
+    <div class="dash-header">
+      <div class="dash-greeting">Welcome back, <span id="dash-name">Buyer</span> 👋</div>
+      <div class="dash-sub">Find your dream home and save thousands with ListDirect</div>
+    </div>
+    <div class="dash-grid">
+      <!-- SIDEBAR -->
+      <div class="dash-sidebar">
+        <div class="dash-profile-card">
+          <div class="dpc-avatar" id="dash-avatar">🏠</div>
+          <div class="dpc-name" id="dash-fullname">—</div>
+          <div class="dpc-email" id="dash-email">—</div>
+          <div class="dpc-role">Buyer</div>
+        </div>
+        <button class="dash-nav-item active" onclick="showPanel('overview',this)"><span class="dni-icon">🏠</span> Overview</button>
+        <button class="dash-nav-item" onclick="showPanel('saved',this)"><span class="dni-icon">❤️</span> Saved Homes</button>
+        <button class="dash-nav-item" onclick="showPanel('messages',this)"><span class="dni-icon">💬</span> Messages <span id="msg-badge" style="display:none;background:var(--red);color:white;font-size:0.65rem;font-weight:700;padding:2px 6px;border-radius:50px;margin-left:auto">0</span></button>
+        <button class="dash-nav-item" onclick="showPanel('ai-tools',this)"><span class="dni-icon">🤖</span> AI Tools</button>
+        <button class="dash-nav-item" onclick="showPanel('calculators',this)"><span class="dni-icon">🧮</span> Calculators</button>
+        <button class="dash-nav-item" onclick="showPanel('settings',this)"><span class="dni-icon">⚙️</span> Settings</button>
+        <div style="border-top:1px solid var(--border);margin:8px 0"></div>
+        <a href="index.html#search-section" class="dash-nav-item" style="text-decoration:none"><span class="dni-icon">🔍</span> Search Homes</a>
+        <div style="border-top:1px solid var(--border);margin:8px 0"></div>
+        <button class="dash-nav-item" onclick="handleSignOut()" style="color:var(--red)"><span class="dni-icon">🚪</span> Sign Out</button>
+      </div>
+
+      <!-- MAIN CONTENT -->
+      <div class="dash-content">
+
+        <!-- OVERVIEW -->
+        <div class="dash-panel active" id="panel-overview">
+          <div class="panel-title">My Dashboard</div>
+          <div class="panel-sub">Your home search at a glance</div>
+          <div class="stats-row">
+            <div class="stat-card" onclick="showPanel('saved',null)"><div class="sc-num" id="stat-saved">0</div><div class="sc-label">Saved Homes</div></div>
+            <div class="stat-card" onclick="showPanel('messages',null)"><div class="sc-num" id="stat-msgs">0</div><div class="sc-label">Messages</div></div>
+            <div class="stat-card"><div class="sc-num" style="font-size:1.4rem">$0</div><div class="sc-label">Buyer Agent Fees Saved</div></div>
+          </div>
+          <div class="panel-title" style="font-size:1.1rem;margin-bottom:16px">Quick Actions</div>
+          <div class="quick-actions">
+            <a href="index.html#search-section" class="qa-btn"><div class="qa-icon">🔍</div><div class="qa-label">Search Homes</div></a>
+            <a class="qa-btn" onclick="showPanel('saved',null)"><div class="qa-icon">❤️</div><div class="qa-label">Saved Homes</div></a>
+            <a class="qa-btn" onclick="showPanel('messages',null)"><div class="qa-icon">💬</div><div class="qa-label">Messages</div></a>
+            <a class="qa-btn" onclick="showPanel('ai-tools',null)"><div class="qa-icon">🤖</div><div class="qa-label">AI Tools</div></a>
+            <a class="qa-btn" onclick="showPanel('calculators',null)"><div class="qa-icon">💰</div><div class="qa-label">Calculators</div></a>
+            <a href="index.html#how" class="qa-btn"><div class="qa-icon">📖</div><div class="qa-label">How It Works</div></a>
+          </div>
+          <div class="panel-title" style="font-size:1.1rem;margin-bottom:16px">Recently Saved</div>
+          <div id="overview-saved-container">
+            <div class="empty-state">
+              <div class="empty-icon">🏠</div>
+              <div class="empty-title">No saved homes yet</div>
+              <div class="empty-sub">Search for homes and tap the ♡ to save them here</div>
+              <a href="index.html#search-section" class="btn-sm btn-sm-green" style="display:inline-block;text-decoration:none;padding:10px 20px">Search Homes →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- SAVED HOMES -->
+        <div class="dash-panel" id="panel-saved">
+          <div class="panel-title">Saved Homes</div>
+          <div class="panel-sub">Homes you've hearted in your search</div>
+          <div id="saved-container"></div>
+        </div>
+
+        <!-- MESSAGES -->
+        <div class="dash-panel" id="panel-messages">
+          <div class="panel-title">Messages</div>
+          <div class="panel-sub">Your conversations with sellers</div>
+          <div id="threads-list"></div>
+          <div class="msg-detail" id="msg-detail">
+            <div class="msg-detail-header">
+              <button class="msg-detail-back" onclick="closeThread()">←</button>
+              <div>
+                <div class="msg-detail-name" id="thread-seller-name">Seller</div>
+                <div class="msg-detail-addr" id="thread-addr"></div>
+              </div>
+            </div>
+            <div class="msg-body" id="msg-body"></div>
+            <div class="msg-input-row">
+              <input type="text" id="msg-input" placeholder="Type a message…" onkeydown="if(event.key==='Enter')sendMessage()"/>
+              <button class="msg-send-btn" onclick="sendMessage()">Send →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI TOOLS -->
+        <div class="dash-panel" id="panel-ai-tools">
+          <div class="panel-title">AI Tools</div>
+          <div class="panel-sub">AI-powered tools to help you buy smarter</div>
+          <div class="ai-tools-grid">
+            <div class="ai-tool-card">
+              <div class="ai-tool-icon">💰</div>
+              <div class="ai-tool-title">AI Home Pricer</div>
+              <div class="ai-tool-desc">Get an instant AI estimate for any home based on location, size, and market data</div>
+              <div class="ff"><label>Property Address</label><input type="text" id="ai-addr" placeholder="123 Oak St, Vancouver, BC" autocomplete="off"/></div>
+              <div class="form-grid" style="margin-bottom:12px">
+                <div class="ff" style="margin:0"><label>Bedrooms</label><input type="number" id="ai-beds" placeholder="3" min="0"/></div>
+                <div class="ff" style="margin:0"><label>Sq Ft</label><input type="number" id="ai-sqft" placeholder="1800" min="0"/></div>
+              </div>
+              <button class="btn-primary" style="margin-top:0" onclick="runAIPricer()">Get AI Estimate →</button>
+              <div id="ai-pricer-result" style="display:none;margin-top:16px;background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:12px;padding:16px"></div>
+            </div>
+
+            <div class="ai-tool-card">
+              <div class="ai-tool-icon">📋</div>
+              <div class="ai-tool-title">Offer Review</div>
+              <div class="ai-tool-desc">Paste a listing price and your offer — AI tells you if it's competitive and what to watch for</div>
+              <div class="ff"><label>Listing Price</label><input type="text" id="or-list-price" placeholder="$850,000"/></div>
+              <div class="ff"><label>Your Offer</label><input type="text" id="or-offer-price" placeholder="$820,000"/></div>
+              <div class="ff"><label>Any conditions?</label><input type="text" id="or-conditions" placeholder="e.g. subject to inspection"/></div>
+              <button class="btn-primary" style="margin-top:0" onclick="runOfferReview()">Review My Offer →</button>
+              <div id="offer-review-result" style="display:none;margin-top:16px;background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:12px;padding:16px;font-size:0.88rem;line-height:1.6"></div>
+            </div>
+
+            <div class="ai-tool-card">
+              <div class="ai-tool-icon">📜</div>
+              <div class="ai-tool-title">Contract Explainer</div>
+              <div class="ai-tool-desc">Paste any contract clause and AI explains it in plain English so you know exactly what you're signing</div>
+              <div class="ff"><label>Paste Contract Clause</label><textarea id="contract-text" rows="4" placeholder="Paste a clause from your purchase agreement…" style="resize:vertical"></textarea></div>
+              <button class="btn-primary" style="margin-top:0" onclick="runContractExplainer()">Explain This →</button>
+              <div id="contract-result" style="display:none;margin-top:16px;background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:12px;padding:16px;font-size:0.88rem;line-height:1.6"></div>
+            </div>
+
+            <div class="ai-tool-card">
+              <div class="ai-tool-icon">🏘️</div>
+              <div class="ai-tool-title">Neighbourhood Insights</div>
+              <div class="ai-tool-desc">Get AI insights on any neighbourhood — schools, commute, amenities, and market trends</div>
+              <div class="ff"><label>Neighbourhood or City</label><input type="text" id="nb-city" placeholder="Maple Ridge, BC"/></div>
+              <button class="btn-primary" style="margin-top:0" onclick="runNeighbourhoodInsights()">Get Insights →</button>
+              <div id="nb-result" style="display:none;margin-top:16px;background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:12px;padding:16px;font-size:0.88rem;line-height:1.6"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CALCULATORS -->
+        <div class="dash-panel" id="panel-calculators">
+          <div class="panel-title">Calculators</div>
+          <div class="panel-sub">Plan your purchase with real numbers</div>
+
+          <!-- Savings Calculator -->
+          <div class="calc-card">
+            <h3>💰 Buyer Savings Calculator</h3>
+            <div class="ff"><label>Home Price</label><input type="range" id="savings-slider" min="100000" max="5000000" step="25000" value="800000" oninput="updateSavingsCalc()" style="width:100%;accent-color:var(--green)"/></div>
+            <div style="text-align:center;font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:900;color:var(--white);margin-bottom:20px" id="savings-price">$800,000</div>
+            <div class="calc-row"><span style="color:var(--muted)">Traditional buyer agent (2.5%)</span><span style="color:var(--red);font-weight:700;text-decoration:line-through" id="trad-buyer-fee">$20,000</span></div>
+            <div class="calc-row"><span style="color:var(--muted)">ListDirect buyer fee</span><span style="color:var(--green);font-weight:700">$0</span></div>
+            <div class="calc-result">
+              <span style="font-weight:700;color:var(--white)">You save as a buyer</span>
+              <span style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--green)" id="buyer-savings">$20,000</span>
+            </div>
+          </div>
+
+          <!-- Mortgage Calculator -->
+          <div class="calc-card">
+            <h3>🏦 Mortgage Calculator</h3>
+            <div class="form-grid">
+              <div class="ff"><label>Home Price</label><input type="number" id="m-price" value="800000" oninput="updateMortgage()" placeholder="800000"/></div>
+              <div class="ff"><label>Down Payment ($)</label><input type="number" id="m-down" value="160000" oninput="updateMortgage()" placeholder="160000"/></div>
+              <div class="ff"><label>Interest Rate (%)</label><input type="number" id="m-rate" value="5.5" step="0.1" oninput="updateMortgage()" placeholder="5.5"/></div>
+              <div class="ff"><label>Amortization (years)</label><select id="m-years" onchange="updateMortgage()">
+                <option value="10">10 years</option>
+                <option value="15">15 years</option>
+                <option value="20">20 years</option>
+                <option value="25" selected>25 years</option>
+                <option value="30">30 years</option>
+              </select></div>
+            </div>
+            <div class="calc-result" style="flex-direction:column;align-items:flex-start;gap:8px">
+              <div style="display:flex;justify-content:space-between;width:100%"><span style="color:var(--muted)">Monthly Payment</span><span style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--green)" id="m-monthly">$4,823</span></div>
+              <div style="display:flex;justify-content:space-between;width:100%"><span style="color:var(--muted)">Total Interest</span><span style="font-weight:700;color:var(--text)" id="m-interest">$486,900</span></div>
+              <div style="display:flex;justify-content:space-between;width:100%"><span style="color:var(--muted)">Total Cost</span><span style="font-weight:700;color:var(--text)" id="m-total">$1,286,900</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SETTINGS -->
+        <div class="dash-panel" id="panel-settings">
+          <div class="panel-title">Settings</div>
+          <div class="panel-sub">Manage your account</div>
+          <div class="settings-form">
+            <div class="settings-section">
+              <h3>Profile</h3>
+              <div class="form-grid">
+                <div class="ff full"><label>Full Name</label><input type="text" id="prof-name" placeholder="Jane Smith"/></div>
+                <div class="ff full"><label>Email</label><input type="email" id="prof-email" placeholder="jane@example.com" readonly style="opacity:0.6"/></div>
+                <div class="ff"><label>Phone</label><input type="tel" id="prof-phone" placeholder="(555) 000-0000"/></div>
+                <div class="ff"><label>Search City</label><input type="text" id="prof-city" placeholder="Vancouver, BC"/></div>
+              </div>
+              <button class="btn-primary" style="max-width:200px;margin-top:8px" onclick="saveProfile()">Save Profile</button>
+            </div>
+            <div class="settings-section">
+              <h3>Change Password</h3>
+              <div class="ff"><label>New Password</label><input type="password" id="new-pass" placeholder="Min 6 characters"/></div>
+              <div class="ff"><label>Confirm Password</label><input type="password" id="confirm-pass" placeholder="Repeat password"/></div>
+              <button class="btn-primary" style="max-width:200px" onclick="changePassword()">Update Password</button>
+              <div id="pass-msg" style="font-size:0.85rem;margin-top:10px;display:none"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://pscxbpgszpajkwqvuajq.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzY3hicGdzenBhamtvcXZ1YWpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE0NzgwNDksImV4cCI6MjA1NzA1NDA0OX0.KImP43xdaqWdwyqzNakvmhVzIU3DltCFhek5WsgPWw0';
+
+let currentUser = null;
+let currentThreadId = null;
+
+// ── UTILS ─────────────────────────────────────────────────────
+function showLoading(on) { document.getElementById('loading-overlay').classList.toggle('show', on); }
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => t.className = 'toast', 3000);
+}
+
+// ── AUTH ──────────────────────────────────────────────────────
+function switchAuthTab(tab) {
+  document.getElementById('signup-form').style.display = tab === 'signup' ? '' : 'none';
+  document.getElementById('signin-form').style.display = tab === 'signin' ? '' : 'none';
+  document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+  document.getElementById('tab-signin').classList.toggle('active', tab === 'signin');
+}
+
+async function handleSignUp() {
+  const name = document.getElementById('su-name').value.trim();
+  const email = document.getElementById('su-email').value.trim();
+  const password = document.getElementById('su-password').value;
+  const errEl = document.getElementById('su-error');
+  const sucEl = document.getElementById('su-success');
+  errEl.className = 'auth-error'; sucEl.className = 'auth-success';
+  if (!name || !email || !password) { errEl.textContent = 'Please fill in all fields.'; errEl.className = 'auth-error show'; return; }
+  if (password.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; errEl.className = 'auth-error show'; return; }
+  const btn = document.getElementById('su-btn');
+  btn.textContent = 'Creating account…'; btn.disabled = true;
+  try {
+    const res = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, full_name: name, role: 'buyer' })
+    });
+    const data = await res.json();
+    if (!res.ok) { errEl.textContent = data.error || 'Signup failed.'; errEl.className = 'auth-error show'; btn.textContent = 'Create Buyer Account →'; btn.disabled = false; return; }
+    if (data.session?.access_token) {
+      localStorage.setItem('ld_buyer_token', data.session.access_token);
+      showDashboard(data.session.user);
+    } else {
+      sucEl.textContent = '✅ Account created! Check your email to confirm, then sign in.';
+      sucEl.className = 'auth-success show';
+    }
+  } catch(e) { errEl.textContent = 'Connection error.'; errEl.className = 'auth-error show'; }
+  btn.textContent = 'Create Buyer Account →'; btn.disabled = false;
+}
+
+async function handleSignIn() {
+  const email = document.getElementById('si-email').value.trim();
+  const password = document.getElementById('si-password').value;
+  const errEl = document.getElementById('si-error');
+  errEl.className = 'auth-error';
+  const btn = document.getElementById('si-btn');
+  btn.textContent = 'Signing in…'; btn.disabled = true;
+  try {
+    const res = await fetch('/api/auth/signin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) { errEl.textContent = data.error || 'Sign in failed.'; errEl.className = 'auth-error show'; btn.textContent = 'Sign In →'; btn.disabled = false; return; }
+    localStorage.setItem('ld_buyer_token', data.session.access_token);
+    showDashboard(data.session.user);
+  } catch(e) { errEl.textContent = 'Connection error.'; errEl.className = 'auth-error show'; }
+  btn.textContent = 'Sign In →'; btn.disabled = false;
+}
+
+async function handleForgot() {
+  const email = document.getElementById('fp-email').value.trim();
+  if (!email) return;
+  try {
+    await fetch('/api/auth/forgot-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+    showToast('Reset link sent to ' + email);
+  } catch(e) { showToast('Error sending reset email', 'error'); }
+}
+
+function showForgot() { document.getElementById('forgot-form').style.display = 'block'; }
+
+function handleSignOut() {
+  localStorage.removeItem('ld_buyer_token');
+  document.getElementById('dash-section').style.display = 'none';
+  document.getElementById('auth-section').style.display = '';
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────
+function showDashboard(user) {
+  document.getElementById('auth-section').style.display = 'none';
+  document.getElementById('dash-section').style.display = '';
+  currentUser = user;
+  const name = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Buyer';
+  const initials = name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('dash-name').textContent = name.split(' ')[0];
+  document.getElementById('dash-fullname').textContent = name;
+  document.getElementById('dash-email').textContent = user?.email || '';
+  document.getElementById('dash-avatar').textContent = initials || '🏠';
+  document.getElementById('prof-name').value = name;
+  document.getElementById('prof-email').value = user?.email || '';
+  loadSaved();
+  loadMessages();
+  updateMortgage();
+  updateSavingsCalc();
+}
+
+function showPanel(name, btn) {
+  document.querySelectorAll('.dash-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.dash-nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (name === 'saved') loadSaved();
+  if (name === 'messages') loadMessages();
+  setTimeout(() => {
+    const panel = document.getElementById('panel-' + name);
+    if (panel) window.scrollTo({ top: panel.getBoundingClientRect().top + window.pageYOffset - 80, behavior: 'smooth' });
+  }, 50);
+}
+
+// ── SAVED HOMES ───────────────────────────────────────────────
+function loadSaved() {
+  const saved = JSON.parse(localStorage.getItem('ld_fav_listings') || '{}');
+  const ids = JSON.parse(localStorage.getItem('ld_favs') || '[]');
+  const count = ids.length;
+  document.getElementById('stat-saved').textContent = count;
+
+  const renderCards = (container) => {
+    if (!count) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-icon">🏠</div><div class="empty-title">No saved homes yet</div><div class="empty-sub">Search and tap ♡ to save homes here</div><a href="index.html#search-section" class="btn-sm btn-sm-green" style="display:inline-block;text-decoration:none;padding:10px 20px">Search Homes →</a></div>`;
+      return;
+    }
+    const html = `<div class="saved-grid">${ids.map(id => {
+      const l = saved[id];
+      if (!l) return '';
+      return `<div class="saved-card">
+        <div class="saved-img" style="${l.img ? `background-image:url('${l.img}')` : ''}">
+          ${!l.img ? '🏠' : ''}
+        </div>
+        <div class="saved-body">
+          <div class="saved-price">$${parseInt(l.price||0).toLocaleString()}</div>
+          <div class="saved-addr">📍 ${l.addr||''}, ${l.city||''}</div>
+          <div style="font-size:0.78rem;color:var(--muted);margin-bottom:10px">${l.beds||0} bed · ${l.baths||0} bath</div>
+          <div class="saved-actions">
+            <a href="index.html?search=${encodeURIComponent(l.city||'')}" class="btn-sm btn-sm-green" style="text-decoration:none;flex:1;text-align:center">View</a>
+            <button class="btn-sm btn-sm-red" onclick="removeSaved('${id}',this)" style="flex:1">Remove</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('')}</div>`;
+    container.innerHTML = html;
+  };
+
+  const sc = document.getElementById('saved-container');
+  const oc = document.getElementById('overview-saved-container');
+  if (sc) renderCards(sc);
+  if (oc) renderCards(oc);
+}
+
+function removeSaved(id, btn) {
+  const saved = JSON.parse(localStorage.getItem('ld_fav_listings') || '{}');
+  const ids = JSON.parse(localStorage.getItem('ld_favs') || '[]');
+  delete saved[id];
+  const newIds = ids.filter(i => i !== id);
+  localStorage.setItem('ld_fav_listings', JSON.stringify(saved));
+  localStorage.setItem('ld_favs', JSON.stringify(newIds));
+  loadSaved();
+}
+
+// ── MESSAGES ──────────────────────────────────────────────────
+async function loadMessages() {
+  const token = localStorage.getItem('ld_buyer_token');
+  if (!token) return;
+  try {
+    const res = await fetch('/api/messages/threads', { headers: { 'Authorization': 'Bearer ' + token } });
+    const data = await res.json();
+    const threads = data.threads || [];
+    document.getElementById('stat-msgs').textContent = threads.length;
+    const container = document.getElementById('threads-list');
+    if (!threads.length) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-icon">💬</div><div class="empty-title">No messages yet</div><div class="empty-sub">Message a seller from any listing to start a conversation</div><a href="index.html#search-section" class="btn-sm btn-sm-green" style="display:inline-block;text-decoration:none;padding:10px 20px">Browse Listings →</a></div>`;
+      return;
+    }
+    container.innerHTML = threads.map(t => `
+      <div class="msg-thread" onclick="openThread('${t.id}','${(t.other_name||'Seller').replace(/'/g,"\\'")}','${(t.listing_address||'').replace(/'/g,"\\'")}')">
+        <div class="msg-thread-top">
+          <div class="msg-thread-name">${t.other_name||'Seller'}</div>
+          <div class="msg-thread-time">${formatTime(t.last_at)}</div>
+        </div>
+        <div class="msg-thread-addr">📍 ${t.listing_address||''}</div>
+        <div class="msg-thread-preview">${t.last_message||''}</div>
+      </div>
+    `).join('');
+  } catch(e) {
+    document.getElementById('threads-list').innerHTML = '';
+  }
+}
+
+async function openThread(threadId, sellerName, addr) {
+  currentThreadId = threadId;
+  document.getElementById('thread-seller-name').textContent = sellerName;
+  document.getElementById('thread-addr').textContent = addr;
+  document.getElementById('threads-list').style.display = 'none';
+  document.getElementById('msg-detail').classList.add('open');
+  const token = localStorage.getItem('ld_buyer_token');
+  try {
+    const res = await fetch('/api/messages/' + threadId, { headers: { 'Authorization': 'Bearer ' + token } });
+    const data = await res.json();
+    const msgs = data.messages || [];
+    const body = document.getElementById('msg-body');
+    body.innerHTML = msgs.map(m => `
+      <div>
+        <div class="msg-bubble ${m.sender_id === currentUser?.id ? 'sent' : 'recv'}">${m.message}</div>
+        <div class="msg-time" style="text-align:${m.sender_id === currentUser?.id ? 'right' : 'left'}">${formatTime(m.created_at)}</div>
+      </div>
+    `).join('');
+    body.scrollTop = body.scrollHeight;
+  } catch(e) {}
+}
+
+function closeThread() {
+  currentThreadId = null;
+  document.getElementById('threads-list').style.display = '';
+  document.getElementById('msg-detail').classList.remove('open');
+}
+
+async function sendMessage() {
+  const input = document.getElementById('msg-input');
+  const msg = input.value.trim();
+  if (!msg || !currentThreadId) return;
+  const token = localStorage.getItem('ld_buyer_token');
+  input.value = '';
+  try {
+    await fetch('/api/messages/' + currentThreadId, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ message: msg })
+    });
+    openThread(currentThreadId, document.getElementById('thread-seller-name').textContent, document.getElementById('thread-addr').textContent);
+  } catch(e) { showToast('Failed to send message', 'error'); }
+}
+
+function formatTime(ts) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  const now = new Date();
+  const diff = now - d;
+  if (diff < 60000) return 'just now';
+  if (diff < 3600000) return Math.floor(diff/60000) + 'm ago';
+  if (diff < 86400000) return Math.floor(diff/3600000) + 'h ago';
+  return d.toLocaleDateString();
+}
+
+// ── AI TOOLS ──────────────────────────────────────────────────
+async function callClaude(prompt) {
+  const res = await fetch('/api/ai/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: prompt })
+  });
+  const data = await res.json();
+  return data.reply || data.response || '';
+}
+
+async function runAIPricer() {
+  const addr = document.getElementById('ai-addr').value.trim();
+  const beds = document.getElementById('ai-beds').value;
+  const sqft = document.getElementById('ai-sqft').value;
+  if (!addr) { showToast('Enter a property address', 'error'); return; }
+  const btn = event.target;
+  btn.textContent = 'Estimating…'; btn.disabled = true;
+  const result = document.getElementById('ai-pricer-result');
+  try {
+    const reply = await callClaude(`Estimate the market value for a property at ${addr}, ${beds} bedrooms, ${sqft} sq ft. Give a price range and 2-3 key factors in a short, clear response. Be specific with numbers.`);
+    result.innerHTML = '<div style="font-size:0.88rem;line-height:1.6;color:var(--text)">' + reply.replace(/\n/g,'<br/>') + '</div>';
+    result.style.display = '';
+  } catch(e) { showToast('AI error, try again', 'error'); }
+  btn.textContent = 'Get AI Estimate →'; btn.disabled = false;
+}
+
+async function runOfferReview() {
+  const listPrice = document.getElementById('or-list-price').value.trim();
+  const offerPrice = document.getElementById('or-offer-price').value.trim();
+  const conditions = document.getElementById('or-conditions').value.trim();
+  if (!listPrice || !offerPrice) { showToast('Enter listing and offer prices', 'error'); return; }
+  const btn = event.target;
+  btn.textContent = 'Reviewing…'; btn.disabled = true;
+  const result = document.getElementById('offer-review-result');
+  try {
+    const reply = await callClaude(`Review this real estate offer: Listing price ${listPrice}, Offer price ${offerPrice}, Conditions: ${conditions||'none'}. Is this offer competitive? What are the risks? What should the buyer watch for? Keep it concise and practical.`);
+    result.innerHTML = reply.replace(/\n/g,'<br/>');
+    result.style.display = '';
+  } catch(e) { showToast('AI error, try again', 'error'); }
+  btn.textContent = 'Review My Offer →'; btn.disabled = false;
+}
+
+async function runContractExplainer() {
+  const text = document.getElementById('contract-text').value.trim();
+  if (!text) { showToast('Paste a contract clause', 'error'); return; }
+  const btn = event.target;
+  btn.textContent = 'Explaining…'; btn.disabled = true;
+  const result = document.getElementById('contract-result');
+  try {
+    const reply = await callClaude(`Explain this real estate contract clause in plain English for a buyer. What does it mean? What should they watch for? Keep it short and clear.\n\nClause: ${text}`);
+    result.innerHTML = reply.replace(/\n/g,'<br/>');
+    result.style.display = '';
+  } catch(e) { showToast('AI error, try again', 'error'); }
+  btn.textContent = 'Explain This →'; btn.disabled = false;
+}
+
+async function runNeighbourhoodInsights() {
+  const city = document.getElementById('nb-city').value.trim();
+  if (!city) { showToast('Enter a neighbourhood or city', 'error'); return; }
+  const btn = event.target;
+  btn.textContent = 'Getting insights…'; btn.disabled = true;
+  const result = document.getElementById('nb-result');
+  try {
+    const reply = await callClaude(`Give a brief neighbourhood insight for ${city} for a home buyer. Cover: typical home prices, lifestyle, schools, commute, and 1-2 pros and cons. Keep it concise and useful.`);
+    result.innerHTML = reply.replace(/\n/g,'<br/>');
+    result.style.display = '';
+  } catch(e) { showToast('AI error, try again', 'error'); }
+  btn.textContent = 'Get Insights →'; btn.disabled = false;
+}
+
+// ── CALCULATORS ───────────────────────────────────────────────
+function updateSavingsCalc() {
+  const price = parseInt(document.getElementById('savings-slider').value);
+  const fmt = n => '$' + n.toLocaleString();
+  document.getElementById('savings-price').textContent = fmt(price);
+  const tradFee = Math.round(price * 0.025);
+  document.getElementById('trad-buyer-fee').textContent = fmt(tradFee);
+  document.getElementById('buyer-savings').textContent = fmt(tradFee);
+}
+
+function updateMortgage() {
+  const price = parseFloat(document.getElementById('m-price').value) || 0;
+  const down = parseFloat(document.getElementById('m-down').value) || 0;
+  const rate = parseFloat(document.getElementById('m-rate').value) || 0;
+  const years = parseInt(document.getElementById('m-years').value) || 25;
+  const principal = price - down;
+  const fmt = n => '$' + Math.round(n).toLocaleString();
+  if (principal <= 0 || rate <= 0) { document.getElementById('m-monthly').textContent = '$0'; return; }
+  const r = (rate / 100) / 12;
+  const n = years * 12;
+  const monthly = principal * (r * Math.pow(1+r,n)) / (Math.pow(1+r,n) - 1);
+  const totalPaid = monthly * n;
+  const totalInterest = totalPaid - principal;
+  document.getElementById('m-monthly').textContent = fmt(monthly);
+  document.getElementById('m-interest').textContent = fmt(totalInterest);
+  document.getElementById('m-total').textContent = fmt(price - down + totalInterest + down);
+}
+
+// ── SETTINGS ──────────────────────────────────────────────────
+async function saveProfile() {
+  const token = localStorage.getItem('ld_buyer_token');
+  if (!token) return;
+  const name = document.getElementById('prof-name').value.trim();
+  try {
+    await fetch('/api/auth/update-profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ full_name: name, phone: document.getElementById('prof-phone').value, location: document.getElementById('prof-city').value })
+    });
+    showToast('Profile saved ✅');
+    document.getElementById('dash-fullname').textContent = name;
+    document.getElementById('dash-name').textContent = name.split(' ')[0];
+  } catch(e) { showToast('Failed to save profile', 'error'); }
+}
+
+async function changePassword() {
+  const token = localStorage.getItem('ld_buyer_token');
+  if (!token) return;
+  const pass = document.getElementById('new-pass').value;
+  const confirm = document.getElementById('confirm-pass').value;
+  const msgEl = document.getElementById('pass-msg');
+  if (pass.length < 6) { msgEl.textContent = 'Password must be at least 6 characters.'; msgEl.style.color = 'var(--red)'; msgEl.style.display = ''; return; }
+  if (pass !== confirm) { msgEl.textContent = 'Passwords do not match.'; msgEl.style.color = 'var(--red)'; msgEl.style.display = ''; return; }
+  try {
+    const res = await fetch('/api/update-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ password: pass })
+    });
+    if (res.ok) { msgEl.textContent = '✅ Password updated!'; msgEl.style.color = 'var(--green)'; msgEl.style.display = ''; document.getElementById('new-pass').value = ''; document.getElementById('confirm-pass').value = ''; }
+    else { msgEl.textContent = 'Failed to update password.'; msgEl.style.color = 'var(--red)'; msgEl.style.display = ''; }
+  } catch(e) { msgEl.textContent = 'Connection error.'; msgEl.style.color = 'var(--red)'; msgEl.style.display = ''; }
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+(async function() {
+  const token = localStorage.getItem('ld_buyer_token');
+  if (!token) return;
+  showLoading(true);
+  try {
+    const res = await fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + token } });
+    const data = await res.json();
+    if (data.user) showDashboard(data.user);
+  } catch(e) {}
+  showLoading(false);
+})();
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (document.getElementById('signup-form').style.display !== 'none') handleSignUp();
+    if (document.getElementById('signin-form').style.display !== 'none') handleSignIn();
+  }
+});
+</script>
+</body>
+</html>

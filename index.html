@@ -1402,7 +1402,6 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
     <div class="modal-tabs" id="modal-tabs">
       <button class="modal-tab active" onclick="switchTab('sell',this)">Selling</button>
       <button class="modal-tab" onclick="switchTab('buy',this)">Buying</button>
-      <button class="modal-tab" onclick="switchTab('agent',this)">Agent</button>
     </div>
     <div id="modal-form">
       <div class="form-field"><label>Full Name</label><input type="text" placeholder="Jane Smith"/></div>
@@ -3041,12 +3040,21 @@ function switchTabByName(tab) {
   }
 }
 function handleSubmit() {
-  const btn = document.getElementById('modal-btn');
-  const orig = btn.textContent;
-  btn.textContent = '✓ You\'re in!';
-  btn.style.background = '#27c45e';
-  setTimeout(closeModal, 1400);
-  setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 2000);
+  const activeTab = document.querySelector('.modal-tab.active')?.textContent?.trim();
+  if (activeTab === 'Buying') {
+    // Redirect to buyer dashboard for real account creation
+    closeModal();
+    window.location.href = 'buyer-dashboard.html';
+    return;
+  }
+  if (activeTab === 'Agent') {
+    closeModal();
+    window.location.href = 'agent-portal.html';
+    return;
+  }
+  // Seller — redirect to listing wizard
+  closeModal();
+  window.location.href = 'listdirect-list.html';
 }
 document.addEventListener('keydown', e => { if (e.key==='Escape') { closeModal(); closeListingModal(); } });
 
