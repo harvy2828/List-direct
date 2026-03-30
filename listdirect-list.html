@@ -308,7 +308,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
     <div class="form-grid">
       <div class="ff full" id="ff-addr">
         <label>Street Address</label>
-        <input type="text" id="s2-addr" placeholder="Start typing your address…" autocomplete="off" style="width:100%"/>
+        <input type="text" id="s2-addr" placeholder="Start typing your address…" autocomplete="off" style="width:100%" onfocus="initS2Addr()" />
         <span class="field-error">Please enter your address</span>
       </div>
       <div class="ff" id="ff-city">
@@ -1099,6 +1099,42 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closePathMod
 </style>
 <script>
 const GOOGLE_API_KEY = 'AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A';
+
+function initS2Addr() {
+  const el = document.getElementById('s2-addr');
+  if (!el || el.dataset.acDone === '1') return;
+  if (!window.google || !window.google.maps || !window.google.maps.places) {
+    setTimeout(initS2Addr, 300);
+    return;
+  }
+  el.dataset.acDone = '1';
+  const ac = new google.maps.places.Autocomplete(el, {
+    types: ['address'],
+    fields: ['address_components'],
+    componentRestrictions: { country: ['us', 'ca'] }
+  });
+  ac.addListener('place_changed', function() {
+    const place = ac.getPlace();
+    if (!place.address_components) return;
+    let num='', street='', city='', state='', zip='', country='';
+    place.address_components.forEach(function(c) {
+      if (c.types.includes('street_number')) num = c.long_name;
+      if (c.types.includes('route')) street = c.long_name;
+      if (c.types.includes('locality')) city = c.long_name;
+      if (c.types.includes('sublocality_level_1') && !city) city = c.long_name;
+      if (c.types.includes('administrative_area_level_1')) state = c.short_name;
+      if (c.types.includes('postal_code')) zip = c.long_name;
+      if (c.types.includes('country')) country = c.short_name;
+    });
+    el.value = num ? num + ' ' + street : street;
+    if (document.getElementById('s2-city')) document.getElementById('s2-city').value = city;
+    if (document.getElementById('s2-state')) document.getElementById('s2-state').value = state;
+    if (document.getElementById('s2-zip')) document.getElementById('s2-zip').value = zip;
+    if (document.getElementById('s2-country')) document.getElementById('s2-country').value = country === 'CA' ? 'Canada' : 'United States';
+    if (city && state && typeof fetchAIComps === 'function') fetchAIComps(city, state, zip, country);
+    if (typeof updatePreview === 'function') updatePreview();
+  });
+}
 
 function initAddressAutocomplete() {
   const addrInput = document.getElementById('s2-addr');
