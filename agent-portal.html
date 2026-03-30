@@ -1201,9 +1201,9 @@ async function loadAgentListings() {
             <div style="color:var(--muted);font-size:0.8rem;margin-top:2px">${l.bedrooms||0} bed · ${l.bathrooms||0} bath · ${(l.sqft||0).toLocaleString()} sqft</div>
             <div style="display:inline-block;margin-top:6px;padding:2px 10px;border-radius:50px;font-size:0.72rem;font-weight:700;background:${l.status==='active'?'#1a3d28':'#2a1a1a'};color:${l.status==='active'?'#3ef07a':'#e85454'}">${(l.status||'active').toUpperCase()}</div>
           </div>
-          <div style="display:flex;gap:8px">
-            <button onclick="openEditListing('${l.id}')" style="flex:1;background:#1a2b1d;border:1px solid rgba(62,240,122,0.3);color:#3ef07a;padding:8px;border-radius:50px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">✏️ Edit</button>
-            <button onclick="deleteListing('${l.id}')" style="flex:1;background:#3d1a1a;border:1px solid rgba(232,84,84,0.3);color:#e85454;padding:8px;border-radius:50px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🗑 Delete</button>
+          <div style="display:flex;gap:8px;margin-top:4px">
+            <button onclick="openEditListing('${l.id}')" style="flex:1;background:#1a2b1d;border:1px solid rgba(62,240,122,0.3);color:#3ef07a;padding:9px 12px;border-radius:50px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">✏️ Edit</button>
+            <button onclick="deleteListing('${l.id}')" style="flex:1;background:#3d1a1a;border:1px solid rgba(232,84,84,0.3);color:#e85454;padding:9px 12px;border-radius:50px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🗑 Delete</button>
           </div>
         </div>
       `).join('')}

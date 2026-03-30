@@ -97,7 +97,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 
 /* LISTING CARDS */
 .my-listings{display:flex;flex-direction:column;gap:14px}
-.my-listing-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;display:flex;gap:16px;align-items:center}
+.my-listing-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
 .mlc-img{width:80px;height:64px;border-radius:10px;background-size:cover;background-position:center;background-color:var(--bg2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.4rem}
 .mlc-info{flex:1}
 .mlc-price{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900;color:var(--white);margin-bottom:2px}
@@ -829,17 +829,19 @@ async function loadMyListings() {
     }
     container.innerHTML = listings.map(l => `
       <div class="my-listing-card">
-        <div class="mlc-img" style="${l.photos?.[0] ? `background-image:url('${l.photos[0]}')` : ''}">
-          ${!l.photos?.[0] ? '🏠' : ''}
+        <div style="display:flex;gap:14px;align-items:center">
+          <div class="mlc-img" style="${l.photos?.[0] ? `background-image:url('${l.photos[0]}')` : ''}">
+            ${!l.photos?.[0] ? '🏠' : ''}
+          </div>
+          <div class="mlc-info" style="flex:1;min-width:0">
+            <div class="mlc-price">$${parseInt(l.price||0).toLocaleString()}</div>
+            <div class="mlc-addr">📍 ${l.address || ''}, ${l.city || ''}, ${l.state || ''}</div>
+            <div class="mlc-status status-active">● Active</div>
+          </div>
         </div>
-        <div class="mlc-info">
-          <div class="mlc-price">$${parseInt(l.price||0).toLocaleString()}</div>
-          <div class="mlc-addr">📍 ${l.address || ''}, ${l.city || ''}, ${l.state || ''}</div>
-          <div class="mlc-status status-active">● Active</div>
-        </div>
-        <div class="mlc-actions">
-          <button class="btn-sm btn-sm-outline" data-id="${l.id}" data-action="view" onclick="handleListingBtn(this)">👁 View</button>
-          <button class="btn-sm btn-sm-outline" data-id="${l.id}" data-action="edit" onclick="handleListingBtn(this)">✏️ Edit</button>
+        <div class="mlc-actions" style="display:flex;gap:8px;width:100%">
+          <button class="btn-sm btn-sm-outline" style="flex:1" data-id="${l.id}" data-action="view" onclick="handleListingBtn(this)">👁 View</button>
+          <button class="btn-sm btn-sm-outline" style="flex:1" data-id="${l.id}" data-action="edit" onclick="handleListingBtn(this)">✏️ Edit</button>
         </div>
       </div>`).join('');
   } catch(e) {}
