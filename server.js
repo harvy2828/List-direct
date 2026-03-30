@@ -144,25 +144,36 @@ app.post('/api/auth/signup', async (req, res) => {
           <a href="https://listdirect.ai/admin.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">View Admin →</a>
         `)
       });
-      // Email to new regular user - welcome
+      // Generate confirmation link to embed in welcome email
+      let confirmUrl = 'https://listdirect.ai/dashboard.html';
+      try {
+        const { data: linkData } = await adminSupabase.auth.admin.generateLink({
+          type: 'signup',
+          email: req.body.email,
+          options: { redirectTo: 'https://listdirect.ai/dashboard.html' }
+        });
+        if (linkData?.properties?.action_link) confirmUrl = linkData.properties.action_link;
+      } catch(e) {}
+
+      // Email to new regular user - welcome with confirm button
       await sendEmail({
         to: req.body.email,
-        subject: 'Welcome to ListDirect! 🏡',
+        subject: 'Welcome to ListDirect — Confirm Your Account 🏡',
         html: `
           <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a0f0d;color:#e8f0e9;border-radius:12px;padding:32px">
             <h1 style="color:#3ef07a;font-size:2rem;margin-bottom:4px">Welcome to ListDirect!</h1>
             <p style="color:#7a9480;margin-bottom:24px">You're one step closer to saving thousands.</p>
             <p style="color:#e8f0e9">Hi ${req.body.full_name || 'there'},</p>
-            <p style="color:#7a9480;margin-top:12px">Your account has been created. You'll receive a separate email to confirm your address — click the link in that email, then sign in to get started.</p>
-            <p style="color:#7a9480;margin-top:16px">Once signed in you can:</p>
+            <p style="color:#7a9480;margin-top:12px">Your account is ready. Click the button below to confirm your email and sign in.</p>
+            <div style="margin-top:28px;text-align:center">
+              <a href="${confirmUrl}" style="background:#3ef07a;color:#0a0f0d;padding:14px 36px;border-radius:50px;text-decoration:none;font-weight:700;font-size:1rem;display:inline-block">Confirm My Account →</a>
+            </div>
+            <p style="color:#7a9480;margin-top:24px">Once confirmed you can:</p>
             <ul style="color:#7a9480;line-height:2">
               <li>List your home for just 1% at closing</li>
               <li>Use our AI pricing and listing tools</li>
               <li>Browse certified agents with guaranteed cashback</li>
             </ul>
-            <div style="margin-top:24px;text-align:center">
-              <a href="https://listdirect.ai/dashboard.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">Sign In to My Account →</a>
-            </div>
             <p style="color:#3d5240;font-size:0.8rem;margin-top:32px;text-align:center">Questions? Email us at infolistdirect@gmail.com</p>
           </div>
         `
