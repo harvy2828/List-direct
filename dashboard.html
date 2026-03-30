@@ -660,7 +660,7 @@ function clearAuthMessages() {
 
 function showAuthError(msg) {
   const el = document.getElementById('auth-error');
-  el.textContent = msg;
+  el.innerHTML = msg;
   el.classList.add('show');
 }
 
@@ -701,7 +701,7 @@ async function handleSignIn() {
       showLoading(false);
       // Sign them out and redirect
       await fetch('/api/auth/signout', { method:'POST', headers:{'Authorization': 'Bearer ' + data.session.access_token} }).catch(()=>{});
-      showAuthError('🤝 You are registered as an agent. Please use the <a href="agent-portal.html" style="color:var(--green);font-weight:700">Agent Portal</a> to sign in.');
+      showAuthError('🤝 You are registered as an agent. Please use the <a href="agent-portal.html" style="color:var(--green);font-weight:700;text-decoration:none">Agent Portal →</a> to sign in.');
       return;
     }
     currentUser = data.user;
@@ -738,7 +738,13 @@ async function handleSignUp() {
     });
     const data = await res.json();
     showLoading(false);
-    if (!res.ok) return showAuthError(data.error || 'Sign up failed.');
+    if (!res.ok) {
+      let errMsg = data.error || 'Sign up failed.';
+      if (errMsg.toLowerCase().includes('already registered') || errMsg.toLowerCase().includes('already been registered') || errMsg.toLowerCase().includes('user already')) {
+        errMsg = '📧 An account with this email already exists. Please sign in instead.';
+      }
+      return showAuthError(errMsg);
+    }
     if (data.session) {
       currentUser = data.user;
       localStorage.setItem('ld_token', data.session.access_token);

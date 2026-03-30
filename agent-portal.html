@@ -767,7 +767,7 @@ function clearMessages() {
 }
 function showError(msg) {
   const el = document.getElementById('auth-error');
-  el.textContent = msg; el.classList.add('show');
+  el.innerHTML = msg; el.classList.add('show');
 }
 function showSuccess(msg) {
   const el = document.getElementById('auth-success');
@@ -800,7 +800,7 @@ async function handleSignIn() {
       showLoading(false);
       // Sign them out immediately
       await fetch('/api/auth/signout', { method:'POST', headers:{'Authorization': 'Bearer ' + data.session.access_token} }).catch(()=>{});
-      return showError('⛔ This portal is for certified agents only. If you are a buyer or seller, please use the regular account page instead.');
+      return showError('⛔ This portal is for certified agents only. Please use your <a href="dashboard.html" style="color:var(--green);font-weight:700;text-decoration:none">Seller/Buyer Account →</a> to sign in.');
     }
     currentUser = data.user;
     localStorage.setItem('ld_agent_token', data.session.access_token);
@@ -849,7 +849,7 @@ async function handleApply() {
       showLoading(false);
       const errMsg = data.error || 'Application failed.';
       if (errMsg.toLowerCase().includes('already registered') || errMsg.toLowerCase().includes('already been registered') || errMsg.toLowerCase().includes('user already') || errMsg.toLowerCase().includes('duplicate')) {
-        return showError('⚠️ This email is already registered as a seller account. Please use a different email to apply as an agent.');
+        return showError('📧 An account with this email already exists. Please sign in or use a different email.');
       }
       return showError(errMsg);
     }

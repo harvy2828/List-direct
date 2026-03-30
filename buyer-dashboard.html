@@ -486,7 +486,13 @@ async function handleSignUp() {
       body: JSON.stringify({ email, password, full_name: name, role: 'buyer' })
     });
     const data = await res.json();
-    if (!res.ok) { errEl.textContent = data.error || 'Signup failed.'; errEl.className = 'auth-error show'; btn.textContent = 'Create Buyer Account →'; btn.disabled = false; return; }
+    if (!res.ok) {
+      let errMsg = data.error || 'Signup failed.';
+      if (errMsg.toLowerCase().includes('already registered') || errMsg.toLowerCase().includes('already been registered') || errMsg.toLowerCase().includes('user already')) {
+        errMsg = '📧 An account with this email already exists. Please sign in instead.';
+      }
+      errEl.textContent = errMsg; errEl.className = 'auth-error show'; btn.textContent = 'Create Buyer Account →'; btn.disabled = false; return;
+    }
     if (data.session?.access_token) {
       localStorage.setItem('ld_buyer_token', data.session.access_token);
       showDashboard(data.session.user);
