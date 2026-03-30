@@ -259,23 +259,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
       <div class="ff"><label>Full Name</label><input type="text" id="su-name" placeholder="Jane Smith"/></div>
       <div class="ff"><label>Email</label><input type="email" id="su-email" placeholder="you@example.com"/></div>
       <div class="ff"><label>Password</label><input type="password" id="su-password" placeholder="Create a strong password"/></div>
-      <div class="ff">
-        <label>I am a…</label>
-        <select id="su-role" onchange="onRoleChange(this)">
-          <option value="buyer">Buyer — looking for a home</option>
-          <option value="seller">Seller — listing my home</option>
-          <option value="both">Both buyer and seller</option>
-          <option value="agent">Agent — ListDirect certified</option>
-        </select>
-      </div>
-      <div id="seller-agreement-box" style="display:none;background:var(--greenlow);border:1px solid rgba(62,240,122,0.15);border-radius:12px;padding:12px 16px;margin-bottom:12px;font-size:0.8rem;color:var(--muted);line-height:1.6">
-        <strong style="color:var(--white);display:block;margin-bottom:4px">📋 Seller Agreement</strong>
-        I agree to pay ListDirect a <strong style="color:var(--green)">1% platform fee</strong> at closing if my home sells through the platform. See <a href="terms.html" style="color:var(--green)">Terms of Service</a>.
-      </div>
-      <div id="seller-agree-check" style="display:none;align-items:flex-start;gap:10px;margin-bottom:14px">
-        <input type="checkbox" id="signup-agree" style="margin-top:3px;accent-color:var(--green);width:16px;height:16px;flex-shrink:0"/>
-        <label for="signup-agree" style="font-size:0.84rem;color:var(--text);cursor:pointer">I agree to the 1% platform fee at closing</label>
-      </div>
+
       <button class="btn-primary" onclick="handleSignUp()">Create Free Account →</button>
       <div class="auth-divider">or</div>
       <div style="text-align:center;font-size:0.85rem;color:var(--muted)">Already have an account? <span style="color:var(--green);cursor:pointer;font-weight:600" onclick="switchAuthTab('signin',null)">Sign in</span></div>
@@ -726,7 +710,7 @@ async function handleSignUp() {
   const name = document.getElementById('su-name').value.trim();
   const email = document.getElementById('su-email').value.trim();
   const password = document.getElementById('su-password').value;
-  const role = document.getElementById('su-role').value;
+  const role = 'seller';
   if (!name || !email || !password) return showAuthError('Please fill in all fields.');
   if (password.length < 6) return showAuthError('Password must be at least 6 characters.');
   showLoading(true);

@@ -1400,8 +1400,7 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
     <h2 id="modal-title">Get Started</h2>
     <p id="modal-sub">Create your free account to begin.</p>
     <div class="modal-tabs" id="modal-tabs">
-      <button class="modal-tab active" onclick="switchTab('sell',this)">Selling</button>
-      <button class="modal-tab" onclick="switchTab('buy',this)">Buying</button>
+      <button class="modal-tab active" onclick="switchTab('sell',this)">Create Account</button>
     </div>
     <div id="modal-form">
       <div class="form-field"><label>Full Name</label><input type="text" placeholder="Jane Smith"/></div>
@@ -3040,19 +3039,6 @@ function switchTabByName(tab) {
   }
 }
 function handleSubmit() {
-  const activeTab = document.querySelector('.modal-tab.active')?.textContent?.trim();
-  if (activeTab === 'Buying') {
-    // Redirect to buyer dashboard for real account creation
-    closeModal();
-    window.location.href = 'buyer-dashboard.html';
-    return;
-  }
-  if (activeTab === 'Agent') {
-    closeModal();
-    window.location.href = 'agent-portal.html';
-    return;
-  }
-  // Seller — redirect to listing wizard
   closeModal();
   window.location.href = 'listdirect-list.html';
 }
