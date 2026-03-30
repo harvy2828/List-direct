@@ -1934,25 +1934,25 @@ async function runSearch() {
     return true;
   });
 
-  // Fetch real platform listings from database
+  // Fetch platform listings FIRST and render immediately so they always show
   const platformListings = await fetchPlatformListings(query, beds, maxPrice);
-
-  // Fetch real listings based on country
-  let mlsListings = [];
-  if (searchCountry === 'ca') {
-    mlsListings = await fetchCanadaListings(query, beds, maxPrice);
-  } else if (searchCountry === 'us') {
-    mlsListings = await fetchUSListings(query, beds, maxPrice);
+  if (platformListings.length > 0) {
+    currentResults = platformListings;
+    renderCurrentResults();
   }
 
-  // Generate AI market listings
-  const aiListings = await generateAIListings(query, beds, maxPrice);
+  // Then fetch MLS and AI in parallel
+  const [mlsListings, aiListings] = await Promise.all([
+    searchCountry === 'ca' ? fetchCanadaListings(query, beds, maxPrice) :
+    searchCountry === 'us' ? fetchUSListings(query, beds, maxPrice) : Promise.resolve([]),
+    generateAIListings(query, beds, maxPrice)
+  ]);
 
   document.getElementById('search-loading').classList.remove('visible');
   isSearching = false;
   window._searchStarted = null;
 
-  // Platform listings first, then MLS, then AI
+  // Combine all — platform always first
   const all = [...platformListings, ...mlsListings, ...verifiedMatches.filter(v => !platformListings.find(p => p.id === v.id) && !mlsListings.find(m => m.id === v.id)), ...aiListings.filter(l => {
     if (typeFilter !== 'all' && l.type !== typeFilter) return false;
     if (listingFilter === 'verified') return false;
