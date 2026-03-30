@@ -191,7 +191,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 
 @media(max-width:900px){.desktop-nav-right{display:none!important}}
 </style>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A&libraries=places&callback=initDashPlaces" async defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A&libraries=places" async defer onload="window._googleMapsReady=true"></script>
 <script src="https://js.stripe.com/v3/"></script>
   <meta name="description" content="Manage your ListDirect account. View your listings, saved homes, inquiries, and account settings."/>
   <meta name="keywords" content="ListDirect account, my listings, home seller dashboard"/>
@@ -797,7 +797,16 @@ function showPanel(name, btn) {
   if (btn) btn.classList.add('active');
   if (name === 'my-listings') loadMyListings();
   if (name === 'saved') loadFavorites();
-  if (name === 'new-listing') setTimeout(() => { if (window.google && window.google.maps) initDashPlaces(); }, 100);
+  if (name === 'new-listing') {
+    const tryInit = (attempts) => {
+      if (window.google && window.google.maps && window.google.maps.places) {
+        initDashPlaces();
+      } else if (attempts > 0) {
+        setTimeout(() => tryInit(attempts - 1), 300);
+      }
+    };
+    setTimeout(() => tryInit(10), 100);
+  }
   // Auto-scroll to panel content on mobile and desktop
   setTimeout(() => {
     const panel = document.getElementById('panel-' + name);
