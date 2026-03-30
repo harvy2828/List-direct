@@ -139,7 +139,7 @@ app.post('/api/auth/signup', async (req, res) => {
             <h1 style="color:#3ef07a;font-size:2rem;margin-bottom:4px">Welcome to ListDirect!</h1>
             <p style="color:#7a9480;margin-bottom:24px">You're one step closer to saving thousands on your home sale.</p>
             <p style="color:#e8f0e9">Hi ${req.body.full_name || 'there'},</p>
-            <p style="color:#7a9480">Your account is almost ready. Please check your email and confirm your address to get started.</p>
+            <p style="color:#7a9480">Your account is almost ready. Please confirm your email to get started.</p>
             <p style="color:#7a9480;margin-top:16px">Once confirmed you can:</p>
             <ul style="color:#7a9480;line-height:2">
               <li>List your home for just 1% at closing</li>
