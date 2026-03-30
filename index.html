@@ -2075,20 +2075,23 @@ function renderListings(list) {
     card.addEventListener('click', e => {
       if (e.target.closest('.listing-fav')) return;
       if (e.target.closest('button') && e.target.closest('.listing-img')) return;
-      // Clicking the photo opens lightbox directly
-      if (e.target.closest('.listing-img-bg')) {
-        const photos = l.allPhotos && l.allPhotos.length ? l.allPhotos : [l.img];
-        window._modalPhotos = photos;
-        lbPhotos = photos;
-        lbIndex = photoIndex[l.id] || 0;
-        updateLightbox();
-        document.getElementById('photo-lightbox').style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-        return;
-      }
       if (l.verified) openListingModal(l);
       else openLeadModal(l);
     });
+
+    // Swipe on photo to cycle through photos without opening modal
+    const imgDiv = card.querySelector('.listing-img-bg');
+    if (imgDiv && l.allPhotos && l.allPhotos.length > 1) {
+      let touchStartX = 0;
+      imgDiv.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+      imgDiv.addEventListener('touchend', e => {
+        const diff = touchStartX - e.changedTouches[0].clientX;
+        if (Math.abs(diff) > 40) {
+          e.stopPropagation();
+          cyclePhoto(l.id, JSON.stringify(l.allPhotos), diff > 0 ? 'next' : 'prev');
+        }
+      });
+    }
 
     grid.appendChild(card);
     setTimeout(() => card.classList.add('visible'), 30 + i * 50);
