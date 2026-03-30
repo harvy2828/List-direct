@@ -130,31 +130,28 @@ app.post('/api/auth/signup', async (req, res) => {
         `
       });
     } else {
-      // Notify admin of new signup
-      await sendEmail({
-        to: 'infolistdirect@gmail.com',
-        subject: '🏡 New Signup — ' + (req.body.full_name || req.body.email),
-        html: emailWrap(`
-          <h2 style="color:#3ef07a;margin:0 0 8px">New Account Created!</h2>
-          <p style="color:#7a9480;margin:0 0 20px">A new user just signed up on ListDirect.</p>
-          <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin-bottom:16px">
-            <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Name:</strong> ${req.body.full_name || '—'}</p>
-            <p style="color:#e8f0e9;margin:0"><strong style="color:#3ef07a">Email:</strong> ${req.body.email}</p>
-          </div>
-          <a href="https://listdirect.ai/admin.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">View Admin →</a>
-        `)
-      });
-      // Welcome email to new user
+      // Email to new regular user - welcome
       await sendEmail({
         to: req.body.email,
         subject: 'Welcome to ListDirect! 🏡',
-        html: emailWrap(`
-          <h2 style="color:#3ef07a;margin:0 0 8px">Welcome to ListDirect!</h2>
-          <p style="color:#7a9480;margin:0 0 20px">You're one step closer to saving thousands.</p>
-          <p style="color:#e8f0e9;margin:0 0 16px">Hi ${req.body.full_name || 'there'},</p>
-          <p style="color:#7a9480;margin:0 0 24px">Your account is ready. Click below to sign in and get started.</p>
-          <a href="https://listdirect.ai/dashboard.html" style="background:#3ef07a;color:#0a0f0d;padding:14px 36px;border-radius:50px;text-decoration:none;font-weight:700;font-size:1rem;display:inline-block">Go to My Account →</a>
-        `)
+        html: `
+          <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a0f0d;color:#e8f0e9;border-radius:12px;padding:32px">
+            <h1 style="color:#3ef07a;font-size:2rem;margin-bottom:4px">Welcome to ListDirect!</h1>
+            <p style="color:#7a9480;margin-bottom:24px">You're one step closer to saving thousands on your home sale.</p>
+            <p style="color:#e8f0e9">Hi ${req.body.full_name || 'there'},</p>
+            <p style="color:#7a9480">Your account is almost ready. Please check your email and confirm your address to get started.</p>
+            <p style="color:#7a9480;margin-top:16px">Once confirmed you can:</p>
+            <ul style="color:#7a9480;line-height:2">
+              <li>List your home for just 1% at closing</li>
+              <li>Use our AI pricing and listing tools</li>
+              <li>Browse certified agents with guaranteed cashback</li>
+            </ul>
+            <div style="margin-top:24px;text-align:center">
+              <a href="https://listdirect.ai/dashboard.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">Go to My Account →</a>
+            </div>
+            <p style="color:#3d5240;font-size:0.8rem;margin-top:32px;text-align:center">Questions? Email us at infolistdirect@gmail.com</p>
+          </div>
+        `
       });
     }
     
