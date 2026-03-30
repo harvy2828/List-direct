@@ -880,6 +880,7 @@ async function loadMyListings() {
         <div class="mlc-actions" style="display:flex;gap:8px;width:100%">
           <button class="btn-sm btn-sm-outline" style="flex:1" data-id="${l.id}" data-action="view" onclick="handleListingBtn(this)">👁 View</button>
           <button class="btn-sm btn-sm-outline" style="flex:1" data-id="${l.id}" data-action="edit" onclick="handleListingBtn(this)">✏️ Edit</button>
+          <button class="btn-sm" style="flex:1;background:rgba(232,84,84,0.15);border:1px solid rgba(232,84,84,0.3);color:var(--red)" data-id="${l.id}" data-action="delete" onclick="handleListingBtn(this)">🗑 Delete</button>
         </div>
       </div>`).join('');
   } catch(e) {}
@@ -1589,6 +1590,16 @@ function handleListingBtn(btn) {
   if (!id) { alert('No ID found'); return; }
   if (action === 'edit') {
     window.location.href = 'listdirect-list.html?edit=' + id;
+  } else if (action === 'delete') {
+    if (!confirm('Delete this listing? This cannot be undone.')) return;
+    const token = localStorage.getItem('ld_token');
+    fetch('/api/listings/' + id, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + token }
+    }).then(r => {
+      if (r.ok) { showToast('Listing deleted', 'success'); loadMyListings(); }
+      else showToast('Failed to delete', 'error');
+    }).catch(() => showToast('Connection error', 'error'));
   } else {
     var listing = listingsCache.find(function(x) { return x.id === id; });
     if (listing) {
