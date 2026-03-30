@@ -103,8 +103,8 @@ app.post('/api/auth/signup', async (req, res) => {
     if (error) return res.status(400).json({ error: error.message });
     
     // Send notification emails on signup
-    const role = req.body.role;
-    if (role === 'agent') {
+    const notifyRole = role;
+    if (notifyRole === 'agent') {
       // Email to admin about new agent application
       await sendEmail({
         to: 'infolistdirect@gmail.com',
