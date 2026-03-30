@@ -721,6 +721,13 @@ let uploadedPhotoUrls = [];
 let editListingId = null; // set when editing existing listing
 
 function openCloudinaryUpload() {
+  const token = localStorage.getItem('ld_token');
+  if (!token) {
+    // Not logged in — show message, photos added after account creation
+    const zone = document.getElementById('photo-zone');
+    if (zone) zone.innerHTML = '<div class="pz-icon">📸</div><div class="pz-title">Photos added after account creation</div><div class="pz-sub">You can upload up to 20 photos once your account is confirmed</div>';
+    return;
+  }
   const input = document.createElement('input');
   input.type = 'file';
   input.multiple = true;
@@ -728,46 +735,23 @@ function openCloudinaryUpload() {
   input.onchange = async function() {
     const files = Array.from(this.files).slice(0, 20);
     if (!files.length) return;
-    
-    // Show uploading indicator
     const zone = document.getElementById('photo-zone-title');
-    if (zone) zone.textContent = 'Loading photos…';
-
-    const token = localStorage.getItem('ld_token');
-
+    if (zone) zone.textContent = 'Uploading photos…';
     for (const file of files) {
       try {
-        if (token) {
-          // Logged in — upload directly to server
-          const formData = new FormData();
-          formData.append('photo', file);
-          const res = await fetch('/api/photos/upload', {
-            method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + token },
-            body: formData
-          });
-          const data = await res.json();
-          if (data.url) {
-            uploadedPhotoUrls.push(data.url);
-          }
-        } else {
-          // Not logged in — store as base64 locally
-          const reader = new FileReader();
-          await new Promise((resolve) => {
-            reader.onload = (e) => {
-              uploadedPhotoUrls.push(e.target.result);
-              resolve();
-            };
-            reader.readAsDataURL(file);
-          });
-        }
+        const formData = new FormData();
+        formData.append('photo', file);
+        const res = await fetch('/api/photos/upload', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token },
+          body: formData
+        });
+        const data = await res.json();
+        if (data.url) uploadedPhotoUrls.push(data.url);
         renderCloudinaryPreviews();
         document.getElementById('photo-urls').value = uploadedPhotoUrls.join(',');
-      } catch(e) {
-        console.error('Photo error:', e);
-      }
+      } catch(e) { console.error('Photo error:', e); }
     }
-
     if (zone) zone.textContent = uploadedPhotoUrls.length + ' photo' + (uploadedPhotoUrls.length !== 1 ? 's' : '') + ' uploaded ✓ — tap to add more';
   };
   input.click();
@@ -925,10 +909,7 @@ document.getElementById('listing-form').addEventListener('submit', async functio
     }
   } catch (err) {
     console.error('Submit error:', err);
-    const city = document.getElementById('s2-city').value;
-    document.getElementById('success-city').textContent = city || 'your city';
-    showStep(6);
-    updateProgress(6);
+    alert('Something went wrong. Please try again.');
   } finally {
     btn.textContent = '🚀 Submit My Listing — Go Live!';
     btn.disabled = false;
