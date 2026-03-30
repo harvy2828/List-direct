@@ -2379,10 +2379,22 @@ function openListingModal(l) {
       : `<div style="background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.88rem;color:var(--green);font-weight:600">🚀 Direct Listing — 1% platform fee, no agent commission</div>`}
     ${(()=>{
       const price = l.price || 0;
+      const isCA = l.currency === 'CAD' || ['BC','AB','ON','QC','MB','SK','NS','NB','NL','PE','NT','YT','NU'].includes(l.state);
       const ldFee = Math.round(price * 0.01);
-      const tradFee = Math.round(price * 0.06);
+      let tradFee, tradLabel;
+      if (isCA) {
+        // BC formula: 3.22% on first $100k + 1.15% on remainder (both sides)
+        const first = Math.min(price, 100000) * 0.0644;
+        const rest = Math.max(0, price - 100000) * 0.023;
+        tradFee = Math.round(first + rest);
+        tradLabel = 'Traditional agent (BC rate)';
+      } else {
+        tradFee = Math.round(price * 0.06);
+        tradLabel = 'Traditional agent (~6%)';
+      }
       const savings = tradFee - ldFee;
-      const fmt = n => '$' + n.toLocaleString();
+      const currency = isCA ? 'CAD' : 'USD';
+      const fmt = n => '$' + n.toLocaleString() + ' ' + currency;
       return `<div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:16px;margin-bottom:20px">
         <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#7a9480;margin-bottom:12px">💡 Cost Breakdown</div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
@@ -2390,7 +2402,7 @@ function openListingModal(l) {
           <span style="color:#3ef07a;font-weight:700">${fmt(ldFee)}</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-          <span style="color:#7a9480;font-size:0.88rem">Traditional agent (~6%)</span>
+          <span style="color:#7a9480;font-size:0.88rem">${tradLabel}</span>
           <span style="color:#e85454;font-weight:700;text-decoration:line-through">${fmt(tradFee)}</span>
         </div>
         <div style="border-top:1px solid #1f2d22;padding-top:10px;display:flex;justify-content:space-between;align-items:center">
