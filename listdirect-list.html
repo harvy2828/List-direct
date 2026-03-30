@@ -601,6 +601,8 @@ function showStep(n) {
   updateProgress(n);
   window.scrollTo({ top: 0, behavior: 'smooth' });
   currentStep = n;
+  // Reinitialize address autocomplete when step 2 becomes visible
+  if (n === 2) setTimeout(() => { if (window.google && window.google.maps) initAddressAutocomplete(); }, 100);
 }
 
 function goBack(from) { showStep(from - 1); }
