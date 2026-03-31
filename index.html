@@ -1932,9 +1932,22 @@ async function runSearch() {
     return true;
   });
 
-  // Fetch all sources in parallel for speed
-  const [platformListings, mlsListings, aiListings] = await Promise.all([
-    fetchPlatformListings(query, beds, maxPrice),
+  // Fetch platform listings first and show immediately
+  const platformListings = await fetchPlatformListings(query, beds, maxPrice);
+  
+  if (platformListings.length > 0) {
+    document.getElementById('search-loading').classList.remove('visible');
+    document.getElementById('search-city-label').textContent = `in "${query}" (${countryLabel}, prices in ${currencyLabel})`;
+    currentResults = [...platformListings, ...verifiedMatches.filter(v => !platformListings.find(p => p.id === v.id))];
+    renderCurrentResults();
+    setTimeout(() => {
+      const grid = document.getElementById('listings-grid');
+      if (grid) window.scrollTo({ top: grid.getBoundingClientRect().top + window.pageYOffset - 120, behavior: 'smooth' });
+    }, 100);
+  }
+
+  // Then fetch MLS and AI in parallel in background
+  const [mlsListings, aiListings] = await Promise.all([
     searchCountry === 'ca' ? fetchCanadaListings(query, beds, maxPrice) :
     searchCountry === 'us' ? fetchUSListings(query, beds, maxPrice) : Promise.resolve([]),
     generateAIListings(query, beds, maxPrice)
