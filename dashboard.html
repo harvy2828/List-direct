@@ -326,12 +326,35 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
             </div>
           </div>
 
-          <div style="background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:14px;padding:20px">
-            <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:10px">💰 Your Potential Savings</div>
-            <div style="font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:var(--green);margin-bottom:2px" id="dash-savings-num">$22,500</div>
-            <div style="font-size:0.78rem;color:var(--muted);margin-bottom:14px" id="dash-savings-sub">vs. traditional agent on a $450,000 home</div>
-            <input type="range" id="dash-price-slider" min="100000" max="10000000" step="25000" value="450000" oninput="updateDashCalc(this.value)" style="width:100%;accent-color:var(--green);cursor:pointer"/>
-            <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--muted);margin-top:5px"><span>$100K</span><span>$10M</span></div>
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px">
+            <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:12px">💰 Savings Calculator</div>
+            <!-- Country toggle -->
+            <div style="display:flex;background:var(--bg);border-radius:50px;padding:3px;margin-bottom:14px;gap:3px">
+              <button id="dash-btn-ca" onclick="setDashCountry('ca')" style="flex:1;background:var(--green);color:#0a0f0d;border:none;padding:6px;border-radius:50px;font-weight:700;font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:4px"><img src="https://flagcdn.com/40x30/ca.png" alt="CA" style="width:20px;height:13px;border-radius:2px"> Canada</button>
+              <button id="dash-btn-us" onclick="setDashCountry('us')" style="flex:1;background:none;color:var(--muted);border:none;padding:6px;border-radius:50px;font-weight:600;font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:4px"><img src="https://flagcdn.com/40x30/us.png" alt="US" style="width:20px;height:13px;border-radius:2px"> United States</button>
+            </div>
+            <!-- Price display -->
+            <div style="text-align:center;font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;color:var(--white);margin-bottom:8px" id="dash-price-display">$450,000</div>
+            <input type="range" id="dash-price-slider" min="100000" max="10000000" step="25000" value="450000" oninput="updateDashCalc()" style="width:100%;accent-color:var(--green);cursor:pointer;margin-bottom:16px"/>
+            <!-- Bars -->
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:0.78rem;margin-bottom:3px"><span style="color:var(--muted)">Traditional Agent</span><span style="color:#e85454;font-weight:700;text-decoration:line-through" id="dash-trad-val">$27,000</span></div>
+                <div style="height:6px;background:var(--bg);border-radius:50px;overflow:hidden"><div id="dash-bar-trad" style="height:100%;width:100%;background:#e85454;border-radius:50px"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:0.78rem;margin-bottom:3px"><span style="color:var(--muted)">Our Certified Agent</span><span style="color:var(--gold);font-weight:700" id="dash-agent-val">$18,000</span></div>
+                <div style="height:6px;background:var(--bg);border-radius:50px;overflow:hidden"><div id="dash-bar-agent" style="height:100%;width:67%;background:var(--gold);border-radius:50px"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:0.78rem;margin-bottom:3px"><span style="color:var(--muted)">ListDirect (1%)</span><span style="color:var(--green);font-weight:700" id="dash-direct-val">$4,500</span></div>
+                <div style="height:6px;background:var(--bg);border-radius:50px;overflow:hidden"><div id="dash-bar-direct" style="height:100%;width:17%;background:var(--green);border-radius:50px"></div></div>
+              </div>
+            </div>
+            <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px;display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:0.8rem;color:var(--muted)">You save vs. traditional</span>
+              <span style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900;color:var(--green)" id="dash-savings-num">$22,500</span>
+            </div>
           </div>
         </div>
 
@@ -1091,23 +1114,47 @@ function showLoading(show) {
   document.getElementById('loading').classList.toggle('show', show);
 }
 
-function updateDashCalc(price) {
-  price = parseInt(price) || 450000;
-  // Use BC formula for Canada, 6% for US
-  const isCA = ['BC','AB','ON','QC','MB','SK','NS','NB','NL','PE','NT','YT','NU'].some(p => 
-    document.getElementById('nl-state')?.value?.toUpperCase() === p
-  );
-  let savings;
+let dashCalcCountry = 'ca';
+
+function setDashCountry(c) {
+  dashCalcCountry = c;
+  const btnCa = document.getElementById('dash-btn-ca');
+  const btnUs = document.getElementById('dash-btn-us');
+  if (btnCa) { btnCa.style.background = c === 'ca' ? 'var(--green)' : 'none'; btnCa.style.color = c === 'ca' ? '#0a0f0d' : 'var(--muted)'; }
+  if (btnUs) { btnUs.style.background = c === 'us' ? 'var(--green)' : 'none'; btnUs.style.color = c === 'us' ? '#0a0f0d' : 'var(--muted)'; }
+  updateDashCalc();
+}
+
+function updateDashCalc() {
+  const slider = document.getElementById('dash-price-slider');
+  if (!slider) return;
+  const price = parseInt(slider.value) || 450000;
+  const isCA = dashCalcCountry === 'ca';
+  const fmt = n => '$' + n.toLocaleString();
+  
+  let trad;
   if (isCA) {
     const first = Math.min(price, 100000) * 0.0644;
     const rest = Math.max(0, price - 100000) * 0.023;
-    savings = Math.round(first + rest) - Math.round(price * 0.01);
+    trad = Math.round(first + rest);
   } else {
-    savings = Math.round(price * 0.06) - Math.round(price * 0.01);
+    trad = Math.round(price * 0.06);
   }
-  const fmt = n => '$' + n.toLocaleString();
-  document.getElementById('dash-savings-num').textContent = fmt(savings);
-  document.getElementById('dash-savings-sub').textContent = 'vs. traditional agent on a ' + fmt(price) + ' home';
+  const cashback = Math.round(price * (isCA ? 0.005 : 0.01));
+  const agentNet = trad - cashback;
+  const direct = Math.round(price * 0.01);
+  const savings = trad - direct;
+
+  if (document.getElementById('dash-price-display')) document.getElementById('dash-price-display').textContent = fmt(price);
+  if (document.getElementById('dash-trad-val')) document.getElementById('dash-trad-val').textContent = fmt(trad);
+  if (document.getElementById('dash-agent-val')) document.getElementById('dash-agent-val').textContent = fmt(agentNet);
+  if (document.getElementById('dash-direct-val')) document.getElementById('dash-direct-val').textContent = fmt(direct);
+  if (document.getElementById('dash-savings-num')) document.getElementById('dash-savings-num').textContent = fmt(savings);
+
+  const agentPct = Math.round((agentNet / trad) * 100);
+  const directPct = Math.round((direct / trad) * 100);
+  if (document.getElementById('dash-bar-agent')) document.getElementById('dash-bar-agent').style.width = agentPct + '%';
+  if (document.getElementById('dash-bar-direct')) document.getElementById('dash-bar-direct').style.width = directPct + '%';
 }
 
 function showToast(msg, type = 'success') {
