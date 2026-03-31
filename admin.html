@@ -150,11 +150,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 
     <!-- Platform Stats -->
     <div class="stats-row" style="margin-bottom:16px">
-      <div class="stat-card" onclick="loadAdminUsers(document.querySelector('.tab:last-child'))" style="cursor:pointer"><div class="stat-num green" id="stat-total-users">—</div><div class="stat-label">Total Signups</div></div>
-      <div class="stat-card" onclick="loadAdminUsers(document.querySelector('.tab:last-child'))" style="cursor:pointer"><div class="stat-num" id="stat-sellers">—</div><div class="stat-label">Sellers</div></div>
-      <div class="stat-card" onclick="showTab('approved', document.querySelectorAll('.tab')[1])" style="cursor:pointer"><div class="stat-num gold" id="stat-total-agents">—</div><div class="stat-label">Agents</div></div>
-      <div class="stat-card" onclick="loadAdminListings(document.querySelectorAll('.tab')[5])" style="cursor:pointer"><div class="stat-num green" id="stat-active-listings">—</div><div class="stat-label">Active Listings</div></div>
-      <div class="stat-card" onclick="showTab('payments', document.querySelectorAll('.tab')[4])" style="cursor:pointer"><div class="stat-num gold" id="stat-revenue">—</div><div class="stat-label">Total Revenue</div></div>
+      <div class="stat-card" onclick="loadAdminUsers(document.getElementById('tab-users'))" style="cursor:pointer"><div class="stat-num green" id="stat-total-users">—</div><div class="stat-label">Total Signups</div></div>
+      <div class="stat-card" onclick="loadAdminUsers(document.getElementById('tab-users'))" style="cursor:pointer"><div class="stat-num" id="stat-sellers">—</div><div class="stat-label">Sellers</div></div>
+      <div class="stat-card" onclick="showTab('approved', document.getElementById('tab-approved'))" style="cursor:pointer"><div class="stat-num gold" id="stat-total-agents">—</div><div class="stat-label">Agents</div></div>
+      <div class="stat-card" onclick="loadAdminListings(document.getElementById('tab-listings'))" style="cursor:pointer"><div class="stat-num green" id="stat-active-listings">—</div><div class="stat-label">Active Listings</div></div>
+      <div class="stat-card" onclick="showTab('payments', document.getElementById('tab-payments'))" style="cursor:pointer"><div class="stat-num gold" id="stat-revenue">—</div><div class="stat-label">Total Revenue</div></div>
     </div>
     <!-- Agent Application Stats -->
     <div class="stats-row">
@@ -165,13 +165,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
     </div>
 
     <div class="tabs">
-      <button class="tab active" onclick="showTab('pending', this)">⏳ Pending</button>
-      <button class="tab" onclick="showTab('approved', this)">✅ Approved</button>
+      <button class="tab active" id="tab-pending" onclick="showTab('pending', this)">⏳ Pending</button>
+      <button class="tab" id="tab-approved" onclick="showTab('approved', this)">✅ Approved</button>
       <button class="tab" onclick="showTab('rejected', this)">❌ Rejected</button>
       <button class="tab" onclick="showTab('all', this)">📋 All</button>
-      <button class="tab" onclick="showTab('payments', this)">💰 Payments</button>
-      <button class="tab" onclick="loadAdminListings(this)">🏠 Listings</button>
-      <button class="tab" onclick="loadAdminUsers(this)">👥 Users</button>
+      <button class="tab" id="tab-payments" onclick="showTab('payments', this)">💰 Payments</button>
+      <button class="tab" id="tab-listings" onclick="loadAdminListings(this)">🏠 Listings</button>
+      <button class="tab" id="tab-users" onclick="loadAdminUsers(this)">👥 Users</button>
     </div>
 
     <div class="agents-list" id="agents-list">
