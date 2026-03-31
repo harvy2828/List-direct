@@ -171,6 +171,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
       <button class="tab" onclick="showTab('all', this)">📋 All</button>
       <button class="tab" onclick="showTab('payments', this)">💰 Payments</button>
       <button class="tab" onclick="loadAdminListings(this)">🏠 Listings</button>
+      <button class="tab" onclick="loadAdminUsers(this)">👥 Users</button>
     </div>
 
     <div class="agents-list" id="agents-list">
@@ -406,6 +407,74 @@ async function markCheckPaid(paymentId) {
   } catch(e) {
     showToast('Failed to update payment', 'error');
   }
+}
+
+// ── Admin: Listings ───────────────────────────────────────────
+async function loadAdminListings(btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const list = document.getElementById('agents-list');
+  list.innerHTML = '<div style="color:var(--muted);padding:20px;text-align:center">Loading listings…</div>';
+  try {
+    const res = await fetch('/api/admin/listings', { headers: { 'x-admin-key': ADMIN_PASSWORD } });
+    const data = await res.json();
+    const listings = data.listings || [];
+    if (!listings.length) { list.innerHTML = '<div style="color:var(--muted);padding:20px;text-align:center">No listings yet</div>'; return; }
+    list.innerHTML = `
+      <table style="width:100%;border-collapse:collapse;font-size:0.88rem">
+        <thead><tr style="border-bottom:1px solid var(--border);color:var(--muted);text-align:left">
+          <th style="padding:10px">Address</th>
+          <th style="padding:10px">City</th>
+          <th style="padding:10px">Price</th>
+          <th style="padding:10px">Type</th>
+          <th style="padding:10px">Status</th>
+          <th style="padding:10px">Date</th>
+        </tr></thead>
+        <tbody>${listings.map(l => `
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:10px;color:var(--white)">${l.address || '—'}</td>
+            <td style="padding:10px;color:var(--muted)">${l.city || '—'}, ${l.state || ''}</td>
+            <td style="padding:10px;color:var(--green);font-weight:700">$${parseInt(l.price||0).toLocaleString()}</td>
+            <td style="padding:10px;color:var(--muted)">${l.property_type || '—'}</td>
+            <td style="padding:10px"><span style="background:${l.status==='active'?'var(--greenlow)':'var(--bg)'};color:${l.status==='active'?'var(--green)':'var(--muted)'};padding:2px 10px;border-radius:50px;font-size:0.75rem;font-weight:700">${(l.status||'').toUpperCase()}</span></td>
+            <td style="padding:10px;color:var(--muted)">${new Date(l.created_at).toLocaleDateString()}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`;
+  } catch(e) { list.innerHTML = '<div style="color:var(--red);padding:20px">Failed to load listings</div>'; }
+}
+
+// ── Admin: Users ──────────────────────────────────────────────
+async function loadAdminUsers(btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const list = document.getElementById('agents-list');
+  list.innerHTML = '<div style="color:var(--muted);padding:20px;text-align:center">Loading users…</div>';
+  try {
+    const res = await fetch('/api/admin/users', { headers: { 'x-admin-key': ADMIN_PASSWORD } });
+    const data = await res.json();
+    const users = data.users || [];
+    if (!users.length) { list.innerHTML = '<div style="color:var(--muted);padding:20px;text-align:center">No users yet</div>'; return; }
+    list.innerHTML = `
+      <table style="width:100%;border-collapse:collapse;font-size:0.88rem">
+        <thead><tr style="border-bottom:1px solid var(--border);color:var(--muted);text-align:left">
+          <th style="padding:10px">Name</th>
+          <th style="padding:10px">Email</th>
+          <th style="padding:10px">Role</th>
+          <th style="padding:10px">Confirmed</th>
+          <th style="padding:10px">Joined</th>
+        </tr></thead>
+        <tbody>${users.map(u => `
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:10px;color:var(--white)">${u.user_metadata?.full_name || '—'}</td>
+            <td style="padding:10px;color:var(--muted)">${u.email || '—'}</td>
+            <td style="padding:10px"><span style="background:${u.user_metadata?.role==='agent'?'var(--goldlow)':'var(--greenlow)'};color:${u.user_metadata?.role==='agent'?'var(--gold)':'var(--green)'};padding:2px 10px;border-radius:50px;font-size:0.75rem;font-weight:700">${(u.user_metadata?.role||'seller').toUpperCase()}</span></td>
+            <td style="padding:10px;color:${u.email_confirmed_at?'var(--green)':'var(--red)'}">${u.email_confirmed_at?'✅ Yes':'❌ No'}</td>
+            <td style="padding:10px;color:var(--muted)">${new Date(u.created_at).toLocaleDateString()}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`;
+  } catch(e) { list.innerHTML = '<div style="color:var(--red);padding:20px">Failed to load users</div>'; }
 }
 </script>
 </body>
