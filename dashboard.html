@@ -327,9 +327,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
           </div>
 
           <div style="background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:14px;padding:20px">
-            <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:6px">💰 Your Potential Savings</div>
-            <div style="font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:var(--green)">Up to $27,000</div>
-            <div style="font-size:0.82rem;color:var(--muted);margin-top:4px">vs. a traditional 6% agent on a $450k home</div>
+            <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:10px">💰 Your Potential Savings</div>
+            <div style="font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:var(--green);margin-bottom:2px" id="dash-savings-num">$22,500</div>
+            <div style="font-size:0.78rem;color:var(--muted);margin-bottom:14px" id="dash-savings-sub">vs. traditional agent on a $450,000 home</div>
+            <input type="range" id="dash-price-slider" min="100000" max="10000000" step="25000" value="450000" oninput="updateDashCalc(this.value)" style="width:100%;accent-color:var(--green);cursor:pointer"/>
+            <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--muted);margin-top:5px"><span>$100K</span><span>$10M</span></div>
           </div>
         </div>
 
@@ -1087,6 +1089,25 @@ async function changePassword() {
 // ── Helpers ───────────────────────────────────────────────────
 function showLoading(show) {
   document.getElementById('loading').classList.toggle('show', show);
+}
+
+function updateDashCalc(price) {
+  price = parseInt(price) || 450000;
+  // Use BC formula for Canada, 6% for US
+  const isCA = ['BC','AB','ON','QC','MB','SK','NS','NB','NL','PE','NT','YT','NU'].some(p => 
+    document.getElementById('nl-state')?.value?.toUpperCase() === p
+  );
+  let savings;
+  if (isCA) {
+    const first = Math.min(price, 100000) * 0.0644;
+    const rest = Math.max(0, price - 100000) * 0.023;
+    savings = Math.round(first + rest) - Math.round(price * 0.01);
+  } else {
+    savings = Math.round(price * 0.06) - Math.round(price * 0.01);
+  }
+  const fmt = n => '$' + n.toLocaleString();
+  document.getElementById('dash-savings-num').textContent = fmt(savings);
+  document.getElementById('dash-savings-sub').textContent = 'vs. traditional agent on a ' + fmt(price) + ' home';
 }
 
 function showToast(msg, type = 'success') {

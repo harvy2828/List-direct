@@ -3948,6 +3948,24 @@ function detectCountryFromQuery(query) {
   return 'ca';
 }
 
+function updateMiniCalc(price) {
+  price = parseInt(price) || 450000;
+  const isCA = searchCountry === 'ca';
+  let savings;
+  if (isCA) {
+    const first = Math.min(price, 100000) * 0.0644;
+    const rest = Math.max(0, price - 100000) * 0.023;
+    const trad = Math.round(first + rest);
+    savings = trad - Math.round(price * 0.01);
+  } else {
+    savings = Math.round(price * 0.06) - Math.round(price * 0.01);
+  }
+  const fmt = n => '$' + n.toLocaleString();
+  const priceLabel = fmt(price);
+  document.getElementById('mini-savings-num').textContent = fmt(savings);
+  document.getElementById('mini-savings-sub').textContent = 'vs. traditional agent on a ' + priceLabel + ' home';
+}
+
 function heroSearch() {
   const query = document.getElementById('hero-search-input').value.trim();
   if (!query) return;
