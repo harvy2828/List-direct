@@ -946,7 +946,8 @@ app.post('/api/messages', async (req, res) => {
     if (error) return res.status(400).json({ error: error.message });
 
     // Notify seller via email
-    const { data: sellerAuth } = await supabase.auth.admin.getUserById(seller_id).catch(() => ({ data: null }));
+    const adminSupabase2 = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+    const { data: sellerAuth } = await adminSupabase2.auth.admin.getUserById(seller_id).catch(() => ({ data: null }));
     if (sellerAuth?.user?.email) {
       await sendEmail({
         to: sellerAuth.user.email,
