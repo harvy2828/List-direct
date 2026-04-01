@@ -1,16 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-EYCY016PBH"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-EYCY016PBH');
+</script>
+
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>ListDirect — List Your Home Free</title>
+<title>List Your Home — ListDirect | Free to List, 1% at Closing</title>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A&libraries=places&callback=initAddressAutocomplete" async defer></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
 :root{--bg:#0a0f0d;--bg2:#111810;--card:#141c16;--border:#1f2d22;--green:#3ef07a;--green2:#27c45e;--greenlow:rgba(62,240,122,0.08);--text:#e8f0e9;--muted:#7a9480;--white:#fff;--gold:#f5c842;--red:#e85454;--radius:16px}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;font-size:16px;line-height:1.6;min-height:100vh}
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--green);border-radius:3px}
 
 nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:16px 48px;background:rgba(10,15,13,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
 .nav-logo{font-family:"Playfair Display",serif;font-size:1.5rem;font-weight:900;color:var(--white);letter-spacing:-1px;text-decoration:none}
@@ -176,14 +186,62 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .path-modal-note a{color:var(--muted);text-decoration:underline}
 @media(max-width:520px){.path-cards{grid-template-columns:1fr}.path-modal{padding:28px 20px}}
 
+
+/* Google Places Autocomplete dark theme */
+.pac-container {
+  background:#141c16 !important;
+  border:1px solid #1f2d22 !important;
+  border-radius:12px !important;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5) !important;
+  margin-top:4px !important;
+  font-family:'DM Sans',sans-serif !important;
+}
+.pac-item {
+  background:#141c16 !important;
+  color:#e8f0e9 !important;
+  border-top:1px solid #1f2d22 !important;
+  padding:10px 16px !important;
+  cursor:pointer !important;
+  font-size:0.88rem !important;
+}
+.pac-item:hover, .pac-item-selected {
+  background:#192019 !important;
+}
+.pac-item-query {
+  color:#3ef07a !important;
+  font-weight:600 !important;
+}
+.pac-matched {
+  color:#3ef07a !important;
+}
+.pac-icon { display:none !important; }
+
+@media(max-width:900px){.desktop-nav-right{display:none!important}}
 </style>
-<script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
+
+
+  <meta name="description" content="List your home for sale in minutes. AI writes your description, prices your home, and reviews every offer. Free to list — pay only 1% when your home sells. Available across Canada and the USA."/>
+  <meta name="keywords" content="list home for sale Canada, sell home online, for sale by owner Canada, AI listing description, home listing platform"/>
+  <meta property="og:title" content="List Your Home — ListDirect | Free to List, 1% at Closing"/>
+  <meta property="og:description" content="List your home for sale in minutes. AI writes your description, prices your home, and reviews every offer. Free to list — pay only 1% when your home sells. Available across Canada and the USA."/>
+  <meta property="og:url" content="https://listdirect.ai/listdirect-list.html"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:image" content="https://listdirect.ai/og-image.png"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="List Your Home — ListDirect | Free to List, 1% at Closing"/>
+  <meta name="twitter:description" content="List your home for sale in minutes. AI writes your description, prices your home, and reviews every offer. Free to list — pay only 1% when your home sells. Available across Canada and the USA."/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://listdirect.ai/listdirect-list.html"/>
 </head>
 <body>
 
 <nav>
   <a href="index.html" class="nav-logo">List<span>Direct</span></a>
   <a href="index.html" class="nav-back">← Back to Home</a>
+  <div class="desktop-nav-right" style="display:flex;align-items:center;gap:10px">
+    <a href="dashboard.html" style="background:none;border:1px solid rgba(62,240,122,0.3);color:#e8f0e9;padding:6px 14px;border-radius:50px;font-size:0.82rem;font-weight:600;text-decoration:none;white-space:nowrap">👤 My Account</a>
+    <a href="agent-portal.html" style="background:none;border:1px solid rgba(245,200,66,0.3);color:#f5c842;padding:6px 14px;border-radius:50px;font-size:0.82rem;font-weight:600;text-decoration:none;white-space:nowrap">🤝 Agent Login</a>
+  </div>
 </nav>
 
 <div class="page-wrap">
@@ -251,7 +309,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
     <div class="form-grid">
       <div class="ff full" id="ff-addr">
         <label>Street Address</label>
-        <input type="text" id="s2-addr" placeholder="123 Oak Street"/>
+        <input type="text" id="s2-addr" placeholder="Start typing your address…" autocomplete="off" style="width:100%" onfocus="initS2Addr()" />
         <span class="field-error">Please enter your address</span>
       </div>
       <div class="ff" id="ff-city">
@@ -265,11 +323,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
       </div>
       <div class="ff">
         <label>ZIP / Postal Code</label>
-        <input type="text" id="s2-zip" placeholder="78701 or M5V 2T6"/>
+        <input type="text" id="s2-zip" placeholder="78701 or M5V 2T6" oninput="formatZipInput(this)" maxlength="10" inputmode="text" autocomplete="postal-code"/>
       </div>
       <div class="ff">
         <label>Asking Price</label>
-        <input type="text" id="s2-price" placeholder="$389,000"/>
+        <input type="text" id="s2-price" placeholder="$389,000" oninput="formatPriceInput(this)" inputmode="numeric"/>
       </div>
       <div class="ff">
         <label>Property Type</label>
@@ -298,7 +356,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
       </div>
       <div class="ff">
         <label>Square Footage</label>
-        <input type="number" id="s2-sqft" placeholder="1,850"/>
+        <input type="text" id="s2-sqft" placeholder="1,850" oninput="formatSqftInput(this)" inputmode="numeric"/>
       </div>
       <div class="ff">
         <label>Year Built</label>
@@ -487,7 +545,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
         </div>
       </div>
       <div class="success-actions">
-        <a href="listdirect-search.html" class="btn-primary">Browse Listings</a>
+        <a href="index.html#search-section" class="btn-primary">Browse Listings</a>
         <a href="index.html" class="btn-outline">Back to Home</a>
       </div>
     </div>
@@ -496,6 +554,29 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 </div>
 
 <script>
+
+// ── Number Formatting Helpers ─────────────────────────────────
+function formatPriceInput(el) {
+  let raw = el.value.replace(/[^0-9]/g, '');
+  if (!raw) { el.value = ''; return; }
+  el.value = '$' + parseInt(raw).toLocaleString();
+}
+
+function formatSqftInput(el) {
+  let raw = el.value.replace(/[^0-9]/g, '');
+  if (!raw) { el.value = ''; return; }
+  el.value = parseInt(raw).toLocaleString();
+}
+
+function formatZipInput(el) {
+  let raw = el.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  // Canadian postal code: A1A 1A1
+  if (/^[A-Z]/.test(raw) && raw.length > 3) {
+    raw = raw.slice(0,3) + ' ' + raw.slice(3,6);
+  }
+  el.value = raw;
+}
+
 const CLAUDE_MODEL = 'claude-haiku-4-5-20251001';
 let currentStep = 1;
 let aiDescription = '';
@@ -521,6 +602,19 @@ function showStep(n) {
   updateProgress(n);
   window.scrollTo({ top: 0, behavior: 'smooth' });
   currentStep = n;
+  // Reinitialize address autocomplete when step 2 becomes visible
+  if (n === 2) {
+    const addrEl = document.getElementById('s2-addr');
+    if (addrEl) addrEl.dataset.acDone = '';
+    const tryInit = (attempts) => {
+      if (window.google && window.google.maps && window.google.maps.places) {
+        initAddressAutocomplete();
+      } else if (attempts > 0) {
+        setTimeout(() => tryInit(attempts - 1), 300);
+      }
+    };
+    setTimeout(() => tryInit(20), 100);
+  }
 }
 
 function goBack(from) { showStep(from - 1); }
@@ -556,6 +650,7 @@ function selectTone(card) {
   document.querySelectorAll('.tone-card').forEach(c => c.classList.remove('active'));
   card.classList.add('active');
   selectedTone = card.dataset.tone;
+  generateListing();
 }
 
 // ── AI DESCRIPTION GENERATOR ──
@@ -563,11 +658,11 @@ async function generateListing() {
   const isCA = document.getElementById('s1-country').value === 'ca';
   const city = document.getElementById('s2-city').value;
   const addr = document.getElementById('s2-addr').value;
-  const price = document.getElementById('s2-price').value || 'Not specified';
+  const price = document.getElementById('s2-price').value.replace(/[^0-9.]/g,'') ? '$' + parseInt(document.getElementById('s2-price').value.replace(/[^0-9]/g,'')).toLocaleString() : 'Not specified';
   const type = document.getElementById('s2-type').value;
   const beds = document.getElementById('s2-beds').value;
   const baths = document.getElementById('s2-baths').value;
-  const sqft = document.getElementById('s2-sqft').value || 'Not specified';
+  const sqft = document.getElementById('s2-sqft').value.replace(/[^0-9]/g,'') || 'Not specified';
   const year = document.getElementById('s2-year').value || 'Not specified';
   const features = document.getElementById('s2-features').value || 'Not specified';
   const condition = document.getElementById('s2-condition').value;
@@ -583,14 +678,9 @@ async function generateListing() {
   const prompt = 'Write a ' + selectedTone + ' MLS listing description for:\n\nProperty: ' + addr + ', ' + city + '\nType: ' + type + ' | Price: ' + price + '\nBeds: ' + beds + ' | Baths: ' + baths + ' | Sqft: ' + sqft + ' | Year: ' + year + '\nCondition: ' + condition + '\nFeatures: ' + features + '\n\nStart with a strong hook. End with a clear call to action. No bullet points. 150-200 words.';
 
   try {
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
+    const r = await fetch('/api/claude', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': 'sk-ant-api03-dg55l-YoYaUg6zS6J8keY2h5gtcrY1wqNXc03pcuXTMmn5t61Qf1XQjtWLoHspV9J2tQEJdxlCIcVStdx0CAQ-baxsSAAA',
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 400, system, messages: [{ role: 'user', content: prompt }] })
     });
     if (!r.ok) throw new Error('API ' + r.status);
@@ -633,40 +723,45 @@ function copyDesc() {
 }
 
 // ── PHOTOS ──
-// ── CLOUDINARY PHOTO UPLOAD ──
+// ── SUPABASE PHOTO UPLOAD ──
 let uploadedPhotoUrls = [];
+let editListingId = null; // set when editing existing listing
 
 function openCloudinaryUpload() {
-  // Use Cloudinary unsigned upload preset
-  // Replace 'listdirect_unsigned' with your actual preset name from Cloudinary dashboard
-  if (typeof cloudinary === 'undefined') {
-    // Fallback to file input if Cloudinary not loaded
-    const input = document.createElement('input');
-    input.type = 'file'; input.multiple = true; input.accept = 'image/*';
-    input.onchange = function() { handleLocalPhotos(this.files); };
-    input.click(); return;
+  const token = localStorage.getItem('ld_token');
+  if (!token) {
+    // Not logged in — show message, photos added after account creation
+    const zone = document.getElementById('photo-zone');
+    if (zone) zone.innerHTML = '<div class="pz-icon">📸</div><div class="pz-title">Photos added after account creation</div><div class="pz-sub">You can upload up to 20 photos once your account is confirmed</div>';
+    return;
   }
-  const widget = cloudinary.createUploadWidget({
-    cloudName: 'listdirect',
-    uploadPreset: 'listdirect_homes',
-    multiple: true,
-    maxFiles: 20,
-    maxFileSize: 20000000,
-    clientAllowedFormats: ['jpg','jpeg','png','webp'],
-    sources: ['local','camera'],
-    showAdvancedOptions: false,
-    cropping: false,
-    styles: {
-      palette: { window: '#141c16', windowBorder: '#1f2d22', tabIcon: '#3ef07a', menuIcons: '#7a9480', textDark: '#0a0f0d', textLight: '#e8f0e9', link: '#3ef07a', action: '#3ef07a', inactiveTabIcon: '#7a9480', error: '#e85454', inProgress: '#3ef07a', complete: '#27c45e', sourceBg: '#111810' }
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.multiple = true;
+  input.accept = 'image/*';
+  input.onchange = async function() {
+    const files = Array.from(this.files).slice(0, 20);
+    if (!files.length) return;
+    const zone = document.getElementById('photo-zone-title');
+    if (zone) zone.textContent = 'Uploading photos…';
+    for (const file of files) {
+      try {
+        const formData = new FormData();
+        formData.append('photo', file);
+        const res = await fetch('/api/photos/upload', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token },
+          body: formData
+        });
+        const data = await res.json();
+        if (data.url) uploadedPhotoUrls.push(data.url);
+        renderCloudinaryPreviews();
+        document.getElementById('photo-urls').value = uploadedPhotoUrls.join(',');
+      } catch(e) { console.error('Photo error:', e); }
     }
-  }, function(error, result) {
-    if (!error && result && result.event === 'success') {
-      uploadedPhotoUrls.push(result.info.secure_url);
-      renderCloudinaryPreviews();
-      document.getElementById('photo-urls').value = uploadedPhotoUrls.join(',');
-    }
-  });
-  widget.open();
+    if (zone) zone.textContent = uploadedPhotoUrls.length + ' photo' + (uploadedPhotoUrls.length !== 1 ? 's' : '') + ' uploaded ✓ — tap to add more';
+  };
+  input.click();
 }
 
 function handleLocalPhotos(files) {
@@ -725,11 +820,11 @@ function populateReview() {
   const year = document.getElementById('s2-year').value;
   const path = document.getElementById('s1-path').value;
 
-  document.getElementById('lp-price').textContent = price || '—';
+  const rawPrice = parseInt(price.replace(/[^0-9]/g,'')); document.getElementById('lp-price').textContent = rawPrice ? '$' + rawPrice.toLocaleString() : '—';
   document.getElementById('lp-addr').textContent = '📍 ' + addr + (city ? ', ' + city : '') + (state ? ', ' + state : '');
   document.getElementById('lp-beds').textContent = beds;
   document.getElementById('lp-baths').textContent = baths;
-  document.getElementById('lp-sqft').textContent = sqft ? parseInt(sqft).toLocaleString() : '—';
+  document.getElementById('lp-sqft').textContent = sqft ? parseInt(sqft.replace(/[^0-9]/g,'')).toLocaleString() : '—';
   document.getElementById('lp-year').textContent = year || '—';
   document.getElementById('lp-desc').textContent = aiDescription || 'Your listing description will appear here.';
 
@@ -753,11 +848,11 @@ function populateReview() {
   document.getElementById('hf-city').value = city;
   document.getElementById('hf-state').value = state;
   document.getElementById('hf-zip').value = document.getElementById('s2-zip').value;
-  document.getElementById('hf-price').value = price;
+  document.getElementById('hf-price').value = parseInt(price.replace(/[^0-9]/g,'')) || '';
   document.getElementById('hf-type').value = document.getElementById('s2-type').value;
   document.getElementById('hf-beds').value = beds;
   document.getElementById('hf-baths').value = baths;
-  document.getElementById('hf-sqft').value = sqft;
+  document.getElementById('hf-sqft').value = parseInt(sqft.replace(/[^0-9]/g,'')) || '';
   document.getElementById('hf-year').value = year;
   document.getElementById('hf-features').value = document.getElementById('s2-features').value;
   document.getElementById('hf-desc').value = aiDescription;
@@ -769,16 +864,62 @@ document.getElementById('listing-form').addEventListener('submit', async functio
   const btn = document.getElementById('btn-submit');
   btn.textContent = 'Submitting…';
   btn.disabled = true;
+
+  const token = localStorage.getItem('ld_token');
+  
+  // Gather all listing data
+  const listingData = {
+    address: document.getElementById('s2-addr')?.value || '',
+    city: document.getElementById('s2-city')?.value || '',
+    state: document.getElementById('s2-state')?.value || '',
+    zip: document.getElementById('s2-zip')?.value || '',
+    price: document.getElementById('s2-price')?.value?.replace(/[^0-9]/g,'') || '',
+    bedrooms: document.getElementById('s2-beds')?.value || '',
+    bathrooms: document.getElementById('s2-baths')?.value || '',
+    sqft: document.getElementById('s2-sqft')?.value?.replace(/[^0-9]/g,'') || '',
+    year_built: document.getElementById('s2-year')?.value || '',
+    property_type: document.getElementById('s2-type')?.value || '',
+    features: document.getElementById('s2-features')?.value || '',
+    description: aiDescription || document.getElementById('lp-desc')?.textContent || '',
+    photos: uploadedPhotoUrls || [],
+    status: 'pending',
+    listing_path: document.getElementById('s1-path')?.value || 'direct'
+  };
+
   try {
-    await fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(new FormData(this)).toString() });
-    const city = document.getElementById('s2-city').value;
-    document.getElementById('success-city').textContent = city || 'your city';
-    showStep(6);
-    updateProgress(6);
+    if (token) {
+      // Logged in — update if editing, create if new
+      const url = editListingId ? '/api/listings/' + editListingId : '/api/listings';
+      const method = editListingId ? 'PATCH' : 'POST';
+      const res = await fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify(listingData)
+      });
+      const data = await res.json();
+      if (!res.ok) console.error('Listing save error:', data.error);
+      const city = document.getElementById('s2-city').value;
+      document.getElementById('success-city').textContent = city || 'your city';
+      // If editing, show different success message
+      if (editListingId) {
+        const successTitle = document.querySelector('.success-title');
+        if (successTitle) successTitle.textContent = 'Listing Updated!';
+        const successSub = document.querySelector('.success-sub');
+        if (successSub) successSub.textContent = 'Your listing has been updated successfully.';
+      }
+      showStep(6);
+      updateProgress(6);
+    } else {
+      // Not logged in — save to localStorage and show signup modal
+      localStorage.setItem('ld_pending_listing', JSON.stringify(listingData));
+      document.getElementById('signup-modal').style.display = 'flex';
+    }
   } catch (err) {
+    console.error('Submit error:', err);
+    alert('Something went wrong. Please try again.');
+  } finally {
     btn.textContent = '🚀 Submit My Listing — Go Live!';
     btn.disabled = false;
-    alert('Submission failed. Please try again.');
   }
 });
 
@@ -815,13 +956,13 @@ function chooseAI(){
 }
 function chooseAgent(){
   closePathModal();
-  window.location.href='listdirect-search.html#agents';
+  window.location.href='listdirect-agents.html';
 }
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closePathModal();});
 
 </script>
 
-<p style="text-align:center;font-size:0.72rem;color:#3d5240;padding:20px 24px;border-top:1px solid #162a19;margin-top:40px">ListDirect is a technology platform, not a licensed real estate brokerage. AI-generated descriptions are for informational purposes. Always verify listing details before publishing. © 2025 ListDirect, Inc.</p>
+<p style="text-align:center;font-size:0.72rem;color:#3d5240;padding:20px 24px;border-top:1px solid #162a19;margin-top:40px">ListDirect is a technology platform, not a licensed real estate brokerage. AI-generated descriptions are for informational purposes. Always verify listing details before publishing. © 2026 ListDirect, Inc.</p>
 
 
 <!-- PATH CHOICE MODAL -->
@@ -874,6 +1015,505 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closePathMod
 
     </div>
     <p class="path-modal-note">Not sure? <a href="index.html#paths">Compare both paths in detail</a> · No commitment required · Free to start</p>
+  </div>
+</div>
+
+
+<!-- Google Places Autocomplete -->
+
+<style>
+.pac-container {
+  background:#141c16 !important;
+  border:1px solid rgba(62,240,122,0.3) !important;
+  border-radius:12px !important;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5) !important;
+  font-family:'DM Sans',sans-serif !important;
+  margin-top:4px !important;
+  overflow:hidden !important;
+  z-index:9999 !important;
+}
+.pac-item {
+  padding:12px 16px !important;
+  color:#e8f0e9 !important;
+  cursor:pointer !important;
+  border-top:1px solid #1f2d22 !important;
+  font-size:0.9rem !important;
+  line-height:1.4 !important;
+}
+.pac-item:first-child { border-top:none !important; }
+.pac-item:hover { background:rgba(62,240,122,0.08) !important; }
+.pac-item-query { color:#fff !important; font-weight:600 !important; font-size:0.9rem !important; }
+.pac-matched { color:#3ef07a !important; }
+.pac-icon { display:none !important; }
+.pac-logo { display:none !important; }
+
+/* AI Comps box */
+.ai-comps-box {
+  background:#141c16;
+  border:1px solid rgba(62,240,122,0.25);
+  border-radius:14px;
+  padding:20px 24px;
+  margin-top:16px;
+  display:none;
+}
+.ai-comps-box.show { display:block; }
+.acb-header {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:14px;
+}
+.acb-icon {
+  width:36px;height:36px;
+  background:var(--green);
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;flex-shrink:0;
+  color:#0a0f0d;
+}
+.acb-title { font-weight:700;color:#fff;font-size:0.95rem; }
+.acb-sub { font-size:0.75rem;color:#7a9480; }
+.acb-loading {
+  display:flex;align-items:center;gap:10px;
+  color:#7a9480;font-size:0.88rem;
+}
+.acb-spinner {
+  width:18px;height:18px;
+  border:2px solid #1f2d22;
+  border-top-color:#3ef07a;
+  border-radius:50%;
+  animation:spin 0.8s linear infinite;
+  flex-shrink:0;
+}
+.acb-text {
+  font-size:0.88rem;
+  color:#e8f0e9;
+  line-height:1.7;
+  white-space:pre-wrap;
+}
+.acb-disclaimer {
+  font-size:0.72rem;
+  color:#7a9480;
+  margin-top:10px;
+  padding-top:10px;
+  border-top:1px solid #1f2d22;
+}
+</style>
+<script>
+const GOOGLE_API_KEY = 'AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A';
+
+function initS2Addr() {
+  const el = document.getElementById('s2-addr');
+  if (!el || el.dataset.acDone === '1') return;
+  if (!window.google || !window.google.maps || !window.google.maps.places) {
+    setTimeout(initS2Addr, 300);
+    return;
+  }
+  el.dataset.acDone = '1';
+  const ac = new google.maps.places.Autocomplete(el, {
+    types: ['address'],
+    fields: ['address_components'],
+    componentRestrictions: { country: ['us', 'ca'] }
+  });
+  ac.addListener('place_changed', function() {
+    const place = ac.getPlace();
+    if (!place.address_components) return;
+    let num='', street='', city='', state='', zip='', country='';
+    place.address_components.forEach(function(c) {
+      if (c.types.includes('street_number')) num = c.long_name;
+      if (c.types.includes('route')) street = c.long_name;
+      if (c.types.includes('locality')) city = c.long_name;
+      if (c.types.includes('sublocality_level_1') && !city) city = c.long_name;
+      if (c.types.includes('administrative_area_level_1')) state = c.short_name;
+      if (c.types.includes('postal_code')) zip = c.long_name;
+      if (c.types.includes('country')) country = c.short_name;
+    });
+    el.value = num ? num + ' ' + street : street;
+    if (document.getElementById('s2-city')) document.getElementById('s2-city').value = city;
+    if (document.getElementById('s2-state')) document.getElementById('s2-state').value = state;
+    if (document.getElementById('s2-zip')) document.getElementById('s2-zip').value = zip;
+    if (document.getElementById('s2-country')) document.getElementById('s2-country').value = country === 'CA' ? 'Canada' : 'United States';
+    if (city && state && typeof fetchAIComps === 'function') fetchAIComps(city, state, zip, country);
+    if (typeof updatePreview === 'function') updatePreview();
+  });
+}
+
+function initAddressAutocomplete() {
+  const addrInput = document.getElementById('s2-addr');
+  if (!addrInput || addrInput.dataset.acDone) return;
+  addrInput.dataset.acDone = '1';
+
+  const autocomplete = new google.maps.places.Autocomplete(addrInput, {
+    types: ['address'],
+    fields: ['address_components', 'formatted_address', 'geometry', 'name'],
+    componentRestrictions: { country: ['us', 'ca'] }
+  });
+
+  autocomplete.addListener('place_changed', () => {
+    const place = autocomplete.getPlace();
+    if (!place.address_components) return;
+
+    // Extract address components
+    let streetNumber = '', route = '', city = '', state = '', zip = '', country = '';
+    for (const comp of place.address_components) {
+      const types = comp.types;
+      if (types.includes('street_number')) streetNumber = comp.long_name;
+      if (types.includes('route')) route = comp.long_name;
+      if (types.includes('locality')) city = comp.long_name;
+      if (types.includes('administrative_area_level_1')) state = comp.short_name;
+      if (types.includes('postal_code')) zip = comp.long_name;
+      if (types.includes('country')) country = comp.short_name;
+    }
+
+    // Auto-fill form fields
+    addrInput.value = streetNumber + (route ? ' ' + route : '');
+    if (document.getElementById('s2-city')) document.getElementById('s2-city').value = city;
+    if (document.getElementById('s2-state')) document.getElementById('s2-state').value = state;
+    if (document.getElementById('s2-zip')) document.getElementById('s2-zip').value = zip;
+
+    // Update country selector
+    const countrySelect = document.getElementById('s2-country');
+    if (countrySelect) countrySelect.value = country === 'CA' ? 'Canada' : 'United States';
+
+    // Trigger AI comps
+    if (city && state) {
+      fetchAIComps(city, state, zip, country);
+    }
+
+    // Update live preview
+    if (typeof updatePreview === 'function') updatePreview();
+  });
+}
+
+// ── AI Market Comps ───────────────────────────────────────────
+async function fetchAIComps(city, state, zip, country) {
+  const box = document.getElementById('ai-comps-box');
+  if (!box) return;
+  box.classList.add('show');
+  box.querySelector('.acb-loading').style.display = 'flex';
+  box.querySelector('.acb-text').textContent = '';
+
+  const currency = country === 'CA' ? 'CAD' : 'USD';
+  const location = city + ', ' + state + (zip ? ' ' + zip : '');
+
+  try {
+    const resp = await fetch('/api/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 600,
+        system: 'You are a real estate market analyst. Give concise, realistic market data estimates. Always specify currency (' + currency + '). Use bullet points. Be specific with price ranges.',
+        messages: [{
+          role: 'user',
+          content: 'Give me a quick market summary for ' + location + '. Include:\n• Average home sale price (last 6 months)\n• Price per square foot range\n• Average days on market\n• Market trend (hot/balanced/cooling)\n• 2-3 recent comparable sale price examples\n• Best time to list\n\nAll prices in ' + currency + '. Keep it under 150 words. Be realistic and specific.'
+        }]
+      })
+    });
+
+    const data = await resp.json();
+    const text = data.content?.filter(b => b.type === 'text').map(b => b.text).join('') || '';
+    box.querySelector('.acb-loading').style.display = 'none';
+    box.querySelector('.acb-text').textContent = text;
+  } catch(e) {
+    box.querySelector('.acb-loading').style.display = 'none';
+    box.querySelector('.acb-text').textContent = 'Could not load market data. Please try again.';
+  }
+}
+
+// ── Google Places Init ────────────────────────────────────────
+function initGooglePlaces() { initAddressAutocomplete(); }
+function _initGooglePlaces_orig() {
+  const addrEl = document.getElementById('s2-addr');
+  if (!addrEl) return;
+  const ac = new google.maps.places.Autocomplete(addrEl, {
+    componentRestrictions: { country: ['us', 'ca'] },
+    fields: ['address_components', 'formatted_address'],
+    types: ['address']
+  });
+  ac.addListener('place_changed', function() {
+    const place = ac.getPlace();
+    if (!place.address_components) return;
+    let num='', street='', city='', state='', zip='', country='';
+    place.address_components.forEach(function(c) {
+      if (c.types.includes('street_number')) num = c.long_name;
+      if (c.types.includes('route')) street = c.long_name;
+      if (c.types.includes('locality')) city = c.long_name;
+      if (c.types.includes('sublocality_level_1') && !city) city = c.long_name;
+      if (c.types.includes('administrative_area_level_1')) state = c.short_name;
+      if (c.types.includes('postal_code')) zip = c.long_name;
+      if (c.types.includes('country')) country = c.short_name;
+    });
+    addrEl.value = num ? num + ' ' + street : street;
+    const cityEl = document.getElementById('s2-city');
+    const stateEl = document.getElementById('s2-state');
+    const zipEl = document.getElementById('s2-zip');
+    if (cityEl) cityEl.value = city;
+    if (stateEl) stateEl.value = state;
+    if (zipEl) {
+      if (country === 'CA' && zip.replace(/\s/g,'').length === 6) {
+        zip = zip.replace(/\s/g,'');
+        zip = zip.slice(0,3) + ' ' + zip.slice(3);
+      }
+      zipEl.value = zip;
+    }
+    updatePreview();
+    setTimeout(runAIComps, 600);
+  });
+}
+
+// ── AI Market Comps ────────────────────────────────────────────
+async function runAIComps() {
+  const addr = (document.getElementById('s2-addr')||{}).value || '';
+  const city = (document.getElementById('s2-city')||{}).value || '';
+  const state = (document.getElementById('s2-state')||{}).value || '';
+  const beds = (document.getElementById('s2-beds')||{}).value || '3';
+  const baths = (document.getElementById('s2-baths')||{}).value || '2';
+  const sqft = ((document.getElementById('s2-sqft')||{}).value || '').replace(/[^0-9]/g,'');
+  const type = (document.getElementById('s2-type')||{}).value || 'Single Family Home';
+  if (!city && !addr) return;
+  const box = document.getElementById('ai-comps-box');
+  const output = document.getElementById('ai-comps-output');
+  const spinner = document.getElementById('ai-comps-spinner');
+  if (!box) return;
+  box.style.display = 'block';
+  spinner.style.display = 'block';
+  output.textContent = 'Analyzing market data for your area…';
+  const location = [addr, city, state].filter(Boolean).join(', ');
+  const caProvinces = ['BC','AB','ON','QC','MB','SK','NS','NB','NL','PE','NT','YT','NU'];
+  const currency = caProvinces.includes(state) ? 'CAD' : 'USD';
+  const prompt = 'You are a real estate market analyst. Provide a market analysis for: ' + location + '\n\nProperty: ' + beds + ' bed / ' + baths + ' bath' + (sqft ? ' / ' + parseInt(sqft).toLocaleString() + ' sq ft' : '') + ' / ' + type + '\nCurrency: ' + currency + '\n\nProvide:\n1. ESTIMATED PRICE RANGE — Specific ' + currency + ' range\n2. RECENT COMPARABLE SALES — 3 realistic recent sales nearby with approximate prices\n3. PRICE PER SQ FT — Area average\n4. MARKET CONDITIONS — Hot/warm/cool and brief reason\n5. LISTING ADVICE — Best time to list and strategy tip\n\nBe specific and concise. Note this is an AI estimate; recommend professional appraisal for binding decisions.';
+  try {
+    const resp = await fetch('/api/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 700, messages: [{ role: 'user', content: prompt }] })
+    });
+    const data = await resp.json();
+    const text = data.content?.filter(b => b.type === 'text').map(b => b.text).join('') || 'Could not generate analysis.';
+    spinner.style.display = 'none';
+    output.textContent = text;
+  } catch(e) {
+    spinner.style.display = 'none';
+    output.textContent = 'Could not load market data.';
+  }
+}
+
+// ── Listing Signup Modal ──────────────────────────────────────
+function showLoginInstead() {
+  document.getElementById('sm-login-form').style.display = 'block';
+  document.getElementById('sm-btn').style.display = 'none';
+}
+
+async function submitWithAccount() {
+  const name = document.getElementById('sm-name').value.trim();
+  const email = document.getElementById('sm-email').value.trim();
+  const password = document.getElementById('sm-password').value;
+  const errEl = document.getElementById('sm-error');
+  const sucEl = document.getElementById('sm-success');
+  errEl.style.display = 'none';
+  sucEl.style.display = 'none';
+
+  if (!name || !email || !password) { errEl.textContent = 'Please fill in all fields.'; errEl.style.display = 'block'; return; }
+  if (!document.getElementById('sm-agree').checked) { errEl.textContent = 'Please agree to the seller agreement to continue.'; errEl.style.display = 'block'; return; }
+  if (password.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; errEl.style.display = 'block'; return; }
+
+  document.getElementById('sm-btn').textContent = 'Creating account…';
+  document.getElementById('sm-btn').disabled = true;
+
+  try {
+    const res = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, full_name: name, role: 'seller' })
+    });
+    const data = await res.json();
+    if (!res.ok) { errEl.textContent = data.error || 'Signup failed.'; errEl.style.display = 'block'; document.getElementById('sm-btn').textContent = 'Create Account & Publish Listing →'; document.getElementById('sm-btn').disabled = false; return; }
+
+    // Post the pending listing - use session token if available, otherwise save for later
+    const pendingListing = JSON.parse(localStorage.getItem('ld_pending_listing') || '{}');
+    if (pendingListing.address && data.session?.access_token) {
+      try {
+        await fetch('/api/listings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + data.session.access_token },
+          body: JSON.stringify(pendingListing)
+        });
+        localStorage.removeItem('ld_pending_listing');
+      } catch(e) {}
+    }
+    // If no session (email confirmation required), keep pending listing in localStorage
+    // It will be posted when they sign in via signInAndPublish()
+
+    sucEl.innerHTML = '📧 Account created! Check your email at <strong>' + email + '</strong> to confirm, then sign in to see your listing in your dashboard.';
+    sucEl.style.display = 'block';
+    document.getElementById('sm-btn').style.display = 'none';
+
+    // Close modal and show success step after 3 seconds
+    setTimeout(() => {
+      document.getElementById('signup-modal').style.display = 'none';
+      const city = document.getElementById('s2-city')?.value || 'your city';
+      document.getElementById('success-city').textContent = city;
+      showStep(6);
+      updateProgress(6);
+    }, 3000);
+
+  } catch(e) {
+    errEl.textContent = 'Connection error. Please try again.'; errEl.style.display = 'block';
+    document.getElementById('sm-btn').textContent = 'Create Account & Publish Listing →';
+    document.getElementById('sm-btn').disabled = false;
+  }
+}
+
+async function signInAndPublish() {
+  const email = document.getElementById('sm-login-email').value.trim();
+  const password = document.getElementById('sm-login-password').value;
+  const errEl = document.getElementById('sm-error');
+  errEl.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/auth/signin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) { errEl.textContent = data.error || 'Sign in failed.'; errEl.style.display = 'block'; return; }
+
+    localStorage.setItem('ld_token', data.session.access_token);
+
+    // Now save the listing
+    const pendingListing = JSON.parse(localStorage.getItem('ld_pending_listing') || '{}');
+    if (Object.keys(pendingListing).length > 0) {
+      await fetch('/api/listings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + data.session.access_token },
+        body: JSON.stringify(pendingListing)
+      });
+      localStorage.removeItem('ld_pending_listing');
+    }
+
+    document.getElementById('signup-modal').style.display = 'none';
+    const city = document.getElementById('s2-city')?.value || 'your city';
+    document.getElementById('success-city').textContent = city;
+    showStep(6);
+    updateProgress(6);
+  } catch(e) {
+    errEl.textContent = 'Connection error. Please try again.'; errEl.style.display = 'block';
+  }
+}
+
+// ── Handle Edit Mode ──────────────────────────────────────────
+(async function() {
+  const params = new URLSearchParams(location.search);
+  const editId = params.get('edit');
+  if (!editId) return;
+  const token = localStorage.getItem('ld_token');
+  if (!token) return;
+  try {
+    const res = await fetch('/api/listings/mine', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const listings = await res.json();
+    const listing = listings.find(l => l.id === editId);
+    if (!listing) return;
+    
+    // Store edit ID globally so submit knows to update not create
+    editListingId = editId;
+    
+    const fillForm = function() {
+      setTimeout(() => {
+        if (document.getElementById('s2-addr')) document.getElementById('s2-addr').value = listing.address || '';
+        if (document.getElementById('s2-city')) document.getElementById('s2-city').value = listing.city || '';
+        if (document.getElementById('s2-state')) document.getElementById('s2-state').value = listing.state || '';
+        if (document.getElementById('s2-zip')) document.getElementById('s2-zip').value = listing.zip || '';
+        if (document.getElementById('s2-price')) document.getElementById('s2-price').value = listing.price ? '$' + parseInt(listing.price).toLocaleString() : '';
+        if (document.getElementById('s2-beds')) document.getElementById('s2-beds').value = listing.bedrooms || '3';
+        if (document.getElementById('s2-baths')) document.getElementById('s2-baths').value = listing.bathrooms || '2';
+        if (document.getElementById('s2-sqft')) document.getElementById('s2-sqft').value = listing.sqft ? parseInt(listing.sqft).toLocaleString() : '';
+        if (document.getElementById('s2-year')) document.getElementById('s2-year').value = listing.year_built || '';
+        if (document.getElementById('s2-type')) document.getElementById('s2-type').value = listing.property_type || '';
+        if (document.getElementById('s2-features')) document.getElementById('s2-features').value = listing.features || '';
+        if (listing.description) {
+          aiDescription = listing.description;
+          if (document.getElementById('ai-body')) document.getElementById('ai-body').textContent = listing.description;
+          if (document.getElementById('lp-desc')) document.getElementById('lp-desc').textContent = listing.description;
+        }
+        // Pre-fill existing photos
+        if (listing.photos && listing.photos.length > 0) {
+          uploadedPhotoUrls = listing.photos;
+          renderCloudinaryPreviews();
+          if (document.getElementById('photo-urls')) document.getElementById('photo-urls').value = uploadedPhotoUrls.join(',');
+        }
+        // Change submit button text
+        const btn = document.getElementById('btn-submit');
+        if (btn) btn.textContent = '💾 Save Changes';
+        // Skip to step 2
+        showStep(2);
+        updateProgress(2);
+      }, 300);
+    };
+    
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', fillForm);
+    } else {
+      fillForm();
+    }
+  } catch(e) { console.error('Edit load error:', e); }
+})();
+</script>
+
+
+<!-- ACCOUNT CREATION MODAL (shown at submission if not logged in) -->
+<div id="signup-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:600;align-items:center;justify-content:center;padding:24px">
+  <div style="background:#141c16;border:1px solid rgba(62,240,122,0.3);border-radius:24px;padding:36px;max-width:480px;width:100%;max-height:90vh;overflow-y:auto">
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="font-size:2.5rem;margin-bottom:12px">🏡</div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;color:#fff;margin-bottom:8px">Almost there!</div>
+      <div style="font-size:0.88rem;color:#7a9480;line-height:1.6">Create your free account to publish your listing. Your home details and photos are saved — they'll appear in your dashboard automatically.</div>
+    </div>
+
+    <div id="sm-error" style="background:rgba(232,84,84,0.08);border:1px solid rgba(232,84,84,0.3);border-radius:10px;padding:12px 16px;font-size:0.88rem;color:#e85454;margin-bottom:14px;display:none"></div>
+    <div id="sm-success" style="background:rgba(62,240,122,0.08);border:1px solid rgba(62,240,122,0.3);border-radius:10px;padding:12px 16px;font-size:0.88rem;color:#3ef07a;margin-bottom:14px;display:none"></div>
+
+    <div style="margin-bottom:14px">
+      <label style="display:block;font-size:0.74rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#7a9480;margin-bottom:6px">Full Name</label>
+      <input type="text" id="sm-name" placeholder="Jane Smith" style="width:100%;background:#111810;border:1px solid #1f2d22;color:#e8f0e9;padding:12px 16px;border-radius:12px;font-size:0.95rem;font-family:'DM Sans',sans-serif;outline:none"/>
+    </div>
+    <div style="margin-bottom:14px">
+      <label style="display:block;font-size:0.74rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#7a9480;margin-bottom:6px">Email</label>
+      <input type="email" id="sm-email" placeholder="jane@example.com" style="width:100%;background:#111810;border:1px solid #1f2d22;color:#e8f0e9;padding:12px 16px;border-radius:12px;font-size:0.95rem;font-family:'DM Sans',sans-serif;outline:none"/>
+    </div>
+    <div style="margin-bottom:20px">
+      <label style="display:block;font-size:0.74rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#7a9480;margin-bottom:6px">Password</label>
+      <input type="password" id="sm-password" placeholder="Create a password (min 6 characters)" style="width:100%;background:#111810;border:1px solid #1f2d22;color:#e8f0e9;padding:12px 16px;border-radius:12px;font-size:0.95rem;font-family:'DM Sans',sans-serif;outline:none"/>
+    </div>
+
+    <!-- Agreement -->
+    <div style="background:rgba(62,240,122,0.05);border:1px solid rgba(62,240,122,0.15);border-radius:12px;padding:14px 16px;margin-bottom:14px;font-size:0.8rem;color:#7a9480;line-height:1.7">
+      <strong style="color:#e8f0e9;display:block;margin-bottom:6px">📋 ListDirect Seller Agreement</strong>
+      By creating an account I agree to pay ListDirect a <strong style="color:#3ef07a">1% platform fee</strong> of the final sale price at closing if my home sells through the platform. No upfront cost. Fee is only due upon successful closing.
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:16px">
+      <input type="checkbox" id="sm-agree" style="margin-top:3px;accent-color:#3ef07a;width:16px;height:16px;flex-shrink:0"/>
+      <label for="sm-agree" style="font-size:0.85rem;color:#e8f0e9;cursor:pointer">I agree to the ListDirect Seller Agreement and the 1% platform fee at closing</label>
+    </div>
+    <button onclick="submitWithAccount()" id="sm-btn" style="width:100%;background:#3ef07a;color:#0a0f0d;padding:14px;border-radius:50px;border:none;font-weight:700;font-size:1rem;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:12px">Create Account & Publish Listing →</button>
+    
+    <div style="text-align:center;font-size:0.85rem;color:#7a9480">Already have an account? <span onclick="showLoginInstead()" style="color:#3ef07a;cursor:pointer;font-weight:600">Sign in →</span></div>
+    
+    <!-- Login form (hidden by default) -->
+    <div id="sm-login-form" style="display:none;margin-top:16px;border-top:1px solid #1f2d22;padding-top:16px">
+      <div style="margin-bottom:14px">
+        <label style="display:block;font-size:0.74rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#7a9480;margin-bottom:6px">Email</label>
+        <input type="email" id="sm-login-email" placeholder="your@email.com" style="width:100%;background:#111810;border:1px solid #1f2d22;color:#e8f0e9;padding:12px 16px;border-radius:12px;font-size:0.95rem;font-family:'DM Sans',sans-serif;outline:none"/>
+      </div>
+      <div style="margin-bottom:14px">
+        <label style="display:block;font-size:0.74rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#7a9480;margin-bottom:6px">Password</label>
+        <input type="password" id="sm-login-password" placeholder="Your password" style="width:100%;background:#111810;border:1px solid #1f2d22;color:#e8f0e9;padding:12px 16px;border-radius:12px;font-size:0.95rem;font-family:'DM Sans',sans-serif;outline:none"/>
+      </div>
+      <button onclick="signInAndPublish()" style="width:100%;background:#3ef07a;color:#0a0f0d;padding:13px;border-radius:50px;border:none;font-weight:700;font-size:0.95rem;cursor:pointer;font-family:'DM Sans',sans-serif">Sign In & Publish →</button>
+    </div>
   </div>
 </div>
 
