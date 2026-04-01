@@ -650,6 +650,7 @@ function selectTone(card) {
   document.querySelectorAll('.tone-card').forEach(c => c.classList.remove('active'));
   card.classList.add('active');
   selectedTone = card.dataset.tone;
+  generateListing();
 }
 
 // ── AI DESCRIPTION GENERATOR ──
