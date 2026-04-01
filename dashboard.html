@@ -1585,7 +1585,6 @@ async function loadInquiries() {
             <div style="font-size:0.78rem;color:var(--muted)">📧 ${m.sender_email||'—'} · ${new Date(m.created_at).toLocaleDateString()}</div>
           </div>
           <div style="display:flex;align-items:center;gap:10px">
-            <button onclick="event.stopPropagation();deleteInquiry('${m.id}')" style="background:rgba(232,84,84,0.15);border:1px solid rgba(232,84,84,0.3);color:var(--red);padding:4px 12px;border-radius:50px;font-size:0.72rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🗑 Delete</button>
             <span id="toggle-icon-${m.id}" style="color:var(--green);font-size:1.2rem">▾</span>
           </div>
         </div>
