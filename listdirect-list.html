@@ -293,9 +293,23 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
           <option value="agent">🤝 Agent Assisted — certified agent + guaranteed cashback</option>
         </select>
       </div>
+    </div>
+    <div class="step-nav">
+      <button class="btn-next" onclick="goNext(1)">Continue → Property Details</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: PROPERTY DETAILS -->
+  <div class="step-page" id="step-2">
+    <div class="step-header">
+      <div class="step-tag">Step 2 of 5</div>
+      <h1 class="step-title">Tell us about<br>your property</h1>
+      <p class="step-sub">The more detail you give, the better your AI-generated listing will be.</p>
+    </div>
+    <div class="form-grid">
       <div class="ff full" id="ff-addr">
         <label>Street Address</label>
-        <input type="text" id="s2-addr" placeholder="Start typing your address…" autocomplete="off" style="width:100%" />
+        <input type="text" id="s2-addr" placeholder="Start typing your address…" autocomplete="off" style="width:100%" onfocus="initS2Addr()" />
         <span class="field-error">Please enter your address</span>
       </div>
       <div class="ff" id="ff-city">
@@ -311,20 +325,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
         <label>ZIP / Postal Code</label>
         <input type="text" id="s2-zip" placeholder="78701 or M5V 2T6" oninput="formatZipInput(this)" maxlength="10" inputmode="text" autocomplete="postal-code"/>
       </div>
-    </div>
-    <div class="step-nav">
-      <button class="btn-next" onclick="goNext(1)">Continue → Property Details</button>
-    </div>
-  </div>
-
-  <!-- STEP 2: PROPERTY DETAILS -->
-  <div class="step-page" id="step-2">
-    <div class="step-header">
-      <div class="step-tag">Step 2 of 5</div>
-      <h1 class="step-title">Tell us about<br>your property</h1>
-      <p class="step-sub">The more detail you give, the better your AI-generated listing will be.</p>
-    </div>
-    <div class="form-grid">
       <div class="ff">
         <label>Asking Price</label>
         <input type="text" id="s2-price" placeholder="$389,000" oninput="formatPriceInput(this)" inputmode="numeric"/>
@@ -604,7 +604,16 @@ function showStep(n) {
   currentStep = n;
   // Reinitialize address autocomplete when step 2 becomes visible
   if (n === 2) {
-    // address is now on step 1, nothing needed here
+    const addrEl = document.getElementById('s2-addr');
+    if (addrEl) addrEl.dataset.acDone = '';
+    const tryInit = (attempts) => {
+      if (window.google && window.google.maps && window.google.maps.places) {
+        initAddressAutocomplete();
+      } else if (attempts > 0) {
+        setTimeout(() => tryInit(attempts - 1), 300);
+      }
+    };
+    setTimeout(() => tryInit(20), 100);
   }
 }
 
@@ -614,17 +623,18 @@ function goNext(from) {
   if (from === 1) {
     const name = document.getElementById('s1-name').value.trim();
     const email = document.getElementById('s1-email').value.trim();
-    const addr = document.getElementById('s2-addr').value.trim();
-    const city = document.getElementById('s2-city').value.trim();
     const nameFF = document.getElementById('ff-name');
     const emailFF = document.getElementById('ff-email');
     nameFF.classList.toggle('has-error', !name);
     emailFF.classList.toggle('has-error', !email || !email.includes('@'));
-    document.getElementById('ff-addr').classList.toggle('has-error', !addr);
-    document.getElementById('ff-city').classList.toggle('has-error', !city);
-    if (!name || !email || !email.includes('@') || !addr || !city) return;
+    if (!name || !email || !email.includes('@')) return;
     showStep(2);
   } else if (from === 2) {
+    const addr = document.getElementById('s2-addr').value.trim();
+    const city = document.getElementById('s2-city').value.trim();
+    document.getElementById('ff-addr').classList.toggle('has-error', !addr);
+    document.getElementById('ff-city').classList.toggle('has-error', !city);
+    if (!addr || !city) return;
     showStep(3);
     generateListing();
   } else if (from === 3) {
