@@ -1085,6 +1085,19 @@ app.patch('/api/messages/:id/read', async (req, res) => {
   }
 });
 
+app.delete('/api/messages/:id', async (req, res) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Not authenticated' });
+  try {
+    const { data: { user } } = await supabase.auth.getUser(token);
+    if (!user) return res.status(401).json({ error: 'Invalid token' });
+    await supabase.from('messages').delete().eq('id', req.params.id).eq('seller_id', user.id);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 // ── Listings: Search Public ───────────────────────────────────
 app.get('/api/listings/search', async (req, res) => {

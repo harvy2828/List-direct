@@ -1584,7 +1584,10 @@ async function loadInquiries() {
             </div>
             <div style="font-size:0.78rem;color:var(--muted)">📧 ${m.sender_email||'—'} · ${new Date(m.created_at).toLocaleDateString()}</div>
           </div>
-          <span id="toggle-icon-${m.id}" style="color:var(--green);font-size:1.2rem">▾</span>
+          <div style="display:flex;align-items:center;gap:10px">
+            <button onclick="event.stopPropagation();deleteInquiry('${m.id}')" style="background:rgba(232,84,84,0.15);border:1px solid rgba(232,84,84,0.3);color:var(--red);padding:4px 12px;border-radius:50px;font-size:0.72rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🗑 Delete</button>
+            <span id="toggle-icon-${m.id}" style="color:var(--green);font-size:1.2rem">▾</span>
+          </div>
         </div>
 
         <!-- Thread Body -->
@@ -1608,6 +1611,9 @@ async function loadInquiries() {
             <button onclick="submitInlineReply('${m.id}','${m.sender_email||''}','${(m.sender_name||'').replace(/'/g,'')}','${(m.sender_email||'')}')" style="background:var(--green);color:#0a0f0d;border:none;padding:10px 18px;border-radius:50px;font-weight:700;font-size:0.88rem;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap">Send →</button>
           </div>
           <div style="font-size:0.72rem;color:var(--muted);margin-top:6px">Press Enter to send · Shift+Enter for new line · Also available: <a href="mailto:${m.sender_email}" style="color:var(--green);text-decoration:none">📧 direct email</a></div>
+          <div style="margin-top:12px;text-align:right">
+            <button onclick="deleteInquiry('${m.id}')" style="background:none;border:1px solid rgba(232,84,84,0.3);color:var(--red);padding:6px 14px;border-radius:50px;font-size:0.75rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">🗑 Delete</button>
+          </div>
         </div>
       </div>`).join('');
 
@@ -1615,6 +1621,41 @@ async function loadInquiries() {
     msgs.forEach(m => loadThreadReplies(m.id, token));
 
   } catch(e) {}
+}
+
+async function deleteInquiry(id) {
+  if (!confirm('Delete this inquiry? This cannot be undone.')) return;
+  const token = localStorage.getItem('ld_token');
+  try {
+    const res = await fetch('/api/messages/' + id, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (res.ok) {
+      document.getElementById('thread-' + id)?.remove();
+      showToast('Inquiry deleted', 'success');
+      loadInquiries();
+    } else {
+      showToast('Failed to delete', 'error');
+    }
+  } catch(e) { showToast('Connection error', 'error'); }
+}
+
+async function deleteInquiry(id) {
+  if (!confirm('Delete this message? This cannot be undone.')) return;
+  const token = localStorage.getItem('ld_token');
+  try {
+    const res = await fetch('/api/messages/' + id, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (res.ok) {
+      document.getElementById('thread-' + id)?.remove();
+      showToast('Message deleted', 'success');
+    } else {
+      showToast('Failed to delete', 'error');
+    }
+  } catch(e) { showToast('Connection error', 'error'); }
 }
 
 function toggleThread(id) {
