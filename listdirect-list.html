@@ -1111,7 +1111,7 @@ function initS2Addr() {
   }
   el.dataset.acDone = '1';
   const ac = new google.maps.places.Autocomplete(el, {
-    types: ['address'],
+    types: ['geocode'],
     fields: ['address_components'],
     componentRestrictions: { country: ['us', 'ca'] }
   });
@@ -1157,7 +1157,7 @@ function initAddressAutocomplete() {
   addrInput.dataset.acDone = '1';
 
   const autocomplete = new google.maps.places.Autocomplete(addrInput, {
-    types: ['address'],
+    types: ['geocode'],
     fields: ['address_components', 'formatted_address', 'geometry', 'name'],
     componentRestrictions: { country: ['us', 'ca'] }
   });
@@ -1242,7 +1242,7 @@ function _initGooglePlaces_orig() {
   const ac = new google.maps.places.Autocomplete(addrEl, {
     componentRestrictions: { country: ['us', 'ca'] },
     fields: ['address_components', 'formatted_address'],
-    types: ['address']
+    types: ['geocode']
   });
   ac.addListener('place_changed', function() {
     const place = ac.getPlace();
