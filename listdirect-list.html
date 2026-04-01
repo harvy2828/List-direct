@@ -13,7 +13,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>List Your Home — ListDirect | Free to List, 1% at Closing</title>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A&libraries=places&callback=initAddressAutocomplete" async defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A&libraries=places&callback=googleMapsReady" async defer></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
 :root{--bg:#0a0f0d;--bg2:#111810;--card:#141c16;--border:#1f2d22;--green:#3ef07a;--green2:#27c45e;--greenlow:rgba(62,240,122,0.08);--text:#e8f0e9;--muted:#7a9480;--white:#fff;--gold:#f5c842;--red:#e85454;--radius:16px}
@@ -604,16 +604,7 @@ function showStep(n) {
   currentStep = n;
   // Reinitialize address autocomplete when step 2 becomes visible
   if (n === 2) {
-    const addrEl = document.getElementById('s2-addr');
-    if (addrEl) addrEl.dataset.acDone = '';
-    const tryInit = (attempts) => {
-      if (window.google && window.google.maps && window.google.maps.places) {
-        initAddressAutocomplete();
-      } else if (attempts > 0) {
-        setTimeout(() => tryInit(attempts - 1), 300);
-      }
-    };
-    setTimeout(() => tryInit(20), 100);
+    setTimeout(initS2Addr, 200);
   }
 }
 
@@ -1102,14 +1093,24 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closePathMod
 <script>
 const GOOGLE_API_KEY = 'AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A';
 
+let _s2acDone = false;
+
+function googleMapsReady() {
+  // Google Maps loaded — init if step 2 is visible
+  if (document.getElementById('step-2')?.classList.contains('active')) {
+    initS2Addr();
+  }
+}
+
 function initS2Addr() {
+  if (_s2acDone) return;
   const el = document.getElementById('s2-addr');
-  if (!el || el.dataset.acDone === '1') return;
+  if (!el) return;
   if (!window.google || !window.google.maps || !window.google.maps.places) {
     setTimeout(initS2Addr, 300);
     return;
   }
-  el.dataset.acDone = '1';
+  _s2acDone = true;
   const ac = new google.maps.places.Autocomplete(el, {
     types: ['address'],
     fields: ['address_components'],
