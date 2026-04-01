@@ -309,7 +309,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
     <div class="form-grid">
       <div class="ff full" id="ff-addr">
         <label>Street Address</label>
-        <input type="text" id="s2-addr" placeholder="Start typing your address…" autocomplete="off" style="width:100%" />
+        <input type="text" id="s2-addr" placeholder="Start typing your address…" autocomplete="off" style="width:100%" onfocus="initS2Addr()" />
         <span class="field-error">Please enter your address</span>
       </div>
       <div class="ff" id="ff-city">
@@ -1111,7 +1111,7 @@ function initS2Addr() {
   }
   el.dataset.acDone = '1';
   const ac = new google.maps.places.Autocomplete(el, {
-    types: ['geocode'],
+    types: ['address'],
     fields: ['address_components'],
     componentRestrictions: { country: ['us', 'ca'] }
   });
@@ -1140,24 +1140,11 @@ function initS2Addr() {
 
 function initAddressAutocomplete() {
   const addrInput = document.getElementById('s2-addr');
-  if (!addrInput) return;
-
-  // Attach focus reinit same as index.html pricing tool pattern
-  if (!addrInput.dataset.focusSet) {
-    addrInput.dataset.focusSet = '1';
-    addrInput.addEventListener('focus', () => {
-      addrInput.dataset.acDone = '';
-      if (window.google && window.google.maps && window.google.maps.places) {
-        initAddressAutocomplete();
-      }
-    });
-  }
-
-  if (addrInput.dataset.acDone) return;
+  if (!addrInput || addrInput.dataset.acDone) return;
   addrInput.dataset.acDone = '1';
 
   const autocomplete = new google.maps.places.Autocomplete(addrInput, {
-    types: ['geocode'],
+    types: ['address'],
     fields: ['address_components', 'formatted_address', 'geometry', 'name'],
     componentRestrictions: { country: ['us', 'ca'] }
   });
@@ -1242,7 +1229,7 @@ function _initGooglePlaces_orig() {
   const ac = new google.maps.places.Autocomplete(addrEl, {
     componentRestrictions: { country: ['us', 'ca'] },
     fields: ['address_components', 'formatted_address'],
-    types: ['geocode']
+    types: ['address']
   });
   ac.addListener('place_changed', function() {
     const place = ac.getPlace();
