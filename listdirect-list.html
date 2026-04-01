@@ -13,7 +13,6 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>List Your Home — ListDirect | Free to List, 1% at Closing</title>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A&libraries=places&callback=initAddressAutocomplete" async defer></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
 :root{--bg:#0a0f0d;--bg2:#111810;--card:#141c16;--border:#1f2d22;--green:#3ef07a;--green2:#27c45e;--greenlow:rgba(62,240,122,0.08);--text:#e8f0e9;--muted:#7a9480;--white:#fff;--gold:#f5c842;--red:#e85454;--radius:16px}
@@ -219,7 +218,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 @media(max-width:900px){.desktop-nav-right{display:none!important}}
 </style>
 
-
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A&libraries=places&callback=initGooglePlaces" async defer></script>
   <meta name="description" content="List your home for sale in minutes. AI writes your description, prices your home, and reviews every offer. Free to list — pay only 1% when your home sells. Available across Canada and the USA."/>
   <meta name="keywords" content="list home for sale Canada, sell home online, for sale by owner Canada, AI listing description, home listing platform"/>
   <meta property="og:title" content="List Your Home — ListDirect | Free to List, 1% at Closing"/>
@@ -309,7 +308,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
     <div class="form-grid">
       <div class="ff full" id="ff-addr">
         <label>Street Address</label>
-        <input type="text" id="s2-addr" placeholder="Start typing your address…" autocomplete="off" style="width:100%" onfocus="initS2Addr()" />
+        <input type="text" id="s2-addr" placeholder="Start typing your address…" autocomplete="off" style="width:100%"/>
         <span class="field-error">Please enter your address</span>
       </div>
       <div class="ff" id="ff-city">
@@ -602,19 +601,6 @@ function showStep(n) {
   updateProgress(n);
   window.scrollTo({ top: 0, behavior: 'smooth' });
   currentStep = n;
-  // Reinitialize address autocomplete when step 2 becomes visible
-  if (n === 2) {
-    const addrEl = document.getElementById('s2-addr');
-    if (addrEl) addrEl.dataset.acDone = '';
-    const tryInit = (attempts) => {
-      if (window.google && window.google.maps && window.google.maps.places) {
-        initAddressAutocomplete();
-      } else if (attempts > 0) {
-        setTimeout(() => tryInit(attempts - 1), 300);
-      }
-    };
-    setTimeout(() => tryInit(20), 100);
-  }
 }
 
 function goBack(from) { showStep(from - 1); }
@@ -650,7 +636,6 @@ function selectTone(card) {
   document.querySelectorAll('.tone-card').forEach(c => c.classList.remove('active'));
   card.classList.add('active');
   selectedTone = card.dataset.tone;
-  generateListing();
 }
 
 // ── AI DESCRIPTION GENERATOR ──
@@ -728,13 +713,6 @@ let uploadedPhotoUrls = [];
 let editListingId = null; // set when editing existing listing
 
 function openCloudinaryUpload() {
-  const token = localStorage.getItem('ld_token');
-  if (!token) {
-    // Not logged in — show message, photos added after account creation
-    const zone = document.getElementById('photo-zone');
-    if (zone) zone.innerHTML = '<div class="pz-icon">📸</div><div class="pz-title">Photos added after account creation</div><div class="pz-sub">You can upload up to 20 photos once your account is confirmed</div>';
-    return;
-  }
   const input = document.createElement('input');
   input.type = 'file';
   input.multiple = true;
@@ -742,23 +720,46 @@ function openCloudinaryUpload() {
   input.onchange = async function() {
     const files = Array.from(this.files).slice(0, 20);
     if (!files.length) return;
+    
+    // Show uploading indicator
     const zone = document.getElementById('photo-zone-title');
-    if (zone) zone.textContent = 'Uploading photos…';
+    if (zone) zone.textContent = 'Loading photos…';
+
+    const token = localStorage.getItem('ld_token');
+
     for (const file of files) {
       try {
-        const formData = new FormData();
-        formData.append('photo', file);
-        const res = await fetch('/api/photos/upload', {
-          method: 'POST',
-          headers: { 'Authorization': 'Bearer ' + token },
-          body: formData
-        });
-        const data = await res.json();
-        if (data.url) uploadedPhotoUrls.push(data.url);
+        if (token) {
+          // Logged in — upload directly to server
+          const formData = new FormData();
+          formData.append('photo', file);
+          const res = await fetch('/api/photos/upload', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + token },
+            body: formData
+          });
+          const data = await res.json();
+          if (data.url) {
+            uploadedPhotoUrls.push(data.url);
+          }
+        } else {
+          // Not logged in — store as base64 locally
+          const reader = new FileReader();
+          await new Promise((resolve) => {
+            reader.onload = (e) => {
+              uploadedPhotoUrls.push(e.target.result);
+              resolve();
+            };
+            reader.readAsDataURL(file);
+          });
+        }
         renderCloudinaryPreviews();
         document.getElementById('photo-urls').value = uploadedPhotoUrls.join(',');
-      } catch(e) { console.error('Photo error:', e); }
+      } catch(e) {
+        console.error('Photo error:', e);
+      }
     }
+
     if (zone) zone.textContent = uploadedPhotoUrls.length + ' photo' + (uploadedPhotoUrls.length !== 1 ? 's' : '') + ' uploaded ✓ — tap to add more';
   };
   input.click();
@@ -916,7 +917,10 @@ document.getElementById('listing-form').addEventListener('submit', async functio
     }
   } catch (err) {
     console.error('Submit error:', err);
-    alert('Something went wrong. Please try again.');
+    const city = document.getElementById('s2-city').value;
+    document.getElementById('success-city').textContent = city || 'your city';
+    showStep(6);
+    updateProgress(6);
   } finally {
     btn.textContent = '🚀 Submit My Listing — Go Live!';
     btn.disabled = false;
@@ -1020,7 +1024,7 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closePathMod
 
 
 <!-- Google Places Autocomplete -->
-
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A&libraries=places&callback=initAddressAutocomplete" async defer></script>
 <style>
 .pac-container {
   background:#141c16 !important;
@@ -1102,46 +1106,9 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closePathMod
 <script>
 const GOOGLE_API_KEY = 'AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A';
 
-function initS2Addr() {
-  const el = document.getElementById('s2-addr');
-  if (!el || el.dataset.acDone === '1') return;
-  if (!window.google || !window.google.maps || !window.google.maps.places) {
-    setTimeout(initS2Addr, 300);
-    return;
-  }
-  el.dataset.acDone = '1';
-  const ac = new google.maps.places.Autocomplete(el, {
-    types: ['address'],
-    fields: ['address_components'],
-    componentRestrictions: { country: ['us', 'ca'] }
-  });
-  ac.addListener('place_changed', function() {
-    const place = ac.getPlace();
-    if (!place.address_components) return;
-    let num='', street='', city='', state='', zip='', country='';
-    place.address_components.forEach(function(c) {
-      if (c.types.includes('street_number')) num = c.long_name;
-      if (c.types.includes('route')) street = c.long_name;
-      if (c.types.includes('locality')) city = c.long_name;
-      if (c.types.includes('sublocality_level_1') && !city) city = c.long_name;
-      if (c.types.includes('administrative_area_level_1')) state = c.short_name;
-      if (c.types.includes('postal_code')) zip = c.long_name;
-      if (c.types.includes('country')) country = c.short_name;
-    });
-    el.value = num ? num + ' ' + street : street;
-    if (document.getElementById('s2-city')) document.getElementById('s2-city').value = city;
-    if (document.getElementById('s2-state')) document.getElementById('s2-state').value = state;
-    if (document.getElementById('s2-zip')) document.getElementById('s2-zip').value = zip;
-    if (document.getElementById('s2-country')) document.getElementById('s2-country').value = country === 'CA' ? 'Canada' : 'United States';
-    if (city && state && typeof fetchAIComps === 'function') fetchAIComps(city, state, zip, country);
-    if (typeof updatePreview === 'function') updatePreview();
-  });
-}
-
 function initAddressAutocomplete() {
   const addrInput = document.getElementById('s2-addr');
-  if (!addrInput || addrInput.dataset.acDone) return;
-  addrInput.dataset.acDone = '1';
+  if (!addrInput) return;
 
   const autocomplete = new google.maps.places.Autocomplete(addrInput, {
     types: ['address'],
@@ -1222,8 +1189,7 @@ async function fetchAIComps(city, state, zip, country) {
 }
 
 // ── Google Places Init ────────────────────────────────────────
-function initGooglePlaces() { initAddressAutocomplete(); }
-function _initGooglePlaces_orig() {
+function initGooglePlaces() {
   const addrEl = document.getElementById('s2-addr');
   if (!addrEl) return;
   const ac = new google.maps.places.Autocomplete(addrEl, {
@@ -1330,20 +1296,9 @@ async function submitWithAccount() {
     const data = await res.json();
     if (!res.ok) { errEl.textContent = data.error || 'Signup failed.'; errEl.style.display = 'block'; document.getElementById('sm-btn').textContent = 'Create Account & Publish Listing →'; document.getElementById('sm-btn').disabled = false; return; }
 
-    // Post the pending listing - use session token if available, otherwise save for later
+    // Save listing to pending in localStorage
     const pendingListing = JSON.parse(localStorage.getItem('ld_pending_listing') || '{}');
-    if (pendingListing.address && data.session?.access_token) {
-      try {
-        await fetch('/api/listings', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + data.session.access_token },
-          body: JSON.stringify(pendingListing)
-        });
-        localStorage.removeItem('ld_pending_listing');
-      } catch(e) {}
-    }
-    // If no session (email confirmation required), keep pending listing in localStorage
-    // It will be posted when they sign in via signInAndPublish()
+    localStorage.setItem('ld_pending_listing', JSON.stringify(pendingListing));
 
     sucEl.innerHTML = '📧 Account created! Check your email at <strong>' + email + '</strong> to confirm, then sign in to see your listing in your dashboard.';
     sucEl.style.display = 'block';
