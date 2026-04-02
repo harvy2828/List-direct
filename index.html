@@ -2069,7 +2069,7 @@ function renderListings(list) {
       </div>
       <div class="listing-body">
         <div class="listing-price">$${l.price.toLocaleString()}<span style="font-size:0.6rem;font-weight:500;color:var(--muted);margin-left:4px">${l.currency||'USD'}</span></div>
-        <div class="listing-addr">📍 ${l.addr}, ${l.city}</div>
+        <div class="listing-addr">📍 ${l.addr}, ${l.city}${l.state ? ", " + l.state : ""}</div>
         <div class="listing-specs">
           <div class="listing-spec"><strong>${l.beds}</strong> beds</div>
           <div class="listing-spec"><strong>${l.baths}</strong> baths</div>
@@ -2423,7 +2423,7 @@ function openListingModal(l) {
       <div class="lm-price" style="margin:0">$${l.price.toLocaleString()}</div>
       <div style="background:var(--green);color:var(--bg);font-size:0.7rem;font-weight:800;padding:4px 12px;border-radius:50px">👑 ListDirect Verified</div>
     </div>
-    <div class="lm-addr">📍 ${l.addr}, ${l.city} ${l.zip}</div>
+    <div class="lm-addr">📍 ${l.addr}, ${l.city}${l.state ? ", " + l.state : ""} ${l.zip}</div>
     <div class="lm-specs-row">
       <div class="lm-spec">🛏 <strong>${l.beds}</strong> Beds</div>
       <div class="lm-spec">🚿 <strong>${l.baths}</strong> Baths</div>
@@ -2437,7 +2437,7 @@ function openListingModal(l) {
       : `<div style="background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.88rem;color:var(--green);font-weight:600">🚀 Direct Listing — 1% platform fee, no agent commission</div>`}
     ${(()=>{
       const price = l.price || 0;
-      const isCA = l.currency === 'CAD' || ['BC','AB','ON','QC','MB','SK','NS','NB','NL','PE','NT','YT','NU'].includes(l.state);
+      const isCA = l.currency === 'CAD' || l.country === 'CA' || l.country === 'Canada' || ['BC','AB','ON','QC','MB','SK','NS','NB','NL','PE','NT','YT','NU'].includes(l.state) || (l.zip && /^[A-Z][0-9][A-Z]/i.test(l.zip.trim()));
       const ldFee = Math.round(price * 0.01);
       let tradFee, tradLabel;
       if (isCA) {
@@ -2603,7 +2603,7 @@ function openLeadModal(l) {
     <div class="lead-home-img" style="background-image:url('${l.img}')"></div>
     <div class="lead-home-info">
       <div class="lhi-price">$${l.price.toLocaleString()}</div>
-      <div class="lhi-addr">📍 ${l.addr}, ${l.city}</div>
+      <div class="lhi-addr">📍 ${l.addr}, ${l.city}${l.state ? ", " + l.state : ""}</div>
       <div class="lhi-specs">${l.beds} bed · ${l.baths} bath · ${l.sqft.toLocaleString()} sq ft</div>
       <button onclick="toggleLeadStreetView('${svAddr}','${l.lat||''}','${l.lng||''}')" id="lead-sv-btn" style="margin-top:8px;padding:4px 12px;border-radius:50px;border:1px solid var(--green);background:none;color:var(--green);font-size:0.75rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🌍 Street View</button>
     </div>`;
