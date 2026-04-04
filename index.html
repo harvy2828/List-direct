@@ -970,7 +970,8 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
           <div class="atf-field"><label>Street Address</label><input type="text" id="p-addr" placeholder="e.g. 123 Oak Street" autocomplete="off"/></div>
           <div class="atf-field"><label>Bedrooms</label><select id="p-beds"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6+</option></select></div>
           <div class="atf-field"><label>Bathrooms</label><select id="p-baths"><option>1</option><option selected>2</option><option>2.5</option><option>3</option><option>4</option><option>5+</option></select></div>
-          <div class="atf-field"><label>Square Footage</label><input type="text" id="p-sqft" placeholder="e.g. 1,850" oninput="formatSqftInput(this)" inputmode="numeric"/></div>
+          <div class="atf-field"><label>Home Size (sq ft)</label><input type="text" id="p-sqft" placeholder="e.g. 1,850" oninput="formatSqftInput(this)" inputmode="numeric"/></div>
+          <div class="atf-field"><label>Lot Size</label><input type="text" id="p-lotsize" placeholder="e.g. 5,000 sq ft or 0.25 acres"/></div>
           <div class="atf-field"><label>Year Built</label><input type="number" id="p-year" placeholder="e.g. 2005"/></div>
           <div class="atf-field"><label>Property Type</label><select id="p-type"><option>Single Family Home</option><option>Condo</option><option>Townhome</option><option>Semi-Detached</option><option>Detached</option><option>Multi-Family</option></select></div>
           <div class="atf-field"><label>Condition</label><select id="p-cond"><option>Needs Work</option><option>Fair</option><option selected>Good</option><option>Updated</option><option>Like New</option></select></div>
@@ -3162,6 +3163,7 @@ async function runPricingTool() {
   const beds = document.getElementById('p-beds').value;
   const baths = document.getElementById('p-baths').value;
   const sqft = document.getElementById('p-sqft').value || 'Not provided';
+  const lotsize = document.getElementById('p-lotsize').value || 'Not provided';
   const year = document.getElementById('p-year').value || 'Not provided';
   const type = document.getElementById('p-type').value;
   const cond = document.getElementById('p-cond').value;
@@ -3177,7 +3179,8 @@ Address: ${addr}
 City/State or Province: ${city}
 Property Type: ${type}
 Bedrooms: ${beds} | Bathrooms: ${baths}
-Square Footage: ${sqft} sq ft
+Home Size: ${sqft} sq ft
+Lot Size: ${lotsize}
 Year Built: ${year}
 Condition: ${cond}
 Notable Features: ${features}
