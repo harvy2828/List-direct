@@ -1030,7 +1030,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
           <div class="atf-field"><label>Down Payment</label><input type="text" id="o-down" placeholder="e.g. 20% / $75,000"/></div>
           <div class="atf-field"><label>Financing Type</label><select id="o-finance"><option>Conventional</option><option>FHA</option><option>VA</option><option>Cash</option><option>USDA</option></select></div>
           <div class="atf-field"><label>Closing Date Requested</label><input type="text" id="o-close" placeholder="e.g. 30 days / specific date"/></div>
-          <div class="atf-field"><label>Earnest Money</label><input type="text" id="o-earnest" placeholder="e.g. $5,000" oninput="formatPriceInput(this)" inputmode="numeric"/></div>
+          <div class="atf-field"><label>Deposit</label><input type="text" id="o-earnest" placeholder="e.g. $5,000" oninput="formatPriceInput(this)" inputmode="numeric"/></div>
           <div class="atf-field full"><label>Contingencies & Special Terms</label><textarea id="o-terms" rows="3" placeholder="e.g. Home inspection contingency, appraisal contingency, seller to leave appliances, $3k in closing costs, sale of buyer's current home…"></textarea></div>
         </div>
         <button class="ai-run-btn" id="offer-btn" onclick="runOfferTool()">
@@ -3251,7 +3251,7 @@ Offer Price: ${offer}
 Down Payment: ${down}
 Financing: ${finance}
 Requested Closing Date: ${close}
-Earnest Money: ${earnest}
+Deposit: ${earnest}
 Contingencies & Terms: ${terms}
 
 Provide:
