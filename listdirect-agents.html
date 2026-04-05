@@ -302,6 +302,31 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 <script>
 const AGENTS = [];
 
+// Load approved agents from API
+fetch('/api/agents')
+  .then(r => r.json())
+  .then(data => {
+    const agents = data.agents || [];
+    agents.forEach(a => {
+      AGENTS.push({
+        name: a.full_name || a.name || 'Agent',
+        loc: a.location || '—',
+        specialty: a.specialty || 'Real Estate',
+        rating: a.rating || '5.0',
+        reviews: a.reviews || '0',
+        cashback: (a.cashback_offer || '1') + '%',
+        photo: a.avatar_url || a.photo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(a.full_name || 'Agent') + '&background=131A16&color=3ef07a&size=128',
+        bio: a.bio || '',
+        phone: a.phone || '',
+        email: a.email || '',
+        license: a.license_number || '',
+        years: a.years_experience || ''
+      });
+    });
+    renderAgents();
+  })
+  .catch(() => renderAgents());
+
 let selectedAgent = null;
 
 function renderAgents() {
@@ -445,7 +470,7 @@ if (urlAgent !== null) {
   }
 }
 
-renderAgents();
+// renderAgents called after agents load from API
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A&libraries=places&callback=initAgentsPlaces" async defer></script>
 <style>

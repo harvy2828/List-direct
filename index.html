@@ -1543,6 +1543,30 @@ function formatSqftInput(el) {
 
 const AGENTS = [];
 
+// Load approved agents from API
+fetch('/api/agents')
+  .then(r => r.json())
+  .then(data => {
+    const agents = data.agents || [];
+    agents.forEach(a => {
+      AGENTS.push({
+        name: a.full_name || a.name || 'Agent',
+        loc: a.location || '—',
+        specialty: a.specialty || 'Real Estate',
+        rating: a.rating || '5.0',
+        reviews: a.reviews || '0',
+        cashback: (a.cashback_offer || '1') + '%',
+        photo: a.avatar_url || a.photo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(a.full_name || 'Agent') + '&background=131A16&color=3ef07a&size=128',
+        bio: a.bio || '',
+        phone: a.phone || '',
+        email: a.email || '',
+        license: a.license_number || ''
+      });
+    });
+    renderAgents();
+  })
+  .catch(() => renderAgents());
+
 const FAQS = [
   {q:"How does the 1% platform fee work?",a:"Our platform fee is 1% of your final sale price, collected at closing — there is no upfront cost to list. The only other costs are your closing attorney or notary (typically $1,000–$2,000). No hidden fees, ever."},
   {q:"Is ListDirect available in Canada?",a:"Yes! ListDirect serves both Canada and the United States. We support CAD and USD pricing, and our savings calculator uses the correct commission formula for each country — including the BC rate for Canadian sellers."},
@@ -3486,7 +3510,7 @@ document.querySelectorAll('.stat-item,.step,.path-card,.ai-card,.testi-card,.cas
 // ═══════════════════════════════════════════
 currentResults = [...LD_VERIFIED];
 renderListings(LD_VERIFIED);
-renderAgents();
+// renderAgents called after agents load from API
 renderFAQ();
 updateCalc();
 updateMortgage();
