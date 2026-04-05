@@ -3168,10 +3168,26 @@ async function runPricingTool() {
   const type = document.getElementById('p-type').value;
   const cond = document.getElementById('p-cond').value;
   const features = document.getElementById('p-features').value || 'None specified';
-
-  const system = `You are ListDirect's expert AI home pricing analyst covering both the United States and Canada. You provide realistic, data-informed home price estimates based on the details given. Always give a specific price range in the correct currency (USD for US cities, CAD for Canadian cities — always note which currency). Explain your reasoning with local market factors, seasonal considerations, and comparable home analysis. Be concise but thorough. Format your response with clear sections using plain text. Use dollar amounts and be direct. For Canadian cities, reference current CAD market conditions and note the USD equivalent approximately.`;
-
   const country = document.getElementById('p-country').value;
+
+  // Fetch real market data first
+  let marketDataText = '';
+  try {
+    const cityState = city !== 'Not provided' ? city : '';
+    const stateOnly = cityState.includes(',') ? cityState.split(',')[1].trim() : '';
+    const params = new URLSearchParams({ address: addr, city: cityState, state: stateOnly, country, beds, sqft: sqft.replace(/[^0-9]/g,'') });
+    const mdRes = await fetch('/api/pricing-data?' + params.toString());
+    const md = await mdRes.json();
+    if (md.source === 'rentcast' && md.estimatedValue) {
+      const fmt = n => '$' + parseInt(n).toLocaleString();
+      marketDataText = `\n\nREAL MARKET DATA (Rentcast AVM):\nEstimated Value: ${fmt(md.estimatedValue)}\nPrice Range: ${fmt(md.priceRangeLow)} – ${fmt(md.priceRangeHigh)}\nComparables:\n${(md.comparables||[]).map(c => `- ${c.address}: ${fmt(c.price)} | ${c.beds} bed | ${c.sqft} sqft | ${c.distance?.toFixed(1)} mi away`).join('\n')}`;
+    } else if (md.source === 'repliers' && md.avgPrice) {
+      const fmt = n => '$' + parseInt(n).toLocaleString() + ' CAD';
+      marketDataText = `\n\nREAL MARKET DATA (Active MLS Listings in ${cityState}):\nAverage Active List Price: ${fmt(md.avgPrice)}\nRange: ${fmt(md.minPrice)} – ${fmt(md.maxPrice)}\nBased on ${md.count} active comparable listings\nSample listings:\n${(md.listings||[]).map(l => `- ${l.address}: ${fmt(l.price)} | ${l.beds} bed`).join('\n')}`;
+    }
+  } catch(e) {}
+
+  const system = `You are ListDirect's expert AI home pricing analyst covering both the United States and Canada. You provide realistic, data-informed home price estimates based on the details given. Always give a specific price range in the correct currency (USD for US cities, CAD for Canadian cities — always note which currency). Explain your reasoning with local market factors, seasonal considerations, and comparable home analysis. Be concise but thorough. Format your response with clear sections using plain text. Use dollar amounts and be direct. For Canadian cities, reference current CAD market conditions and note the USD equivalent approximately. When real market data is provided, use it as your primary reference and explain how the subject property compares.`;
   const prompt = `Please analyze this home and provide a pricing recommendation:
 
 Country/Market: ${country}
@@ -3183,7 +3199,7 @@ Home Size: ${sqft} sq ft
 Lot Size: ${lotsize}
 Year Built: ${year}
 Condition: ${cond}
-Notable Features: ${features}
+Notable Features: ${features}${marketDataText}
 
 Provide:
 1. Recommended listing price range (in correct local currency — USD or CAD)

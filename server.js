@@ -1267,5 +1267,42 @@ app.get('/api/listings/us', async (req, res) => {
   }
 });
 
+// ── Pricing Data: US (Rentcast AVM) + Canada (Repliers active) ──
+app.get('/api/pricing-data', async (req, res) => {
+  const { address, city, state, country, beds, sqft } = req.query;
+  try {
+    if (country === 'Canada' || country === 'CA') {
+      // Canada — pull active listings from Repliers for comparable range
+      const params = new URLSearchParams({ limit: '10', sortBy: 'updatedOnDesc' });
+      if (city) params.append('city', city);
+      if (beds) params.append('minBeds', String(parseInt(beds) - 1));
+      if (beds) params.append('maxBeds', String(parseInt(beds) + 1));
+      const response = await fetch(`https://api.repliers.io/listings?${params.toString()}`, {
+        headers: { 'repliers-api-key': process.env.REPLIERS_API_KEY, 'Content-Type': 'application/json' }
+      });
+      if (!response.ok) return res.json({ comps: null });
+      const data = await response.json();
+      const listings = (data.listings || []).slice(0, 8);
+      const prices = listings.map(l => parseInt(l.listPrice)).filter(p => p > 0);
+      const avgPrice = prices.length ? Math.round(prices.reduce((a,b) => a+b, 0) / prices.length) : null;
+      const minPrice = prices.length ? Math.min(...prices) : null;
+      const maxPrice = prices.length ? Math.max(...prices) : null;
+      res.json({ source: 'repliers', type: 'active', avgPrice, minPrice, maxPrice, count: prices.length, listings: listings.slice(0,5).map(l => ({ address: l.address?.streetNumber + ' ' + l.address?.streetName, price: l.listPrice, beds: l.details?.numBedrooms, sqft: l.details?.sqft })) });
+    } else {
+      // US — use Rentcast AVM for estimated value
+      if (!address) return res.json({ comps: null });
+      const params = new URLSearchParams({ address: address + (city ? ', ' + city : '') + (state ? ', ' + state : ''), bedrooms: beds || '', squareFootage: sqft || '' });
+      const response = await fetch(`https://api.rentcast.io/v1/avm/value?${params.toString()}`, {
+        headers: { 'X-Api-Key': process.env.RENTCAST_API_KEY, 'accept': 'application/json' }
+      });
+      if (!response.ok) return res.json({ comps: null });
+      const data = await response.json();
+      res.json({ source: 'rentcast', type: 'avm', estimatedValue: data.price, priceRangeLow: data.priceLow, priceRangeHigh: data.priceHigh, comparables: (data.comparables || []).slice(0, 5).map(c => ({ address: c.formattedAddress, price: c.price, beds: c.bedrooms, sqft: c.squareFootage, distance: c.distance })) });
+    }
+  } catch (err) {
+    res.json({ comps: null, error: err.message });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`ListDirect running on port ${PORT}`));
