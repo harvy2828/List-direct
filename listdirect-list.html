@@ -359,6 +359,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
         <input type="text" id="s2-sqft" placeholder="1,850" oninput="formatSqftInput(this)" inputmode="numeric"/>
       </div>
       <div class="ff">
+        <label>Lot Size</label>
+        <input type="text" id="s2-lotsize" placeholder="e.g. 5,000 sq ft or 0.25 acres"/>
+      </div>
+      <div class="ff">
         <label>Year Built</label>
         <input type="number" id="s2-year" placeholder="2005"/>
       </div>
@@ -663,6 +667,7 @@ async function generateListing() {
   const beds = document.getElementById('s2-beds').value;
   const baths = document.getElementById('s2-baths').value;
   const sqft = document.getElementById('s2-sqft').value.replace(/[^0-9]/g,'') || 'Not specified';
+  const lotsize = document.getElementById('s2-lotsize')?.value || 'Not specified';
   const year = document.getElementById('s2-year').value || 'Not specified';
   const features = document.getElementById('s2-features').value || 'Not specified';
   const condition = document.getElementById('s2-condition').value;
@@ -675,7 +680,7 @@ async function generateListing() {
     ? 'You are a professional real estate copywriter for Canada. Write compelling 150-200 word MLS listing descriptions using Canadian terminology: detached home, crescent, double car garage, ensuite, finished basement, backyard. No bullet points. Flowing prose.'
     : 'You are a professional real estate copywriter for the United States. Write compelling 150-200 word MLS listing descriptions. No bullet points. Flowing prose.';
 
-  const prompt = 'Write a ' + selectedTone + ' MLS listing description for:\n\nProperty: ' + addr + ', ' + city + '\nType: ' + type + ' | Price: ' + price + '\nBeds: ' + beds + ' | Baths: ' + baths + ' | Sqft: ' + sqft + ' | Year: ' + year + '\nCondition: ' + condition + '\nFeatures: ' + features + '\n\nStart with a strong hook. End with a clear call to action. No bullet points. 150-200 words.';
+  const prompt = 'Write a ' + selectedTone + ' MLS listing description for:\n\nProperty: ' + addr + ', ' + city + '\nType: ' + type + ' | Price: ' + price + '\nBeds: ' + beds + ' | Baths: ' + baths + ' | Sqft: ' + sqft + ' | Lot: ' + lotsize + ' | Year: ' + year + '\nCondition: ' + condition + '\nFeatures: ' + features + '\n\nStart with a strong hook. End with a clear call to action. No bullet points. 150-200 words.';
 
   try {
     const r = await fetch('/api/claude', {
