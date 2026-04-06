@@ -477,7 +477,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
                 <select id="nl-baths"><option>1</option><option selected>2</option><option>2.5</option><option>3</option><option>4</option><option>5+</option></select>
               </div>
               <div class="ff"><label>Square Footage</label><input type="text" id="nl-sqft" placeholder="1,850" oninput="formatSqftInput(this)" inputmode="numeric"/></div>
-              <div class="ff"><label>Lot Size</label><input type="text" id="nl-lotsize" placeholder="e.g. 5,000 sq ft or 0.25 acres"/></div>
+              <div class="ff"><label>Lot Size</label><input type="text" id="nl-lotsize" placeholder="e.g. 5,000 sq ft or 0.25 acres" oninput="formatSqftInput(this)" inputmode="numeric"/></div>
               <div class="ff"><label>Year Built</label><input type="number" id="nl-year" placeholder="2005"/></div>
               <div class="ff full"><label>Key Features</label><input type="text" id="nl-features" placeholder="Pool, renovated kitchen, new roof, 2-car garage…"/></div>
               <div class="ff full"><label>Description</label><textarea id="nl-desc" rows="4" style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:13px 16px;border-radius:12px;font-size:0.92rem;font-family:'DM Sans',sans-serif;outline:none;resize:vertical" placeholder="Tell buyers about your home…"></textarea></div>

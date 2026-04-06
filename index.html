@@ -1029,7 +1029,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
         <div class="ai-tool-form">
           <div class="atf-field"><label>Your Listing Price</label><input type="text" id="o-list" placeholder="e.g. $389,000" oninput="formatPriceInput(this)" inputmode="numeric"/></div>
           <div class="atf-field"><label>Offer Price</label><input type="text" id="o-offer" placeholder="e.g. $375,000" oninput="formatPriceInput(this)" inputmode="numeric"/></div>
-          <div class="atf-field"><label>Down Payment</label><input type="text" id="o-down" placeholder="e.g. 20% / $75,000"/></div>
+          <div class="atf-field"><label>Down Payment</label><input type="text" id="o-down" placeholder="e.g. $75,000" oninput="formatPriceInput(this)" inputmode="numeric"/></div>
           <div class="atf-field"><label>Financing Type</label><select id="o-finance"><option>Conventional</option><option>FHA</option><option>VA</option><option>Cash</option><option>USDA</option></select></div>
           <div class="atf-field"><label>Closing Date Requested</label><input type="text" id="o-close" placeholder="e.g. 30 days / specific date"/></div>
           <div class="atf-field"><label>Deposit</label><input type="text" id="o-earnest" placeholder="e.g. $5,000" oninput="formatPriceInput(this)" inputmode="numeric"/></div>
@@ -3408,7 +3408,21 @@ async function runOfferTool() {
   const earnest = document.getElementById('o-earnest').value || 'Not specified';
   const terms = document.getElementById('o-terms').value || 'None listed';
 
-  const system = `You are an educational real estate information tool. You help sellers understand the terms and components of a purchase offer for informational purposes only — this is NOT legal or real estate advice. Always remind users to consult a licensed real estate attorney or agent before making decisions. Summarize the offer terms, explain what each component means, highlight any unusual clauses, and note general market context. Do not recommend accepting, rejecting, or specific counter terms. Use plain text with clear labeled sections.`;
+  const system = `You are a real estate offer review tool. Help sellers understand their offer in plain simple English. This is for informational purposes only — not legal advice. Always remind them to consult a licensed professional before deciding.
+
+Write in short clean sections. No markdown, no tables, no bullet dashes, no boxes. Write like you are talking to someone.
+
+Use these sections in order:
+OFFER SUMMARY — 2-3 sentences summarizing the key terms
+OFFER PRICE — explain if the price seems strong, fair, or low based on what they listed
+DOWN PAYMENT — explain what the down payment means for the deal
+DEPOSIT — explain what the deposit means and when it is at risk
+CLOSING DATE — explain the timeline and if it seems reasonable
+CONDITIONS — explain each condition in plain English and what it means for the seller
+THINGS TO WATCH — highlight anything unusual or that needs attention
+NEXT STEPS — 2-3 practical things the seller should do now
+
+Keep it short. No legal jargon. Write like a knowledgeable friend explaining the offer over coffee. End with: This is general information only — always consult a licensed real estate professional before making any decisions.`;
 
   const prompt = `Analyze this purchase offer from the seller's perspective:
 
