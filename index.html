@@ -3155,8 +3155,8 @@ async function runMortgageQualifier() {
   const isCA = mqCountry === 'ca';
 
   const system = isCA
-    ? 'You are a Canadian mortgage qualification expert. Use CMHC guidelines, GDS/TDS ratios, and the Canadian stress test (qualifying rate = contract rate + 2% or 5.25% whichever is higher). Consider CMHC insurance requirements for down payments under 20%. Be specific with numbers. Format clearly with sections. End with a plain verdict: Likely Approved, Borderline, or Unlikely to Qualify — and explain why.'
-    : 'You are a US mortgage qualification expert. Use conventional lending guidelines including DTI ratios (front-end max 28%, back-end max 43% for conventional, up to 50% for FHA). Consider FHA vs conventional thresholds. Be specific with numbers. Format clearly with sections. End with a plain verdict: Likely Approved, Borderline, or Unlikely to Qualify — and explain why.';
+    ? 'You are a Canadian mortgage qualification expert. Use CMHC guidelines, GDS/TDS ratios, and the Canadian stress test. Be specific with numbers. IMPORTANT: Always end your response with a clearly separated APPROVAL VERDICT section that includes: (1) a percentage likelihood of approval e.g. 78% likely to qualify, (2) one of these three statuses on its own line: LIKELY APPROVED ✅ or BORDERLINE ⚠️ or UNLIKELY TO QUALIFY ❌, and (3) one sentence explaining the main reason.'
+    : 'You are a US mortgage qualification expert. Use conventional lending guidelines including DTI ratios. Be specific with numbers. IMPORTANT: Always end your response with a clearly separated APPROVAL VERDICT section that includes: (1) a percentage likelihood of approval e.g. 78% likely to qualify, (2) one of these three statuses on its own line: LIKELY APPROVED ✅ or BORDERLINE ⚠️ or UNLIKELY TO QUALIFY ❌, and (3) one sentence explaining the main reason.';
 
   const prompt = `Please assess this buyer's mortgage qualification likelihood:
 
