@@ -972,7 +972,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
           <div class="atf-field"><label>Bedrooms</label><select id="p-beds"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6+</option></select></div>
           <div class="atf-field"><label>Bathrooms</label><select id="p-baths"><option>1</option><option selected>2</option><option>2.5</option><option>3</option><option>4</option><option>5+</option></select></div>
           <div class="atf-field"><label>Home Size (sq ft)</label><input type="text" id="p-sqft" placeholder="e.g. 1,850" oninput="formatSqftInput(this)" inputmode="numeric"/></div>
-          <div class="atf-field"><label>Lot Size</label><input type="text" id="p-lotsize" placeholder="e.g. 5,000 sq ft or 0.25 acres"/></div>
+          <div class="atf-field"><label>Lot Size</label><input type="text" id="p-lotsize" placeholder="e.g. 5,000 sq ft or 0.25 acres" oninput="formatSqftInput(this)" inputmode="numeric"/></div>
           <div class="atf-field"><label>Year Built</label><input type="number" id="p-year" placeholder="e.g. 2005"/></div>
           <div class="atf-field"><label>Property Type</label><select id="p-type"><option>Single Family Home</option><option>Condo</option><option>Townhome</option><option>Semi-Detached</option><option>Detached</option><option>Multi-Family</option></select></div>
           <div class="atf-field"><label>Condition</label><select id="p-cond"><option>Needs Work</option><option>Fair</option><option selected>Good</option><option>Updated</option><option>Like New</option></select></div>
@@ -3334,7 +3334,17 @@ async function runPricingTool() {
     }
   } catch(e) {}
 
-  const system = `You are ListDirect's expert AI home pricing analyst covering both the United States and Canada. You provide realistic, data-informed home price estimates based on the details given. Always give a specific price range in the correct currency (USD for US cities, CAD for Canadian cities — always note which currency). Explain your reasoning with local market factors, seasonal considerations, and comparable home analysis. Be concise but thorough. Format your response with clear sections using plain text. Use dollar amounts and be direct. For Canadian cities, reference current CAD market conditions and note the USD equivalent approximately. When real market data is provided, use it as your primary reference and explain how the subject property compares.`;
+  const system = `You are ListDirect's AI home pricing expert covering Canada and the United States. Give realistic price estimates in the correct currency — CAD for Canadian cities, USD for US cities. Write in plain simple English. No markdown, no tables, no bullet dashes. Use short clean sections. Write like a knowledgeable friend giving honest advice.
+
+Use these sections in order:
+ESTIMATED PRICE RANGE — Give a specific dollar range right away. Be direct.
+WHY THIS PRICE — 2-3 sentences explaining the main factors driving the value.
+MARKET CONDITIONS — 2-3 sentences on what the local market is doing right now.
+PRICING STRATEGY — 2-3 sentences on what price to list at and why.
+THINGS THAT ADD VALUE — 2-3 short points about what helps this property.
+THINGS THAT HURT VALUE — 2-3 short points about what works against it.
+
+When real market data is provided use it as your primary reference. For Canadian cities note the USD equivalent. Keep it short and honest.`;
   const prompt = `Please analyze this home and provide a pricing recommendation:
 
 Country/Market: ${country}
