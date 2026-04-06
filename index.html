@@ -950,6 +950,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
       <button class="ai-tool-tab" onclick="switchTool('offer',this)">📝 Offer Review</button>
       <button class="ai-tool-tab" onclick="switchTool('contract',this)">⚖️ Contract Helper</button>
       <button class="ai-tool-tab" onclick="switchTool('mortgage',this)">🏦 Mortgage Calc</button>
+      <button class="ai-tool-tab" onclick="switchTool('qualifier',this)">🏠 Mortgage Qualifier</button>
     </div>
 
     <!-- PRICING TOOL -->
@@ -1108,6 +1109,51 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
             </div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- MORTGAGE QUALIFIER -->
+    <div class="ai-tool-panel" id="tool-qualifier">
+      <div class="ai-tool-header">
+        <div class="ai-tool-header-icon">🏠</div>
+        <div><h3>Mortgage Qualifier</h3><p>Find out if you're likely to qualify for a mortgage based on your financial situation</p></div>
+      </div>
+      <div class="ai-tool-body">
+        <div style="display:flex;background:var(--bg);border-radius:50px;padding:4px;margin-bottom:20px;gap:4px;max-width:300px">
+          <button id="mq-btn-ca" onclick="setMQCountry('ca')" style="flex:1;background:var(--green);color:#0a0f0d;border:none;padding:8px 16px;border-radius:50px;font-weight:700;font-size:0.82rem;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px"><img src="https://flagcdn.com/40x30/ca.png" alt="CA" style="width:20px;height:13px;border-radius:2px"> Canada</button>
+          <button id="mq-btn-us" onclick="setMQCountry('us')" style="flex:1;background:none;color:var(--muted);border:none;padding:8px 16px;border-radius:50px;font-weight:600;font-size:0.82rem;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px"><img src="https://flagcdn.com/40x30/us.png" alt="US" style="width:20px;height:13px;border-radius:2px"> United States</button>
+        </div>
+        <div class="ai-tool-form">
+          <div class="atf-field"><label>Gross Annual Income</label><input type="text" id="mq-income" placeholder="e.g. $85,000" oninput="formatPriceInput(this)" inputmode="numeric"/></div>
+          <div class="atf-field"><label>Monthly Debt Payments</label><input type="text" id="mq-debt" placeholder="e.g. car, credit cards, loans" oninput="formatPriceInput(this)" inputmode="numeric"/></div>
+          <div class="atf-field"><label>Down Payment Available</label><input type="text" id="mq-down" placeholder="e.g. $80,000" oninput="formatPriceInput(this)" inputmode="numeric"/></div>
+          <div class="atf-field"><label>Home Price You're Targeting</label><input type="text" id="mq-price" placeholder="e.g. $650,000" oninput="formatPriceInput(this)" inputmode="numeric"/></div>
+          <div class="atf-field"><label>Credit Score Range</label>
+            <select id="mq-credit">
+              <option value="excellent">Excellent (750+)</option>
+              <option value="good" selected>Good (700-749)</option>
+              <option value="fair">Fair (650-699)</option>
+              <option value="poor">Poor (600-649)</option>
+              <option value="bad">Below 600</option>
+            </select>
+          </div>
+          <div class="atf-field"><label>Employment Type</label>
+            <select id="mq-employment">
+              <option value="fulltime">Full-time Employee</option>
+              <option value="selfemployed">Self-Employed</option>
+              <option value="parttime">Part-time</option>
+              <option value="contract">Contract / Freelance</option>
+              <option value="retired">Retired</option>
+            </select>
+          </div>
+        </div>
+        <button class="ai-run-btn" id="qualifier-btn" onclick="runMortgageQualifier()"><span>Check My Qualification</span></button>
+        <div class="ai-result-box" id="qualifier-result">
+          <div class="ai-result-label"><div class="pulse-dot"></div> AI Analysis</div>
+          <div class="ai-result-text" id="qualifier-output"></div>
+          <div class="ai-result-actions"><button class="ai-copy-btn" onclick="copyResult('qualifier-output')">📋 Copy Results</button></div>
+        </div>
+        <p style="font-size:0.75rem;color:var(--muted);margin-top:12px;line-height:1.6">⚠️ This tool provides general guidance only and is not a mortgage approval or financial advice. Always consult a licensed mortgage broker for an official assessment.</p>
       </div>
     </div>
 
@@ -3089,6 +3135,54 @@ document.addEventListener('keydown', e => { if (e.key==='Escape') { closeModal()
 // ═══════════════════════════════════════════
 // AI TOOLS — SWITCH TABS
 // ═══════════════════════════════════════════
+let mqCountry = 'ca';
+
+function setMQCountry(c) {
+  mqCountry = c;
+  const btnCa = document.getElementById('mq-btn-ca');
+  const btnUs = document.getElementById('mq-btn-us');
+  if (btnCa) { btnCa.style.background = c === 'ca' ? 'var(--green)' : 'none'; btnCa.style.color = c === 'ca' ? '#0a0f0d' : 'var(--muted)'; }
+  if (btnUs) { btnUs.style.background = c === 'us' ? 'var(--green)' : 'none'; btnUs.style.color = c === 'us' ? '#0a0f0d' : 'var(--muted)'; }
+}
+
+async function runMortgageQualifier() {
+  const income = document.getElementById('mq-income').value.replace(/[^0-9]/g,'') || '0';
+  const debt = document.getElementById('mq-debt').value.replace(/[^0-9]/g,'') || '0';
+  const down = document.getElementById('mq-down').value.replace(/[^0-9]/g,'') || '0';
+  const price = document.getElementById('mq-price').value.replace(/[^0-9]/g,'') || '0';
+  const credit = document.getElementById('mq-credit').value;
+  const employment = document.getElementById('mq-employment').value;
+  const isCA = mqCountry === 'ca';
+
+  const system = isCA
+    ? 'You are a Canadian mortgage qualification expert. Use CMHC guidelines, GDS/TDS ratios, and the Canadian stress test (qualifying rate = contract rate + 2% or 5.25% whichever is higher). Consider CMHC insurance requirements for down payments under 20%. Be specific with numbers. Format clearly with sections. End with a plain verdict: Likely Approved, Borderline, or Unlikely to Qualify — and explain why.'
+    : 'You are a US mortgage qualification expert. Use conventional lending guidelines including DTI ratios (front-end max 28%, back-end max 43% for conventional, up to 50% for FHA). Consider FHA vs conventional thresholds. Be specific with numbers. Format clearly with sections. End with a plain verdict: Likely Approved, Borderline, or Unlikely to Qualify — and explain why.';
+
+  const prompt = `Please assess this buyer's mortgage qualification likelihood:
+
+Country: ${isCA ? 'Canada' : 'United States'}
+Gross Annual Income: $${parseInt(income).toLocaleString()}
+Monthly Debt Payments: $${parseInt(debt).toLocaleString()}
+Down Payment Available: $${parseInt(down).toLocaleString()}
+Target Home Price: $${parseInt(price).toLocaleString()}
+Credit Score: ${credit}
+Employment: ${employment}
+
+Provide:
+1. Down payment percentage and ${isCA ? 'CMHC insurance requirement' : 'loan type (conventional vs FHA)'}
+2. ${isCA ? 'GDS and TDS ratio calculation using stress test rate' : 'Front-end and back-end DTI ratio calculation'}
+3. Monthly mortgage payment estimate
+4. Key factors helping or hurting qualification
+5. Specific recommendations to improve chances if needed
+6. VERDICT: Likely Approved / Borderline / Unlikely to Qualify`;
+
+  await streamClaude(system, prompt,
+    document.getElementById('qualifier-output'),
+    document.getElementById('qualifier-btn'),
+    'qualifier-result'
+  );
+}
+
 function switchTool(name, btn) {
   document.querySelectorAll('.ai-tool-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.ai-tool-panel').forEach(p => p.classList.remove('active'));
