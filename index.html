@@ -949,8 +949,8 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
       <button class="ai-tool-tab" onclick="switchTool('listing',this)">✍️ Listing Writer</button>
       <button class="ai-tool-tab" onclick="switchTool('offer',this)">📝 Offer Review</button>
       <button class="ai-tool-tab" onclick="switchTool('contract',this)">⚖️ Contract Helper</button>
-      <button class="ai-tool-tab" onclick="switchTool('mortgage',this)">🏦 Mortgage Calc</button>
-      <button class="ai-tool-tab" onclick="switchTool('qualifier',this)">✅ Mortgage Qualifier</button>
+      <button class="ai-tool-tab" onclick="switchTool('mortgage',this)">🏦 Mortgage</button>
+      <button class="ai-tool-tab" onclick="switchTool('qualifier',this)">✅ Qualifier</button>
     </div>
 
     <!-- PRICING TOOL -->
@@ -3224,7 +3224,7 @@ async function streamClaude(systemPrompt, userPrompt, outputEl, btnEl, resultBox
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: CLAUDE_MODEL,
-        max_tokens: 1024,
+        max_tokens: 2000,
         system: systemPrompt,
         messages: [{ role: 'user', content: userPrompt }]
       })
