@@ -2984,11 +2984,11 @@ function updateCalc() {
 
   // Big savings number
   document.getElementById('calc-savings').textContent = fmt(savings);
-  // Sync path modal numbers
-  var pmAI=document.getElementById('pm-ai-num'); if(pmAI) pmAI.textContent=fmt(Math.round(price*0.05));
-  var pmAg=document.getElementById('pm-agent-num'); if(pmAg) pmAg.textContent=fmt(Math.round(price*0.01));
+  // Sync path modal numbers (Canada-aware)
+  var pmAI=document.getElementById('pm-ai-num'); if(pmAI) pmAI.textContent=fmt(savings);
+  var pmAg=document.getElementById('pm-agent-num'); if(pmAg) pmAg.textContent=fmt(agentCashback);
   var pmAINote=document.getElementById('pm-ai-note'); if(pmAINote) pmAINote.textContent='On a '+fmt(price)+' home \u00b7 Only 1% platform fee';
-  var pmAgNote=document.getElementById('pm-agent-note'); if(pmAgNote) pmAgNote.textContent='On a '+fmt(price)+' home \u00b7 1% cashback minimum';
+  var pmAgNote=document.getElementById('pm-agent-note'); if(pmAgNote) pmAgNote.textContent='On a '+fmt(price)+' home \u00b7 '+(isCanada?'0.5%':'1%')+' cashback minimum';
 
   // What-if items
   const items = document.getElementById('cwi-items');
