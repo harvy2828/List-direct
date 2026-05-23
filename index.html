@@ -1262,7 +1262,7 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
       </ul>
       <div class="path-fee">Agent fee <span>varies</span></div>
       <div class="path-fee-note">Agents compete for your listing — see their rebate offer upfront before choosing</div>
-      <button class="btn-path" onclick="document.getElementById('agent-req-name').scrollIntoView({behavior:'smooth'});setTimeout(()=>document.getElementById('agent-req-name').focus(),400)">Request an Agent →</button>
+      <button class="btn-path" onclick="openAgentModal()">Request an Agent →</button>
     </div>
   </div>
 </section>
@@ -1414,6 +1414,28 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
     </div>
   </div>
   <button class="chat-btn" onclick="toggleChat()" id="chat-toggle-btn" title="Chat with ListDirect AI">💬</button>
+</div>
+
+<!-- AGENT REQUEST MODAL -->
+<div id="agent-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:9999;align-items:center;justify-content:center;padding:16px;box-sizing:border-box" onclick="if(event.target.id==='agent-modal')closeAgentModal()">
+  <div style="background:#0d1510;border:1px solid rgba(245,200,66,0.3);border-radius:24px;padding:32px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;position:relative">
+    <button onclick="closeAgentModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer">✕</button>
+    <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--gold);margin-bottom:8px">🤝 Agent Assisted Path</div>
+    <div style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--white);margin-bottom:12px">Get matched with a certified agent</div>
+    <div style="background:rgba(245,200,66,0.08);border:1px solid rgba(245,200,66,0.2);border-radius:12px;padding:14px 16px;margin-bottom:20px">
+      <div style="font-size:0.85rem;color:var(--gold);font-weight:600">💰 Minimum 1% cashback at closing — guaranteed</div>
+      <div style="font-size:0.78rem;color:var(--muted);margin-top:4px">Every agent in our network is contractually required to give you cashback. No exceptions.</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <input id="am-name" type="text" placeholder="Your Name" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:10px;padding:12px 16px;color:#e8f0e9;font-family:'DM Sans',sans-serif;font-size:0.9rem;box-sizing:border-box">
+      <input id="am-email" type="email" placeholder="Email Address" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:10px;padding:12px 16px;color:#e8f0e9;font-family:'DM Sans',sans-serif;font-size:0.9rem;box-sizing:border-box">
+      <input id="am-phone" type="tel" placeholder="Phone Number" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:10px;padding:12px 16px;color:#e8f0e9;font-family:'DM Sans',sans-serif;font-size:0.9rem;box-sizing:border-box">
+      <input id="am-city" type="text" placeholder="City / Area" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:10px;padding:12px 16px;color:#e8f0e9;font-family:'DM Sans',sans-serif;font-size:0.9rem;box-sizing:border-box">
+      <textarea id="am-details" placeholder="Tell us about your property — address, bedrooms, price range, timeline..." rows="3" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:10px;padding:12px 16px;color:#e8f0e9;font-family:'DM Sans',sans-serif;font-size:0.9rem;box-sizing:border-box;resize:vertical"></textarea>
+      <button onclick="submitAgentModal()" style="width:100%;padding:14px;border-radius:50px;background:var(--gold);color:#1a1200;border:none;font-weight:700;font-size:0.95rem;cursor:pointer;font-family:'DM Sans',sans-serif">Request an Agent →</button>
+      <div id="am-ok" style="display:none;text-align:center;color:var(--green);font-size:0.88rem;font-weight:600;padding:8px">✓ Request received! We'll connect you with an agent within 24 hours.</div>
+    </div>
+  </div>
 </div>
 
 <!-- SIGN UP / LOGIN MODAL -->
@@ -2570,6 +2592,26 @@ function openListingModal(l) {
   document.body.style.overflow = 'hidden';
   if (l.id) fetch('/api/listings/' + encodeURIComponent(l.id) + '/view', { method: 'POST' }).catch(() => {});
 }
+function openAgentModal() { document.getElementById('agent-modal').style.display='flex'; document.body.style.overflow='hidden'; }
+function closeAgentModal() { document.getElementById('agent-modal').style.display='none'; document.body.style.overflow=''; }
+async function submitAgentModal() {
+  const name = document.getElementById('am-name')?.value?.trim();
+  const email = document.getElementById('am-email')?.value?.trim();
+  const phone = document.getElementById('am-phone')?.value?.trim();
+  const city = document.getElementById('am-city')?.value?.trim();
+  const details = document.getElementById('am-details')?.value?.trim();
+  if (!name || !email) { alert('Please enter your name and email.'); return; }
+  try {
+    await fetch('/api/lead-capture', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, phone, address: city || 'Not specified', price: 0, source: 'agent-request', message: details || '' })
+    });
+    document.getElementById('am-ok').style.display = 'block';
+    ['am-name','am-email','am-phone','am-city','am-details'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  } catch(e) { alert('Something went wrong. Please try again.'); }
+}
+
 async function submitAgentRequest() {
   const name = document.getElementById('agent-req-name')?.value?.trim();
   const email = document.getElementById('agent-req-email')?.value?.trim();
@@ -2589,27 +2631,6 @@ async function submitAgentRequest() {
     alert('Something went wrong. Please try again.');
   }
 }
-
-async function submitAgentRequest2() {
-  const name = document.getElementById('agent-req-name2')?.value?.trim();
-  const email = document.getElementById('agent-req-email2')?.value?.trim();
-  const phone = document.getElementById('agent-req-phone2')?.value?.trim();
-  const city = document.getElementById('agent-req-city2')?.value?.trim();
-  const details = document.getElementById('agent-req-details2')?.value?.trim();
-  if (!name || !email) { alert('Please enter your name and email.'); return; }
-  try {
-    await fetch('/api/lead-capture', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, phone, address: city || 'Not specified', price: 0, source: 'agent-request', message: details || '' })
-    });
-    document.getElementById('agent-req-ok2').style.display = 'block';
-    ['agent-req-name2','agent-req-email2','agent-req-phone2','agent-req-city2','agent-req-details2'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
-  } catch(e) {
-    alert('Something went wrong. Please try again.');
-  }
-}
-
 async function submitMLSRequest() {
   const listing = window._mlsListing || {};
   const name = document.getElementById('mls-req-name')?.value?.trim();
@@ -2917,21 +2938,6 @@ function renderAgents() {
             </div>
           </div>
 
-          <!-- Agent request form card -->
-          <div style="background:var(--card);border:1px solid rgba(245,200,66,0.25);border-radius:20px;padding:28px;text-align:left">
-            <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--gold);margin-bottom:8px">🤝 Request a Certified Agent</div>
-            <div style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900;color:var(--white);margin-bottom:6px">Get matched with an agent</div>
-            <p style="font-size:0.83rem;color:var(--muted);margin-bottom:16px;line-height:1.6">Guaranteed cashback at closing. Tell us about your home and we'll connect you right away.</p>
-            <div style="display:flex;flex-direction:column;gap:8px">
-              <input id="agent-req-name2" type="text" placeholder="Your Name" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:8px;padding:10px 14px;color:#e8f0e9;font-family:'DM Sans',sans-serif;font-size:0.85rem;box-sizing:border-box">
-              <input id="agent-req-email2" type="email" placeholder="Email Address" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:8px;padding:10px 14px;color:#e8f0e9;font-family:'DM Sans',sans-serif;font-size:0.85rem;box-sizing:border-box">
-              <input id="agent-req-phone2" type="tel" placeholder="Phone Number" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:8px;padding:10px 14px;color:#e8f0e9;font-family:'DM Sans',sans-serif;font-size:0.85rem;box-sizing:border-box">
-              <input id="agent-req-city2" type="text" placeholder="City / Area" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:8px;padding:10px 14px;color:#e8f0e9;font-family:'DM Sans',sans-serif;font-size:0.85rem;box-sizing:border-box">
-              <textarea id="agent-req-details2" placeholder="Tell us about your property — address, bedrooms, price range, timeline, anything helpful..." rows="4" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:8px;padding:10px 14px;color:#e8f0e9;font-family:'DM Sans',sans-serif;font-size:0.85rem;box-sizing:border-box;resize:vertical"></textarea>
-              <button onclick="submitAgentRequest2()" style="width:100%;padding:12px;border-radius:50px;background:var(--gold);color:#1a1200;border:none;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:'DM Sans',sans-serif">Request an Agent →</button>
-              <div id="agent-req-ok2" style="display:none;text-align:center;color:var(--green);font-size:0.85rem;font-weight:600;padding:6px">✓ Request received! We'll be in touch within 24 hours.</div>
-            </div>
-          </div>
 
         </div>
       </div>`;

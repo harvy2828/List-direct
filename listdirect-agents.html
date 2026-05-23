@@ -140,60 +140,21 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 </nav>
 
 <!-- PAGE HEADER -->
-<div class="page-header">
-  <div class="ph-inner">
+<div class="page-header" style="padding:48px 24px 36px">
+  <div class="ph-inner" style="text-align:center;max-width:600px;margin:0 auto">
     <div class="ph-tag">🤝 Certified Agent Network</div>
-    <h1 class="ph-title">Find Your <em>Certified Agent</em></h1>
-    <p class="ph-sub">Every agent on our network has agreed to guaranteed cashback terms. Search your area, find your agent, and they'll be in contact within 24 hours.</p>
-    <div class="cashback-promise">💰 Use a certified agent and get cashback at closing (0.5% in Canada · 1% in US) — the agent pays ListDirect a 10% referral fee. You pay nothing extra.</div>
-
+    <h1 class="ph-title" style="margin-bottom:12px">Get Matched with a<br><em>Certified Agent</em></h1>
+    <div class="cashback-promise" style="margin-bottom:0">💰 Minimum 1% cashback at closing — guaranteed. Fill out your details and we'll connect you with the right agent for your area.</div>
   </div>
 </div>
 
-<!-- PROMISE BAR -->
-<div class="promise-bar">
-  <div class="promise-inner">
-    <div class="promise-item">✅ <strong>Contractual cashback</strong> — minimum cashback guaranteed</div>
-    <div class="promise-item">🏆 <strong>Agents compete</strong> for your listing</div>
-    <div class="promise-item">⭐ <strong>Verified reviews</strong> from real transactions</div>
-    <div class="promise-item">🛡️ <strong>ListDirect protected</strong> — we enforce the rebate</div>
-  </div>
-</div>
-
-<!-- AGENT SEARCH -->
-<div style="background:var(--bg2);border-bottom:1px solid var(--border);padding:24px">
-  <div style="max-width:600px;margin:0 auto;display:flex;gap:12px">
-    <input type="text" id="agent-search" placeholder="🔍 Search by city or area (e.g. Vancouver, BC)..." 
-      style="flex:1;background:var(--card);border:1px solid var(--border);color:var(--text);padding:13px 18px;border-radius:12px;font-size:0.95rem;font-family:'DM Sans',sans-serif;outline:none"
-      oninput="filterAgents(this.value)"/>
-    <button onclick="filterAgents(document.getElementById('agent-search').value)" 
-      style="background:var(--green);color:#0a0f0d;padding:13px 24px;border-radius:12px;border:none;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap">Search</button>
-  </div>
-</div>
-
-<!-- AGENTS GRID -->
-<div class="agents-wrap">
-  <div class="agents-grid" id="agents-grid"></div>
-</div>
-
-<!-- REQUEST FORM -->
+<!-- REQUEST FORM --><!-- REQUEST FORM -->
 <div class="request-section" id="request-section">
   <div class="request-inner">
     <div class="req-header">
-      
-      <h2 style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:var(--white);margin-bottom:8px">Tell us about your home</h2>
-      <p style="color:var(--muted);font-size:0.92rem">Fill out your details below and we'll connect you with the right agent for your area.</p>
+      <h2 style="font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:var(--white);margin-bottom:8px">Tell Us About Your Home</h2>
+      <p style="color:var(--muted);font-size:0.92rem">We'll connect you with a certified agent in your area within 24 hours.</p>
     </div>
-
-    <div class="req-selected-agent" id="req-selected-agent">
-      <div class="rsa-avatar" id="rsa-avatar">🤝</div>
-      <div>
-        <div class="rsa-name" id="rsa-name">No agent selected yet</div>
-        <div class="rsa-cb" id="rsa-cb">Your Agent Request</div>
-      </div>
-    </div>
-
-    <div class="no-agent-note" id="no-agent-note">Fill in your details and we'll match you with a certified agent in your area.</div>
 
     <div class="req-form">
       <form name="agent-request" id="agent-form">
