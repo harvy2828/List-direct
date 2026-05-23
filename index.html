@@ -2567,7 +2567,7 @@ function openListingModal(l) {
           '</div>' +
           '<div class="lm-btns" style="flex-direction:column;gap:10px">' +
           '<button class="lm-btn-primary" onclick="var f=document.getElementById(\'mls-req-form\');f.style.display=f.style.display===\'none\'?\'block\':\'none\'">\ud83d\udce9 Request Info from Agent</button>' +
-          '<a href="' + realtorUrl + '" target="_blank" style="padding:13px;border-radius:50px;font-weight:700;font-size:0.9rem;background:none;border:1px solid rgba(62,240,122,0.4);color:#3ef07a;text-align:center;text-decoration:none;display:block">' + searchLabel + '</a>' +
+          (l.mls ? '<a href="' + realtorUrl + '" target="_blank" style="padding:13px;border-radius:50px;font-weight:700;font-size:0.9rem;background:none;border:1px solid rgba(62,240,122,0.4);color:#3ef07a;text-align:center;text-decoration:none;display:block">Find on Realtor.ca →</a>' : '') +
           '<button class="lm-btn-outline" onclick="closeListingModal()">Close</button>' +
           '</div>';
       }
