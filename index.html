@@ -545,7 +545,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
 /* ═══ LISTING DETAIL MODAL ═══ */
 .listing-modal .modal{max-width:680px}
 .lm-imgs{margin-bottom:16px;border-radius:12px;overflow:hidden}
-.lm-imgs .lm-main{width:100%;height:240px;background-size:cover;background-position:center;position:relative}
+.lm-imgs .lm-main{width:100%;height:240px;background-size:cover;background-position:center;position:relative;overflow:hidden}
 .lm-imgs .lm-thumbs-row{display:flex;gap:4px;margin-top:4px}
 .lm-imgs .lm-thumb{flex:1;height:72px;background-size:cover;background-position:center;border-radius:6px}
 .lm-price{font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:900;color:var(--white);margin-bottom:4px}
@@ -2534,6 +2534,8 @@ function openListingModal(l) {
       <div class="lm-price" style="margin:0">$${l.price.toLocaleString()}</div>
       ${l.mls
         ? '<div style="background:rgba(10,60,120,0.85);color:#a8d4ff;font-size:0.7rem;font-weight:800;padding:4px 12px;border-radius:50px">MLS® Listing</div>'
+        : l.us
+        ? '<div style="background:rgba(60,60,80,0.9);color:#b0b0c8;font-size:0.7rem;font-weight:800;padding:4px 12px;border-radius:50px">Market Listing</div>'
         : '<div style="background:var(--green);color:var(--bg);font-size:0.7rem;font-weight:800;padding:4px 12px;border-radius:50px">👑 ListDirect Verified</div>'}
     </div>
     <div class="lm-addr">📍 ${l.addr}, ${l.city}${l.state ? ", " + l.state : ""} ${l.zip}</div>
@@ -2548,8 +2550,11 @@ function openListingModal(l) {
     ${(()=>{
       if (l.mls || l.us) {
         window._mlsListing = { address: (l.addr||'') + ', ' + (l.city||''), price: l.price||0 };
-        const realtorUrl = 'https://www.google.com/search?q=' + encodeURIComponent((l.addr||'') + ' ' + (l.city||'') + ' BC realtor.ca');
-        return '<div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:16px;margin-bottom:20px;font-size:0.85rem;color:#7a9480;line-height:1.6">This listing is provided by a participating MLS\u00ae member brokerage.<br><span style="font-size:0.72rem;display:block;margin-top:8px">\u00a9 2025 Greater Vancouver REALTORS\u00ae, Fraser Valley Real Estate Board, Chilliwack and District Real Estate Board, and BC Northern Real Estate Board. All Rights Reserved.</span></div>' +
+        const searchQ = l.mls ? (l.addr||'') + ' ' + (l.city||'') + ' BC realtor.ca' : (l.addr||'') + ' ' + (l.city||'') + ' ' + (l.state||'') + ' zillow.com';
+        const realtorUrl = 'https://www.google.com/search?q=' + encodeURIComponent(searchQ);
+        const infoText = l.mls ? 'This listing is provided by a participating MLS\u00ae member brokerage.<br><span style="font-size:0.72rem;display:block;margin-top:8px">\u00a9 2025 Greater Vancouver REALTORS\u00ae, Fraser Valley Real Estate Board, Chilliwack and District Real Estate Board, and BC Northern Real Estate Board. All Rights Reserved.</span>' : 'This is an active market listing. Contact the listing agent for showings and offers.';
+        const searchLabel = l.mls ? '\ud83d\udd17 Find on Realtor.ca \u2192' : '\ud83d\udd17 Find on Zillow \u2192';
+        return '<div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:16px;margin-bottom:20px;font-size:0.85rem;color:#7a9480;line-height:1.6">' + infoText + '</div>' +
           '<div id="mls-req-form" style="background:#111a13;border:1px solid rgba(62,240,122,0.15);border-radius:12px;padding:16px;margin-bottom:16px;display:none">' +
           '<div style="font-size:0.8rem;font-weight:700;color:#e8f0e9;margin-bottom:12px">\ud83d\udce9 Request Info About This Listing</div>' +
           '<input id="mls-req-name" type="text" placeholder="Your Name" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:8px;padding:10px 14px;color:#e8f0e9;font-size:0.88rem;margin-bottom:8px;box-sizing:border-box"><br>' +
@@ -2560,7 +2565,7 @@ function openListingModal(l) {
           '</div>' +
           '<div class="lm-btns" style="flex-direction:column;gap:10px">' +
           '<button class="lm-btn-primary" onclick="var f=document.getElementById(\'mls-req-form\');f.style.display=f.style.display===\'none\'?\'block\':\'none\'">\ud83d\udce9 Request Info from Agent</button>' +
-          '<a href="' + realtorUrl + '" target="_blank" style="padding:13px;border-radius:50px;font-weight:700;font-size:0.9rem;background:none;border:1px solid rgba(62,240,122,0.4);color:#3ef07a;text-align:center;text-decoration:none;display:block">\ud83d\udd17 Find on Realtor.ca \u2192</a>' +
+          '<a href="' + realtorUrl + '" target="_blank" style="padding:13px;border-radius:50px;font-weight:700;font-size:0.9rem;background:none;border:1px solid rgba(62,240,122,0.4);color:#3ef07a;text-align:center;text-decoration:none;display:block">' + searchLabel + '</a>' +
           '<button class="lm-btn-outline" onclick="closeListingModal()">Close</button>' +
           '</div>';
       }
