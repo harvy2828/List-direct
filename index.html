@@ -2764,7 +2764,6 @@ async function submitOffer() {
     if (res.ok) {
       document.getElementById('offer-success').style.display = 'block';
       btn.style.display = 'none';
-      setTimeout(closeOfferModal, 3000);
     } else {
       alert('Something went wrong. Please try again.');
       btn.textContent = 'Submit Offer →';

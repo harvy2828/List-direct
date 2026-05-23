@@ -908,29 +908,30 @@ app.post('/api/offers', async (req, res) => {
 
     // Notify seller via email
     const { data: sellerAuth } = await supabase.auth.admin.getUserById(seller_id).catch(() => ({ data: null }));
-    if (sellerAuth?.user?.email) {
-      await sendEmail({
-        to: sellerAuth.user.email,
-        reply_to: buyer_email,
-        subject: `💰 New Offer — $${parseInt(offer_amount).toLocaleString()} on your listing!`,
-        html: `<div style="font-family:Arial,sans-serif;background:#0a0f0d;color:#e8f0e9;padding:32px;border-radius:12px;max-width:600px">
-          <h2 style="color:#3ef07a">💰 You received an offer!</h2>
-          <div style="background:#1a3d28;border:1px solid rgba(62,240,122,0.3);border-radius:12px;padding:20px;margin:16px 0;text-align:center">
-            <div style="font-size:0.85rem;color:#7a9480;margin-bottom:4px">Offer Amount</div>
-            <div style="font-family:Georgia,serif;font-size:2.5rem;font-weight:900;color:#3ef07a">$${parseInt(offer_amount).toLocaleString()}</div>
-          </div>
-          <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin:16px 0">
-            <p><strong style="color:#e8f0e9">Property:</strong> <span style="color:#7a9480">${property}</span></p>
-            <p><strong style="color:#e8f0e9">Buyer:</strong> <span style="color:#7a9480">${buyer_name}</span></p>
-            <p><strong style="color:#e8f0e9">Email:</strong> <span style="color:#7a9480">${buyer_email}</span></p>
-            ${buyer_phone ? `<p><strong style="color:#e8f0e9">Phone:</strong> <span style="color:#7a9480">${buyer_phone}</span></p>` : ''}
-            ${message ? `<p><strong style="color:#e8f0e9">Note:</strong> <span style="color:#7a9480">${message}</span></p>` : ''}
-          </div>
-          <a href="mailto:${buyer_email}" style="display:inline-block;background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;margin-right:10px">Reply to Buyer →</a>
-          <a href="https://listdirect.ai/dashboard.html" style="display:inline-block;background:none;border:1px solid #3ef07a;color:#3ef07a;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700">View in Dashboard →</a>
-        </div>`
-      });
-    }
+    const sellerEmail = sellerAuth?.user?.email;
+    const emailTo = sellerEmail || 'infolistdirect@gmail.com';
+    await sendEmail({
+      to: emailTo,
+      ...(sellerEmail ? {} : {}),
+      reply_to: buyer_email,
+      subject: `💰 New Offer — $${parseInt(offer_amount).toLocaleString()} on ${property}`,
+      html: emailWrap(`
+        <h2 style="color:#3ef07a;margin:0 0 8px">💰 New Offer Received!</h2>
+        <p style="color:#7a9480;margin:0 0 20px">An offer has been submitted on your listing through ListDirect.</p>
+        <div style="background:#1a3d28;border:1px solid rgba(62,240,122,0.3);border-radius:12px;padding:20px;margin-bottom:16px;text-align:center">
+          <div style="font-size:0.85rem;color:#7a9480;margin-bottom:4px">Offer Amount</div>
+          <div style="font-family:'Georgia',serif;font-size:2.5rem;font-weight:900;color:#3ef07a">$${parseInt(offer_amount).toLocaleString()}</div>
+        </div>
+        <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin-bottom:16px">
+          <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Property:</strong> ${property}</p>
+          <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Buyer Name:</strong> ${buyer_name}</p>
+          <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Buyer Email:</strong> ${buyer_email}</p>
+          ${buyer_phone ? `<p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Phone:</strong> ${buyer_phone}</p>` : ''}
+          ${message ? `<p style="color:#e8f0e9;margin:0"><strong style="color:#3ef07a">Note:</strong> ${message}</p>` : ''}
+        </div>
+        <a href="mailto:${buyer_email}" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">Reply to Buyer →</a>
+      `)
+    });
     res.json({ success: true });
   } catch (err) {
     console.error('Offer error:', err.message);
