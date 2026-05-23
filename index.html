@@ -1885,7 +1885,7 @@ async function fetchPlatformListings(query, beds, maxPrice) {
       desc: l.description || '',
       lat: l.lat || l.latitude || null,
       lng: l.lng || l.longitude || null,
-      streetview_addr: l.address ? (l.address + ', ' + (l.city||'') + ', ' + (l.state||'') + ' ' + (l.zip||'')).trim() : null,
+      streetview_addr: l.address ? (l.address + ', ' + (l.city||'') + ', ' + (l.state||'BC') + ' ' + (l.zip||'') + (l.zip && /^[A-Z]\d[A-Z]/i.test((l.zip||'').trim()) ? ', Canada' : '')).trim() : null,
       state: l.state || null,
       platform: true
     }));
