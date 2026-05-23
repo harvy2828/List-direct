@@ -1883,7 +1883,11 @@ async function fetchPlatformListings(query, beds, maxPrice) {
       allPhotos: l.photos || [],
       cashback: l.listing_path === 'agent' ? '1%' : null,
       desc: l.description || '',
-      platform: true // flag as our own listing
+      lat: l.lat || l.latitude || null,
+      lng: l.lng || l.longitude || null,
+      streetview_addr: l.address ? (l.address + ', ' + (l.city||'') + ', ' + (l.state||'') + ' ' + (l.zip||'')).trim() : null,
+      state: l.state || null,
+      platform: true
     }));
   } catch(e) {
     console.error('Platform listings error:', e);
@@ -2515,6 +2519,7 @@ function openListingModal(l) {
   // Store photos globally so onclick can reference without JSON escaping issues
   window._modalPhotos = photos;
   window._modalLatLng = { lat: l.lat || null, lng: l.lng || null };
+  window._currentListing = l;
   content.innerHTML = `
     <div class="lm-imgs">
       <div class="lm-main" id="lm-main-view" style="position:relative;overflow:hidden;height:240px">
@@ -2584,14 +2589,23 @@ function openListingModal(l) {
         '<div style="display:flex;justify-content:space-between;margin-bottom:12px"><span style="color:#7a9480;font-size:0.88rem">' + tradLabel + '</span><span style="color:#e85454;font-weight:700;text-decoration:line-through">' + fmt(tradFee) + '</span></div>' +
         '<div style="border-top:1px solid #1f2d22;padding-top:10px;display:flex;justify-content:space-between"><span style="color:#e8f0e9;font-weight:700">Seller saves</span><span style="color:#3ef07a;font-size:1.2rem;font-weight:900">' + fmt(savings) + '</span></div></div>';
       const btns = '<div class="lm-btns">' +
-        '<button class="lm-btn-primary" onclick="openMessageSeller(' + JSON.stringify(l.id||'') + ',' + JSON.stringify(l.seller_id||'') + ',' + JSON.stringify((l.addr||'')+', '+(l.city||'')) + ',' + (l.price||0) + ')">\ud83d\udcac Message Seller</button>' +
-        '<button class="lm-btn-outline" onclick="openOfferModalDirect(' + JSON.stringify(l.seller_id||'') + ',' + JSON.stringify((l.addr||'')+', '+(l.city||'')) + ',' + (l.price||0) + ')">\ud83d\udcb0 Make an Offer</button></div>';
+        '<button class="lm-btn-primary" onclick="openMsgSellerCurrent()">\ud83d\udcac Message Seller</button>' +
+        '<button class="lm-btn-outline" onclick="openOfferCurrent()">\ud83d\udcb0 Make an Offer</button></div>';
       return callout + breakdown + btns;
     })()}`;
   document.getElementById('listing-modal').classList.add('open');
   document.body.style.overflow = 'hidden';
   if (l.id) fetch('/api/listings/' + encodeURIComponent(l.id) + '/view', { method: 'POST' }).catch(() => {});
 }
+function openMsgSellerCurrent() {
+  const l = window._currentListing || {};
+  openMessageSeller(l.id||'', l.seller_id||'', (l.addr||'') + ', ' + (l.city||''), l.price||0);
+}
+function openOfferCurrent() {
+  const l = window._currentListing || {};
+  openOfferModalDirect(l.seller_id||'', (l.addr||'') + ', ' + (l.city||''), l.price||0);
+}
+
 function openAgentModal() { document.getElementById('agent-modal').style.display='flex'; document.body.style.overflow='hidden'; }
 function closeAgentModal() { document.getElementById('agent-modal').style.display='none'; document.body.style.overflow=''; }
 async function submitAgentModal() {
