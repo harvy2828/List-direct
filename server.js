@@ -1163,8 +1163,7 @@ app.get('/api/mls/canada', async (req, res) => {
     const params = new URLSearchParams({
       '$filter': filters.join(' and '),
       '$top': '20',
-      '$orderby': 'ModificationTimestamp desc',
-      '$select': 'ListingKey,ListPrice,City,PostalCode,BedroomsTotal,BathroomsTotalInteger,LivingArea,PropertyType,PublicRemarks,StreetNumber,StreetName,StreetSuffix,ListingContractDate,Media'
+      '$orderby': 'ModificationTimestamp desc'
     });
 
     const response = await fetch(`${BRIDGE_BASE}/Property?${params.toString()}`, {
@@ -1181,11 +1180,14 @@ app.get('/api/mls/canada', async (req, res) => {
     }
 
     const data = await response.json();
+    if (data.value && data.value[0]) console.log('Bridge fields:', Object.keys(data.value[0]).join(', '));
     const listings = (data.value || []).map(l => {
       const addr = [l.StreetNumber, l.StreetName, l.StreetSuffix].filter(Boolean).join(' ');
-      const img = l.Media && l.Media.length > 0
-        ? l.Media[0].MediaURL
-        : 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=400&h=280&fit=crop';
+      const allPhotos = (l.Media || [])
+        .sort((a, b) => (a.Order || 0) - (b.Order || 0))
+        .map(m => m.MediaURL)
+        .filter(Boolean);
+      const img = allPhotos[0] || 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=400&h=280&fit=crop';
       const days = l.ListingContractDate
         ? Math.floor((Date.now() - new Date(l.ListingContractDate)) / 86400000)
         : 0;
@@ -1194,6 +1196,7 @@ app.get('/api/mls/canada', async (req, res) => {
         verified: false,
         platform: false,
         mls: true,
+        us: false,
         price: parseInt(l.ListPrice) || 0,
         currency: 'CAD',
         addr,
@@ -1202,12 +1205,22 @@ app.get('/api/mls/canada', async (req, res) => {
         beds: parseInt(l.BedroomsTotal) || 0,
         baths: parseFloat(l.BathroomsTotalInteger) || 0,
         sqft: parseInt(l.LivingArea) || 0,
+        lotSize: parseInt(l.LotSizeArea) || 0,
         type: l.PropertyType || 'house',
+        yearBuilt: l.YearBuilt || null,
+        lat: l.Latitude || l.Lat || l.GeoLat || null,
+        lng: l.Longitude || l.Lng || l.GeoLon || l.Long || null,
+        lat: l.Latitude || null,
+        lng: l.Longitude || null,
         days,
         match: Math.floor(Math.random() * 15) + 80,
         img,
+        img2: allPhotos[1] || null,
+        img3: allPhotos[2] || null,
+        allPhotos,
         cashback: null,
         desc: l.PublicRemarks || '',
+        office: l.ListOfficeName || 'Member Brokerage',
         listing: 'mls'
       };
     });
