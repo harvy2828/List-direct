@@ -1164,7 +1164,7 @@ app.get('/api/mls/canada', async (req, res) => {
       '$filter': filters.join(' and '),
       '$top': '20',
       '$orderby': 'ModificationTimestamp desc',
-      '$select': 'ListingKey,ListPrice,City,PostalCode,BedroomsTotal,BathroomsTotalInteger,LivingArea,LotSizeArea,YearBuilt,PropertyType,PublicRemarks,StreetNumber,StreetName,StreetSuffix,ListingContractDate,ListOfficeName,Latitude,Longitude,Media'
+      '$select': 'ListingKey,ListPrice,City,PostalCode,BedroomsTotal,BathroomsTotalInteger,LivingArea,LotSizeArea,YearBuilt,PropertyType,PublicRemarks,StreetNumber,StreetName,StreetSuffix,ListingContractDate,ListOfficeName,Media'
     });
 
     const response = await fetch(`${BRIDGE_BASE}/Property?${params.toString()}`, {
@@ -1208,8 +1208,6 @@ app.get('/api/mls/canada', async (req, res) => {
         lotSize: parseInt(l.LotSizeArea) || 0,
         type: l.PropertyType || 'house',
         yearBuilt: l.YearBuilt || null,
-        lat: l.Latitude || null,
-        lng: l.Longitude || null,
         days,
         match: Math.floor(Math.random() * 15) + 80,
         img,
