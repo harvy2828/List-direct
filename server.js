@@ -228,6 +228,8 @@ app.post('/api/listings', async (req, res) => {
       city: body.city || (body.address ? body.address.split(',').slice(1,2).join('').trim() : ''),
       state: body.state || (body.address ? body.address.split(',').slice(2,3).join('').trim().split(' ')[0] : ''),
       zip: body.zip || '',
+      lat: body.lat ? parseFloat(body.lat) : null,
+      lng: body.lng ? parseFloat(body.lng) : null,
       price: body.price ? parseInt(body.price) : null,
       bedrooms: body.bedrooms ? parseInt(body.bedrooms) : null,
       bathrooms: body.bathrooms ? parseFloat(body.bathrooms) : null,

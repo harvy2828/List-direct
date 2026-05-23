@@ -888,7 +888,9 @@ document.getElementById('listing-form').addEventListener('submit', async functio
     description: aiDescription || document.getElementById('lp-desc')?.textContent || '',
     photos: uploadedPhotoUrls || [],
     status: 'pending',
-    listing_path: document.getElementById('s1-path')?.value || 'direct'
+    listing_path: document.getElementById('s1-path')?.value || 'direct',
+    lat: window._listingLat || null,
+    lng: window._listingLng || null
   };
 
   try {
@@ -1175,6 +1177,12 @@ function initAddressAutocomplete() {
     if (document.getElementById('s2-city')) document.getElementById('s2-city').value = city;
     if (document.getElementById('s2-state')) document.getElementById('s2-state').value = state;
     if (document.getElementById('s2-zip')) document.getElementById('s2-zip').value = zip;
+
+    // Store lat/lng from place geometry
+    if (place.geometry && place.geometry.location) {
+      window._listingLat = place.geometry.location.lat();
+      window._listingLng = place.geometry.location.lng();
+    }
 
     // Update country selector
     const countrySelect = document.getElementById('s2-country');
