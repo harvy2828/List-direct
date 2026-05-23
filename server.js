@@ -1165,7 +1165,8 @@ app.get('/api/mls/canada', async (req, res) => {
       '$top': '50',
       '$skip': offset ? String(parseInt(offset)) : '0',
       '$orderby': 'ModificationTimestamp desc',
-      '$select': 'ListingKey,ListPrice,City,PostalCode,BedroomsTotal,BathroomsTotalInteger,LivingArea,LotSizeArea,YearBuilt,PropertyType,PublicRemarks,StreetNumber,StreetName,StreetSuffix,ListingContractDate,ListOfficeName,Media'
+      '$expand': 'Media',
+      '$select': 'ListingKey,ListPrice,City,PostalCode,BedroomsTotal,BathroomsTotalInteger,LivingArea,PropertyType,PublicRemarks,StreetNumber,StreetName,StreetSuffix,ListingContractDate'
     });
 
     const response = await fetch(`${BRIDGE_BASE}/Property?${params.toString()}`, {
@@ -1206,9 +1207,9 @@ app.get('/api/mls/canada', async (req, res) => {
         beds: parseInt(l.BedroomsTotal) || 0,
         baths: parseFloat(l.BathroomsTotalInteger) || 0,
         sqft: parseInt(l.LivingArea) || 0,
-        lotSize: parseInt(l.LotSizeArea) || 0,
+        lotSize: 0,
         type: l.PropertyType || 'house',
-        yearBuilt: l.YearBuilt || null,
+        yearBuilt: null,
         days,
         match: Math.floor(Math.random() * 15) + 80,
         img,
@@ -1217,7 +1218,7 @@ app.get('/api/mls/canada', async (req, res) => {
         allPhotos,
         cashback: null,
         desc: l.PublicRemarks || '',
-        office: l.ListOfficeName || 'Member Brokerage',
+        office: 'Member Brokerage',
         listing: 'mls'
       };
     });
