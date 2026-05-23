@@ -1146,60 +1146,75 @@ app.get('/api/members/count', async (req, res) => {
 });
 
 
-// ── Repliers MLS Listings (Canada) ───────────────────────────
+// ── Bridge MLS Listings (Canada — GVR/FVREB via BridgeAPI) ───
 app.get('/api/mls/canada', async (req, res) => {
   const { city, minBeds, maxPrice, minPrice, type } = req.query;
   try {
+    const BRIDGE_BASE = 'https://api.bridgedataoutput.com/api/v3/OData/bcres';
+    const BRIDGE_TOKEN = process.env.BRIDGE_TOKEN;
+
+    // Build OData $filter
+    const filters = ["StandardStatus eq 'Active'"];
+    if (city) filters.push(`City eq '${city.replace(/'/g, "''")}'`);
+    if (minBeds) filters.push(`BedroomsTotal ge ${parseInt(minBeds)}`);
+    if (minPrice) filters.push(`ListPrice ge ${parseInt(minPrice)}`);
+    if (maxPrice) filters.push(`ListPrice le ${parseInt(maxPrice)}`);
+
     const params = new URLSearchParams({
-      status: 'A',
-      limit: '20',
-      sortBy: 'updatedOnDesc',
+      '$filter': filters.join(' and '),
+      '$top': '20',
+      '$orderby': 'ModificationTimestamp desc',
+      '$select': 'ListingKey,ListPrice,City,PostalCode,BedroomsTotal,BathroomsTotalInteger,LivingArea,PropertyType,PublicRemarks,StreetNumber,StreetName,StreetSuffix,ListingContractDate,Media'
     });
 
-    if (city) params.append('city', city);
-    if (minBeds) params.append('minBeds', minBeds);
-    if (maxPrice) params.append('maxPrice', maxPrice);
-    if (minPrice) params.append('minPrice', minPrice);
-    if (type) params.append('propertyType', type);
-
-    const response = await fetch(`https://api.repliers.io/listings?${params.toString()}`, {
+    const response = await fetch(`${BRIDGE_BASE}/Property?${params.toString()}`, {
       headers: {
-        'repliers-api-key': process.env.REPLIERS_API_KEY,
-        'Content-Type': 'application/json'
+        'Authorization': `Bearer ${BRIDGE_TOKEN}`,
+        'Accept': 'application/json'
       }
     });
 
     if (!response.ok) {
       const err = await response.text();
+      console.error('Bridge API error:', response.status, err);
       return res.status(response.status).json({ error: err, listings: [] });
     }
 
     const data = await response.json();
-    const listings = (data.listings || []).map(l => ({
-      id: l.mlsNumber || l.id,
-      verified: false,
-      platform: false,
-      mls: true,
-      price: parseInt(l.listPrice) || 0,
-      currency: 'CAD',
-      addr: l.address?.streetNumber + ' ' + l.address?.streetName + (l.address?.streetSuffix ? ' ' + l.address?.streetSuffix : ''),
-      city: l.address?.city || city || '',
-      zip: l.address?.zip || '',
-      beds: parseInt(l.details?.numBedrooms) || 0,
-      baths: parseFloat(l.details?.numBathrooms) || 0,
-      sqft: parseInt(l.details?.sqft) || 0,
-      type: l.details?.propertyType || 'house',
-      days: Math.floor((Date.now() - new Date(l.listDate)) / 86400000) || 0,
-      match: Math.floor(Math.random() * 15) + 80,
-      img: l.images?.[0] || 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=400&h=280&fit=crop',
-      cashback: null,
-      desc: l.details?.description || '',
-      listing: 'mls'
-    }));
+    const listings = (data.value || []).map(l => {
+      const addr = [l.StreetNumber, l.StreetName, l.StreetSuffix].filter(Boolean).join(' ');
+      const img = l.Media && l.Media.length > 0
+        ? l.Media[0].MediaURL
+        : 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=400&h=280&fit=crop';
+      const days = l.ListingContractDate
+        ? Math.floor((Date.now() - new Date(l.ListingContractDate)) / 86400000)
+        : 0;
+      return {
+        id: l.ListingKey,
+        verified: false,
+        platform: false,
+        mls: true,
+        price: parseInt(l.ListPrice) || 0,
+        currency: 'CAD',
+        addr,
+        city: l.City || city || '',
+        zip: l.PostalCode || '',
+        beds: parseInt(l.BedroomsTotal) || 0,
+        baths: parseFloat(l.BathroomsTotalInteger) || 0,
+        sqft: parseInt(l.LivingArea) || 0,
+        type: l.PropertyType || 'house',
+        days,
+        match: Math.floor(Math.random() * 15) + 80,
+        img,
+        cashback: null,
+        desc: l.PublicRemarks || '',
+        listing: 'mls'
+      };
+    });
 
     res.json({ listings });
   } catch (err) {
-    console.error('Repliers error:', err.message);
+    console.error('Bridge API error:', err.message);
     res.json({ listings: [], error: err.message });
   }
 });
