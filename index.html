@@ -1262,7 +1262,7 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
       </ul>
       <div class="path-fee">Agent fee <span>varies</span></div>
       <div class="path-fee-note">Agents compete for your listing — see their rebate offer upfront before choosing</div>
-      <button class="btn-path" onclick="document.getElementById('agents-section').scrollIntoView({behavior:'smooth'})">Browse Agents →</button>
+      <button class="btn-path" onclick="document.getElementById('agent-req-name').scrollIntoView({behavior:'smooth'});setTimeout(()=>document.getElementById('agent-req-name').focus(),400)">Request an Agent →</button>
     </div>
   </div>
 </section>
@@ -1273,10 +1273,25 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
     <div class="section-tag">Certified Agent Network</div>
     <h2 class="section-title">Work with a certified agent<br>and <em style="font-style:normal;color:var(--green)">still save money</em></h2>
     <p class="section-sub">Every agent in our network has agreed to guaranteed cashback at closing. Our network is growing across Canada and the United States.</p>
+
+    <!-- REQUEST AN AGENT FORM -->
+    <div style="background:var(--card);border:1px solid rgba(245,200,66,0.25);border-radius:20px;padding:32px;max-width:560px;margin:0 auto 48px;text-align:left">
+      <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--gold);margin-bottom:8px">🤝 Request a Certified Agent</div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:900;color:var(--white);margin-bottom:6px">Get matched with an agent today</div>
+      <p style="font-size:0.85rem;color:var(--muted);margin-bottom:20px;line-height:1.6">Tell us about your home and we'll connect you with a certified agent who guarantees cashback at closing.</p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <input id="agent-req-name" type="text" placeholder="Your Name" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:10px;padding:12px 16px;color:#e8f0e9;font-family:'DM Sans',sans-serif;font-size:0.9rem;box-sizing:border-box">
+        <input id="agent-req-email" type="email" placeholder="Your Email" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:10px;padding:12px 16px;color:#e8f0e9;font-family:'DM Sans',sans-serif;font-size:0.9rem;box-sizing:border-box">
+        <input id="agent-req-phone" type="tel" placeholder="Phone Number" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:10px;padding:12px 16px;color:#e8f0e9;font-family:'DM Sans',sans-serif;font-size:0.9rem;box-sizing:border-box">
+        <input id="agent-req-city" type="text" placeholder="City / Area" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:10px;padding:12px 16px;color:#e8f0e9;font-family:'DM Sans',sans-serif;font-size:0.9rem;box-sizing:border-box">
+        <button onclick="submitAgentRequest()" style="width:100%;padding:14px;border-radius:50px;background:var(--gold);color:#1a1200;border:none;font-weight:700;font-size:0.95rem;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:4px">Request an Agent →</button>
+        <div id="agent-req-ok" style="display:none;text-align:center;color:var(--green);font-size:0.88rem;font-weight:600;padding:8px">✓ Request received! We'll be in touch within 24 hours.</div>
+      </div>
+    </div>
+
     <div class="agents-grid" id="agents-grid"></div>
     <div class="view-all-row" style="margin-top:32px">
       <a href="agent-portal.html" class="btn-outline" style="display:inline-flex;text-decoration:none">Join as a Certified Agent →</a>
-      <a href="listdirect-agents.html" class="btn-outline" style="display:inline-flex;text-decoration:none;margin-left:12px">Find an Agent →</a>
     </div>
   </div>
 </div>
@@ -2554,6 +2569,25 @@ function openListingModal(l) {
   document.body.style.overflow = 'hidden';
   if (l.id) fetch('/api/listings/' + encodeURIComponent(l.id) + '/view', { method: 'POST' }).catch(() => {});
 }
+async function submitAgentRequest() {
+  const name = document.getElementById('agent-req-name')?.value?.trim();
+  const email = document.getElementById('agent-req-email')?.value?.trim();
+  const phone = document.getElementById('agent-req-phone')?.value?.trim();
+  const city = document.getElementById('agent-req-city')?.value?.trim();
+  if (!name || !email) { alert('Please enter your name and email.'); return; }
+  try {
+    await fetch('/api/lead-capture', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, phone, address: city || 'Not specified', price: 0, source: 'agent-request' })
+    });
+    document.getElementById('agent-req-ok').style.display = 'block';
+    ['agent-req-name','agent-req-email','agent-req-phone','agent-req-city'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  } catch(e) {
+    alert('Something went wrong. Please try again.');
+  }
+}
+
 async function submitMLSRequest() {
   const listing = window._mlsListing || {};
   const name = document.getElementById('mls-req-name')?.value?.trim();
