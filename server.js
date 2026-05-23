@@ -31,22 +31,24 @@ function emailWrap(content) {
 }
 
 // ── Email via Resend ──────────────────────────────────────────
-async function sendEmail({ to, subject, html, reply_to }) {
+async function sendEmail({ to, subject, html, reply_to, cc }) {
   const wrappedHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><meta name="supported-color-schemes" content="dark"></head><body style="margin:0;padding:0;background-color:#0a0f0d" bgcolor="#0a0f0d"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#0a0f0d" bgcolor="#0a0f0d"><tr><td align="center" style="padding:20px;background-color:#0a0f0d" bgcolor="#0a0f0d"><table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%"><tr><td style="background-color:#0a0f0d;padding:0" bgcolor="#0a0f0d">${html}</td></tr></table></td></tr></table></body></html>`;
   try {
+    const body = {
+      from: 'ListDirect <noreply@listdirect.ai>',
+      reply_to: reply_to || 'infolistdirect@gmail.com',
+      to,
+      subject,
+      html: wrappedHtml
+    };
+    if (cc) body.cc = cc;
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        from: 'ListDirect <noreply@listdirect.ai>',
-        reply_to: reply_to || 'infolistdirect@gmail.com',
-        to,
-        subject,
-        html: wrappedHtml
-      })
+      body: JSON.stringify(body)
     });
     const data = await res.json();
     return data;
@@ -906,32 +908,39 @@ app.post('/api/offers', async (req, res) => {
       created_at: new Date().toISOString()
     }]);
 
-    // Notify seller via email
-    const { data: sellerAuth } = await supabase.auth.admin.getUserById(seller_id).catch(() => ({ data: null }));
-    const sellerEmail = sellerAuth?.user?.email;
-    const emailTo = sellerEmail || 'infolistdirect@gmail.com';
-    await sendEmail({
-      to: emailTo,
-      ...(sellerEmail ? {} : {}),
-      reply_to: buyer_email,
-      subject: `💰 New Offer — $${parseInt(offer_amount).toLocaleString()} on ${property}`,
-      html: emailWrap(`
-        <h2 style="color:#3ef07a;margin:0 0 8px">💰 New Offer Received!</h2>
-        <p style="color:#7a9480;margin:0 0 20px">An offer has been submitted on your listing through ListDirect.</p>
-        <div style="background:#1a3d28;border:1px solid rgba(62,240,122,0.3);border-radius:12px;padding:20px;margin-bottom:16px;text-align:center">
-          <div style="font-size:0.85rem;color:#7a9480;margin-bottom:4px">Offer Amount</div>
-          <div style="font-family:'Georgia',serif;font-size:2.5rem;font-weight:900;color:#3ef07a">$${parseInt(offer_amount).toLocaleString()}</div>
-        </div>
-        <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin-bottom:16px">
-          <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Property:</strong> ${property}</p>
-          <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Buyer Name:</strong> ${buyer_name}</p>
-          <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Buyer Email:</strong> ${buyer_email}</p>
-          ${buyer_phone ? `<p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Phone:</strong> ${buyer_phone}</p>` : ''}
-          ${message ? `<p style="color:#e8f0e9;margin:0"><strong style="color:#3ef07a">Note:</strong> ${message}</p>` : ''}
-        </div>
-        <a href="mailto:${buyer_email}" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">Reply to Buyer →</a>
-      `)
-    });
+    // Notify seller via email — get email from profiles table
+    const { data: sellerProfile } = await supabase
+      .from('profiles')
+      .select('email, full_name')
+      .eq('id', seller_id)
+      .single()
+      .catch(() => ({ data: null }));
+    const sellerEmail = sellerProfile?.email;
+    if (sellerEmail) {
+      await sendEmail({
+        to: sellerEmail,
+        cc: 'infolistdirect@gmail.com',
+        reply_to: buyer_email,
+        subject: `💰 New Offer — $${parseInt(offer_amount).toLocaleString()} on ${property}`,
+        html: emailWrap(`
+          <h2 style="color:#3ef07a;margin:0 0 8px">💰 New Offer Received!</h2>
+          <p style="color:#7a9480;margin:0 0 20px">Hi ${sellerProfile?.full_name || 'there'}, you received an offer on your listing through ListDirect.</p>
+          <div style="background:#1a3d28;border:1px solid rgba(62,240,122,0.3);border-radius:12px;padding:20px;margin-bottom:16px;text-align:center">
+            <div style="font-size:0.85rem;color:#7a9480;margin-bottom:4px">Offer Amount</div>
+            <div style="font-family:'Georgia',serif;font-size:2.5rem;font-weight:900;color:#3ef07a">$${parseInt(offer_amount).toLocaleString()}</div>
+          </div>
+          <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin-bottom:16px">
+            <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Property:</strong> ${property}</p>
+            <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Buyer Name:</strong> ${buyer_name}</p>
+            <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Buyer Email:</strong> ${buyer_email}</p>
+            ${buyer_phone ? `<p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Phone:</strong> ${buyer_phone}</p>` : ''}
+            ${message ? `<p style="color:#e8f0e9;margin:0"><strong style="color:#3ef07a">Note:</strong> ${message}</p>` : ''}
+          </div>
+          <a href="mailto:${buyer_email}" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-right:10px">Reply to ${buyer_name} →</a>
+          <a href="https://listdirect.ai/dashboard.html" style="background:none;border:1px solid rgba(62,240,122,0.4);color:#3ef07a;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">View in Dashboard →</a>
+        `)
+      }).catch(e => console.error('Offer notify error:', e.message));
+    }
     res.json({ success: true });
   } catch (err) {
     console.error('Offer error:', err.message);
@@ -962,24 +971,32 @@ app.post('/api/messages', async (req, res) => {
     }]).select().single();
     if (error) return res.status(400).json({ error: error.message });
 
-    // Notify seller via email
-    const adminSupabase2 = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
-    const { data: sellerAuth } = await adminSupabase2.auth.admin.getUserById(seller_id).catch(() => ({ data: null }));
-    if (sellerAuth?.user?.email) {
+    // Notify seller via email — get email from profiles table (no admin key needed)
+    const { data: sellerProfile } = await supabase
+      .from('profiles')
+      .select('email, full_name')
+      .eq('id', validSellerId || seller_id)
+      .single()
+      .catch(() => ({ data: null }));
+    const sellerEmail = sellerProfile?.email;
+    if (sellerEmail) {
       await sendEmail({
-        to: sellerAuth.user.email,
-        subject: '💬 New Inquiry — ' + sender_name + ' is interested in your listing!',
-        html: `<div style="font-family:Arial,sans-serif;background:#0a0f0d;color:#e8f0e9;padding:32px;border-radius:12px;max-width:600px">
-          <h2 style="color:#3ef07a">New Inquiry on Your Listing!</h2>
-          <p style="color:#7a9480">Someone is interested in your property.</p>
-          <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin:16px 0">
-            <p><strong>From:</strong> ${sender_name}</p>
-            <p><strong>Email:</strong> ${sender_email}</p>
-            <p style="margin-top:12px;color:#e8f0e9">"${message}"</p>
+        to: sellerEmail,
+        cc: 'infolistdirect@gmail.com',
+        reply_to: sender_email,
+        subject: '💬 New Message — ' + sender_name + ' is interested in your listing!',
+        html: emailWrap(`
+          <h2 style="color:#3ef07a;margin:0 0 8px">💬 New Message on Your Listing!</h2>
+          <p style="color:#7a9480;margin:0 0 20px">Hi ${sellerProfile?.full_name || 'there'}, someone is interested in your property on ListDirect.</p>
+          <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin-bottom:16px">
+            <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">From:</strong> ${sender_name}</p>
+            <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Email:</strong> ${sender_email}</p>
+            <p style="color:#e8f0e9;margin:0"><strong style="color:#3ef07a">Message:</strong> "${message}"</p>
           </div>
-          <a href="https://listdirect.ai/dashboard.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-top:8px">Reply in Dashboard →</a>
-        </div>`
-      });
+          <a href="mailto:${sender_email}" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-right:10px">Reply to ${sender_name} →</a>
+          <a href="https://listdirect.ai/dashboard.html" style="background:none;border:1px solid rgba(62,240,122,0.4);color:#3ef07a;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">View in Dashboard →</a>
+        `)
+      }).catch(e => console.error('Seller notify error:', e.message));
     }
 
     res.json({ success: true, id: data.id });
