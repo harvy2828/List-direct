@@ -396,24 +396,23 @@ document.getElementById('agent-form').addEventListener('submit', async function(
     const agentEmail = selectedAgent ? (selectedAgent.email || '') : 'infolistdirect@gmail.com';
     const cashback = selectedAgent ? selectedAgent.cashback : 'TBD';
     
-    await fetch('/api/notify/agent-request', {
+    await fetch('/api/lead-capture', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
-        agent_name: agentName,
-        agent_email: agentEmail,
-        seller_name: sellerName,
-        seller_email: sellerEmail,
-        seller_phone: sellerPhone,
-        seller_address: sellerAddress,
-        seller_price: sellerPrice,
-        cashback: cashback
+        name: sellerName,
+        email: sellerEmail,
+        phone: sellerPhone,
+        address: sellerAddress || 'Not specified',
+        price: 0,
+        source: 'agent-request',
+        message: document.getElementById('f-notes')?.value || ''
       })
     });
 
     document.getElementById('agent-form').style.display = 'none';
-    document.getElementById('success-agent-name').textContent = selectedAgent.name;
-    document.getElementById('success-cashback').textContent = selectedAgent.cashback;
+    const successCashback = document.getElementById('success-cashback');
+    if (successCashback) successCashback.textContent = '1%';
     document.getElementById('success-box').classList.add('show');
     window.scrollTo({top: document.getElementById('request-section').offsetTop - 20, behavior:'smooth'});
   } catch(err) {
