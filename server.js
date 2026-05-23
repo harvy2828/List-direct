@@ -908,17 +908,14 @@ app.post('/api/offers', async (req, res) => {
       created_at: new Date().toISOString()
     }]);
 
-    // Notify seller via email — get email from profiles table
-    const { data: sellerProfile } = await supabase
-      .from('profiles')
-      .select('email, full_name')
-      .eq('id', seller_id)
-      .maybeSingle();
-    const sellerEmail = sellerProfile?.email;
-    if (sellerEmail) {
+    // Notify seller + ListDirect via email
+    const adminClient2 = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY);
+    const { data: offerSellerAuth } = await adminClient2.auth.admin.getUserById(seller_id).catch(() => ({ data: null }));
+    const offerSellerEmail = offerSellerAuth?.user?.email;
+    const offerRecipients = offerSellerEmail ? [offerSellerEmail, 'infolistdirect@gmail.com'] : ['infolistdirect@gmail.com'];
+    if (true) {
       await sendEmail({
-        to: sellerEmail,
-        cc: 'infolistdirect@gmail.com',
+        to: offerRecipients,
         reply_to: buyer_email,
         subject: `💰 New Offer — $${parseInt(offer_amount).toLocaleString()} on ${property}`,
         html: emailWrap(`
@@ -939,7 +936,6 @@ app.post('/api/offers', async (req, res) => {
           <a href="https://listdirect.ai/dashboard.html" style="background:none;border:1px solid rgba(62,240,122,0.4);color:#3ef07a;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">View in Dashboard →</a>
         `)
       }).catch(e => console.error('Offer notify error:', e.message));
-    }
     res.json({ success: true });
   } catch (err) {
     console.error('Offer error:', err.message);
@@ -970,32 +966,27 @@ app.post('/api/messages', async (req, res) => {
     }]).select().single();
     if (error) return res.status(400).json({ error: error.message });
 
-    // Notify seller via email — get email from profiles table (no admin key needed)
-    const { data: sellerProfile } = await supabase
-      .from('profiles')
-      .select('email, full_name')
-      .eq('id', validSellerId || seller_id)
-      .maybeSingle();
-    const sellerEmail = sellerProfile?.email;
-    if (sellerEmail) {
-      await sendEmail({
-        to: sellerEmail,
-        cc: 'infolistdirect@gmail.com',
-        reply_to: sender_email,
-        subject: '💬 New Message — ' + sender_name + ' is interested in your listing!',
-        html: emailWrap(`
-          <h2 style="color:#3ef07a;margin:0 0 8px">💬 New Message on Your Listing!</h2>
-          <p style="color:#7a9480;margin:0 0 20px">Hi ${sellerProfile?.full_name || 'there'}, someone is interested in your property on ListDirect.</p>
-          <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin-bottom:16px">
-            <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">From:</strong> ${sender_name}</p>
-            <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Email:</strong> ${sender_email}</p>
-            <p style="color:#e8f0e9;margin:0"><strong style="color:#3ef07a">Message:</strong> "${message}"</p>
-          </div>
-          <a href="mailto:${sender_email}" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-right:10px">Reply to ${sender_name} →</a>
-          <a href="https://listdirect.ai/dashboard.html" style="background:none;border:1px solid rgba(62,240,122,0.4);color:#3ef07a;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">View in Dashboard →</a>
-        `)
-      }).catch(e => console.error('Seller notify error:', e.message));
-    }
+    // Notify seller + ListDirect via email
+    const adminClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY);
+    const { data: sellerAuth } = await adminClient.auth.admin.getUserById(validSellerId || seller_id).catch(() => ({ data: null }));
+    const sellerEmail = sellerAuth?.user?.email;
+    const recipients = sellerEmail ? [sellerEmail, 'infolistdirect@gmail.com'] : ['infolistdirect@gmail.com'];
+    await sendEmail({
+      to: recipients,
+      reply_to: sender_email,
+      subject: '💬 New Message — ' + sender_name + ' is interested in a listing!',
+      html: emailWrap(`
+        <h2 style="color:#3ef07a;margin:0 0 8px">💬 New Message!</h2>
+        <p style="color:#7a9480;margin:0 0 20px">Someone is interested in a ListDirect property.</p>
+        <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin-bottom:16px">
+          <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">From:</strong> ${sender_name}</p>
+          <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Email:</strong> ${sender_email}</p>
+          <p style="color:#e8f0e9;margin:0"><strong style="color:#3ef07a">Message:</strong> "${message}"</p>
+        </div>
+        <a href="mailto:${sender_email}" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-right:10px">Reply to ${sender_name} →</a>
+        <a href="https://listdirect.ai/dashboard.html" style="background:none;border:1px solid rgba(62,240,122,0.4);color:#3ef07a;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">View in Dashboard →</a>
+      `)
+    }).catch(e => console.error('Message notify error:', e.message));
 
     res.json({ success: true, id: data.id });
   } catch (err) {
