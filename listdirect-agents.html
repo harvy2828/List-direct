@@ -372,7 +372,7 @@ function selectAgent(i) {
 // Form submission
 document.getElementById('agent-form').addEventListener('submit', async function(e) {
   e.preventDefault();
-  if (!selectedAgent) {
+  if (false) {
     alert('Please select an agent first by clicking their card above.');
     document.getElementById('agents-grid').scrollIntoView({behavior:'smooth'});
     return;
