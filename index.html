@@ -545,7 +545,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
 /* ═══ LISTING DETAIL MODAL ═══ */
 .listing-modal .modal{max-width:680px}
 .lm-imgs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:24px;border-radius:12px;overflow:hidden}
-.lm-imgs .lm-main{grid-column:1/2;grid-row:1/3;height:360px;background-size:cover;background-position:center}
+.lm-imgs .lm-main{grid-column:1/3;grid-row:1/2;height:360px;background-size:cover;background-position:center}
 .lm-imgs .lm-thumb{height:176px;background-size:cover;background-position:center}
 .lm-price{font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:900;color:var(--white);margin-bottom:4px}
 .lm-addr{color:var(--muted);margin-bottom:16px}
@@ -2554,7 +2554,7 @@ function openListingModal(l) {
           '<input id="mlsname-' + rid + '" type="text" placeholder="Your Name" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:8px;padding:10px 14px;color:#e8f0e9;font-size:0.88rem;margin-bottom:8px;box-sizing:border-box"><br>' +
           '<input id="mlsemail-' + rid + '" type="email" placeholder="Your Email" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:8px;padding:10px 14px;color:#e8f0e9;font-size:0.88rem;margin-bottom:8px;box-sizing:border-box"><br>' +
           '<input id="mlsphone-' + rid + '" type="tel" placeholder="Phone (optional)" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:8px;padding:10px 14px;color:#e8f0e9;font-size:0.88rem;margin-bottom:8px;box-sizing:border-box"><br>' +
-          '<button onclick="submitMLSRequest(' + JSON.stringify(rid) + ',' + JSON.stringify(l.addr+', '+l.city) + ',' + (l.price||0) + ')" style="width:100%;padding:11px;border-radius:50px;background:#3ef07a;color:#0a0f0d;border:none;font-weight:700;font-size:0.88rem;cursor:pointer">Send Request \u2192</button>' +
+          '<button onclick="submitMLSRequest(\'' + rid + '\',\'' + (l.addr||'').replace(/\'/g,\'\') + ', ' + (l.city||'').replace(/\'/g,\'\') + '\' ,' + (l.price||0) + ')" style="width:100%;padding:11px;border-radius:50px;background:#3ef07a;color:#0a0f0d;border:none;font-weight:700;font-size:0.88rem;cursor:pointer">Send Request \u2192</button>' +
           '<div id="mlsok-' + rid + '" style="display:none;text-align:center;color:#3ef07a;font-size:0.85rem;margin-top:8px;font-weight:600">\u2713 Sent! We will connect you with the listing agent shortly.</div>' +
           '</div>' +
           '<div class="lm-btns" style="flex-direction:column;gap:10px">' +
