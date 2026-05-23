@@ -767,185 +767,6 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
   </div>
 </div>
 
-<!-- ══ SAVINGS CALCULATOR — RIGHT AFTER HERO ══ -->
-<div class="calc-section" id="calculator">
-  <div class="calc-inner">
-    <div class="calc-headline">
-      <div class="section-tag" style="display:block;text-align:center">💰 Savings Calculator</div>
-      <h2 class="section-title" style="text-align:center;margin-bottom:6px">See exactly how much<br><em style="font-style:normal;color:var(--green)">you'll keep</em></h2>
-      <p style="text-align:center;color:var(--muted);font-size:1rem;margin-bottom:20px">Drag to your home's price. Watch what a traditional agent would take — vs. what you keep with ListDirect.</p>
-      
-      <!-- Country toggle for calculator -->
-      <div style="display:flex;justify-content:center;margin-bottom:28px">
-        <div style="background:var(--bg);border:1px solid var(--border);border-radius:50px;padding:4px;display:inline-flex;gap:4px">
-          <button id="calc-btn-ca" onclick="setCalcCountry('ca')" style="background:var(--green);color:#0a0f0d;border:none;padding:8px 20px;border-radius:50px;font-weight:700;font-size:0.88rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px"><img src="https://flagcdn.com/40x30/ca.png" alt="CA" style="width:26px;height:16px;border-radius:2px"> Canada</button>
-          <button id="calc-btn-us" onclick="setCalcCountry('us')" style="background:none;color:var(--muted);border:none;padding:8px 20px;border-radius:50px;font-weight:600;font-size:0.88rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px"><img src="https://flagcdn.com/40x30/us.png" alt="US" style="width:26px;height:16px;border-radius:2px"> United States</button>
-        </div>
-      </div>
-    </div>
-    <div class="calc-box">
-      <!-- Price display -->
-      <div class="calc-slider-row">
-        <div class="calc-price-label">Your Home's Sale Price</div>
-        <div class="calc-price-display" id="calc-price-display">$450,000</div>
-        <input type="range" id="home-price-slider" min="100000" max="10000000" step="25000" value="450000" oninput="updateCalc()"/>
-        <!-- Fixed tick marks with correct labels -->
-        <div class="calc-slider-ticks">
-          <span>$100k</span>
-          <span>$1M</span>
-          <span>$2.5M</span>
-          <span>$5M</span>
-          <span>$7.5M</span>
-          <span>$10M</span>
-        </div>
-      </div>
-      <!-- Quick preset buttons -->
-      <div class="calc-presets">
-        <button class="calc-preset" onclick="setCalcPrice(300000,this)">$300k</button>
-        <button class="calc-preset" onclick="setCalcPrice(500000,this)">$500k</button>
-        <button class="calc-preset active" onclick="setCalcPrice(450000,this)">$450k</button>
-        <button class="calc-preset" onclick="setCalcPrice(750000,this)">$750k</button>
-        <button class="calc-preset" onclick="setCalcPrice(1000000,this)">$1M</button>
-        <button class="calc-preset" onclick="setCalcPrice(2500000,this)">$2.5M</button>
-        <button class="calc-preset" onclick="setCalcPrice(5000000,this)">$5M</button>
-        <button class="calc-preset" onclick="setCalcPrice(10000000,this)">$10M</button>
-      </div>
-      <!-- Comparison bars -->
-      <div class="calc-bars">
-        <div class="calc-bar-row">
-          <div class="calc-bar-meta">
-            <span class="cbm-label">Traditional Agent <span class="cbm-pct">(6%)</span></span>
-            <span class="cbm-val red" id="bar-trad-val">$27,000</span>
-          </div>
-          <div class="calc-bar-track"><div class="calc-bar-fill cb-red" id="bar-trad" style="width:100%"></div></div>
-          <div class="cbm-note">❌ Gone forever. You pay this to an agent.</div>
-        </div>
-        <div class="calc-bar-row">
-          <div class="calc-bar-meta">
-            <span class="cbm-label">Our Certified Agent <span class="cbm-pct">(net cost)</span></span>
-            <span class="cbm-val gold" id="bar-agent-val">$18,000</span>
-          </div>
-          <div class="calc-bar-track"><div class="calc-bar-fill cb-gold" id="bar-agent" style="width:67%"></div></div>
-          <div class="cbm-note" id="bar-agent-note-text">Agent charges ~4% · You get 1% cashback back · Net cost ~5%</div>
-        </div>
-        <div class="calc-bar-row">
-          <div class="calc-bar-meta">
-            <span class="cbm-label">ListDirect AI Agent <span class="cbm-pct">(1%)</span></span>
-            <span class="cbm-val green" id="bar-direct-val">$4,500</span>
-          </div>
-          <div class="calc-bar-track"><div class="calc-bar-fill cb-green" id="bar-direct" style="width:17%"></div></div>
-          <div class="cbm-note">✅ Our platform fee only — that's it. Nothing else.</div>
-        </div>
-      </div>
-      <!-- Cashback callout -->
-      <div style="background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:12px;padding:14px 18px;margin-bottom:16px;font-size:0.85rem;color:var(--muted);display:flex;align-items:center;gap:10px">
-        <span style="font-size:1.2rem;flex-shrink:0">💰</span>
-        <span>With <strong style="color:var(--gold)">Our Certified Agent</strong>, you get <strong style="color:var(--green)" id="cashback-amount">$4,500</strong> cash back after closing — versus $0 from a traditional agent.</span>
-      </div>
-      <!-- The big payoff -->
-      <div class="calc-payoff">
-        <div class="calc-payoff-left">
-          <div class="calc-payoff-label">💰 Go AI Direct and keep your equity</div>
-          <div class="calc-payoff-sub">Only 1% platform fee — you keep almost everything</div>
-        </div>
-        <div class="calc-payoff-right">
-          <div class="calc-payoff-num" id="calc-savings">$22,500</div>
-          <button class="calc-list-btn" onclick="openPM()">Start Saving →</button>
-        </div>
-      </div>
-      <!-- What could you do with the savings -->
-      <div class="calc-whatif">
-        <div class="cwi-label">With that savings you could…</div>
-        <div class="cwi-items" id="cwi-items"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- STATS -->
-
-<!-- SEARCH SECTION -->
-<div class="search-section" id="search-section">
-  <div class="search-inner">
-    <div class="section-tag">Property Search</div>
-    <h2>Search Any City.<br><em style="font-style:normal;color:var(--green)">ListDirect Sellers Rise to the Top.</em></h2>
-    <div class="search-box">
-      <!-- Country toggle -->
-      <div class="search-country-row">
-        <button class="country-btn active" id="btn-ca" onclick="setCountry('ca',this)"><img src="https://flagcdn.com/40x30/ca.png" alt="CA" style="width:26px;height:16px;margin-right:6px;vertical-align:middle;border-radius:2px"> Canada</button>
-        <button class="country-btn" id="btn-us" onclick="setCountry('us',this)"><img src="https://flagcdn.com/40x30/us.png" alt="US" style="width:26px;height:16px;margin-right:6px;vertical-align:middle;border-radius:2px"> United States</button>
-        <span class="country-hint" id="country-hint">Searching US cities & ZIP codes</span>
-      </div>
-      <div class="search-top-row">
-        <div class="search-input-wrap" style="flex:3">
-          <span class="s-icon">📍</span>
-          <input type="text" id="search-input" placeholder="City, ZIP, or neighborhood…" onkeydown="if(event.key==='Enter'){setTimeout(runSearch,100)}"/>
-        </div>
-        <select class="search-select" id="filter-beds" onchange="runSearch()">
-          <option value="">Any Beds</option>
-          <option value="2">2+ Beds</option>
-          <option value="3">3+ Beds</option>
-          <option value="4">4+ Beds</option>
-        </select>
-        <select class="search-select" id="filter-price" onchange="runSearch()">
-          <option value="">Any Price</option>
-          <option value="300000" id="price-opt-300">Under $300k</option>
-          <option value="500000" id="price-opt-500">Under $500k</option>
-          <option value="750000" id="price-opt-750">Under $750k</option>
-          <option value="1000000" id="price-opt-1m">Under $1M</option>
-        </select>
-        <button class="search-btn" onclick="setTimeout(runSearch,100)">Search</button>
-      </div>
-      <div class="filter-row">
-        <span class="filter-label">Type:</span>
-        <button class="filter-chip active" data-type="all" onclick="setTypeFilter(this,'all')">All</button>
-        <button class="filter-chip" data-type="house" onclick="setTypeFilter(this,'house')">🏠 House</button>
-        <button class="filter-chip" data-type="condo" onclick="setTypeFilter(this,'condo')">🏢 Condo</button>
-        <button class="filter-chip" data-type="townhome" onclick="setTypeFilter(this,'townhome')">🏘 Townhome</button>
-        <span class="filter-label" style="margin-left:12px">Show:</span>
-        <button class="filter-chip active" data-listing="all" onclick="setListingFilter(this,'all')">All Homes</button>
-        <button class="filter-chip" data-listing="verified" onclick="setListingFilter(this,'verified')">⭐ ListDirect Only</button>
-      </div>
-    </div>
-
-    <!-- State banners -->
-<div id="banner-ai-results" style="display:none"></div>
-    <div id="mls-disclaimer" style="display:none;font-size:0.72rem;color:var(--muted);padding:10px 16px;border-top:1px solid var(--border);line-height:1.6;margin-top:8px">
-      Copyright 2025 by the Greater Vancouver REALTORS®, Fraser Valley Real Estate Board, Chilliwack and District Real Estate Board, and BC Northern Real Estate Board. All Rights Reserved. The data relating to real estate on this website comes in part from the MLS® Reciprocity program. Real estate listings held by participating real estate firms are marked with the MLS® logo. The information contained in these listings has not been verified by ListDirect and should be verified by the buyer.
-    </div>
-    <div id="banner-list-yours" style="display:none;background:rgba(62,240,122,0.05);border-top:1px solid rgba(62,240,122,0.15);border-bottom:1px solid rgba(62,240,122,0.15);padding:8px 16px;margin-bottom:16px;align-items:center;justify-content:space-between;gap:12px">
-      <div style="font-size:0.78rem;color:var(--muted)">🏡 Selling in this area? <strong style="color:var(--green)">List on ListDirect and appear first in every search.</strong></div>
-      <button onclick="openPM()" style="background:none;border:1px solid rgba(62,240,122,0.4);color:var(--green);padding:4px 14px;border-radius:50px;font-weight:600;font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;flex-shrink:0">List Free →</button>
-    </div>
-
-    <div class="results-header">
-      <div class="results-count"><strong id="result-count">12</strong> homes found <span id="search-city-label"></span></div>
-      <select class="sort-select" id="sort-select" onchange="renderCurrentResults()">
-        <option value="match">Best Match</option>
-        <option value="price-asc">Price: Low to High</option>
-        <option value="price-desc">Price: High to Low</option>
-        <option value="newest">Newest</option>
-      </select>
-    </div>
-
-    <div class="search-loading" id="search-loading">
-      <div class="search-loading-inner">
-        <div class="sl-spinner"></div>
-        <div class="sl-text" id="search-loading-text">Searching listings and generating <strong>AI market data</strong> for your area…</div>
-      </div>
-    </div>
-
-    <div class="listings-grid" id="listings-grid"></div>
-    <div id="load-more-wrap" style="display:none;text-align:center;margin-top:24px">
-      <button id="load-more-btn" onclick="loadMoreListings()" style="background:none;border:1px solid rgba(62,240,122,0.4);color:var(--green);padding:12px 32px;border-radius:50px;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.background='rgba(62,240,122,0.08)'" onmouseout="this.style.background='none'">Load More Listings →</button>
-    </div>
-    <div class="view-all-row" id="view-all-row">
-      <button class="btn-outline" onclick="openPM()" style="display:inline-flex;gap:8px;align-items:center;margin-right:12px">🏠 List My Home — Get Top Placement</button>
-      <button class="btn-outline" onclick="openModal('buy')" style="display:inline-flex;gap:8px;align-items:center">See All Results →</button>
-    </div>
-  </div>
-</div>
-
 <!-- HOW IT WORKS -->
 <div class="ai-tools-section" id="ai-tools">
   <div class="ai-tools-inner">
@@ -1215,6 +1036,185 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
   <div class="stat-item"><div class="stat-num" style="display:flex;align-items:center;justify-content:center;gap:10px;min-height:3.2rem"><img src="https://flagcdn.com/80x60/ca.png" alt="CA" style="width:56px;height:42px;border-radius:4px"><img src="https://flagcdn.com/80x60/us.png" alt="US" style="width:56px;height:42px;border-radius:4px"></div><div class="stat-label" style="margin-top:20px">Canada & USA</div></div>
   <div class="stat-item"><div class="stat-num">AI</div><div class="stat-label">Powered platform</div></div>
 </div>
+<!-- SEARCH SECTION -->
+<div class="search-section" id="search-section">
+  <div class="search-inner">
+    <div class="section-tag">Property Search</div>
+    <h2>Search Any City.<br><em style="font-style:normal;color:var(--green)">ListDirect Sellers Rise to the Top.</em></h2>
+    <div class="search-box">
+      <!-- Country toggle -->
+      <div class="search-country-row">
+        <button class="country-btn active" id="btn-ca" onclick="setCountry('ca',this)"><img src="https://flagcdn.com/40x30/ca.png" alt="CA" style="width:26px;height:16px;margin-right:6px;vertical-align:middle;border-radius:2px"> Canada</button>
+        <button class="country-btn" id="btn-us" onclick="setCountry('us',this)"><img src="https://flagcdn.com/40x30/us.png" alt="US" style="width:26px;height:16px;margin-right:6px;vertical-align:middle;border-radius:2px"> United States</button>
+        <span class="country-hint" id="country-hint">Searching US cities & ZIP codes</span>
+      </div>
+      <div class="search-top-row">
+        <div class="search-input-wrap" style="flex:3">
+          <span class="s-icon">📍</span>
+          <input type="text" id="search-input" placeholder="City, ZIP, or neighborhood…" onkeydown="if(event.key==='Enter'){setTimeout(runSearch,100)}"/>
+        </div>
+        <select class="search-select" id="filter-beds" onchange="runSearch()">
+          <option value="">Any Beds</option>
+          <option value="2">2+ Beds</option>
+          <option value="3">3+ Beds</option>
+          <option value="4">4+ Beds</option>
+        </select>
+        <select class="search-select" id="filter-price" onchange="runSearch()">
+          <option value="">Any Price</option>
+          <option value="300000" id="price-opt-300">Under $300k</option>
+          <option value="500000" id="price-opt-500">Under $500k</option>
+          <option value="750000" id="price-opt-750">Under $750k</option>
+          <option value="1000000" id="price-opt-1m">Under $1M</option>
+        </select>
+        <button class="search-btn" onclick="setTimeout(runSearch,100)">Search</button>
+      </div>
+      <div class="filter-row">
+        <span class="filter-label">Type:</span>
+        <button class="filter-chip active" data-type="all" onclick="setTypeFilter(this,'all')">All</button>
+        <button class="filter-chip" data-type="house" onclick="setTypeFilter(this,'house')">🏠 House</button>
+        <button class="filter-chip" data-type="condo" onclick="setTypeFilter(this,'condo')">🏢 Condo</button>
+        <button class="filter-chip" data-type="townhome" onclick="setTypeFilter(this,'townhome')">🏘 Townhome</button>
+        <span class="filter-label" style="margin-left:12px">Show:</span>
+        <button class="filter-chip active" data-listing="all" onclick="setListingFilter(this,'all')">All Homes</button>
+        <button class="filter-chip" data-listing="verified" onclick="setListingFilter(this,'verified')">⭐ ListDirect Only</button>
+      </div>
+    </div>
+
+    <!-- State banners -->
+<div id="banner-ai-results" style="display:none"></div>
+    <div id="mls-disclaimer" style="display:none;font-size:0.72rem;color:var(--muted);padding:10px 16px;border-top:1px solid var(--border);line-height:1.6;margin-top:8px">
+      Copyright 2025 by the Greater Vancouver REALTORS®, Fraser Valley Real Estate Board, Chilliwack and District Real Estate Board, and BC Northern Real Estate Board. All Rights Reserved. The data relating to real estate on this website comes in part from the MLS® Reciprocity program. Real estate listings held by participating real estate firms are marked with the MLS® logo. The information contained in these listings has not been verified by ListDirect and should be verified by the buyer.
+    </div>
+    <div id="banner-list-yours" style="display:none;background:rgba(62,240,122,0.05);border-top:1px solid rgba(62,240,122,0.15);border-bottom:1px solid rgba(62,240,122,0.15);padding:8px 16px;margin-bottom:16px;align-items:center;justify-content:space-between;gap:12px">
+      <div style="font-size:0.78rem;color:var(--muted)">🏡 Selling in this area? <strong style="color:var(--green)">List on ListDirect and appear first in every search.</strong></div>
+      <button onclick="openPM()" style="background:none;border:1px solid rgba(62,240,122,0.4);color:var(--green);padding:4px 14px;border-radius:50px;font-weight:600;font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;flex-shrink:0">List Free →</button>
+    </div>
+
+    <div class="results-header">
+      <div class="results-count"><strong id="result-count">12</strong> homes found <span id="search-city-label"></span></div>
+      <select class="sort-select" id="sort-select" onchange="renderCurrentResults()">
+        <option value="match">Best Match</option>
+        <option value="price-asc">Price: Low to High</option>
+        <option value="price-desc">Price: High to Low</option>
+        <option value="newest">Newest</option>
+      </select>
+    </div>
+
+    <div class="search-loading" id="search-loading">
+      <div class="search-loading-inner">
+        <div class="sl-spinner"></div>
+        <div class="sl-text" id="search-loading-text">Searching listings and generating <strong>AI market data</strong> for your area…</div>
+      </div>
+    </div>
+
+    <div class="listings-grid" id="listings-grid"></div>
+    <div id="load-more-wrap" style="display:none;text-align:center;margin-top:24px">
+      <button id="load-more-btn" onclick="loadMoreListings()" style="background:none;border:1px solid rgba(62,240,122,0.4);color:var(--green);padding:12px 32px;border-radius:50px;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.background='rgba(62,240,122,0.08)'" onmouseout="this.style.background='none'">Load More Listings →</button>
+    </div>
+    <div class="view-all-row" id="view-all-row">
+      <button class="btn-outline" onclick="openPM()" style="display:inline-flex;gap:8px;align-items:center;margin-right:12px">🏠 List My Home — Get Top Placement</button>
+      <button class="btn-outline" onclick="openModal('buy')" style="display:inline-flex;gap:8px;align-items:center">See All Results →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SAVINGS CALCULATOR — RIGHT AFTER HERO ══ -->
+<div class="calc-section" id="calculator">
+  <div class="calc-inner">
+    <div class="calc-headline">
+      <div class="section-tag" style="display:block;text-align:center">💰 Savings Calculator</div>
+      <h2 class="section-title" style="text-align:center;margin-bottom:6px">See exactly how much<br><em style="font-style:normal;color:var(--green)">you'll keep</em></h2>
+      <p style="text-align:center;color:var(--muted);font-size:1rem;margin-bottom:20px">Drag to your home's price. Watch what a traditional agent would take — vs. what you keep with ListDirect.</p>
+      
+      <!-- Country toggle for calculator -->
+      <div style="display:flex;justify-content:center;margin-bottom:28px">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:50px;padding:4px;display:inline-flex;gap:4px">
+          <button id="calc-btn-ca" onclick="setCalcCountry('ca')" style="background:var(--green);color:#0a0f0d;border:none;padding:8px 20px;border-radius:50px;font-weight:700;font-size:0.88rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px"><img src="https://flagcdn.com/40x30/ca.png" alt="CA" style="width:26px;height:16px;border-radius:2px"> Canada</button>
+          <button id="calc-btn-us" onclick="setCalcCountry('us')" style="background:none;color:var(--muted);border:none;padding:8px 20px;border-radius:50px;font-weight:600;font-size:0.88rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px"><img src="https://flagcdn.com/40x30/us.png" alt="US" style="width:26px;height:16px;border-radius:2px"> United States</button>
+        </div>
+      </div>
+    </div>
+    <div class="calc-box">
+      <!-- Price display -->
+      <div class="calc-slider-row">
+        <div class="calc-price-label">Your Home's Sale Price</div>
+        <div class="calc-price-display" id="calc-price-display">$450,000</div>
+        <input type="range" id="home-price-slider" min="100000" max="10000000" step="25000" value="450000" oninput="updateCalc()"/>
+        <!-- Fixed tick marks with correct labels -->
+        <div class="calc-slider-ticks">
+          <span>$100k</span>
+          <span>$1M</span>
+          <span>$2.5M</span>
+          <span>$5M</span>
+          <span>$7.5M</span>
+          <span>$10M</span>
+        </div>
+      </div>
+      <!-- Quick preset buttons -->
+      <div class="calc-presets">
+        <button class="calc-preset" onclick="setCalcPrice(300000,this)">$300k</button>
+        <button class="calc-preset" onclick="setCalcPrice(500000,this)">$500k</button>
+        <button class="calc-preset active" onclick="setCalcPrice(450000,this)">$450k</button>
+        <button class="calc-preset" onclick="setCalcPrice(750000,this)">$750k</button>
+        <button class="calc-preset" onclick="setCalcPrice(1000000,this)">$1M</button>
+        <button class="calc-preset" onclick="setCalcPrice(2500000,this)">$2.5M</button>
+        <button class="calc-preset" onclick="setCalcPrice(5000000,this)">$5M</button>
+        <button class="calc-preset" onclick="setCalcPrice(10000000,this)">$10M</button>
+      </div>
+      <!-- Comparison bars -->
+      <div class="calc-bars">
+        <div class="calc-bar-row">
+          <div class="calc-bar-meta">
+            <span class="cbm-label">Traditional Agent <span class="cbm-pct">(6%)</span></span>
+            <span class="cbm-val red" id="bar-trad-val">$27,000</span>
+          </div>
+          <div class="calc-bar-track"><div class="calc-bar-fill cb-red" id="bar-trad" style="width:100%"></div></div>
+          <div class="cbm-note">❌ Gone forever. You pay this to an agent.</div>
+        </div>
+        <div class="calc-bar-row">
+          <div class="calc-bar-meta">
+            <span class="cbm-label">Our Certified Agent <span class="cbm-pct">(net cost)</span></span>
+            <span class="cbm-val gold" id="bar-agent-val">$18,000</span>
+          </div>
+          <div class="calc-bar-track"><div class="calc-bar-fill cb-gold" id="bar-agent" style="width:67%"></div></div>
+          <div class="cbm-note" id="bar-agent-note-text">Agent charges ~4% · You get 1% cashback back · Net cost ~5%</div>
+        </div>
+        <div class="calc-bar-row">
+          <div class="calc-bar-meta">
+            <span class="cbm-label">ListDirect AI Agent <span class="cbm-pct">(1%)</span></span>
+            <span class="cbm-val green" id="bar-direct-val">$4,500</span>
+          </div>
+          <div class="calc-bar-track"><div class="calc-bar-fill cb-green" id="bar-direct" style="width:17%"></div></div>
+          <div class="cbm-note">✅ Our platform fee only — that's it. Nothing else.</div>
+        </div>
+      </div>
+      <!-- Cashback callout -->
+      <div style="background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:12px;padding:14px 18px;margin-bottom:16px;font-size:0.85rem;color:var(--muted);display:flex;align-items:center;gap:10px">
+        <span style="font-size:1.2rem;flex-shrink:0">💰</span>
+        <span>With <strong style="color:var(--gold)">Our Certified Agent</strong>, you get <strong style="color:var(--green)" id="cashback-amount">$4,500</strong> cash back after closing — versus $0 from a traditional agent.</span>
+      </div>
+      <!-- The big payoff -->
+      <div class="calc-payoff">
+        <div class="calc-payoff-left">
+          <div class="calc-payoff-label">💰 Go AI Direct and keep your equity</div>
+          <div class="calc-payoff-sub">Only 1% platform fee — you keep almost everything</div>
+        </div>
+        <div class="calc-payoff-right">
+          <div class="calc-payoff-num" id="calc-savings">$22,500</div>
+          <button class="calc-list-btn" onclick="openPM()">Start Saving →</button>
+        </div>
+      </div>
+      <!-- What could you do with the savings -->
+      <div class="calc-whatif">
+        <div class="cwi-label">With that savings you could…</div>
+        <div class="cwi-items" id="cwi-items"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+
 <div class="how-section" id="how">
   <div class="how-inner">
     <div class="section-tag">The Process</div>
