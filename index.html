@@ -544,9 +544,10 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
 
 /* ═══ LISTING DETAIL MODAL ═══ */
 .listing-modal .modal{max-width:680px}
-.lm-imgs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:24px;border-radius:12px;overflow:hidden}
-.lm-imgs .lm-main{grid-column:1/3;grid-row:1/2;height:360px;background-size:cover;background-position:center}
-.lm-imgs .lm-thumb{height:176px;background-size:cover;background-position:center}
+.lm-imgs{margin-bottom:16px;border-radius:12px;overflow:hidden}
+.lm-imgs .lm-main{width:100%;height:240px;background-size:cover;background-position:center;position:relative}
+.lm-imgs .lm-thumbs-row{display:flex;gap:4px;margin-top:4px}
+.lm-imgs .lm-thumb{flex:1;height:72px;background-size:cover;background-position:center;border-radius:6px}
 .lm-price{font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:900;color:var(--white);margin-bottom:4px}
 .lm-addr{color:var(--muted);margin-bottom:16px}
 .lm-specs-row{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
@@ -2519,12 +2520,11 @@ function openListingModal(l) {
   window._modalPhotos = photos;
   content.innerHTML = `
     <div class="lm-imgs">
-      <div class="lm-main" id="lm-main-view" style="position:relative;overflow:hidden;padding:0">
+      <div class="lm-main" id="lm-main-view">
         <div id="lm-photo-view" style="position:absolute;inset:0;background-image:url('${photos[0]||l.img}');background-size:cover;background-position:center;cursor:zoom-in" onclick="openModalLightbox(0)"></div>
         <div id="lm-sv-view" style="position:absolute;inset:0;display:none"></div>
       </div>
-      <div class="lm-thumb" style="background-image:url('${photos[1]||l.img2||''}');cursor:${photos[1]?'zoom-in':'default'}" ${photos[1]?'onclick="openModalLightbox(1)"':''}></div>
-      <div class="lm-thumb" style="background-image:url('${photos[2]||l.img3||''}');cursor:${photos[2]?'zoom-in':'default'}" ${photos[2]?'onclick="openModalLightbox(2)"':''}></div>
+      ${photos.length > 1 ? '<div class="lm-thumbs-row">' + photos.slice(1,4).map((p,i) => `<div class="lm-thumb" style="background-image:url('${p}')" onclick="openModalLightbox(${i+1})"></div>`).join('') + '</div>' : ''}
     </div>
     <div style="display:flex;gap:8px;margin-bottom:14px">
       <button onclick="openModalLightbox(0)" id="lm-btn-photo" style="flex:1;padding:8px;border-radius:50px;border:1px solid var(--green);background:var(--green);color:var(--bg);font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">📷 All Photos (${photos.length})</button>
