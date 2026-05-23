@@ -2469,21 +2469,36 @@ function initStreetViewPanorama(containerId, address, lat, lng) {
   if (lat && lng) {
     launchPanorama({ lat: parseFloat(lat), lng: parseFloat(lng) });
   } else if (address) {
-    fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + encodeURIComponent(address) + '&key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A')
-      .then(r => r.json())
-      .then(data => {
-        if (data.results && data.results[0]) {
-          const loc = data.results[0].geometry.location;
-          launchPanorama({ lat: loc.lat, lng: loc.lng });
+    const doGeocode = () => {
+      if (!window.google || !window.google.maps || !window.google.maps.Geocoder) {
+        setTimeout(doGeocode, 300);
+        return;
+      }
+      new google.maps.Geocoder().geocode({ address: address }, (results, status) => {
+        if (status === 'OK' && results[0]) {
+          launchPanorama(results[0].geometry.location);
         } else {
-          const c = document.getElementById(containerId);
-          if (c) c.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#7a9480;font-size:0.85rem;background:#0d1510">Street View not available for this address</div>';
+          // Try with just city + postal code as fallback
+          const parts = address.split(',');
+          const postal = parts.find(p => /[A-Z]\d[A-Z]/i.test(p.trim()));
+          const city = parts[1]?.trim();
+          if (postal && city) {
+            new google.maps.Geocoder().geocode({ address: postal.trim() + ', ' + city + ', Canada' }, (r2, s2) => {
+              if (s2 === 'OK' && r2[0]) {
+                launchPanorama(r2[0].geometry.location);
+              } else {
+                const c = document.getElementById(containerId);
+                if (c) c.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#7a9480;font-size:0.85rem;background:#0d1510">Street View not available for this address</div>';
+              }
+            });
+          } else {
+            const c = document.getElementById(containerId);
+            if (c) c.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#7a9480;font-size:0.85rem;background:#0d1510">Street View not available for this address</div>';
+          }
         }
-      })
-      .catch(() => {
-        const c = document.getElementById(containerId);
-        if (c) c.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#7a9480;font-size:0.85rem;background:#0d1510">Street View not available</div>';
       });
+    };
+    doGeocode();
   } else {
     setTimeout(() => initStreetViewPanorama(containerId, address, lat, lng), 500);
   }
