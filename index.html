@@ -545,8 +545,8 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
 /* ═══ LISTING DETAIL MODAL ═══ */
 .listing-modal .modal{max-width:680px}
 .lm-imgs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:24px;border-radius:12px;overflow:hidden}
-.lm-imgs .lm-main{grid-column:1/2;grid-row:1/3;height:280px;background-size:cover;background-position:center}
-.lm-imgs .lm-thumb{height:136px;background-size:cover;background-position:center}
+.lm-imgs .lm-main{grid-column:1/2;grid-row:1/3;height:360px;background-size:cover;background-position:center}
+.lm-imgs .lm-thumb{height:176px;background-size:cover;background-position:center}
 .lm-price{font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:900;color:var(--white);margin-bottom:4px}
 .lm-addr{color:var(--muted);margin-bottom:16px}
 .lm-specs-row{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
@@ -2559,7 +2559,7 @@ function openListingModal(l) {
           '</div>' +
           '<div class="lm-btns" style="flex-direction:column;gap:10px">' +
           '<button class="lm-btn-primary" onclick="var f=document.getElementById(' + JSON.stringify('mlsform-'+rid) + ');f.style.display=f.style.display===\'none\'?\'block\':\'none\'">\ud83d\udce9 Request Info from Agent</button>' +
-          '<a href="https://www.realtor.ca/map#view=list" target="_blank" style="padding:13px;border-radius:50px;font-weight:700;font-size:0.9rem;background:none;border:1px solid rgba(62,240,122,0.4);color:#3ef07a;text-align:center;text-decoration:none;display:block">\ud83d\udd17 View on Realtor.ca \u2192</a>' +
+          '<a href="' + ('https://www.google.com/search?q=' + encodeURIComponent((l.addr||'') + ' ' + (l.city||'') + ' BC realtor.ca')) + '" target="_blank" style="padding:13px;border-radius:50px;font-weight:700;font-size:0.9rem;background:none;border:1px solid rgba(62,240,122,0.4);color:#3ef07a;text-align:center;text-decoration:none;display:block">\ud83d\udd17 Find on Realtor.ca \u2192</a>' +
           '<button class="lm-btn-outline" onclick="closeListingModal()">Close</button>' +
           '</div>';
       }
@@ -2598,7 +2598,7 @@ async function submitMLSRequest(listingId, property, price) {
     await fetch('/api/lead-capture', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, phone, message: 'Interested in this MLS listing.', property, price, source: 'mls-request' })
+      body: JSON.stringify({ name, email, phone, address: property, price, source: 'mls-request' })
     });
     document.getElementById('mlsok-' + listingId).style.display = 'block';
   } catch(e) {
