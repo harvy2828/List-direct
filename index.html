@@ -2523,7 +2523,7 @@ function switchLMView(type, val) {
 
 function openListingModal(l) {
   const content = document.getElementById('listing-modal-content');
-  const svAddr = l.streetview_addr || (l.addr ? `${l.addr}, ${l.city}, ${l.zip && /^[A-Z]\d[A-Z]/i.test((l.zip||'').trim()) ? 'BC' : (l.state || '')} ${l.zip || ''}` : '');
+  const svAddr = l.streetview_addr || (l.mls && l.zip ? (l.zip + ', ' + l.city + ', BC, Canada') : (l.addr ? `${l.addr}, ${l.city}, ${l.zip && /^[A-Z]\d[A-Z]/i.test((l.zip||'').trim()) ? 'BC' : (l.state || '')} ${l.zip || ''}` : ''));
   const photos = l.allPhotos && l.allPhotos.length ? l.allPhotos : [l.img, l.img2, l.img3].filter(Boolean);
   // Store photos globally so onclick can reference without JSON escaping issues
   window._modalPhotos = photos;
