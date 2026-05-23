@@ -2150,7 +2150,8 @@ function renderListings(list) {
       shownMarket = true;
       const div = document.createElement('div');
       div.className = 'section-divider';
-      div.innerHTML = '<span>🏘 Market Listings — AI Estimated Data</span>';
+      const label = l.mls ? 'MLS\u00ae Listings' : l.us ? 'Market Listings' : 'Market Listings';
+      div.innerHTML = '<span>🏘 ' + label + '</span>';
       grid.appendChild(div);
     }
 
@@ -2476,15 +2477,22 @@ function initStreetViewPanorama(containerId, address, lat, lng) {
 
   if (lat && lng) {
     launchPanorama({ lat: parseFloat(lat), lng: parseFloat(lng) });
-  } else if (address && window.google && window.google.maps) {
-    new google.maps.Geocoder().geocode({ address: address }, function(results, status) {
-      if (status === 'OK' && results[0]) {
-        launchPanorama(results[0].geometry.location);
-      } else {
+  } else if (address) {
+    fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + encodeURIComponent(address) + '&key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A')
+      .then(r => r.json())
+      .then(data => {
+        if (data.results && data.results[0]) {
+          const loc = data.results[0].geometry.location;
+          launchPanorama({ lat: loc.lat, lng: loc.lng });
+        } else {
+          const c = document.getElementById(containerId);
+          if (c) c.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#7a9480;font-size:0.85rem;background:#0d1510">Street View not available for this address</div>';
+        }
+      })
+      .catch(() => {
         const c = document.getElementById(containerId);
         if (c) c.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#7a9480;font-size:0.85rem;background:#0d1510">Street View not available</div>';
-      }
-    });
+      });
   } else {
     setTimeout(() => initStreetViewPanorama(containerId, address, lat, lng), 500);
   }
