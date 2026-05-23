@@ -1163,7 +1163,8 @@ app.get('/api/mls/canada', async (req, res) => {
     const params = new URLSearchParams({
       '$filter': filters.join(' and '),
       '$top': '20',
-      '$orderby': 'ModificationTimestamp desc'
+      '$orderby': 'ModificationTimestamp desc',
+      '$select': 'ListingKey,ListPrice,City,PostalCode,StateOrProvince,BedroomsTotal,BathroomsTotalInteger,BathroomsFull,BathroomsHalf,LivingArea,LotSizeArea,LotSizeSquareFeet,YearBuilt,PropertyType,PropertySubType,PublicRemarks,StreetNumber,StreetName,StreetSuffix,ListingContractDate,ListOfficeMlsId,Latitude,Longitude,GarageSpaces,GarageYN,ParkingTotal,Stories,Heating,Cooling,FireplacesTotal,Media'
     });
 
     const response = await fetch(`${BRIDGE_BASE}/Property?${params.toString()}`, {
@@ -1180,7 +1181,6 @@ app.get('/api/mls/canada', async (req, res) => {
     }
 
     const data = await response.json();
-    if (data.value && data.value[0]) console.log('Bridge fields:', Object.keys(data.value[0]).join(', '));
     const listings = (data.value || []).map(l => {
       const addr = [l.StreetNumber, l.StreetName, l.StreetSuffix].filter(Boolean).join(' ');
       const allPhotos = (l.Media || [])
@@ -1205,11 +1205,17 @@ app.get('/api/mls/canada', async (req, res) => {
         beds: parseInt(l.BedroomsTotal) || 0,
         baths: parseFloat(l.BathroomsTotalInteger) || 0,
         sqft: parseInt(l.LivingArea) || 0,
-        lotSize: parseInt(l.LotSizeArea) || 0,
+        lotSize: parseInt(l.LotSizeSquareFeet || l.LotSizeArea) || 0,
         type: l.PropertyType || 'house',
         yearBuilt: l.YearBuilt || null,
-        lat: l.Latitude || l.Lat || l.GeoLat || null,
-        lng: l.Longitude || l.Lng || l.GeoLon || l.Long || null,
+        lat: l.Latitude || null,
+        lng: l.Longitude || null,
+        garage: l.GarageSpaces || (l.GarageYN ? 1 : 0),
+        parking: l.ParkingTotal || 0,
+        stories: l.Stories || null,
+        heating: l.Heating || null,
+        cooling: l.Cooling || null,
+        fireplaces: l.FireplacesTotal || 0,
         lat: l.Latitude || null,
         lng: l.Longitude || null,
         days,
