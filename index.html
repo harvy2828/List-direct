@@ -77,11 +77,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .hero h1{font-family:'Playfair Display',serif;font-size:clamp(2.8rem,7vw,6rem);font-weight:900;line-height:1.05;color:var(--white);max-width:900px;position:relative;z-index:1;animation:fadeUp 0.8s 0.1s ease both}
 .hero h1 em{font-style:normal;color:var(--green)}
 .hero-sub{margin-top:16px;font-size:0.95rem;color:var(--muted);max-width:560px;line-height:1.6;position:relative;z-index:1;animation:fadeUp 0.8s 0.2s ease both}
-.hero-actions{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:40px;position:relative;z-index:1;animation:fadeUp 0.8s 0.3s ease both}
-.hero-btns-row1{display:flex;gap:8px;justify-content:center;width:100%}
-.hero-btns-row2{display:flex;justify-content:center;width:100%}
-.hero-btn,.hero-btn-calc{font-size:0.78rem;padding:7px 14px;border-radius:50px}
-@media(min-width:561px){.hero-btns-row1,.hero-btns-row2{display:contents}}
+.hero-actions{display:flex;gap:8px;flex-wrap:nowrap;justify-content:center;margin-top:24px;position:relative;z-index:1;animation:fadeUp 0.8s 0.3s ease both}
+.hero-btn{font-size:0.78rem;padding:7px 12px;border-radius:50px}
 .btn-primary{background:var(--green);color:var(--bg);padding:15px 36px;border-radius:50px;font-weight:700;font-size:1rem;cursor:pointer;border:none;transition:transform 0.15s,box-shadow 0.15s;font-family:'DM Sans',sans-serif}
 .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(62,240,122,0.4)}
 .btn-outline{background:transparent;color:var(--text);padding:15px 36px;border-radius:50px;font-weight:600;font-size:1rem;cursor:pointer;border:1px solid var(--border);transition:border-color 0.2s,color 0.2s;font-family:'DM Sans',sans-serif}
@@ -575,7 +572,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
 .hero-ai-chip-label{font-size:0.72rem;color:var(--muted);font-weight:500}
 @media(max-width:900px){nav{padding:14px 16px}.nav-links{display:none}.hamburger{display:flex}.nav-login{display:none!important}}
 @media(max-width:600px){footer{padding:40px 20px 24px}.mortgage-box,.calc-box{padding:32px 24px}.modal{padding:32px 24px}}
-@media(max-width:560px){.hero-search-btn{padding:13px 14px;font-size:0.9rem}.hero-search-btn-text{display:none}.hero-btn,.hero-btn-calc{padding:7px 14px!important;font-size:0.78rem!important}}
+@media(max-width:560px){.hero-search-btn{padding:13px 14px;font-size:0.9rem}.hero-search-btn-text{display:none}.hero-btn{padding:6px 10px!important;font-size:0.72rem!important}}
 
 /* Google Places Autocomplete dark theme */
 .pac-container {
@@ -754,13 +751,9 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
 
   <!-- Smaller action buttons below search -->
   <div class="hero-actions" style="margin-top:24px">
-    <div class="hero-btns-row1">
-      <button class="btn-outline hero-btn" style="border-color:rgba(62,240,122,0.4);color:var(--green)" onclick="openPM()">🏠 List My Home</button>
-      <button class="btn-outline hero-btn" style="border-color:rgba(62,240,122,0.4);color:var(--green)" onclick="document.getElementById('ai-tools').scrollIntoView({behavior:'smooth'})">🤖 AI Tools</button>
-    </div>
-    <div class="hero-btns-row2">
-      <button class="btn-outline hero-btn-calc" style="border-color:rgba(62,240,122,0.4);color:var(--green)" onclick="document.getElementById('calculator').scrollIntoView({behavior:'smooth'})">💰 Savings Calculator</button>
-    </div>
+    <button class="btn-outline hero-btn" style="border-color:rgba(62,240,122,0.4);color:var(--green)" onclick="openPM()">🏠 List My Home</button>
+    <button class="btn-outline hero-btn" style="border-color:rgba(62,240,122,0.4);color:var(--green)" onclick="document.getElementById('calculator').scrollIntoView({behavior:'smooth'})">💰 Calculator</button>
+    <button class="btn-outline hero-btn" style="border-color:rgba(62,240,122,0.4);color:var(--green)" onclick="document.getElementById('ai-tools').scrollIntoView({behavior:'smooth'})">🤖 AI Tools</button>
   </div>
   <div style="margin-top:20px;position:relative;z-index:1;animation:fadeUp 0.8s 0.4s ease both">
     <a href="agent-portal.html" style="font-size:0.88rem;color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:color 0.2s" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--muted)'">
