@@ -488,22 +488,24 @@ app.post('/api/auth/clean-metadata', async (req, res) => {
 
 // ── Lead Capture (non-verified listings) ─────────────────────
 app.post('/api/lead-capture', async (req, res) => {
-  const { name, email, phone, address, price } = req.body;
+  const { name, email, phone, address, price, source, message } = req.body;
+  const isAgentReq = source === 'agent-request';
   try {
     await sendEmail({
       to: 'infolistdirect@gmail.com',
-      subject: '🔔 New Buyer Lead — ' + address,
+      subject: isAgentReq ? '🤝 New Agent Request — ' + (address || 'Unknown area') : '🔔 New Buyer Lead — ' + address,
       html: emailWrap(`
-        <h2 style="color:#3ef07a;margin:0 0 8px">New Buyer Lead!</h2>
-        <p style="color:#7a9480;margin:0 0 20px">Someone is interested in a property on ListDirect.</p>
+        <h2 style="color:#3ef07a;margin:0 0 8px">${isAgentReq ? 'New Agent Request!' : 'New Buyer Lead!'}</h2>
+        <p style="color:#7a9480;margin:0 0 20px">${isAgentReq ? 'Someone is looking for a certified agent through ListDirect.' : 'Someone is interested in a property on ListDirect.'}</p>
         <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin-bottom:16px">
-          <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Property:</strong> ${address}</p>
-          <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Price:</strong> $${parseInt(price).toLocaleString()}</p>
-          <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Buyer Name:</strong> ${name}</p>
-          <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Buyer Email:</strong> ${email}</p>
-          <p style="color:#e8f0e9;margin:0"><strong style="color:#3ef07a">Phone:</strong> ${phone || 'Not provided'}</p>
+          <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Name:</strong> ${name}</p>
+          <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Email:</strong> ${email}</p>
+          <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Phone:</strong> ${phone || 'Not provided'}</p>
+          <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">${isAgentReq ? 'Area' : 'Property'}:</strong> ${address || 'Not specified'}</p>
+          ${!isAgentReq && price ? `<p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Price:</strong> $${parseInt(price).toLocaleString()}</p>` : ''}
+          ${message ? `<p style="color:#e8f0e9;margin:0"><strong style="color:#3ef07a">Property Details:</strong> ${message}</p>` : ''}
         </div>
-        <a href="mailto:${email}" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">Contact Buyer →</a>
+        <a href="mailto:${email}" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">Reply to ${name} →</a>
       `)
     });
     res.json({ success: true });

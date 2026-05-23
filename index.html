@@ -1284,6 +1284,7 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
         <input id="agent-req-email" type="email" placeholder="Your Email" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:10px;padding:12px 16px;color:#e8f0e9;font-family:'DM Sans',sans-serif;font-size:0.9rem;box-sizing:border-box">
         <input id="agent-req-phone" type="tel" placeholder="Phone Number" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:10px;padding:12px 16px;color:#e8f0e9;font-family:'DM Sans',sans-serif;font-size:0.9rem;box-sizing:border-box">
         <input id="agent-req-city" type="text" placeholder="City / Area" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:10px;padding:12px 16px;color:#e8f0e9;font-family:'DM Sans',sans-serif;font-size:0.9rem;box-sizing:border-box">
+        <textarea id="agent-req-details" placeholder="Tell us about your property — address, bedrooms, price range, timeline, anything helpful..." rows="4" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:10px;padding:12px 16px;color:#e8f0e9;font-family:'DM Sans',sans-serif;font-size:0.9rem;box-sizing:border-box;resize:vertical"></textarea>
         <button onclick="submitAgentRequest()" style="width:100%;padding:14px;border-radius:50px;background:var(--gold);color:#1a1200;border:none;font-weight:700;font-size:0.95rem;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:4px">Request an Agent →</button>
         <div id="agent-req-ok" style="display:none;text-align:center;color:var(--green);font-size:0.88rem;font-weight:600;padding:8px">✓ Request received! We'll be in touch within 24 hours.</div>
       </div>
@@ -2574,15 +2575,36 @@ async function submitAgentRequest() {
   const email = document.getElementById('agent-req-email')?.value?.trim();
   const phone = document.getElementById('agent-req-phone')?.value?.trim();
   const city = document.getElementById('agent-req-city')?.value?.trim();
+  const details = document.getElementById('agent-req-details')?.value?.trim();
   if (!name || !email) { alert('Please enter your name and email.'); return; }
   try {
     await fetch('/api/lead-capture', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, phone, address: city || 'Not specified', price: 0, source: 'agent-request' })
+      body: JSON.stringify({ name, email, phone, address: city || 'Not specified', price: 0, source: 'agent-request', message: details || '' })
     });
     document.getElementById('agent-req-ok').style.display = 'block';
-    ['agent-req-name','agent-req-email','agent-req-phone','agent-req-city'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+    ['agent-req-name','agent-req-email','agent-req-phone','agent-req-city','agent-req-details'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  } catch(e) {
+    alert('Something went wrong. Please try again.');
+  }
+}
+
+async function submitAgentRequest2() {
+  const name = document.getElementById('agent-req-name2')?.value?.trim();
+  const email = document.getElementById('agent-req-email2')?.value?.trim();
+  const phone = document.getElementById('agent-req-phone2')?.value?.trim();
+  const city = document.getElementById('agent-req-city2')?.value?.trim();
+  const details = document.getElementById('agent-req-details2')?.value?.trim();
+  if (!name || !email) { alert('Please enter your name and email.'); return; }
+  try {
+    await fetch('/api/lead-capture', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, phone, address: city || 'Not specified', price: 0, source: 'agent-request', message: details || '' })
+    });
+    document.getElementById('agent-req-ok2').style.display = 'block';
+    ['agent-req-name2','agent-req-email2','agent-req-phone2','agent-req-city2','agent-req-details2'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
   } catch(e) {
     alert('Something went wrong. Please try again.');
   }
@@ -2895,13 +2917,20 @@ function renderAgents() {
             </div>
           </div>
 
-          <!-- Find agent card -->
-          <div style="background:var(--card);border:1px solid rgba(245,200,66,0.25);border-radius:20px;padding:32px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:320px">
-            <div style="font-size:2.5rem;margin-bottom:16px">🏡</div>
-            <div style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900;color:var(--white);margin-bottom:10px">Looking for an Agent?</div>
-            <div style="font-size:0.85rem;color:var(--muted);line-height:1.7;margin-bottom:20px;max-width:260px">Our network is growing. Submit your details and we'll connect you with a certified agent in your area.</div>
-            <div style="background:var(--goldlow);border:1px solid rgba(245,200,66,0.2);border-radius:10px;padding:10px 16px;font-size:0.8rem;color:var(--gold);font-weight:600;margin-bottom:16px">💰 Guaranteed cashback at closing</div>
-            <a href="listdirect-agents.html" style="background:var(--gold);color:#1a1200;padding:11px 28px;border-radius:50px;font-weight:700;font-size:0.9rem;text-decoration:none;font-family:'DM Sans',sans-serif">Find an Agent →</a>
+          <!-- Agent request form card -->
+          <div style="background:var(--card);border:1px solid rgba(245,200,66,0.25);border-radius:20px;padding:28px;text-align:left">
+            <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--gold);margin-bottom:8px">🤝 Request a Certified Agent</div>
+            <div style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900;color:var(--white);margin-bottom:6px">Get matched with an agent</div>
+            <p style="font-size:0.83rem;color:var(--muted);margin-bottom:16px;line-height:1.6">Guaranteed cashback at closing. Tell us about your home and we'll connect you right away.</p>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <input id="agent-req-name2" type="text" placeholder="Your Name" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:8px;padding:10px 14px;color:#e8f0e9;font-family:'DM Sans',sans-serif;font-size:0.85rem;box-sizing:border-box">
+              <input id="agent-req-email2" type="email" placeholder="Email Address" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:8px;padding:10px 14px;color:#e8f0e9;font-family:'DM Sans',sans-serif;font-size:0.85rem;box-sizing:border-box">
+              <input id="agent-req-phone2" type="tel" placeholder="Phone Number" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:8px;padding:10px 14px;color:#e8f0e9;font-family:'DM Sans',sans-serif;font-size:0.85rem;box-sizing:border-box">
+              <input id="agent-req-city2" type="text" placeholder="City / Area" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:8px;padding:10px 14px;color:#e8f0e9;font-family:'DM Sans',sans-serif;font-size:0.85rem;box-sizing:border-box">
+              <textarea id="agent-req-details2" placeholder="Tell us about your property — address, bedrooms, price range, timeline, anything helpful..." rows="4" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:8px;padding:10px 14px;color:#e8f0e9;font-family:'DM Sans',sans-serif;font-size:0.85rem;box-sizing:border-box;resize:vertical"></textarea>
+              <button onclick="submitAgentRequest2()" style="width:100%;padding:12px;border-radius:50px;background:var(--gold);color:#1a1200;border:none;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:'DM Sans',sans-serif">Request an Agent →</button>
+              <div id="agent-req-ok2" style="display:none;text-align:center;color:var(--green);font-size:0.85rem;font-weight:600;padding:6px">✓ Request received! We'll be in touch within 24 hours.</div>
+            </div>
           </div>
 
         </div>
