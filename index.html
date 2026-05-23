@@ -2474,27 +2474,22 @@ function initStreetViewPanorama(containerId, address, lat, lng) {
         setTimeout(doGeocode, 300);
         return;
       }
-      new google.maps.Geocoder().geocode({ address: address }, (results, status) => {
+      // For Canadian addresses, try postal code first (most reliable)
+      const postalMatch = address.match(/[A-Z]\d[A-Z]\s?\d[A-Z]\d/i);
+      const geocodeAddr = postalMatch ? (postalMatch[0] + ', Canada') : address;
+      new google.maps.Geocoder().geocode({ address: geocodeAddr }, (results, status) => {
         if (status === 'OK' && results[0]) {
           launchPanorama(results[0].geometry.location);
         } else {
-          // Try with just city + postal code as fallback
-          const parts = address.split(',');
-          const postal = parts.find(p => /[A-Z]\d[A-Z]/i.test(p.trim()));
-          const city = parts[1]?.trim();
-          if (postal && city) {
-            new google.maps.Geocoder().geocode({ address: postal.trim() + ', ' + city + ', Canada' }, (r2, s2) => {
-              if (s2 === 'OK' && r2[0]) {
-                launchPanorama(r2[0].geometry.location);
-              } else {
-                const c = document.getElementById(containerId);
-                if (c) c.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#7a9480;font-size:0.85rem;background:#0d1510">Street View not available for this address</div>';
-              }
-            });
-          } else {
-            const c = document.getElementById(containerId);
-            if (c) c.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#7a9480;font-size:0.85rem;background:#0d1510">Street View not available for this address</div>';
-          }
+          // Try full address as fallback
+          new google.maps.Geocoder().geocode({ address: address }, (r2, s2) => {
+            if (s2 === 'OK' && r2[0]) {
+              launchPanorama(r2[0].geometry.location);
+            } else {
+              const c = document.getElementById(containerId);
+              if (c) c.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#7a9480;font-size:0.85rem;background:#0d1510">Street View not available for this address</div>';
+            }
+          });
         }
       });
     };
