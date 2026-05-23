@@ -2450,7 +2450,7 @@ function initStreetViewPanorama(containerId, address, lat, lng) {
   function launchPanorama(position) {
     if (!window.google || !window.google.maps) { setTimeout(() => launchPanorama(position), 400); return; }
     const sv = new google.maps.StreetViewService();
-    sv.getPanorama({ location: position, radius: 200, preference: google.maps.StreetViewPreference.NEAREST }, function(data, status) {
+    sv.getPanorama({ location: position, radius: 500, preference: google.maps.StreetViewPreference.NEAREST }, function(data, status) {
       const c = document.getElementById(containerId);
       if (!c) return;
       if (status === google.maps.StreetViewStatus.OK) {
