@@ -78,10 +78,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .hero h1 em{font-style:normal;color:var(--green)}
 .hero-sub{margin-top:16px;font-size:0.95rem;color:var(--muted);max-width:560px;line-height:1.6;position:relative;z-index:1;animation:fadeUp 0.8s 0.2s ease both}
 .hero-actions{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:40px;position:relative;z-index:1;animation:fadeUp 0.8s 0.3s ease both}
-.hero-btns-row1{display:flex;gap:12px;justify-content:center;width:100%}
+.hero-btns-row1{display:flex;gap:8px;justify-content:center;width:100%}
 .hero-btns-row2{display:flex;justify-content:center;width:100%}
-.hero-btn{font-size:0.88rem}
-.hero-btn-calc{font-size:0.82rem;opacity:0.85}
+.hero-btn,.hero-btn-calc{font-size:0.78rem;padding:7px 14px;border-radius:50px}
 @media(min-width:561px){.hero-btns-row1,.hero-btns-row2{display:contents}}
 .btn-primary{background:var(--green);color:var(--bg);padding:15px 36px;border-radius:50px;font-weight:700;font-size:1rem;cursor:pointer;border:none;transition:transform 0.15s,box-shadow 0.15s;font-family:'DM Sans',sans-serif}
 .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(62,240,122,0.4)}
@@ -576,7 +575,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
 .hero-ai-chip-label{font-size:0.72rem;color:var(--muted);font-weight:500}
 @media(max-width:900px){nav{padding:14px 16px}.nav-links{display:none}.hamburger{display:flex}.nav-login{display:none!important}}
 @media(max-width:600px){footer{padding:40px 20px 24px}.mortgage-box,.calc-box{padding:32px 24px}.modal{padding:32px 24px}}
-@media(max-width:560px){.hero-search-btn{padding:13px 14px;font-size:0.9rem}.hero-search-btn-text{display:none}}
+@media(max-width:560px){.hero-search-btn{padding:13px 14px;font-size:0.9rem}.hero-search-btn-text{display:none}.hero-btn,.hero-btn-calc{padding:7px 14px!important;font-size:0.78rem!important}}
 
 /* Google Places Autocomplete dark theme */
 .pac-container {
