@@ -2201,7 +2201,7 @@ function renderListings(list) {
     card.addEventListener('click', e => {
       if (e.target.closest('.listing-fav')) return;
       if (e.target.closest('button') && e.target.closest('.listing-img')) return;
-      if (l.verified) openListingModal(l);
+      if (l.verified || l.mls) openListingModal(l);
       else openLeadModal(l);
     });
 
