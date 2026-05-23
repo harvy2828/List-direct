@@ -913,8 +913,7 @@ app.post('/api/offers', async (req, res) => {
       .from('profiles')
       .select('email, full_name')
       .eq('id', seller_id)
-      .single()
-      .catch(() => ({ data: null }));
+      .maybeSingle();
     const sellerEmail = sellerProfile?.email;
     if (sellerEmail) {
       await sendEmail({
@@ -976,8 +975,7 @@ app.post('/api/messages', async (req, res) => {
       .from('profiles')
       .select('email, full_name')
       .eq('id', validSellerId || seller_id)
-      .single()
-      .catch(() => ({ data: null }));
+      .maybeSingle();
     const sellerEmail = sellerProfile?.email;
     if (sellerEmail) {
       await sendEmail({
