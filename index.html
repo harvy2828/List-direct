@@ -2545,74 +2545,62 @@ function openListingModal(l) {
       ${!l.mls && l.year ? '<div class="lm-spec">📅 Built <strong>' + l.year + '</strong></div>' : ''}
     </div>
     <p class="lm-desc">${l.desc}</p>
-    ${l.mls ? `
-      <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:16px;margin-bottom:20px;font-size:0.85rem;color:#7a9480;line-height:1.6">
-        This listing is provided by a participating MLS® member brokerage.<br>
-        <span style="font-size:0.72rem;display:block;margin-top:8px">© 2025 Greater Vancouver REALTORS®, Fraser Valley Real Estate Board, Chilliwack and District Real Estate Board, and BC Northern Real Estate Board. All Rights Reserved.</span>
-      </div>
-      <div id="mls-request-form-${l.id}" style="background:#111a13;border:1px solid rgba(62,240,122,0.15);border-radius:12px;padding:16px;margin-bottom:16px;display:none">
-        <div style="font-size:0.8rem;font-weight:700;color:var(--white);margin-bottom:12px">📩 Request Info About This Listing</div>
-        <input id="mls-req-name-${l.id}" type="text" placeholder="Your Name" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:8px;padding:10px 14px;color:#e8f0e9;font-family:'DM Sans',sans-serif;font-size:0.88rem;margin-bottom:8px;box-sizing:border-box">
-        <input id="mls-req-email-${l.id}" type="email" placeholder="Your Email" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:8px;padding:10px 14px;color:#e8f0e9;font-family:'DM Sans',sans-serif;font-size:0.88rem;margin-bottom:8px;box-sizing:border-box">
-        <input id="mls-req-phone-${l.id}" type="tel" placeholder="Phone (optional)" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:8px;padding:10px 14px;color:#e8f0e9;font-family:'DM Sans',sans-serif;font-size:0.88rem;margin-bottom:8px;box-sizing:border-box">
-        <textarea id="mls-req-msg-${l.id}" placeholder="I'm interested in this property and would like more information..." rows="3" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:8px;padding:10px 14px;color:#e8f0e9;font-family:'DM Sans',sans-serif;font-size:0.88rem;margin-bottom:8px;box-sizing:border-box;resize:vertical"></textarea>
-        <button onclick="submitMLSRequest('${l.id}','${l.addr}, ${l.city}',${l.price})" style="width:100%;padding:11px;border-radius:50px;background:var(--green);color:#0a0f0d;border:none;font-weight:700;font-size:0.88rem;cursor:pointer;font-family:'DM Sans',sans-serif">Send Request →</button>
-        <div id="mls-req-success-${l.id}" style="display:none;text-align:center;color:var(--green);font-size:0.85rem;margin-top:8px;font-weight:600">✓ Request sent! We'll connect you with the listing agent shortly.</div>
-      </div>
-      <div class="lm-btns" style="flex-direction:column;gap:10px">
-        <button class="lm-btn-primary" onclick="document.getElementById('mls-request-form-${l.id}').style.display=document.getElementById('mls-request-form-${l.id}').style.display==='none'?'block':'none'">📩 Request Info from Agent</button>
-        <a href="https://www.realtor.ca/map#view=list" target="_blank" style="flex:1;padding:13px;border-radius:50px;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:'DM Sans',sans-serif;background:none;border:1px solid rgba(62,240,122,0.4);color:var(--green);text-align:center;text-decoration:none;display:block">🔗 View on Realtor.ca →</a>
-        <button class="lm-btn-outline" onclick="closeListingModal()">Close</button>
-      </div>
-    ` : `
-    ${l.cashback
-      ? '<div style="background:var(--goldlow);border:1px solid rgba(245,200,66,0.25);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.88rem;color:var(--gold);font-weight:600">💰 Agent Cashback: ' + l.cashback + ' rebate at closing — guaranteed</div>'
-      : '<div style="background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.88rem;color:var(--green);font-weight:600">🚀 Direct Listing — 1% platform fee, no agent commission</div>'}
     ${(()=>{
-      const price = l.price || 0;
-      const isCA = l.currency === 'CAD' || l.country === 'CA' || l.country === 'Canada' || ['BC','AB','ON','QC','MB','SK','NS','NB','NL','PE','NT','YT','NU'].includes(l.state) || (l.zip && /^[A-Z][0-9][A-Z]/i.test(l.zip.trim()));
-      const ldFee = Math.round(price * 0.01);
-      let tradFee, tradLabel;
-      if (isCA) {
-        const first = Math.min(price, 100000) * 0.0644;
-        const rest = Math.max(0, price - 100000) * 0.023;
-        tradFee = Math.round(first + rest);
-        tradLabel = 'Traditional agent (BC rate)';
-      } else {
-        tradFee = Math.round(price * 0.06);
-        tradLabel = 'Traditional agent (~6%)';
+      if (l.mls) {
+        const rid = (l.id||'').replace(/[^a-zA-Z0-9_-]/g,'');
+        return '<div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:16px;margin-bottom:20px;font-size:0.85rem;color:#7a9480;line-height:1.6">This listing is provided by a participating MLS\u00ae member brokerage.<br><span style="font-size:0.72rem;display:block;margin-top:8px">\u00a9 2025 Greater Vancouver REALTORS\u00ae, Fraser Valley Real Estate Board, Chilliwack and District Real Estate Board, and BC Northern Real Estate Board. All Rights Reserved.</span></div>' +
+          '<div id="mlsform-' + rid + '" style="background:#111a13;border:1px solid rgba(62,240,122,0.15);border-radius:12px;padding:16px;margin-bottom:16px;display:none">' +
+          '<div style="font-size:0.8rem;font-weight:700;color:#e8f0e9;margin-bottom:12px">\ud83d\udce9 Request Info About This Listing</div>' +
+          '<input id="mlsname-' + rid + '" type="text" placeholder="Your Name" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:8px;padding:10px 14px;color:#e8f0e9;font-size:0.88rem;margin-bottom:8px;box-sizing:border-box"><br>' +
+          '<input id="mlsemail-' + rid + '" type="email" placeholder="Your Email" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:8px;padding:10px 14px;color:#e8f0e9;font-size:0.88rem;margin-bottom:8px;box-sizing:border-box"><br>' +
+          '<input id="mlsphone-' + rid + '" type="tel" placeholder="Phone (optional)" style="width:100%;background:#0a0f0d;border:1px solid #1f2d22;border-radius:8px;padding:10px 14px;color:#e8f0e9;font-size:0.88rem;margin-bottom:8px;box-sizing:border-box"><br>' +
+          '<button onclick="submitMLSRequest(' + JSON.stringify(rid) + ',' + JSON.stringify(l.addr+', '+l.city) + ',' + (l.price||0) + ')" style="width:100%;padding:11px;border-radius:50px;background:#3ef07a;color:#0a0f0d;border:none;font-weight:700;font-size:0.88rem;cursor:pointer">Send Request \u2192</button>' +
+          '<div id="mlsok-' + rid + '" style="display:none;text-align:center;color:#3ef07a;font-size:0.85rem;margin-top:8px;font-weight:600">\u2713 Sent! We will connect you with the listing agent shortly.</div>' +
+          '</div>' +
+          '<div class="lm-btns" style="flex-direction:column;gap:10px">' +
+          '<button class="lm-btn-primary" onclick="var f=document.getElementById(' + JSON.stringify('mlsform-'+rid) + ');f.style.display=f.style.display===\'none\'?\'block\':\'none\'">\ud83d\udce9 Request Info from Agent</button>' +
+          '<a href="https://www.realtor.ca/map#view=list" target="_blank" style="padding:13px;border-radius:50px;font-weight:700;font-size:0.9rem;background:none;border:1px solid rgba(62,240,122,0.4);color:#3ef07a;text-align:center;text-decoration:none;display:block">\ud83d\udd17 View on Realtor.ca \u2192</a>' +
+          '<button class="lm-btn-outline" onclick="closeListingModal()">Close</button>' +
+          '</div>';
       }
+      const cashback = l.cashback;
+      const callout = cashback
+        ? '<div style="background:var(--goldlow);border:1px solid rgba(245,200,66,0.25);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.88rem;color:var(--gold);font-weight:600">\ud83d\udcb0 Agent Cashback: ' + cashback + ' rebate at closing \u2014 guaranteed</div>'
+        : '<div style="background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.88rem;color:var(--green);font-weight:600">\ud83d\ude80 Direct Listing \u2014 1% platform fee, no agent commission</div>';
+      const price = l.price || 0;
+      const isCA = l.currency === 'CAD' || (l.zip && /^[A-Z][0-9][A-Z]/i.test((l.zip||'').trim()));
+      const ldFee = Math.round(price * 0.01);
+      let tradFee = isCA ? Math.round(Math.min(price,100000)*0.0644 + Math.max(0,price-100000)*0.023) : Math.round(price*0.06);
+      let tradLabel = isCA ? 'Traditional agent (BC rate)' : 'Traditional agent (~6%)';
       const savings = tradFee - ldFee;
-      const currency = isCA ? 'CAD' : 'USD';
-      const fmt = n => '$' + n.toLocaleString() + ' ' + currency;
-      return '<div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:16px;margin-bottom:20px">' +
-        '<div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#7a9480;margin-bottom:12px">💡 Cost Breakdown</div>' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="color:#7a9480;font-size:0.88rem">ListDirect fee (1%)</span><span style="color:#3ef07a;font-weight:700">' + fmt(ldFee) + '</span></div>' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="color:#7a9480;font-size:0.88rem">' + tradLabel + '</span><span style="color:#e85454;font-weight:700;text-decoration:line-through">' + fmt(tradFee) + '</span></div>' +
-        '<div style="border-top:1px solid #1f2d22;padding-top:10px;display:flex;justify-content:space-between;align-items:center"><span style="color:#e8f0e9;font-weight:700">Seller saves</span><span style="color:#3ef07a;font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900">' + fmt(savings) + '</span></div>' +
-        '</div>';
-    })()}
-    <div class="lm-btns">
-      <button class="lm-btn-primary" onclick="openMessageSeller('${l.id||''}','${l.seller_id||''}','${l.addr}, ${l.city}',${l.price})">💬 Message Seller</button>
-      <button class="lm-btn-outline" onclick="openOfferModalDirect('${l.seller_id||''}','${l.addr}, ${l.city}',${l.price})">💰 Make an Offer</button>
-    </div>`}`;
+      const cur = isCA ? 'CAD' : 'USD';
+      const fmt = n => '$' + n.toLocaleString() + ' ' + cur;
+      const breakdown = '<div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:16px;margin-bottom:20px">' +
+        '<div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;color:#7a9480;margin-bottom:12px">\ud83d\udca1 Cost Breakdown</div>' +
+        '<div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:#7a9480;font-size:0.88rem">ListDirect fee (1%)</span><span style="color:#3ef07a;font-weight:700">' + fmt(ldFee) + '</span></div>' +
+        '<div style="display:flex;justify-content:space-between;margin-bottom:12px"><span style="color:#7a9480;font-size:0.88rem">' + tradLabel + '</span><span style="color:#e85454;font-weight:700;text-decoration:line-through">' + fmt(tradFee) + '</span></div>' +
+        '<div style="border-top:1px solid #1f2d22;padding-top:10px;display:flex;justify-content:space-between"><span style="color:#e8f0e9;font-weight:700">Seller saves</span><span style="color:#3ef07a;font-size:1.2rem;font-weight:900">' + fmt(savings) + '</span></div></div>';
+      const btns = '<div class="lm-btns">' +
+        '<button class="lm-btn-primary" onclick="openMessageSeller(' + JSON.stringify(l.id||'') + ',' + JSON.stringify(l.seller_id||'') + ',' + JSON.stringify((l.addr||'')+', '+(l.city||'')) + ',' + (l.price||0) + ')">\ud83d\udcac Message Seller</button>' +
+        '<button class="lm-btn-outline" onclick="openOfferModalDirect(' + JSON.stringify(l.seller_id||'') + ',' + JSON.stringify((l.addr||'')+', '+(l.city||'')) + ',' + (l.price||0) + ')">\ud83d\udcb0 Make an Offer</button></div>';
+      return callout + breakdown + btns;
+    })()}`;
   document.getElementById('listing-modal').classList.add('open');
   document.body.style.overflow = 'hidden';
   if (l.id) fetch('/api/listings/' + encodeURIComponent(l.id) + '/view', { method: 'POST' }).catch(() => {});
 }
 async function submitMLSRequest(listingId, property, price) {
-  const name = document.getElementById('mls-req-name-' + listingId)?.value?.trim();
-  const email = document.getElementById('mls-req-email-' + listingId)?.value?.trim();
-  const phone = document.getElementById('mls-req-phone-' + listingId)?.value?.trim();
-  const msg = document.getElementById('mls-req-msg-' + listingId)?.value?.trim();
+  const name = document.getElementById('mlsname-' + listingId)?.value?.trim();
+  const email = document.getElementById('mlsemail-' + listingId)?.value?.trim();
+  const phone = document.getElementById('mlsphone-' + listingId)?.value?.trim();
   if (!name || !email) { alert('Please enter your name and email.'); return; }
   try {
     await fetch('/api/lead-capture', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, phone, message: msg || 'Interested in this property.', property, price, source: 'mls-request' })
+      body: JSON.stringify({ name, email, phone, message: 'Interested in this MLS listing.', property, price, source: 'mls-request' })
     });
-    document.getElementById('mls-req-success-' + listingId).style.display = 'block';
+    document.getElementById('mlsok-' + listingId).style.display = 'block';
   } catch(e) {
     alert('Something went wrong. Please try again.');
   }
