@@ -2507,7 +2507,8 @@ function switchLMView(type, val) {
     btnPhoto.style.background = 'none'; btnPhoto.style.color = 'var(--green)';
     if (!sv.dataset.loaded) {
       sv.dataset.loaded = '1';
-      initStreetViewPanorama('lm-sv-view', val);
+      const ll = window._modalLatLng || {};
+      initStreetViewPanorama('lm-sv-view', val, ll.lat, ll.lng);
     }
   }
 }
@@ -2518,6 +2519,7 @@ function openListingModal(l) {
   const photos = l.allPhotos && l.allPhotos.length ? l.allPhotos : [l.img, l.img2, l.img3].filter(Boolean);
   // Store photos globally so onclick can reference without JSON escaping issues
   window._modalPhotos = photos;
+  window._modalLatLng = { lat: l.lat || null, lng: l.lng || null };
   content.innerHTML = `
     <div class="lm-imgs">
       <div class="lm-main" id="lm-main-view" style="position:relative;overflow:hidden;height:240px">
