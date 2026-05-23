@@ -2202,7 +2202,7 @@ function renderListings(list) {
     card.addEventListener('click', e => {
       if (e.target.closest('.listing-fav')) return;
       if (e.target.closest('button') && e.target.closest('.listing-img')) return;
-      if (l.verified || l.mls) openListingModal(l);
+      if (l.verified || l.mls || l.us) openListingModal(l);
       else openLeadModal(l);
     });
 
@@ -2546,7 +2546,7 @@ function openListingModal(l) {
     </div>
     <p class="lm-desc">${l.desc}</p>
     ${(()=>{
-      if (l.mls) {
+      if (l.mls || l.us) {
         window._mlsListing = { address: (l.addr||'') + ', ' + (l.city||''), price: l.price||0 };
         const realtorUrl = 'https://www.google.com/search?q=' + encodeURIComponent((l.addr||'') + ' ' + (l.city||'') + ' BC realtor.ca');
         return '<div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:16px;margin-bottom:20px;font-size:0.85rem;color:#7a9480;line-height:1.6">This listing is provided by a participating MLS\u00ae member brokerage.<br><span style="font-size:0.72rem;display:block;margin-top:8px">\u00a9 2025 Greater Vancouver REALTORS\u00ae, Fraser Valley Real Estate Board, Chilliwack and District Real Estate Board, and BC Northern Real Estate Board. All Rights Reserved.</span></div>' +
