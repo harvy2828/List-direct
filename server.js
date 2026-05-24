@@ -506,7 +506,7 @@ app.post('/api/lead-capture', async (req, res) => {
         <p style="color:#7a9480;margin:0 0 20px">${isAgentReq ? 'Someone is looking for a certified agent through ListDirect.' : 'Someone is interested in a property on ListDirect.'}</p>
         <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin-bottom:16px">
           <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Name:</strong> ${name}</p>
-          <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Email:</strong> ${email}</p>
+          <p style="color:#1a1a1a;margin:0 0 8px"><strong style="color:#1a6b3c">Email:</strong> ${email}</p>
           <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Phone:</strong> ${phone || 'Not provided'}</p>
           <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">${isAgentReq ? 'Area' : 'Property'}:</strong> ${address || 'Not specified'}</p>
           ${!isAgentReq && price ? `<p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Price:</strong> $${parseInt(price).toLocaleString()}</p>` : ''}
@@ -974,10 +974,10 @@ app.post('/api/messages', async (req, res) => {
     const msgHtml = emailWrap(`
       <h2 style="color:#3ef07a;margin:0 0 8px">💬 New Message!</h2>
       <p style="color:#7a9480;margin:0 0 20px">Someone is interested in a ListDirect property.</p>
-      <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin-bottom:16px">
-        <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">From:</strong> ${sender_name}</p>
-        <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Email:</strong> ${sender_email}</p>
-        <p style="color:#e8f0e9;margin:0"><strong style="color:#3ef07a">Message:</strong> "${message}"</p>
+      <div style="background:#f0f7f2;border:2px solid #3ef07a;border-radius:12px;padding:20px;margin-bottom:16px">
+        <p style="color:#1a1a1a;margin:0 0 8px"><strong style="color:#1a6b3c">From:</strong> ${sender_name}</p>
+        <p style="color:#1a1a1a;margin:0 0 8px"><strong style="color:#1a6b3c">Email:</strong> ${sender_email}</p>
+        <p style="color:#1a1a1a;margin:0"><strong style="color:#1a6b3c">Message:</strong> "${message}"</p>
       </div>
       <a href="mailto:${sender_email}" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-right:10px">Reply to ${sender_name} →</a>
       <a href="https://listdirect.ai/dashboard.html" style="background:none;border:1px solid rgba(62,240,122,0.4);color:#3ef07a;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">View in Dashboard →</a>
