@@ -506,8 +506,8 @@ app.post('/api/lead-capture', async (req, res) => {
         <p style="color:#7a9480;margin:0 0 20px">${isAgentReq ? 'Someone is looking for a certified agent through ListDirect.' : 'Someone is interested in a property on ListDirect.'}</p>
         <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin-bottom:16px">
           <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Name:</strong> ${name}</p>
-          <p style="color:#1a1a1a;margin:0 0 8px"><strong style="color:#1a6b3c">Email:</strong> ${email}</p>
-          <p style="color:#1a1a1a;margin:0 0 8px"><strong style="color:#1a6b3c">Phone:</strong> ${phone || 'Not provided'}</p>
+          <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Email:</strong> ${email}</p>
+          <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Phone:</strong> ${phone || 'Not provided'}</p>
           <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">${isAgentReq ? 'Area' : 'Property'}:</strong> ${address || 'Not specified'}</p>
           ${!isAgentReq && price ? `<p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Price:</strong> $${parseInt(price).toLocaleString()}</p>` : ''}
           ${message ? `<p style="color:#e8f0e9;margin:0"><strong style="color:#3ef07a">Property Details:</strong> ${message}</p>` : ''}
@@ -919,17 +919,17 @@ app.post('/api/offers', async (req, res) => {
     const offerSellerEmail = offerSellerAuth?.user?.email;
     const offerHtml = emailWrap(`
       <h2 style="color:#3ef07a;margin:0 0 8px">💰 New Offer Received!</h2>
-      <p style="color:#444;margin:0 0 20px">An offer was submitted on a ListDirect listing.</p>
+      <p style="color:#7a9480;margin:0 0 20px">An offer was submitted on a ListDirect listing.</p>
       <div style="background:#1a3d28;border:1px solid rgba(62,240,122,0.3);border-radius:12px;padding:20px;margin-bottom:16px;text-align:center">
-        <div style="font-size:0.85rem;color:#444;margin-bottom:4px">Offer Amount</div>
+        <div style="font-size:0.85rem;color:#7a9480;margin-bottom:4px">Offer Amount</div>
         <div style="font-family:'Georgia',serif;font-size:2.5rem;font-weight:900;color:#3ef07a">$${parseInt(offer_amount).toLocaleString()}</div>
       </div>
       <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin-bottom:16px">
-        <p style="color:#1a1a1a;margin:0 0 8px"><strong style="color:#1a6b3c">Property:</strong> ${property}</p>
-        <p style="color:#1a1a1a;margin:0 0 8px"><strong style="color:#1a6b3c">Buyer Name:</strong> ${buyer_name}</p>
-        <p style="color:#1a1a1a;margin:0 0 8px"><strong style="color:#1a6b3c">Buyer Email:</strong> ${buyer_email}</p>
-        ${buyer_phone ? `<p style="color:#1a1a1a;margin:0 0 8px"><strong style="color:#1a6b3c">Phone:</strong> ${buyer_phone}</p>` : ''}
-        ${message ? `<p style="color:#1a1a1a;margin:0"><strong style="color:#1a6b3c">Note:</strong> ${message}</p>` : ''}
+        <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Property:</strong> ${property}</p>
+        <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Buyer Name:</strong> ${buyer_name}</p>
+        <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Buyer Email:</strong> ${buyer_email}</p>
+        ${buyer_phone ? `<p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Phone:</strong> ${buyer_phone}</p>` : ''}
+        ${message ? `<p style="color:#e8f0e9;margin:0"><strong style="color:#3ef07a">Note:</strong> ${message}</p>` : ''}
       </div>
       <a href="mailto:${buyer_email}" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-right:10px">Reply to ${buyer_name} →</a>
       <a href="https://listdirect.ai/dashboard.html" style="background:none;border:1px solid rgba(62,240,122,0.4);color:#3ef07a;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">View in Dashboard →</a>
@@ -973,11 +973,11 @@ app.post('/api/messages', async (req, res) => {
     const sellerEmail = sellerAuth?.user?.email;
     const msgHtml = emailWrap(`
       <h2 style="color:#3ef07a;margin:0 0 8px">💬 New Message!</h2>
-      <p style="color:#444;margin:0 0 20px">Someone is interested in a ListDirect property.</p>
+      <p style="color:#7a9480;margin:0 0 20px">Someone is interested in a ListDirect property.</p>
       <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin-bottom:16px">
-        <p style="color:#1a1a1a;margin:0 0 8px"><strong style="color:#1a6b3c">From:</strong> ${sender_name}</p>
-        <p style="color:#1a1a1a;margin:0 0 8px"><strong style="color:#1a6b3c">Email:</strong> ${sender_email}</p>
-        <p style="color:#1a1a1a;margin:0"><strong style="color:#1a6b3c">Message:</strong> "${message}"</p>
+        <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">From:</strong> ${sender_name}</p>
+        <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Email:</strong> ${sender_email}</p>
+        <p style="color:#e8f0e9;margin:0"><strong style="color:#3ef07a">Message:</strong> "${message}"</p>
       </div>
       <a href="mailto:${sender_email}" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-right:10px">Reply to ${sender_name} →</a>
       <a href="https://listdirect.ai/dashboard.html" style="background:none;border:1px solid rgba(62,240,122,0.4);color:#3ef07a;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">View in Dashboard →</a>
