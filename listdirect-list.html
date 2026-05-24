@@ -1119,7 +1119,7 @@ function initS2Addr() {
   el.dataset.acDone = '1';
   const ac = new google.maps.places.Autocomplete(el, {
     types: ['address'],
-    fields: ['address_components'],
+    fields: ['address_components', 'geometry'],
     componentRestrictions: { country: ['us', 'ca'] }
   });
   ac.addListener('place_changed', function() {
@@ -1140,6 +1140,10 @@ function initS2Addr() {
     if (document.getElementById('s2-state')) document.getElementById('s2-state').value = state;
     if (document.getElementById('s2-zip')) document.getElementById('s2-zip').value = zip;
     if (document.getElementById('s2-country')) document.getElementById('s2-country').value = country === 'CA' ? 'Canada' : 'United States';
+    if (place.geometry && place.geometry.location) {
+      window._listingLat = place.geometry.location.lat();
+      window._listingLng = place.geometry.location.lng();
+    }
     if (city && state && typeof fetchAIComps === 'function') fetchAIComps(city, state, zip, country);
     if (typeof updatePreview === 'function') updatePreview();
   });
