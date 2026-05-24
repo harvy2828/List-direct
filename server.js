@@ -224,7 +224,6 @@ app.post('/api/listings', async (req, res) => {
     const listing = {
       user_id: user.id,
       address: body.address || '',
-      // Parse city/state from address if not provided separately
       city: body.city || (body.address ? body.address.split(',').slice(1,2).join('').trim() : ''),
       state: body.state || (body.address ? body.address.split(',').slice(2,3).join('').trim().split(' ')[0] : ''),
       zip: body.zip || '',
@@ -242,7 +241,11 @@ app.post('/api/listings', async (req, res) => {
       status: 'active',
       listing_path: body.listing_path || 'direct'
     };
-    const { data, error } = await supabase.from('listings').insert([listing]).select().single();
+    // Use user-scoped client so RLS policies recognize the authenticated user
+    const userClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: `Bearer ${token}` } }
+    });
+    const { data, error } = await userClient.from('listings').insert([listing]).select().single();
     if (error) return res.status(400).json({ error: error.message });
     // Notify admin of new listing
     await sendEmail({

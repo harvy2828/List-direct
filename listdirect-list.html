@@ -888,7 +888,6 @@ document.getElementById('listing-form').addEventListener('submit', async functio
 
   try {
     if (token) {
-      // Logged in — update if editing, create if new
       const url = editListingId ? '/api/listings/' + editListingId : '/api/listings';
       const method = editListingId ? 'PATCH' : 'POST';
       const res = await fetch(url, {
@@ -897,10 +896,14 @@ document.getElementById('listing-form').addEventListener('submit', async functio
         body: JSON.stringify(listingData)
       });
       const data = await res.json();
-      if (!res.ok) console.error('Listing save error:', data.error);
+      if (!res.ok) {
+        alert('Error saving listing: ' + (data.error || 'Unknown error. Please try again.'));
+        btn.textContent = '🚀 Submit My Listing — Go Live!';
+        btn.disabled = false;
+        return;
+      }
       const city = document.getElementById('s2-city').value;
       document.getElementById('success-city').textContent = city || 'your city';
-      // If editing, show different success message
       if (editListingId) {
         const successTitle = document.querySelector('.success-title');
         if (successTitle) successTitle.textContent = 'Listing Updated!';
