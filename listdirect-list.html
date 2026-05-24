@@ -250,9 +250,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
   <div class="progress-bar" id="progress-bar">
     <div class="prog-fill" id="prog-fill" style="width:0%"></div>
     <div class="step-dot active" id="dot-1"><div class="sd-circle">1</div><div class="sd-label">Your Info</div></div>
-    <div class="step-dot" id="dot-2"><div class="sd-circle">3</div><div class="sd-label">AI Listing</div></div>
-    <div class="step-dot" id="dot-3"><div class="sd-circle">4</div><div class="sd-label">Photos</div></div>
-    <div class="step-dot" id="dot-4"><div class="sd-circle">5</div><div class="sd-label">Review</div></div>
+    <div class="step-dot" id="dot-2"><div class="sd-circle">2</div><div class="sd-label">AI Listing</div></div>
+    <div class="step-dot" id="dot-3"><div class="sd-circle">3</div><div class="sd-label">Photos</div></div>
+    <div class="step-dot" id="dot-4"><div class="sd-circle">4</div><div class="sd-label">Review</div></div>
     <div class="step-dot" id="dot-6"><div class="sd-circle">🎉</div><div class="sd-label">Live!</div></div>
   </div>
 
@@ -278,20 +278,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
         <label>Phone Number</label>
         <input type="tel" id="s1-phone" placeholder="(555) 000-0000"/>
       </div>
-      <div class="ff" id="ff-country">
-        <label>Country</label>
-        <select id="s1-country">
-          <option value="us">&#x1F1FA;&#x1F1F8; United States</option>
-          <option value="ca">&#x1F1E8;&#x1F1E6; Canada</option>
-        </select>
-      </div>
-      <div class="ff">
-        <label>How would you like to sell?</label>
-        <select id="s1-path">
-          <option value="direct">&#x1F680; List Direct — AI-powered, 1% fee, no agent</option>
-          <option value="agent">&#x1F91D; Agent Assisted — certified agent + guaranteed cashback</option>
-        </select>
-      </div>
+      <input type="hidden" id="s1-country" value="us"/>
+      <input type="hidden" id="s1-path" value="direct"/>
     </div>
 
     <div style="border-top:1px solid var(--border);margin:24px 0 20px"></div>
@@ -383,7 +371,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
       </div>
     </div>
     <div class="step-nav">
-      <button class="btn-next" onclick="goNext(1)">Continue &#x2192; Photos &amp; Description</button>
+      <button class="btn-next" onclick="goNext(1)">Continue &#x2192; AI Listing</button>
     </div>
   </div>
 
@@ -1157,9 +1145,11 @@ function initAddressAutocomplete() {
       window._listingLng = place.geometry.location.lng();
     }
 
-    // Update country selector
-    const countrySelect = document.getElementById('s2-country');
-    if (countrySelect) countrySelect.value = country === 'CA' ? 'Canada' : 'United States';
+    // Auto-set country from place result
+    if (country) {
+      const countryEl = document.getElementById('s1-country');
+      if (countryEl) countryEl.value = country === 'CA' ? 'ca' : 'us';
+    }
 
     // Trigger AI comps
     if (city && state) {
