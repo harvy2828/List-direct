@@ -256,38 +256,59 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
     <div class="step-dot" id="dot-6"><div class="sd-circle">🎉</div><div class="sd-label">Live!</div></div>
   </div>
 
-  <!-- STEP 1: CONTACT + PROPERTY -->
+  <!-- STEP 1: CONTACT INFO -->
   <div class="step-page active" id="step-1">
     <div class="step-header">
-      <div class="step-tag">Step 1 of 4</div>
-      <h1 class="step-title">List your home<br>for free</h1>
-      <p class="step-sub">Fill in your details and property info — our AI will write your listing description.</p>
+      <div class="step-tag">Step 1 of 5</div>
+      <h1 class="step-title">Let's get you started</h1>
+      <p class="step-sub">Create your free listing. We need your contact info so buyers can reach you directly.</p>
     </div>
-
-    <input type="hidden" id="s1-path" value="direct"/>
-    <input type="hidden" id="s1-country" value="us"/>
-
     <div class="form-grid cols1">
       <div class="ff" id="ff-name">
         <label>Full Name</label>
         <input type="text" id="s1-name" placeholder="Jane Smith"/>
         <span class="field-error">Please enter your name</span>
       </div>
-      <div class="ff">
-        <label>Phone Number</label>
-        <input type="tel" id="s1-phone" placeholder="(555) 000-0000"/>
-      </div>
       <div class="ff" id="ff-email">
         <label>Email Address</label>
         <input type="email" id="s1-email" placeholder="jane@example.com"/>
         <span class="field-error">Please enter a valid email</span>
       </div>
+      <div class="ff">
+        <label>Phone Number</label>
+        <input type="tel" id="s1-phone" placeholder="(555) 000-0000"/>
+      </div>
+      <div class="ff" id="ff-country">
+        <label>Country</label>
+        <select id="s1-country">
+          <option value="us">&#x1F1FA;&#x1F1F8; United States</option>
+          <option value="ca">&#x1F1E8;&#x1F1E6; Canada</option>
+        </select>
+      </div>
+      <div class="ff">
+        <label>How would you like to sell?</label>
+        <select id="s1-path">
+          <option value="direct">&#x1F680; List Direct &#x2014; AI-powered, 1% fee, no agent</option>
+          <option value="agent">&#x1F91D; Agent Assisted &#x2014; certified agent + guaranteed cashback</option>
+        </select>
+      </div>
     </div>
+    <div class="step-nav">
+      <button class="btn-next" onclick="goNext(1)">Continue &#x2192; Property Details</button>
+    </div>
+  </div>
 
+  <!-- STEP 2: PROPERTY DETAILS -->
+  <div class="step-page" id="step-2">
+    <div class="step-header">
+      <div class="step-tag">Step 2 of 5</div>
+      <h1 class="step-title">Tell us about<br>your property</h1>
+      <p class="step-sub">The more detail you give, the better your AI-generated listing will be.</p>
+    </div>
     <div class="form-grid">
       <div class="ff full" id="ff-addr">
-        <label>Property Address</label>
-        <input type="text" id="s2-addr" placeholder="123 Oak Street, Surrey, BC V3X 0H3" style="width:100%"/>
+        <label>Street Address</label>
+        <input type="text" id="s2-addr" placeholder="e.g. 12635 63 Avenue"/>
         <span class="field-error">Please enter your address</span>
       </div>
       <div class="ff" id="ff-city">
@@ -370,13 +391,14 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
       </div>
     </div>
     <div class="step-nav">
-      <button class="btn-next" onclick="goNext(1)">Continue &#x2192; AI Listing</button>
+      <button class="btn-back" onclick="goBack(3)">&#x2190; Back</button>
+      <button class="btn-next" onclick="goNext(2)">Continue &#x2192; AI Listing</button>
     </div>
   </div>
 
-  <div class="step-page" id="step-2">
+  <div class="step-page" id="step-3">
     <div class="step-header">
-      <div class="step-tag">Step 2 of 4</div>
+      <div class="step-tag">Step 3 of 5</div>
       <h1 class="step-title">Your AI listing<br><em style="font-style:normal;color:var(--green)">is being written</em></h1>
       <p class="step-sub">Our AI writes your professional listing description. Edit it, regenerate it, or change the tone — it's yours.</p>
     </div>
@@ -412,15 +434,15 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
     </div>
 
     <div class="step-nav">
-      <button class="btn-back" onclick="goBack(2)">← Back</button>
+      <button class="btn-back" onclick="goBack(3)">← Back</button>
       <button class="btn-next" id="btn-step3-next" onclick="goNext(2)" disabled>Continue → Add Photos</button>
     </div>
   </div>
 
   <!-- STEP 4: PHOTOS -->
-  <div class="step-page" id="step-3">
+  <div class="step-page" id="step-4">
     <div class="step-header">
-      <div class="step-tag">Step 3 of 4</div>
+      <div class="step-tag">Step 4 of 5</div>
       <h1 class="step-title">Add your photos</h1>
       <p class="step-sub">Listings with photos get 4x more inquiries. First photo becomes your cover image. You can add up to 20 photos.</p>
     </div>
@@ -438,15 +460,15 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
     </div>
 
     <div class="step-nav">
-      <button class="btn-back" onclick="goBack(3)">← Back</button>
-      <button class="btn-next" onclick="goNext(3)" id="btn-step4-next">Continue → Review Listing</button>
+      <button class="btn-back" onclick="goBack(5)">← Back</button>
+      <button class="btn-next" onclick="goNext(5)" id="btn-step4-next">Continue → Review Listing</button>
     </div>
   </div>
 
   <!-- STEP 5: REVIEW -->
-  <div class="step-page" id="step-4">
+  <div class="step-page" id="step-5">
     <div class="step-header">
-      <div class="step-tag">Step 4 of 4</div>
+      <div class="step-tag">Step 5 of 5</div>
       <h1 class="step-title">Review your<br><em style="font-style:normal;color:var(--green)">listing</em></h1>
       <p class="step-sub">This is exactly how buyers will see your home. Looks good? Submit and go live.</p>
     </div>
@@ -501,14 +523,14 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
       <input type="hidden" name="description" id="hf-desc"/>
       <p style="display:none"><input name="bot-field"/></p>
       <div class="step-nav">
-        <button type="button" class="btn-back" onclick="goBack(4)">← Edit</button>
+        <button type="button" class="btn-back" onclick="goBack(5)">← Edit</button>
         <button type="submit" class="btn-next" id="btn-submit">🚀 Submit My Listing — Go Live!</button>
       </div>
     </form>
   </div>
 
   <!-- STEP 6: SUCCESS -->
-  <div class="step-page" id="step-5">
+  <div class="step-page" id="step-6">
     <div class="success-wrap">
       <div class="success-icon">🎉</div>
       <h1 class="success-title">You're listed!</h1>
@@ -562,13 +584,13 @@ let currentStep = 1;
 let aiDescription = '';
 let selectedTone = 'Professional & Polished';
 let photoFiles = [];
-const TOTAL_STEPS = 4;
+const TOTAL_STEPS = 5;
 
 // ── STEP NAVIGATION ──
 function updateProgress(step) {
   const pct = ((step - 1) / TOTAL_STEPS) * 100;
   document.getElementById('prog-fill').style.width = pct + '%';
-  for (let i = 1; i <= 4; i++) {
+  for (let i = 1; i <= 5; i++) {
     const dot = document.getElementById('dot-' + i);
     if (!dot) continue;
     dot.className = 'step-dot' + (i === step ? ' active' : i < step ? ' done' : '');
@@ -589,22 +611,33 @@ function goNext(from) {
   if (from === 1) {
     const name = document.getElementById('s1-name').value.trim();
     const email = document.getElementById('s1-email').value.trim();
+    document.getElementById('ff-name').classList.toggle('has-error', !name);
+    document.getElementById('ff-email').classList.toggle('has-error', !email || !email.includes('@'));
+    if (!name || !email || !email.includes('@')) return;
+    showStep(2);
+  } else if (from === 2) {
     const addr = document.getElementById('s2-addr').value.trim();
     const city = document.getElementById('s2-city').value.trim();
-    const nameFF = document.getElementById('ff-name');
-    const emailFF = document.getElementById('ff-email');
-    nameFF.classList.toggle('has-error', !name);
-    emailFF.classList.toggle('has-error', !email || !email.includes('@'));
     document.getElementById('ff-addr').classList.toggle('has-error', !addr);
     document.getElementById('ff-city').classList.toggle('has-error', !city);
-    if (!name || !email || !email.includes('@') || !addr || !city) return;
-    showStep(2);
-    generateListing();
-  } else if (from === 2) {
+    if (!addr || !city) return;
+    // Geocode address silently to get lat/lng for Street View
+    const fullAddr = addr + ', ' + city + ', ' + (document.getElementById('s2-state').value || '') + ' ' + (document.getElementById('s2-zip').value || '');
+    fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + encodeURIComponent(fullAddr) + '&key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A')
+      .then(r => r.json())
+      .then(data => {
+        if (data.results && data.results[0]) {
+          window._listingLat = data.results[0].geometry.location.lat;
+          window._listingLng = data.results[0].geometry.location.lng;
+        }
+      }).catch(() => {});
     showStep(3);
+    generateListing();
   } else if (from === 3) {
-    populateReview();
     showStep(4);
+  } else if (from === 4) {
+    populateReview();
+    showStep(5);
   }
 }
 
@@ -1324,40 +1357,5 @@ async function signInAndPublish() {
 
 <script>
 </script>
-<script>
-/* ── MAPS AUTOCOMPLETE (isolated) ── */
-window.initListingMaps = function() {
-  var addrInput = document.getElementById('s2-addr');
-  if (!addrInput) return;
-  var ac = new google.maps.places.Autocomplete(addrInput, { fields: ['address_components','geometry'] });
-  ac.addListener('place_changed', function() {
-    var place = ac.getPlace();
-    if (!place.address_components) return;
-    var num='',street='',city='',state='',zip='',country='';
-    place.address_components.forEach(function(c) {
-      if (c.types.includes('street_number')) num=c.long_name;
-      if (c.types.includes('route')) street=c.long_name;
-      if (c.types.includes('locality')) city=c.long_name;
-      if (c.types.includes('sublocality_level_1') && !city) city=c.long_name;
-      if (c.types.includes('administrative_area_level_1')) state=c.short_name;
-      if (c.types.includes('postal_code')) zip=c.long_name;
-      if (c.types.includes('country')) country=c.short_name;
-    });
-    addrInput.value = num ? num+' '+street : street;
-    var el; 
-    el=document.getElementById('s2-city'); if(el) el.value=city;
-    el=document.getElementById('s2-state'); if(el) el.value=state;
-    el=document.getElementById('s2-zip'); if(el) el.value=zip;
-    el=document.getElementById('s1-country'); if(el) el.value=country==='CA'?'ca':'us';
-    if (place.geometry && place.geometry.location) {
-      window._listingLat = place.geometry.location.lat();
-      window._listingLng = place.geometry.location.lng();
-    }
-    if (typeof fetchAIComps==='function') fetchAIComps(city,state,zip,country);
-    if (typeof updatePreview==='function') updatePreview();
-  });
-};
-</script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A&libraries=places&callback=initListingMaps" async defer></script>
 </body>
 </html>
