@@ -250,19 +250,18 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
   <div class="progress-bar" id="progress-bar">
     <div class="prog-fill" id="prog-fill" style="width:0%"></div>
     <div class="step-dot active" id="dot-1"><div class="sd-circle">1</div><div class="sd-label">Your Info</div></div>
-    <div class="step-dot" id="dot-2"><div class="sd-circle">2</div><div class="sd-label">Property</div></div>
-    <div class="step-dot" id="dot-3"><div class="sd-circle">3</div><div class="sd-label">AI Listing</div></div>
-    <div class="step-dot" id="dot-4"><div class="sd-circle">4</div><div class="sd-label">Photos</div></div>
-    <div class="step-dot" id="dot-5"><div class="sd-circle">5</div><div class="sd-label">Review</div></div>
+    <div class="step-dot" id="dot-2"><div class="sd-circle">3</div><div class="sd-label">AI Listing</div></div>
+    <div class="step-dot" id="dot-3"><div class="sd-circle">4</div><div class="sd-label">Photos</div></div>
+    <div class="step-dot" id="dot-4"><div class="sd-circle">5</div><div class="sd-label">Review</div></div>
     <div class="step-dot" id="dot-6"><div class="sd-circle">🎉</div><div class="sd-label">Live!</div></div>
   </div>
 
-  <!-- STEP 1: CONTACT INFO -->
+  <!-- STEP 1: CONTACT + PROPERTY (merged) -->
   <div class="step-page active" id="step-1">
     <div class="step-header">
-      <div class="step-tag">Step 1 of 5</div>
+      <div class="step-tag">Step 1 of 4</div>
       <h1 class="step-title">Let's get you started</h1>
-      <p class="step-sub">Create your free listing. We need your contact info so buyers can reach you directly.</p>
+      <p class="step-sub">Enter your contact info and property details to create your free listing.</p>
     </div>
     <div class="form-grid cols1">
       <div class="ff" id="ff-name">
@@ -282,34 +281,26 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
       <div class="ff" id="ff-country">
         <label>Country</label>
         <select id="s1-country">
-          <option value="us">🇺🇸 United States</option>
-          <option value="ca">🇨🇦 Canada</option>
+          <option value="us">&#x1F1FA;&#x1F1F8; United States</option>
+          <option value="ca">&#x1F1E8;&#x1F1E6; Canada</option>
         </select>
       </div>
       <div class="ff">
         <label>How would you like to sell?</label>
         <select id="s1-path">
-          <option value="direct">🚀 List Direct — AI-powered, 1% fee, no agent</option>
-          <option value="agent">🤝 Agent Assisted — certified agent + guaranteed cashback</option>
+          <option value="direct">&#x1F680; List Direct — AI-powered, 1% fee, no agent</option>
+          <option value="agent">&#x1F91D; Agent Assisted — certified agent + guaranteed cashback</option>
         </select>
       </div>
     </div>
-    <div class="step-nav">
-      <button class="btn-next" onclick="goNext(1)">Continue → Property Details</button>
-    </div>
-  </div>
 
-  <!-- STEP 2: PROPERTY DETAILS -->
-  <div class="step-page" id="step-2">
-    <div class="step-header">
-      <div class="step-tag">Step 2 of 5</div>
-      <h1 class="step-title">Tell us about<br>your property</h1>
-      <p class="step-sub">The more detail you give, the better your AI-generated listing will be.</p>
-    </div>
+    <div style="border-top:1px solid var(--border);margin:24px 0 20px"></div>
+    <div class="step-tag" style="margin-bottom:16px">Your Property</div>
+
     <div class="form-grid">
       <div class="ff full" id="ff-addr">
         <label>Street Address</label>
-        <input type="text" id="s2-addr" placeholder="Start typing your address…" autocomplete="off" style="width:100%" onfocus="initS2Addr()" />
+        <input type="text" id="s2-addr" placeholder="Start typing your address&hellip;" autocomplete="off" style="width:100%"/>
         <span class="field-error">Please enter your address</span>
       </div>
       <div class="ff" id="ff-city">
@@ -360,7 +351,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
       </div>
       <div class="ff">
         <label>Lot Size</label>
-        <input type="text" id="s2-lotsize" placeholder="e.g. 5,000 sq ft or 0.25 acres" oninput="formatSqftInput(this)" inputmode="numeric"/>
+        <input type="text" id="s2-lotsize" placeholder="e.g. 5,000 sq ft or 0.25 acres"/>
       </div>
       <div class="ff">
         <label>Year Built</label>
@@ -387,20 +378,19 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
         </select>
       </div>
       <div class="ff full">
-        <label>Key Features & Upgrades</label>
-        <textarea id="s2-features" rows="3" placeholder="e.g. Renovated kitchen with quartz counters, hardwood floors throughout, private backyard, new roof 2022, finished basement, close to top-rated schools, walking distance to parks…"></textarea>
+        <label>Key Features &amp; Upgrades</label>
+        <textarea id="s2-features" rows="3" placeholder="e.g. Renovated kitchen, hardwood floors, private backyard, new roof 2022&hellip;"></textarea>
       </div>
     </div>
     <div class="step-nav">
-      <button class="btn-back" onclick="goBack(2)">← Back</button>
-      <button class="btn-next" onclick="goNext(2)">Continue → AI Listing</button>
+      <button class="btn-next" onclick="goNext(1)">Continue &#x2192; Photos &amp; Description</button>
     </div>
   </div>
 
   <!-- STEP 3: AI LISTING DESCRIPTION -->
   <div class="step-page" id="step-3">
     <div class="step-header">
-      <div class="step-tag">Step 3 of 5</div>
+      <div class="step-tag">Step 2 of 4</div>
       <h1 class="step-title">Your AI listing<br><em style="font-style:normal;color:var(--green)">is being written</em></h1>
       <p class="step-sub">Our AI writes your professional listing description. Edit it, regenerate it, or change the tone — it's yours.</p>
     </div>
@@ -436,15 +426,15 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
     </div>
 
     <div class="step-nav">
-      <button class="btn-back" onclick="goBack(3)">← Back</button>
-      <button class="btn-next" id="btn-step3-next" onclick="goNext(3)" disabled>Continue → Add Photos</button>
+      <button class="btn-back" onclick="goBack(2)">← Back</button>
+      <button class="btn-next" id="btn-step3-next" onclick="goNext(2)" disabled>Continue → Add Photos</button>
     </div>
   </div>
 
   <!-- STEP 4: PHOTOS -->
   <div class="step-page" id="step-4">
     <div class="step-header">
-      <div class="step-tag">Step 4 of 5</div>
+      <div class="step-tag">Step 3 of 4</div>
       <h1 class="step-title">Add your photos</h1>
       <p class="step-sub">Listings with photos get 4x more inquiries. First photo becomes your cover image. You can add up to 20 photos.</p>
     </div>
@@ -462,15 +452,15 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
     </div>
 
     <div class="step-nav">
-      <button class="btn-back" onclick="goBack(4)">← Back</button>
-      <button class="btn-next" onclick="goNext(4)" id="btn-step4-next">Continue → Review Listing</button>
+      <button class="btn-back" onclick="goBack(3)">← Back</button>
+      <button class="btn-next" onclick="goNext(3)" id="btn-step4-next">Continue → Review Listing</button>
     </div>
   </div>
 
   <!-- STEP 5: REVIEW -->
   <div class="step-page" id="step-5">
     <div class="step-header">
-      <div class="step-tag">Step 5 of 5</div>
+      <div class="step-tag">Step 4 of 4</div>
       <h1 class="step-title">Review your<br><em style="font-style:normal;color:var(--green)">listing</em></h1>
       <p class="step-sub">This is exactly how buyers will see your home. Looks good? Submit and go live.</p>
     </div>
@@ -525,7 +515,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
       <input type="hidden" name="description" id="hf-desc"/>
       <p style="display:none"><input name="bot-field"/></p>
       <div class="step-nav">
-        <button type="button" class="btn-back" onclick="goBack(5)">← Edit</button>
+        <button type="button" class="btn-back" onclick="goBack(4)">← Edit</button>
         <button type="submit" class="btn-next" id="btn-submit">🚀 Submit My Listing — Go Live!</button>
       </div>
     </form>
@@ -586,13 +576,13 @@ let currentStep = 1;
 let aiDescription = '';
 let selectedTone = 'Professional & Polished';
 let photoFiles = [];
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 4;
 
 // ── STEP NAVIGATION ──
 function updateProgress(step) {
   const pct = ((step - 1) / TOTAL_STEPS) * 100;
   document.getElementById('prog-fill').style.width = pct + '%';
-  for (let i = 1; i <= 6; i++) {
+  for (let i = 1; i <= 4; i++) {
     const dot = document.getElementById('dot-' + i);
     if (!dot) continue;
     dot.className = 'step-dot' + (i === step ? ' active' : i < step ? ' done' : '');
@@ -606,46 +596,29 @@ function showStep(n) {
   updateProgress(n);
   window.scrollTo({ top: 0, behavior: 'smooth' });
   currentStep = n;
-  // Reinitialize address autocomplete when step 2 becomes visible
-  if (n === 2) {
-    const addrEl = document.getElementById('s2-addr');
-    if (addrEl) addrEl.dataset.acDone = '';
-    const tryInit = (attempts) => {
-      if (window.google && window.google.maps && window.google.maps.places) {
-        initS2Addr();
-      } else if (attempts > 0) {
-        setTimeout(() => tryInit(attempts - 1), 300);
-      }
-    };
-    setTimeout(() => tryInit(20), 100);
-  }
 }
 
 function goBack(from) { showStep(from - 1); }
-
 function goNext(from) {
   if (from === 1) {
     const name = document.getElementById('s1-name').value.trim();
     const email = document.getElementById('s1-email').value.trim();
+    const addr = document.getElementById('s2-addr').value.trim();
+    const city = document.getElementById('s2-city').value.trim();
     const nameFF = document.getElementById('ff-name');
     const emailFF = document.getElementById('ff-email');
     nameFF.classList.toggle('has-error', !name);
     emailFF.classList.toggle('has-error', !email || !email.includes('@'));
-    if (!name || !email || !email.includes('@')) return;
-    showStep(2);
-  } else if (from === 2) {
-    const addr = document.getElementById('s2-addr').value.trim();
-    const city = document.getElementById('s2-city').value.trim();
     document.getElementById('ff-addr').classList.toggle('has-error', !addr);
     document.getElementById('ff-city').classList.toggle('has-error', !city);
-    if (!addr || !city) return;
-    showStep(3);
+    if (!name || !email || !email.includes('@') || !addr || !city) return;
+    showStep(2);
     generateListing();
+  } else if (from === 2) {
+    showStep(3);
   } else if (from === 3) {
-    showStep(4);
-  } else if (from === 4) {
     populateReview();
-    showStep(5);
+    showStep(4);
   }
 }
 
@@ -1153,8 +1126,6 @@ function initS2Addr() {
 function initAddressAutocomplete() {
   const addrInput = document.getElementById('s2-addr');
   if (!addrInput || addrInput.dataset.acDone) return;
-  // Don't initialize if element is hidden — wait for step 2 to show
-  if (addrInput.offsetParent === null) return;
   addrInput.dataset.acDone = '1';
 
   const autocomplete = new google.maps.places.Autocomplete(addrInput, {
