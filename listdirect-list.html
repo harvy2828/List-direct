@@ -256,53 +256,52 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
     <div class="step-dot" id="dot-6"><div class="sd-circle">🎉</div><div class="sd-label">Live!</div></div>
   </div>
 
-  <!-- STEP 1: CONTACT + PROPERTY (merged) -->
+  <!-- STEP 1: CONTACT + PROPERTY -->
   <div class="step-page active" id="step-1">
     <div class="step-header">
       <div class="step-tag">Step 1 of 4</div>
-      <h1 class="step-title">Let's get you started</h1>
-      <p class="step-sub">Enter your contact info and property details to create your free listing.</p>
+      <h1 class="step-title">List your home<br>for free</h1>
+      <p class="step-sub">Fill in your details and property info — our AI will write your listing description.</p>
     </div>
+
+    <input type="hidden" id="s1-path" value="direct"/>
+    <input type="hidden" id="s1-country" value="us"/>
+
     <div class="form-grid cols1">
       <div class="ff" id="ff-name">
         <label>Full Name</label>
         <input type="text" id="s1-name" placeholder="Jane Smith"/>
         <span class="field-error">Please enter your name</span>
       </div>
+      <div class="ff">
+        <label>Phone Number</label>
+        <input type="tel" id="s1-phone" placeholder="(555) 000-0000"/>
+      </div>
       <div class="ff" id="ff-email">
         <label>Email Address</label>
         <input type="email" id="s1-email" placeholder="jane@example.com"/>
         <span class="field-error">Please enter a valid email</span>
       </div>
-      <div class="ff">
-        <label>Phone Number</label>
-        <input type="tel" id="s1-phone" placeholder="(555) 000-0000"/>
-      </div>
-      <input type="hidden" id="s1-country" value="us"/>
-      <input type="hidden" id="s1-path" value="direct"/>
     </div>
-
-    <div style="border-top:1px solid var(--border);margin:24px 0 20px"></div>
-    <div class="step-tag" style="margin-bottom:16px">Your Property</div>
 
     <div class="form-grid">
       <div class="ff full" id="ff-addr">
-        <label>Street Address</label>
-        <input type="text" id="s2-addr" placeholder="Start typing your address&hellip;" autocomplete="off" style="width:100%"/>
+        <label>Property Address</label>
+        <input type="text" id="s2-addr" placeholder="123 Oak Street, Austin, TX 78701" autocomplete="off" style="width:100%"/>
         <span class="field-error">Please enter your address</span>
       </div>
       <div class="ff" id="ff-city">
         <label>City</label>
-        <input type="text" id="s2-city" placeholder="e.g. Austin or Toronto"/>
+        <input type="text" id="s2-city" placeholder="e.g. Surrey or Austin"/>
         <span class="field-error">Please enter your city</span>
       </div>
       <div class="ff">
         <label>State / Province</label>
-        <input type="text" id="s2-state" placeholder="e.g. TX or ON"/>
+        <input type="text" id="s2-state" placeholder="e.g. BC or TX"/>
       </div>
       <div class="ff">
         <label>ZIP / Postal Code</label>
-        <input type="text" id="s2-zip" placeholder="78701 or M5V 2T6" oninput="formatZipInput(this)" maxlength="10" inputmode="text" autocomplete="postal-code"/>
+        <input type="text" id="s2-zip" placeholder="78701 or V3X 0H3" oninput="formatZipInput(this)" maxlength="10" inputmode="text"/>
       </div>
       <div class="ff">
         <label>Asking Price</label>
@@ -367,7 +366,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
       </div>
       <div class="ff full">
         <label>Key Features &amp; Upgrades</label>
-        <textarea id="s2-features" rows="3" placeholder="e.g. Renovated kitchen, hardwood floors, private backyard, new roof 2022&hellip;"></textarea>
+        <textarea id="s2-features" rows="3" placeholder="e.g. Renovated kitchen, hardwood floors, private backyard, new roof 2022..."></textarea>
       </div>
     </div>
     <div class="step-nav">
@@ -375,7 +374,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
     </div>
   </div>
 
-  <!-- STEP 3: AI LISTING DESCRIPTION -->
   <div class="step-page" id="step-2">
     <div class="step-header">
       <div class="step-tag">Step 2 of 4</div>
@@ -1069,137 +1067,6 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closePathMod
 </style>
 <script>
 const GOOGLE_API_KEY = 'AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A';
-
-function initS2Addr() {
-  const el = document.getElementById('s2-addr');
-  if (!el) return;
-  if (!window.google || !window.google.maps || !window.google.maps.places) {
-    setTimeout(initS2Addr, 300);
-    return;
-  }
-  if (el.dataset.acDone === '1') return;
-  el.dataset.acDone = '1';
-  const ac = new google.maps.places.Autocomplete(el, {
-    fields: ['address_components', 'geometry']
-  });
-  ac.addListener('place_changed', function() {
-    const place = ac.getPlace();
-    if (!place.address_components) return;
-    let num='', street='', city='', state='', zip='', country='';
-    place.address_components.forEach(function(c) {
-      if (c.types.includes('street_number')) num = c.long_name;
-      if (c.types.includes('route')) street = c.long_name;
-      if (c.types.includes('locality')) city = c.long_name;
-      if (c.types.includes('sublocality_level_1') && !city) city = c.long_name;
-      if (c.types.includes('administrative_area_level_1')) state = c.short_name;
-      if (c.types.includes('postal_code')) zip = c.long_name;
-      if (c.types.includes('country')) country = c.short_name;
-    });
-    el.value = num ? num + ' ' + street : street;
-    if (document.getElementById('s2-city')) document.getElementById('s2-city').value = city;
-    if (document.getElementById('s2-state')) document.getElementById('s2-state').value = state;
-    if (document.getElementById('s2-zip')) document.getElementById('s2-zip').value = zip;
-    if (document.getElementById('s2-country')) document.getElementById('s2-country').value = country === 'CA' ? 'Canada' : 'United States';
-    if (place.geometry && place.geometry.location) {
-      window._listingLat = place.geometry.location.lat();
-      window._listingLng = place.geometry.location.lng();
-    }
-    if (city && state && typeof fetchAIComps === 'function') fetchAIComps(city, state, zip, country);
-    if (typeof updatePreview === 'function') updatePreview();
-  });
-}
-
-function initAddressAutocomplete() {
-  const addrInput = document.getElementById('s2-addr');
-  if (!addrInput || addrInput.dataset.acDone) return;
-  addrInput.dataset.acDone = '1';
-  const autocomplete = new google.maps.places.Autocomplete(addrInput, {
-    fields: ['address_components', 'geometry']
-  });
-
-  autocomplete.addListener('place_changed', () => {
-    const place = autocomplete.getPlace();
-    if (!place.address_components) return;
-
-    // Extract address components
-    let streetNumber = '', route = '', city = '', state = '', zip = '', country = '';
-    for (const comp of place.address_components) {
-      const types = comp.types;
-      if (types.includes('street_number')) streetNumber = comp.long_name;
-      if (types.includes('route')) route = comp.long_name;
-      if (types.includes('locality')) city = comp.long_name;
-      if (types.includes('administrative_area_level_1')) state = comp.short_name;
-      if (types.includes('postal_code')) zip = comp.long_name;
-      if (types.includes('country')) country = comp.short_name;
-    }
-
-    // Auto-fill form fields
-    addrInput.value = streetNumber + (route ? ' ' + route : '');
-    if (document.getElementById('s2-city')) document.getElementById('s2-city').value = city;
-    if (document.getElementById('s2-state')) document.getElementById('s2-state').value = state;
-    if (document.getElementById('s2-zip')) document.getElementById('s2-zip').value = zip;
-
-    // Store lat/lng from place geometry
-    if (place.geometry && place.geometry.location) {
-      window._listingLat = place.geometry.location.lat();
-      window._listingLng = place.geometry.location.lng();
-    }
-
-    // Auto-set country from place result
-    if (country) {
-      const countryEl = document.getElementById('s1-country');
-      if (countryEl) countryEl.value = country === 'CA' ? 'ca' : 'us';
-    }
-
-    // Trigger AI comps
-    if (city && state) {
-      fetchAIComps(city, state, zip, country);
-    }
-
-    // Update live preview
-    if (typeof updatePreview === 'function') updatePreview();
-  });
-}
-
-// ── AI Market Comps ───────────────────────────────────────────
-async function fetchAIComps(city, state, zip, country) {
-  const box = document.getElementById('ai-comps-box');
-  if (!box) return;
-  box.classList.add('show');
-  box.querySelector('.acb-loading').style.display = 'flex';
-  box.querySelector('.acb-text').textContent = '';
-
-  const currency = country === 'CA' ? 'CAD' : 'USD';
-  const location = city + ', ' + state + (zip ? ' ' + zip : '');
-
-  try {
-    const resp = await fetch('/api/claude', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 600,
-        system: 'You are a real estate market analyst. Give concise, realistic market data estimates. Always specify currency (' + currency + '). Use bullet points. Be specific with price ranges.',
-        messages: [{
-          role: 'user',
-          content: 'Give me a quick market summary for ' + location + '. Include:\n• Average home sale price (last 6 months)\n• Price per square foot range\n• Average days on market\n• Market trend (hot/balanced/cooling)\n• 2-3 recent comparable sale price examples\n• Best time to list\n\nAll prices in ' + currency + '. Keep it under 150 words. Be realistic and specific.'
-        }]
-      })
-    });
-
-    const data = await resp.json();
-    const text = data.content?.filter(b => b.type === 'text').map(b => b.text).join('') || '';
-    box.querySelector('.acb-loading').style.display = 'none';
-    box.querySelector('.acb-text').textContent = text;
-  } catch(e) {
-    box.querySelector('.acb-loading').style.display = 'none';
-    box.querySelector('.acb-text').textContent = 'Could not load market data. Please try again.';
-  }
-}
-
-// ── Google Places Init ────────────────────────────────────────
-function initGooglePlaces() { initAddressAutocomplete(); }
-function _initGooglePlaces_orig() {
   const addrEl = document.getElementById('s2-addr');
   if (!addrEl) return;
   const ac = new google.maps.places.Autocomplete(addrEl, {
