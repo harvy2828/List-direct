@@ -622,16 +622,21 @@ function goNext(from) {
     document.getElementById('ff-addr').classList.toggle('has-error', !addr);
     document.getElementById('ff-city').classList.toggle('has-error', !city);
     if (!addr || !city) return;
-    // Geocode address silently to get lat/lng for Street View
+    // Geocode address using Maps JS API to get lat/lng for Street View
     const fullAddr = addr + ', ' + city + ', ' + (document.getElementById('s2-state').value || '') + ' ' + (document.getElementById('s2-zip').value || '');
-    fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + encodeURIComponent(fullAddr) + '&key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A')
-      .then(r => r.json())
-      .then(data => {
-        if (data.results && data.results[0]) {
-          window._listingLat = data.results[0].geometry.location.lat;
-          window._listingLng = data.results[0].geometry.location.lng;
-        }
-      }).catch(() => {});
+    const doGeocode = () => {
+      if (window.google && window.google.maps && window.google.maps.Geocoder) {
+        new google.maps.Geocoder().geocode({ address: fullAddr }, function(results, status) {
+          if (status === 'OK' && results[0]) {
+            window._listingLat = results[0].geometry.location.lat();
+            window._listingLng = results[0].geometry.location.lng();
+          }
+        });
+      } else {
+        setTimeout(doGeocode, 500);
+      }
+    };
+    doGeocode();
     showStep(3);
     generateListing();
   } else if (from === 3) {
@@ -1362,4 +1367,5 @@ async function signInAndPublish() {
 <script>
 </script>
 </body>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A&libraries=places" async defer></script>
 </html>
