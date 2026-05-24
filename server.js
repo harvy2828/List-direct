@@ -7,32 +7,31 @@ const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 // ── Email Header/Footer ────────────────────────────────────────
 function emailHeader() {
-  return `<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#0a0f0d">
-    <tr><td bgcolor="#0a0f0d" style="background-color:#0a0f0d;padding:24px 32px;text-align:center;border-bottom:2px solid #3ef07a">
-      <span style="font-family:Georgia,serif;font-size:1.6rem;font-weight:900;color:#3ef07a;letter-spacing:-0.5px">List<span style="color:#ffffff">Direct</span></span><br>
-      <span style="font-size:0.75rem;color:#7a9480;font-family:Arial,sans-serif;letter-spacing:1px;text-transform:uppercase">Skip the Agent. List Direct.</span>
-    </td></tr>
-  </table>`;
+  return `<tr><td style="background:#0a2e1a;padding:20px 32px;text-align:center">
+    <span style="color:#3ef07a;font-family:Georgia,serif;font-size:1.4rem;font-weight:900;letter-spacing:-0.5px">List<span style="color:#ffffff">Direct</span></span>
+  </td></tr>`;
 }
+
 function emailFooter() {
-  return `<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#060c09">
-    <tr><td bgcolor="#060c09" style="background-color:#060c09;padding:20px 32px;text-align:center;border-top:1px solid #1f2d22">
-      <a href="https://listdirect.ai" style="color:#3ef07a;font-family:Arial,sans-serif;font-size:0.8rem;text-decoration:none">listdirect.ai</a><br>
-      <span style="color:#3a4d3e;font-family:Arial,sans-serif;font-size:0.75rem;">© 2026 ListDirect. All rights reserved.</span>
-    </td></tr>
-  </table>`;
+  return `<tr><td style="background:#f4f9f4;padding:16px 32px;text-align:center;border-top:1px solid #d0e8d8">
+    <p style="margin:0;font-size:0.75rem;color:#666;font-family:Arial,sans-serif">
+      © 2026 ListDirect · <a href="https://listdirect.ai" style="color:#1a6b3c;text-decoration:none">listdirect.ai</a> · Real estate simplified.
+    </p>
+  </td></tr>`;
 }
+
 function emailWrap(content) {
-  return `<table width="600" cellpadding="0" cellspacing="0" border="1" style="max-width:600px;width:100%;border-collapse:collapse;border:2px solid #1f2d22;border-radius:12px" bgcolor="#0a0f0d">
-    <tr><td bgcolor="#0a0f0d" style="background-color:#0a0f0d;padding:0">${emailHeader()}</td></tr>
-    <tr><td bgcolor="#0a0f0d" style="background-color:#0a0f0d;padding:32px;color:#e8f0e9;font-family:Arial,sans-serif">${content}</td></tr>
-    <tr><td bgcolor="#060c09" style="background-color:#060c09;padding:0">${emailFooter()}</td></tr>
+  return `<table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;border-radius:12px;overflow:hidden;background:#ffffff" bgcolor="#ffffff">
+    ${emailHeader()}
+    <tr><td bgcolor="#ffffff" style="background:#ffffff;padding:32px;color:#1a1a1a;font-family:Arial,sans-serif;font-size:0.92rem;line-height:1.7">${content}</td></tr>
+    ${emailFooter()}
   </table>`;
 }
 
+
 // ── Email via Resend ──────────────────────────────────────────
 async function sendEmail({ to, subject, html, reply_to, cc }) {
-  const wrappedHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><meta name="supported-color-schemes" content="dark"></head><body style="margin:0;padding:0;background-color:#0a0f0d" bgcolor="#0a0f0d"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#0a0f0d" bgcolor="#0a0f0d"><tr><td align="center" style="padding:20px;background-color:#0a0f0d" bgcolor="#0a0f0d"><table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%"><tr><td style="background-color:#0a0f0d;padding:0" bgcolor="#0a0f0d">${html}</td></tr></table></td></tr></table></body></html>`;
+  const wrappedHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><meta name="supported-color-schemes" content="dark"></head><body style="margin:0;padding:0;background-color:#f4f9f4" bgcolor="#f4f9f4"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f4f9f4" bgcolor="#f4f9f4"><tr><td align="center" style="padding:32px 16px;background-color:#f4f9f4" bgcolor="#f4f9f4"><table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%"><tr><td style="background-color:#0a0f0d;padding:0" bgcolor="#0a0f0d">${html}</td></tr></table></td></tr></table></body></html>`;
   try {
     const body = {
       from: 'ListDirect <noreply@listdirect.ai>',
@@ -227,8 +226,6 @@ app.post('/api/listings', async (req, res) => {
       city: body.city || (body.address ? body.address.split(',').slice(1,2).join('').trim() : ''),
       state: body.state || (body.address ? body.address.split(',').slice(2,3).join('').trim().split(' ')[0] : ''),
       zip: body.zip || '',
-      lat: body.lat ? parseFloat(body.lat) : null,
-      lng: body.lng ? parseFloat(body.lng) : null,
       price: body.price ? parseInt(body.price) : null,
       bedrooms: body.bedrooms ? parseInt(body.bedrooms) : null,
       bathrooms: body.bathrooms ? parseFloat(body.bathrooms) : null,
@@ -241,6 +238,10 @@ app.post('/api/listings', async (req, res) => {
       status: 'active',
       listing_path: body.listing_path || 'direct'
     };
+    // Use user-scoped client so RLS policies recognize the authenticated user
+    const userClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: `Bearer ${token}` } }
+    });
     // Use user-scoped client so RLS policies recognize the authenticated user
     const userClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
       global: { headers: { Authorization: `Bearer ${token}` } }
