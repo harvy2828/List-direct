@@ -1065,45 +1065,7 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closePathMod
   border-top:1px solid #1f2d22;
 }
 </style>
-<script>
-const GOOGLE_API_KEY = 'AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A';
-  const addrEl = document.getElementById('s2-addr');
-  if (!addrEl) return;
-  const ac = new google.maps.places.Autocomplete(addrEl, {
-    componentRestrictions: { country: ['us', 'ca'] },
-    fields: ['address_components', 'formatted_address'],
-    types: ['address']
-  });
-  ac.addListener('place_changed', function() {
-    const place = ac.getPlace();
-    if (!place.address_components) return;
-    let num='', street='', city='', state='', zip='', country='';
-    place.address_components.forEach(function(c) {
-      if (c.types.includes('street_number')) num = c.long_name;
-      if (c.types.includes('route')) street = c.long_name;
-      if (c.types.includes('locality')) city = c.long_name;
-      if (c.types.includes('sublocality_level_1') && !city) city = c.long_name;
-      if (c.types.includes('administrative_area_level_1')) state = c.short_name;
-      if (c.types.includes('postal_code')) zip = c.long_name;
-      if (c.types.includes('country')) country = c.short_name;
-    });
-    addrEl.value = num ? num + ' ' + street : street;
-    const cityEl = document.getElementById('s2-city');
-    const stateEl = document.getElementById('s2-state');
-    const zipEl = document.getElementById('s2-zip');
-    if (cityEl) cityEl.value = city;
-    if (stateEl) stateEl.value = state;
-    if (zipEl) {
-      if (country === 'CA' && zip.replace(/\s/g,'').length === 6) {
-        zip = zip.replace(/\s/g,'');
-        zip = zip.slice(0,3) + ' ' + zip.slice(3);
-      }
-      zipEl.value = zip;
-    }
-    updatePreview();
-    setTimeout(runAIComps, 600);
-  });
-}
+
 
 // ── AI Market Comps ────────────────────────────────────────────
 async function runAIComps() {
