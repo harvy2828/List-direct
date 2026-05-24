@@ -1153,6 +1153,8 @@ function initS2Addr() {
 function initAddressAutocomplete() {
   const addrInput = document.getElementById('s2-addr');
   if (!addrInput || addrInput.dataset.acDone) return;
+  // Don't initialize if element is hidden — wait for step 2 to show
+  if (addrInput.offsetParent === null) return;
   addrInput.dataset.acDone = '1';
 
   const autocomplete = new google.maps.places.Autocomplete(addrInput, {
