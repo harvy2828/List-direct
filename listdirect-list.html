@@ -13,42 +13,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>List Your Home — ListDirect | Free to List, 1% at Closing</title>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A&libraries=places&callback=initListPlaces" async defer></script>
-<script>
-function initListPlaces() {
-  const addrInput = document.getElementById('s2-addr');
-  if (addrInput) {
-    const ac = new google.maps.places.Autocomplete(addrInput, {
-      fields: ['formatted_address', 'address_components', 'geometry']
-    });
-    ac.addListener('place_changed', function() {
-      const place = ac.getPlace();
-      if (!place.address_components) return;
-      let num='', street='', city='', state='', zip='', country='';
-      place.address_components.forEach(function(c) {
-        if (c.types.includes('street_number')) num = c.long_name;
-        if (c.types.includes('route')) street = c.long_name;
-        if (c.types.includes('locality')) city = c.long_name;
-        if (c.types.includes('sublocality_level_1') && !city) city = c.long_name;
-        if (c.types.includes('administrative_area_level_1')) state = c.short_name;
-        if (c.types.includes('postal_code')) zip = c.long_name;
-        if (c.types.includes('country')) country = c.short_name;
-      });
-      addrInput.value = num ? num + ' ' + street : street;
-      if (document.getElementById('s2-city')) document.getElementById('s2-city').value = city;
-      if (document.getElementById('s2-state')) document.getElementById('s2-state').value = state;
-      if (document.getElementById('s2-zip')) document.getElementById('s2-zip').value = zip;
-      if (document.getElementById('s1-country')) document.getElementById('s1-country').value = country === 'CA' ? 'ca' : 'us';
-      if (place.geometry && place.geometry.location) {
-        window._listingLat = place.geometry.location.lat();
-        window._listingLng = place.geometry.location.lng();
-      }
-      if (typeof fetchAIComps === 'function') fetchAIComps(city, state, zip, country);
-      if (typeof updatePreview === 'function') updatePreview();
-    });
-  }
-}
-</script>
+
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
 :root{--bg:#0a0f0d;--bg2:#111810;--card:#141c16;--border:#1f2d22;--green:#3ef07a;--green2:#27c45e;--greenlow:rgba(62,240,122,0.08);--text:#e8f0e9;--muted:#7a9480;--white:#fff;--gold:#f5c842;--red:#e85454;--radius:16px}
@@ -1395,5 +1360,41 @@ async function signInAndPublish() {
   </div>
 </div>
 
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A&libraries=places&callback=initListPlaces" async defer></script>
+<script>
+function initListPlaces() {
+  const addrInput = document.getElementById('s2-addr');
+  if (addrInput) {
+    const ac = new google.maps.places.Autocomplete(addrInput, {
+      fields: ['formatted_address', 'address_components', 'geometry']
+    });
+    ac.addListener('place_changed', function() {
+      const place = ac.getPlace();
+      if (!place.address_components) return;
+      let num='', street='', city='', state='', zip='', country='';
+      place.address_components.forEach(function(c) {
+        if (c.types.includes('street_number')) num = c.long_name;
+        if (c.types.includes('route')) street = c.long_name;
+        if (c.types.includes('locality')) city = c.long_name;
+        if (c.types.includes('sublocality_level_1') && !city) city = c.long_name;
+        if (c.types.includes('administrative_area_level_1')) state = c.short_name;
+        if (c.types.includes('postal_code')) zip = c.long_name;
+        if (c.types.includes('country')) country = c.short_name;
+      });
+      addrInput.value = num ? num + ' ' + street : street;
+      if (document.getElementById('s2-city')) document.getElementById('s2-city').value = city;
+      if (document.getElementById('s2-state')) document.getElementById('s2-state').value = state;
+      if (document.getElementById('s2-zip')) document.getElementById('s2-zip').value = zip;
+      if (document.getElementById('s1-country')) document.getElementById('s1-country').value = country === 'CA' ? 'ca' : 'us';
+      if (place.geometry && place.geometry.location) {
+        window._listingLat = place.geometry.location.lat();
+        window._listingLng = place.geometry.location.lng();
+      }
+      if (typeof fetchAIComps === 'function') fetchAIComps(city, state, zip, country);
+      if (typeof updatePreview === 'function') updatePreview();
+    });
+  }
+}
+</script>
 </body>
 </html>
