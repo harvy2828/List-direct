@@ -612,7 +612,7 @@ function showStep(n) {
     if (addrEl) addrEl.dataset.acDone = '';
     const tryInit = (attempts) => {
       if (window.google && window.google.maps && window.google.maps.places) {
-        initAddressAutocomplete();
+        initS2Addr();
       } else if (attempts > 0) {
         setTimeout(() => tryInit(attempts - 1), 300);
       }
@@ -1111,11 +1111,12 @@ const GOOGLE_API_KEY = 'AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A';
 
 function initS2Addr() {
   const el = document.getElementById('s2-addr');
-  if (!el || el.dataset.acDone === '1') return;
+  if (!el) return;
   if (!window.google || !window.google.maps || !window.google.maps.places) {
     setTimeout(initS2Addr, 300);
     return;
   }
+  if (el.dataset.acDone === '1') return;
   el.dataset.acDone = '1';
   const ac = new google.maps.places.Autocomplete(el, {
     types: ['address'],
