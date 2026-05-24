@@ -239,9 +239,6 @@ app.post('/api/listings', async (req, res) => {
       listing_path: body.listing_path || 'direct'
     };
     // Use user-scoped client so RLS policies recognize the authenticated user
-    const userClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
-      global: { headers: { Authorization: `Bearer ${token}` } }
-    });
     // Use user-scoped client so RLS policies recognize the authenticated user
     const userClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
       global: { headers: { Authorization: `Bearer ${token}` } }
