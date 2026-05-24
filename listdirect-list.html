@@ -1360,41 +1360,42 @@ async function signInAndPublish() {
   </div>
 </div>
 
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A&libraries=places&callback=initListPlaces" async defer></script>
 <script>
-function initListPlaces() {
-  const addrInput = document.getElementById('s2-addr');
-  if (addrInput) {
-    const ac = new google.maps.places.Autocomplete(addrInput, {
-      fields: ['formatted_address', 'address_components', 'geometry']
-    });
-    ac.addListener('place_changed', function() {
-      const place = ac.getPlace();
-      if (!place.address_components) return;
-      let num='', street='', city='', state='', zip='', country='';
-      place.address_components.forEach(function(c) {
-        if (c.types.includes('street_number')) num = c.long_name;
-        if (c.types.includes('route')) street = c.long_name;
-        if (c.types.includes('locality')) city = c.long_name;
-        if (c.types.includes('sublocality_level_1') && !city) city = c.long_name;
-        if (c.types.includes('administrative_area_level_1')) state = c.short_name;
-        if (c.types.includes('postal_code')) zip = c.long_name;
-        if (c.types.includes('country')) country = c.short_name;
-      });
-      addrInput.value = num ? num + ' ' + street : street;
-      if (document.getElementById('s2-city')) document.getElementById('s2-city').value = city;
-      if (document.getElementById('s2-state')) document.getElementById('s2-state').value = state;
-      if (document.getElementById('s2-zip')) document.getElementById('s2-zip').value = zip;
-      if (document.getElementById('s1-country')) document.getElementById('s1-country').value = country === 'CA' ? 'ca' : 'us';
-      if (place.geometry && place.geometry.location) {
-        window._listingLat = place.geometry.location.lat();
-        window._listingLng = place.geometry.location.lng();
-      }
-      if (typeof fetchAIComps === 'function') fetchAIComps(city, state, zip, country);
-      if (typeof updatePreview === 'function') updatePreview();
-    });
-  }
-}
 </script>
+<script>
+/* ── MAPS AUTOCOMPLETE (isolated) ── */
+window._mapsReady = function() {
+  var addrInput = document.getElementById('s2-addr');
+  if (!addrInput) return;
+  var ac = new google.maps.places.Autocomplete(addrInput, { fields: ['address_components','geometry'] });
+  ac.addListener('place_changed', function() {
+    var place = ac.getPlace();
+    if (!place.address_components) return;
+    var num='',street='',city='',state='',zip='',country='';
+    place.address_components.forEach(function(c) {
+      if (c.types.includes('street_number')) num=c.long_name;
+      if (c.types.includes('route')) street=c.long_name;
+      if (c.types.includes('locality')) city=c.long_name;
+      if (c.types.includes('sublocality_level_1') && !city) city=c.long_name;
+      if (c.types.includes('administrative_area_level_1')) state=c.short_name;
+      if (c.types.includes('postal_code')) zip=c.long_name;
+      if (c.types.includes('country')) country=c.short_name;
+    });
+    addrInput.value = num ? num+' '+street : street;
+    var el; 
+    el=document.getElementById('s2-city'); if(el) el.value=city;
+    el=document.getElementById('s2-state'); if(el) el.value=state;
+    el=document.getElementById('s2-zip'); if(el) el.value=zip;
+    el=document.getElementById('s1-country'); if(el) el.value=country==='CA'?'ca':'us';
+    if (place.geometry && place.geometry.location) {
+      window._listingLat = place.geometry.location.lat();
+      window._listingLng = place.geometry.location.lng();
+    }
+    if (typeof fetchAIComps==='function') fetchAIComps(city,state,zip,country);
+    if (typeof updatePreview==='function') updatePreview();
+  });
+};
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A&libraries=places&callback=_mapsReady" async defer></script>
 </body>
 </html>
