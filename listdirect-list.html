@@ -496,7 +496,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
     <div style="margin-top:24px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 24px">
       <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:12px">What happens next</div>
       <div style="display:flex;flex-direction:column;gap:10px">
-        <div style="display:flex;align-items:flex-start;gap:10px;font-size:0.9rem;color:var(--text)"><span style="color:var(--green);font-weight:700;flex-shrink:0">✓</span> Your listing goes live within 24 hours after our quick review</div>
+        <div style="display:flex;align-items:flex-start;gap:10px;font-size:0.9rem;color:var(--text)"><span style="color:var(--green);font-weight:700;flex-shrink:0">✓</span> Your listing goes live immediately — no review required</div>
         <div style="display:flex;align-items:flex-start;gap:10px;font-size:0.9rem;color:var(--text)"><span style="color:var(--green);font-weight:700;flex-shrink:0">✓</span> You appear first in every search for your city with a Verified badge</div>
         <div style="display:flex;align-items:flex-start;gap:10px;font-size:0.9rem;color:var(--text)"><span style="color:var(--green);font-weight:700;flex-shrink:0">✓</span> Buyers contact you directly — no agent in the middle</div>
         <div style="display:flex;align-items:flex-start;gap:10px;font-size:0.9rem;color:var(--text)"><span style="color:var(--green);font-weight:700;flex-shrink:0">✓</span> 1% platform fee collected only when you close — $0 upfront</div>
@@ -535,7 +535,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
     <div class="success-wrap">
       <div class="success-icon">🎉</div>
       <h1 class="success-title">You're listed!</h1>
-      <p class="success-sub">Your listing has been submitted and will be live within 24 hours. You'll appear first in every search for <strong id="success-city" style="color:var(--white)">your city</strong> with a ListDirect Verified badge.</p>
+      <p class="success-sub">Your listing is now live! You'll appear first in every search for <strong id="success-city" style="color:var(--white)">your city</strong> with a ListDirect Verified badge.</p>
       <div class="success-banner">
         👑 <strong>Priority placement confirmed.</strong> Buyers searching your area will see your home first — above all market listings.
       </div>
@@ -880,7 +880,7 @@ document.getElementById('listing-form').addEventListener('submit', async functio
     features: document.getElementById('s2-features')?.value || '',
     description: aiDescription || document.getElementById('lp-desc')?.textContent || '',
     photos: uploadedPhotoUrls || [],
-    status: 'pending',
+    status: 'active',
     listing_path: document.getElementById('s1-path')?.value || 'direct',
     lat: window._listingLat || null,
     lng: window._listingLng || null
