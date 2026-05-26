@@ -1,4 +1,4 @@
-const CACHE_NAME = 'listdirect-v1';
+const CACHE_NAME = 'listdirect-v2';
 const ASSETS = [
   '/',
   '/index.html',
@@ -24,8 +24,12 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  // Only cache GET requests, skip API calls
-  if (e.request.method !== 'GET' || e.request.url.includes('/api/')) return;
+  const url = new URL(e.request.url);
+
+  // Only cache our own origin's static assets — never external APIs or Google
+  if (e.request.method !== 'GET') return;
+  if (url.origin !== self.location.origin) return; // skip Google Maps, Bridge, Rentcast etc.
+  if (url.pathname.startsWith('/api/')) return; // skip our own API calls
 
   e.respondWith(
     fetch(e.request)
