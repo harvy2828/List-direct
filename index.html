@@ -545,7 +545,11 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
 
 /* ═══ LISTING DETAIL MODAL ═══ */
 .listing-modal .modal{max-width:960px}
-.lm-imgs{margin-bottom:16px;border-radius:12px;overflow:hidden}
+.lm-layout{display:flex;gap:24px;align-items:flex-start}
+.lm-col-left{flex:0 0 45%;min-width:0}
+.lm-col-right{flex:1;min-width:0;overflow-y:auto}
+@media(max-width:700px){.lm-layout{flex-direction:column}.lm-col-left,.lm-col-right{flex:none;width:100%}}
+.lm-imgs{margin-bottom:12px;border-radius:12px;overflow:hidden}
 .lm-imgs .lm-main{width:100%;height:240px;background-size:cover;background-position:center;position:relative;overflow:hidden}
 .lm-imgs .lm-thumbs-row{display:flex;gap:4px;margin-top:4px}
 .lm-imgs .lm-thumb{flex:1;height:72px;background-size:cover;background-position:center;border-radius:6px}
@@ -2531,17 +2535,21 @@ function openListingModal(l) {
   window._modalLatLng = { lat: l.lat || null, lng: l.lng || null };
   window._currentListing = l;
   content.innerHTML = `
-    <div class="lm-imgs">
-      <div class="lm-main" id="lm-main-view" style="position:relative;overflow:hidden;height:240px">
-        <div id="lm-photo-view" style="position:absolute;inset:0;background-image:url('${photos[0]||l.img}');background-size:cover;background-position:center;cursor:zoom-in" onclick="openModalLightbox(0)"></div>
-        <div id="lm-sv-view" style="position:absolute;inset:0;display:none;height:240px"></div>
+    <div class="lm-layout">
+    <div class="lm-col-left">
+      <div class="lm-imgs">
+        <div class="lm-main" id="lm-main-view" style="position:relative;overflow:hidden;height:320px">
+          <div id="lm-photo-view" style="position:absolute;inset:0;background-image:url('${photos[0]||l.img}');background-size:cover;background-position:center;cursor:zoom-in" onclick="openModalLightbox(0)"></div>
+          <div id="lm-sv-view" style="position:absolute;inset:0;display:none;height:320px"></div>
+        </div>
+        ${photos.length > 1 ? '<div class="lm-thumbs-row">' + photos.slice(1,4).map((p,i) => `<div class="lm-thumb" style="background-image:url('${p}')" onclick="openModalLightbox(${i+1})"></div>`).join('') + '</div>' : ''}
       </div>
-      ${photos.length > 1 ? '<div class="lm-thumbs-row">' + photos.slice(1,4).map((p,i) => `<div class="lm-thumb" style="background-image:url('${p}')" onclick="openModalLightbox(${i+1})"></div>`).join('') + '</div>' : ''}
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <button onclick="openModalLightbox(0)" id="lm-btn-photo" style="flex:1;padding:8px;border-radius:50px;border:1px solid var(--green);background:var(--green);color:var(--bg);font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">📷 All Photos (${photos.length})</button>
+        <button onclick="switchLMView('sv','${svAddr}')" id="lm-btn-sv" style="flex:1;padding:8px;border-radius:50px;border:1px solid var(--green);background:none;color:var(--green);font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🌍 Street View</button>
+      </div>
     </div>
-    <div style="display:flex;gap:8px;margin-bottom:14px">
-      <button onclick="openModalLightbox(0)" id="lm-btn-photo" style="flex:1;padding:8px;border-radius:50px;border:1px solid var(--green);background:var(--green);color:var(--bg);font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">📷 All Photos (${photos.length})</button>
-      <button onclick="switchLMView('sv','${svAddr}')" id="lm-btn-sv" style="flex:1;padding:8px;border-radius:50px;border:1px solid var(--green);background:none;color:var(--green);font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🌍 Street View</button>
-    </div>
+    <div class="lm-col-right">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
       <div class="lm-price" style="margin:0">$${l.price.toLocaleString()}</div>
       ${l.mls
@@ -2579,7 +2587,7 @@ function openListingModal(l) {
           '<button class="lm-btn-primary" onclick="var f=document.getElementById(\'mls-req-form\');f.style.display=f.style.display===\'none\'?\'block\':\'none\'">\ud83d\udce9 Request Info from Agent</button>' +
           (l.mls ? '<a href="' + realtorUrl + '" target="_blank" style="padding:13px;border-radius:50px;font-weight:700;font-size:0.9rem;background:none;border:1px solid rgba(62,240,122,0.4);color:#3ef07a;text-align:center;text-decoration:none;display:block">Find on Realtor.ca</a>' : '') +
           '<button class="lm-btn-outline" onclick="closeListingModal()">Close</button>' +
-          '</div>';
+          '</div></div></div>';
       }
       const cashback = l.cashback;
       const callout = cashback
@@ -2602,7 +2610,8 @@ function openListingModal(l) {
         '<button class="lm-btn-primary" onclick="openMsgSellerCurrent()">\ud83d\udcac Message Seller</button>' +
         '<button class="lm-btn-outline" onclick="openOfferCurrent()">\ud83d\udcb0 Make an Offer</button></div>';
       return callout + breakdown + btns;
-    })()}`;
+    })()}
+    </div></div>`;
   document.getElementById('listing-modal').classList.add('open');
   document.body.style.overflow = 'hidden';
   if (l.id) fetch('/api/listings/' + encodeURIComponent(l.id) + '/view', { method: 'POST' }).catch(() => {});
