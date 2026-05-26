@@ -544,7 +544,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
 .modal-submit:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(62,240,122,0.4)}
 
 /* ═══ LISTING DETAIL MODAL ═══ */
-.listing-modal .modal{max-width:680px}
+.listing-modal .modal{max-width:960px}
 .lm-imgs{margin-bottom:16px;border-radius:12px;overflow:hidden}
 .lm-imgs .lm-main{width:100%;height:240px;background-size:cover;background-position:center;position:relative;overflow:hidden}
 .lm-imgs .lm-thumbs-row{display:flex;gap:4px;margin-top:4px}
@@ -2772,8 +2772,9 @@ async function submitOffer() {
       })
     });
     if (res.ok) {
+      document.getElementById('offer-form-content').style.display = 'none';
       document.getElementById('offer-success').style.display = 'block';
-      btn.style.display = 'none';
+      setTimeout(() => { document.getElementById('offer-modal').style.display = 'none'; document.getElementById('offer-form-content').style.display = 'block'; document.getElementById('offer-success').style.display = 'none'; btn.textContent = 'Submit Offer →'; btn.disabled = false; }, 3000);
     } else {
       alert('Something went wrong. Please try again.');
       btn.textContent = 'Submit Offer →';
@@ -3771,7 +3772,7 @@ updateMortgage();
 <!-- PATH CHOICE MODAL -->
 <style>
 #pm-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.88);z-index:9999;align-items:center;justify-content:center;padding:16px;box-sizing:border-box}
-#pm-box{background:#141c16;border:1px solid #1f2d22;border-radius:20px;padding:36px 28px;max-width:580px;width:100%;max-height:90vh;overflow-y:auto;position:relative}
+#pm-box{background:#141c16;border:1px solid #1f2d22;border-radius:20px;padding:36px 40px;max-width:900px;width:100%;max-height:90vh;overflow-y:auto;position:relative}
 #pm-close-btn{position:absolute;top:14px;right:16px;background:none;border:none;color:#7a9480;font-size:1.4rem;cursor:pointer;line-height:1}
 .pm-tag{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#3ef07a;margin-bottom:8px}
 .pm-title{font-family:'Playfair Display',serif;font-size:1.7rem;font-weight:900;color:#fff;margin-bottom:6px}
@@ -4350,6 +4351,7 @@ function heroQuickSearch(city) {
       <h2 style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:#e8f0e9;margin:0">💰 Make an Offer</h2>
       <button onclick="closeOfferModal()" style="background:none;border:none;color:#7a9480;font-size:1.3rem;cursor:pointer">✕</button>
     </div>
+    <div id="offer-form-content">
     <div id="offer-property" style="background:#0d1510;border:1px solid #1f2d22;border-radius:12px;padding:12px 16px;margin-bottom:20px;font-size:0.88rem;color:#7a9480"></div>
 
     <!-- Offer Amount Slider -->
@@ -4378,10 +4380,11 @@ function heroQuickSearch(city) {
       <button onclick="closeOfferModal()" style="flex:1;background:none;border:1px solid #1f2d22;color:#7a9480;padding:13px;border-radius:50px;cursor:pointer;font-family:'DM Sans',sans-serif">Cancel</button>
       <button onclick="submitOffer()" id="offer-submit-btn" style="flex:2;background:#3ef07a;color:#0a0f0d;border:none;padding:13px;border-radius:50px;font-weight:700;font-size:0.95rem;cursor:pointer;font-family:'DM Sans',sans-serif">Submit Offer →</button>
     </div>
-    <div id="offer-success" style="display:none;text-align:center;padding:20px">
-      <div style="font-size:2rem;margin-bottom:10px">✅</div>
-      <div style="font-weight:700;color:#3ef07a;font-size:1.1rem;margin-bottom:6px">Offer Submitted!</div>
-      <div style="color:#7a9480;font-size:0.88rem">The seller has been notified and will be in touch soon.</div>
+    </div>
+    <div id="offer-success" style="display:none;text-align:center;padding:40px 20px">
+      <div style="font-size:3rem;margin-bottom:16px">✅</div>
+      <div style="font-weight:700;color:#3ef07a;font-size:1.3rem;margin-bottom:8px">Offer Submitted!</div>
+      <div style="color:#7a9480;font-size:0.92rem">The seller has been notified and will be in touch soon.</div>
     </div>
   </div>
 </div>
