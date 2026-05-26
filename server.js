@@ -937,7 +937,7 @@ app.post('/api/offers', async (req, res) => {
     const offerNow = new Date(); const offerTs = offerNow.toLocaleDateString('en-CA',{month:'short',day:'numeric'}) + ' ' + offerNow.toLocaleTimeString('en-CA',{hour:'2-digit',minute:'2-digit',hour12:true});
     const offerSubject = `💰 New Offer — $${parseInt(offer_amount).toLocaleString()} on ${property} · ${offerTs}`;
     if (offerSellerEmail) await sendEmail({ to: offerSellerEmail, reply_to: buyer_email, subject: offerSubject, html: offerHtml }).catch(e => console.error('Seller offer notify:', e.message));
-    await sendEmail({ to: 'infolistdirect@gmail.com', reply_to: buyer_email, subject: offerSubject, html: offerHtml }).catch(e => console.error('LD offer notify:', e.message));
+    if (offerSellerEmail !== 'infolistdirect@gmail.com') await sendEmail({ to: 'infolistdirect@gmail.com', reply_to: buyer_email, subject: offerSubject, html: offerHtml }).catch(e => console.error('LD offer notify:', e.message));
     res.json({ success: true });
   } catch (err) {
     console.error('Offer error:', err.message);
@@ -986,7 +986,7 @@ app.post('/api/messages', async (req, res) => {
     const now = new Date(); const ts = now.toLocaleDateString('en-CA',{month:'short',day:'numeric'}) + ' ' + now.toLocaleTimeString('en-CA',{hour:'2-digit',minute:'2-digit',hour12:true});
     const msgSubject = '💬 New Message — ' + sender_name + ' is interested in a listing! · ' + ts;
     if (sellerEmail) await sendEmail({ to: sellerEmail, reply_to: sender_email, subject: msgSubject, html: msgHtml }).catch(e => console.error('Seller msg notify:', e.message));
-    await sendEmail({ to: 'infolistdirect@gmail.com', reply_to: sender_email, subject: msgSubject, html: msgHtml }).catch(e => console.error('LD msg notify:', e.message));
+    if (sellerEmail !== 'infolistdirect@gmail.com') await sendEmail({ to: 'infolistdirect@gmail.com', reply_to: sender_email, subject: msgSubject, html: msgHtml }).catch(e => console.error('LD msg notify:', e.message));
 
     res.json({ success: true, id: data.id });
   } catch (err) {
