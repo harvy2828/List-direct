@@ -1156,7 +1156,7 @@ app.get('/api/members/count', async (req, res) => {
 
 
 // ── MLS Cache ───────────────────────────────────────────────
-const const mlsCache = new Map();
+const mlsCache = new Map();
 const MLS_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 // ── Bridge MLS Listings (Canada — GVR/FVREB via BridgeAPI) ───
