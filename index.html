@@ -4112,7 +4112,13 @@ async function sendMessageToSeller() {
       document.getElementById('msm-form').style.display = 'none';
       document.getElementById('msm-success').innerHTML = '✅ Message sent! The seller will reply to <strong>' + email + '</strong> shortly.';
       document.getElementById('msm-success').style.display = 'block';
-      setTimeout(() => { document.getElementById('message-seller-modal').style.display = 'none'; }, 3000);
+      if (btn) { btn.textContent = 'Send Message →'; btn.disabled = false; }
+      setTimeout(() => { 
+        document.getElementById('message-seller-modal').style.display = 'none';
+        document.getElementById('msm-form').style.display = 'block';
+        document.getElementById('msm-success').style.display = 'none';
+        document.getElementById('msm-message').value = '';
+      }, 3000);
     } else {
       errEl.textContent = 'Error: ' + (data.error || 'Failed to send message.'); errEl.style.display = 'block';
       if (btn) { btn.textContent = 'Send Message →'; btn.disabled = false; }
@@ -4372,7 +4378,7 @@ function heroQuickSearch(city) {
       </div>
       <div style="display:flex;gap:10px">
         <button onclick="sendMessageToSeller()" id="msm-send-btn" style="flex:2;background:#3ef07a;color:#0a0f0d;padding:13px;border-radius:50px;border:none;font-weight:700;font-size:0.95rem;cursor:pointer;font-family:'DM Sans',sans-serif">Send Message →</button>
-        <button onclick="document.getElementById('message-seller-modal').style.display='none'" style="flex:1;background:none;border:1px solid #1f2d22;color:#7a9480;padding:13px;border-radius:50px;cursor:pointer;font-family:'DM Sans',sans-serif">Cancel</button>
+        <button onclick="document.getElementById('message-seller-modal').style.display='none';document.getElementById('msm-form').style.display='block';document.getElementById('msm-success').style.display='none';document.getElementById('msm-message').value='';var b=document.getElementById('msm-send-btn');if(b){b.textContent='Send Message →';b.disabled=false;}" style="flex:1;background:none;border:1px solid #1f2d22;color:#7a9480;padding:13px;border-radius:50px;cursor:pointer;font-family:'DM Sans',sans-serif">Cancel</button>
       </div>
     </div>
   </div>
