@@ -2066,6 +2066,15 @@ async function runSearch() {
       const grid = document.getElementById('listings-grid');
       if (grid) window.scrollTo({ top: grid.getBoundingClientRect().top + window.pageYOffset - 120, behavior: 'smooth' });
     }, 100);
+  } else if (searchCountry === 'us') {
+    document.getElementById('search-loading').classList.remove('visible');
+    document.getElementById('search-city-label').textContent = `in "${query}" (${countryLabel}, prices in ${currencyLabel})`;
+    const grid = document.getElementById('listings-grid');
+    if (grid) { grid.innerHTML = ''; showMLSSkeleton(6); }
+    document.getElementById('listings-section').style.display = 'block';
+    setTimeout(() => {
+      if (grid) window.scrollTo({ top: grid.getBoundingClientRect().top + window.pageYOffset - 120, behavior: 'smooth' });
+    }, 100);
   }
 
   // Then fetch MLS and AI in parallel in background
