@@ -1156,7 +1156,7 @@ app.get('/api/members/count', async (req, res) => {
 
 
 // ── MLS Cache ───────────────────────────────────────────────
-const mlsCache = new Map();
+const const mlsCache = new Map();
 const MLS_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 // ── Bridge MLS Listings (Canada — GVR/FVREB via BridgeAPI) ───
@@ -1165,8 +1165,11 @@ app.get('/api/mls/canada', async (req, res) => {
   const cacheKey = JSON.stringify({ city, minBeds, maxPrice, minPrice, type });
   const cached = mlsCache.get(cacheKey);
   if (cached && Date.now() - cached.ts < MLS_CACHE_TTL) {
+    console.log('[MLS CACHE HIT]', cacheKey);
+    res.setHeader('X-Cache', 'HIT');
     return res.json(cached.data);
   }
+  console.log('[MLS CACHE MISS]', cacheKey);
   try {
     const BRIDGE_BASE = 'https://api.bridgedataoutput.com/api/v3/OData/bcres';
     const BRIDGE_TOKEN = process.env.BRIDGE_TOKEN;
