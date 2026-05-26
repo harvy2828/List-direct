@@ -545,6 +545,12 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:60px 48p
 
 /* ═══ LISTING DETAIL MODAL ═══ */
 .listing-modal .modal{max-width:960px}
+.skeleton-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;animation:skeletonPulse 1.4s ease-in-out infinite}
+.skeleton-img{height:180px;background:linear-gradient(90deg,#141c16 25%,#1f2d22 50%,#141c16 75%);background-size:200% 100%;animation:skeletonShimmer 1.4s ease-in-out infinite}
+.skeleton-body{padding:16px}
+.skeleton-line{height:14px;border-radius:6px;background:linear-gradient(90deg,#141c16 25%,#1f2d22 50%,#141c16 75%);background-size:200% 100%;animation:skeletonShimmer 1.4s ease-in-out infinite;margin-bottom:10px}
+.skeleton-line.wide{width:70%}.skeleton-line.medium{width:50%}.skeleton-line.short{width:35%}
+@keyframes skeletonShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .lm-layout{display:flex;gap:24px;align-items:flex-start}
 .lm-col-left{flex:0 0 45%;min-width:0}
 .lm-col-right{flex:1;min-width:0;overflow-y:auto}
@@ -1945,6 +1951,17 @@ async function fetchUSListings(query, beds, maxPrice) {
   }
 }
 
+function showMLSSkeleton(count = 6) {
+  const grid = document.getElementById('listings-grid');
+  if (!grid) return;
+  for (let i = 0; i < count; i++) {
+    const card = document.createElement('div');
+    card.className = 'skeleton-card mls-skeleton';
+    card.innerHTML = '<div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line wide"></div><div class="skeleton-line medium"></div><div class="skeleton-line short"></div></div>';
+    grid.appendChild(card);
+  }
+}
+
 async function fetchCanadaListings(query, beds, maxPrice, offset = 0) {
   try {
     const params = new URLSearchParams({ city: query });
@@ -2044,6 +2061,7 @@ async function runSearch() {
     document.getElementById('search-city-label').textContent = `in "${query}" (${countryLabel}, prices in ${currencyLabel})`;
     currentResults = [...platformListings, ...verifiedMatches.filter(v => !platformListings.find(p => p.id === v.id))];
     renderCurrentResults();
+    if (searchCountry === 'ca' || searchCountry === 'us') showMLSSkeleton(6);
     setTimeout(() => {
       const grid = document.getElementById('listings-grid');
       if (grid) window.scrollTo({ top: grid.getBoundingClientRect().top + window.pageYOffset - 120, behavior: 'smooth' });

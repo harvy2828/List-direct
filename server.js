@@ -1155,9 +1155,18 @@ app.get('/api/members/count', async (req, res) => {
 });
 
 
+// ── MLS Cache ───────────────────────────────────────────────
+const mlsCache = new Map();
+const MLS_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
 // ── Bridge MLS Listings (Canada — GVR/FVREB via BridgeAPI) ───
 app.get('/api/mls/canada', async (req, res) => {
   const { city, minBeds, maxPrice, minPrice, type } = req.query;
+  const cacheKey = JSON.stringify({ city, minBeds, maxPrice, minPrice, type });
+  const cached = mlsCache.get(cacheKey);
+  if (cached && Date.now() - cached.ts < MLS_CACHE_TTL) {
+    return res.json(cached.data);
+  }
   try {
     const BRIDGE_BASE = 'https://api.bridgedataoutput.com/api/v3/OData/bcres';
     const BRIDGE_TOKEN = process.env.BRIDGE_TOKEN;
@@ -1240,6 +1249,7 @@ app.get('/api/mls/canada', async (req, res) => {
       };
     });
 
+    mlsCache.set(cacheKey, { data: { listings }, ts: Date.now() });
     res.json({ listings });
   } catch (err) {
     console.error('Bridge API error:', err.message);
