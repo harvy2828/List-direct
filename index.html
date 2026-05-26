@@ -2308,6 +2308,8 @@ function closeLightbox() {
 // Swipe support for lightbox
 let lbTouchStartX = 0;
 document.addEventListener('DOMContentLoaded', () => {
+  history.scrollRestoration = 'manual';
+  window.scrollTo(0, 0);
   const lb = document.getElementById('photo-lightbox');
   if (lb) {
     lb.addEventListener('touchstart', e => { lbTouchStartX = e.touches[0].clientX; }, { passive: true });
