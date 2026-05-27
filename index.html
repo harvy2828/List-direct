@@ -2068,8 +2068,8 @@ async function runSearch() {
     }, 100);
   }
 
-  // For US with no platform listings, show skeleton before MLS fetch
-  if (platformListings.length === 0 && searchCountry === 'us') {
+  // For CA or US with no platform listings, show skeleton before MLS fetch
+  if (platformListings.length === 0 && (searchCountry === 'us' || searchCountry === 'ca')) {
     document.getElementById('search-loading').classList.remove('visible');
     document.getElementById('search-city-label').textContent = `in "${query}" (${countryLabel}, prices in ${currencyLabel})`;
     currentResults = [];
