@@ -1158,7 +1158,7 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
       <div class="calc-presets">
         <button class="calc-preset" onclick="setCalcPrice(300000,this)">$300k</button>
         <button class="calc-preset" onclick="setCalcPrice(500000,this)">$500k</button>
-        <button class="calc-preset active" onclick="setCalcPrice(450000,this)">$450k</button>
+        <button class="calc-preset active" onclick="setCalcPrice(500000,this)">$500k</button>
         <button class="calc-preset" onclick="setCalcPrice(750000,this)">$750k</button>
         <button class="calc-preset" onclick="setCalcPrice(1000000,this)">$1M</button>
         <button class="calc-preset" onclick="setCalcPrice(2500000,this)">$2.5M</button>
@@ -1204,7 +1204,7 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
           <div class="calc-payoff-sub">Only 1% platform fee — you keep almost everything</div>
         </div>
         <div class="calc-payoff-right">
-          <div class="calc-payoff-num" id="calc-savings">$22,500</div>
+          <div class="calc-payoff-num" id="calc-savings">$20,000</div>
           <button class="calc-list-btn" onclick="openPM()">Start Saving →</button>
         </div>
       </div>
@@ -1254,7 +1254,7 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
         <li>Step-by-step AI guidance through the selling process</li>
       </ul>
       <div class="path-fee">1% <span>of sale price</span></div>
-      <div class="path-fee-note">On a $400k home, that's just $4,000 vs. $24,000 with a traditional agent</div>
+      <div class="path-fee-note">On a $500k home, you pay just $5,000 — you keep the rest</div>
       <button class="btn-path primary" onclick="window.location.href='listdirect-list.html'">Start Listing Free →</button>
     </div>
     <div class="path-card">
@@ -3874,9 +3874,9 @@ updateMortgage();
           <li><span class="pm-check-g">✓</span><span>Only 1% fee at closing</span></li>
         </ul>
         <div class="pm-save-box pm-save-ai">
-          <div class="pm-slabel">💰 You save vs. traditional agent</div>
-          <span class="pm-snum-ai" id="pm-ai-num">$22,500</span>
-          <span class="pm-snote" id="pm-ai-note">On a $450k home · Only 1% platform fee</span>
+          <div class="pm-slabel">💰 You pay just $5,000 at closing</div>
+          <span class="pm-snum-ai" id="pm-ai-num">$20,000</span>
+          <span class="pm-snote" id="pm-ai-note">That's a savings of $20,000 on a $500k home</span>
         </div>
         <button class="pm-btn-ai" onclick="event.stopPropagation();window.location.href='listdirect-list.html'">Start with AI Agent →</button>
       </div>
@@ -3894,7 +3894,7 @@ updateMortgage();
         <div class="pm-save-box pm-save-ag">
           <div class="pm-slabel">💰 Guaranteed cash back at closing</div>
           <span class="pm-snum-ag" id="pm-agent-num">$5,000</span>
-          <span class="pm-snote" id="pm-agent-note">On a $500k home · 1% cashback minimum</span>
+          <span class="pm-snote" id="pm-agent-note">That's a savings of $5,000 on a $500k home</span>
         </div>
         <button class="pm-btn-ag" onclick="event.stopPropagation();window.location.href='listdirect-agents.html'">Browse Certified Agents →</button>
       </div>
@@ -4328,7 +4328,7 @@ function updateMiniCalc(price) {
   const fmt = n => '$' + n.toLocaleString();
   const priceLabel = fmt(price);
   document.getElementById('mini-savings-num').textContent = fmt(savings);
-  document.getElementById('mini-savings-sub').textContent = 'vs. traditional agent on a ' + priceLabel + ' home';
+  document.getElementById('mini-savings-sub').textContent = 'saved at closing on a ' + priceLabel + ' home';
 }
 
 function heroSearch() {
