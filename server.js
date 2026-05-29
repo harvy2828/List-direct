@@ -10,7 +10,7 @@ function emailHeader() {
   return `<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#0a0f0d">
     <tr><td bgcolor="#0a0f0d" style="background-color:#0a0f0d;padding:24px 32px;text-align:center;border-bottom:2px solid #3ef07a">
       <span style="font-family:Georgia,serif;font-size:1.6rem;font-weight:900;color:#3ef07a;letter-spacing:-0.5px">List<span style="color:#ffffff">Direct</span></span><br>
-      <span style="font-size:0.75rem;color:#7a9480;font-family:Arial,sans-serif;letter-spacing:1px;text-transform:uppercase">List Smart. List Direct.</span>
+      <span style="font-size:0.75rem;color:#7a9480;font-family:Arial,sans-serif;letter-spacing:1px;text-transform:uppercase">Save More. List Direct.</span>
     </td></tr>
   </table>`;
 }
