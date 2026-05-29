@@ -287,12 +287,15 @@ app.get('/api/listings/mine', async (req, res) => {
 // ── Photos: Upload ────────────────────────────────────────────
 app.post('/api/photos/upload', upload.single('photo'), async (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
-  if (!token) return res.status(401).json({ error: 'Not authenticated' });
   try {
-    const { data: { user } } = await supabase.auth.getUser(token);
-    if (!user) return res.status(401).json({ error: 'Invalid token' });
+    // Get user ID if logged in, otherwise use 'anonymous'
+    let userId = 'anonymous';
+    if (token) {
+      const { data: { user } } = await supabase.auth.getUser(token);
+      if (user) userId = user.id;
+    }
     const file = req.file;
-    const fileName = `${user.id}/${Date.now()}-${file.originalname}`;
+    const fileName = `${userId}/${Date.now()}-${file.originalname}`;
     const { data, error } = await supabase.storage.from('listing-photos').upload(fileName, file.buffer, {
       contentType: file.mimetype, upsert: false
     });
