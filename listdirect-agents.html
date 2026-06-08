@@ -12,7 +12,7 @@
 
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Find a Certified Agent — ListDirect | Guaranteed Cashback</title>
+<title>Find a Certified Agent — ListDirect | Guaranteed Closing Rebate</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
 :root{--bg:#0a0f0d;--bg2:#111810;--card:#141c16;--border:#1f2d22;--green:#3ef07a;--greenlow:rgba(62,240,122,0.08);--text:#e8f0e9;--muted:#7a9480;--white:#fff;--gold:#f5c842;--goldlow:rgba(245,200,66,0.08);--radius:16px}
@@ -112,16 +112,16 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 
 @media(max-width:900px){.desktop-nav-right{display:none!important}}
 </style>
-  <meta name="description" content="Browse certified real estate agents who guarantee cashback at closing. Every ListDirect agent is contractually required to give you a rebate. Serving Canada and the United States."/>
-  <meta name="keywords" content="real estate agent cashback Canada, certified agent rebate, find real estate agent Canada, agent cashback program, discount real estate agent"/>
-  <meta property="og:title" content="Find a Certified Agent — ListDirect | Guaranteed Cashback"/>
-  <meta property="og:description" content="Browse certified real estate agents who guarantee cashback at closing. Every ListDirect agent is contractually required to give you a rebate. Serving Canada and the United States."/>
+  <meta name="description" content="Browse certified real estate agents who guarantee closing rebate. Every ListDirect agent is contractually required to give you a rebate. Serving Canada and the United States."/>
+  <meta name="keywords" content="real estate agent closing rebate Canada, certified agent rebate, find real estate agent Canada, agent closing rebate program, discount real estate agent"/>
+  <meta property="og:title" content="Find a Certified Agent — ListDirect | Guaranteed Closing Rebate"/>
+  <meta property="og:description" content="Browse certified real estate agents who guarantee closing rebate. Every ListDirect agent is contractually required to give you a rebate. Serving Canada and the United States."/>
   <meta property="og:url" content="https://listdirect.ai/listdirect-agents.html"/>
   <meta property="og:type" content="website"/>
   <meta property="og:image" content="https://listdirect.ai/og-image.png"/>
   <meta name="twitter:card" content="summary_large_image"/>
-  <meta name="twitter:title" content="Find a Certified Agent — ListDirect | Guaranteed Cashback"/>
-  <meta name="twitter:description" content="Browse certified real estate agents who guarantee cashback at closing. Every ListDirect agent is contractually required to give you a rebate. Serving Canada and the United States."/>
+  <meta name="twitter:title" content="Find a Certified Agent — ListDirect | Guaranteed Closing Rebate"/>
+  <meta name="twitter:description" content="Browse certified real estate agents who guarantee closing rebate. Every ListDirect agent is contractually required to give you a rebate. Serving Canada and the United States."/>
   <meta name="robots" content="index, follow"/>
   <link rel="canonical" href="https://listdirect.ai/listdirect-agents.html"/>
 </head>
@@ -144,7 +144,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
   <div class="ph-inner" style="text-align:center;max-width:600px;margin:0 auto">
     <div class="ph-tag">🤝 Certified Agent Network</div>
     <h1 class="ph-title" style="margin-bottom:12px">Get Matched with a<br><em>Certified Agent</em></h1>
-    <div class="cashback-promise" style="margin-bottom:0">💰 Minimum 1% cashback at closing — guaranteed. Fill out your details and we'll connect you with the right agent for your area.</div>
+    <div class="cashback-promise" style="margin-bottom:0">💰 Minimum 1% closing rebate — guaranteed. Fill out your details and we'll connect you with the right agent for your area.</div>
   </div>
 </div>
 
@@ -248,7 +248,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
         <div class="sb-icon">🎉</div>
         <div class="sb-title">Request Sent!</div>
         <p class="sb-sub">Your request has been submitted! Our team will connect you with a certified agent in your area within 24 hours.</p>
-        <div class="sb-banner">💰 Remember — your agent has agreed to a minimum <strong id="success-cashback">1%</strong> cashback at closing. This is contractually guaranteed.</div>
+        <div class="sb-banner">💰 Remember — your agent has agreed to a minimum <strong id="success-cashback">1%</strong> closing rebate rebate. This is contractually guaranteed.</div>
         <div class="sb-actions">
           <a href="listdirect-list.html" class="btn-primary">📋 Start Your Listing Too</a>
           <a href="index.html" class="btn-outline">Back to Home</a>
@@ -275,7 +275,7 @@ fetch('/api/agents')
         specialty: a.specialty || 'Real Estate',
         rating: a.rating || '5.0',
         reviews: a.reviews || '0',
-        cashback: (a.cashback_offer || '1') + '%',
+        closing rebate: (a.cashback_offer || '1') + '%',
         photo: a.avatar_url || a.photo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(a.full_name || 'Agent') + '&background=131A16&color=3ef07a&size=128',
         bio: a.bio || '',
         phone: a.phone || '',
@@ -332,7 +332,7 @@ function renderAgents() {
         <div>🏅 <strong style="color:var(--text)">Designations:</strong> ${a.designations}</div>
       </div>
       <div class="ac-cashback">
-        <span class="ac-cb-label">💰 Cashback Offer</span>
+        <span class="ac-cb-label">💰 Closing Rebate</span>
         <span class="ac-cb-val">${a.cashback} at closing</span>
       </div>
       <button class="ac-select-btn" onclick="selectAgent(${i})">Select This Agent</button>
@@ -518,7 +518,7 @@ async function submitNoAgentInquiry(area) {
         seller_address: area,
         seller_price: '',
         seller_phone: '',
-        cashback: '0.5%',
+        closing rebate: '0.5%',
         no_agent_area: area
       })
     });
