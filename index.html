@@ -1192,10 +1192,10 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
           <div class="cbm-note">✅ Our platform fee only — that's it. Nothing else.</div>
         </div>
       </div>
-      <!-- Cashback callout -->
+      <!-- Closing rebate callout -->
       <div style="background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:12px;padding:14px 18px;margin-bottom:16px;font-size:0.85rem;color:var(--muted);display:flex;align-items:center;gap:10px">
         <span style="font-size:1.2rem;flex-shrink:0">💰</span>
-        <span>With <strong style="color:var(--gold)">Our Certified Agent</strong>, you get <strong style="color:var(--green)" id="cashback-amount">$4,500</strong> cash back after closing — versus $0 from a traditional agent.</span>
+        <span>With <strong style="color:var(--gold)">Our Certified Agent</strong>, you get a <strong style="color:var(--green)" id="cashback-amount">$4,500</strong> closing rebate after closing — versus $0 from a traditional agent.</span>
       </div>
       <!-- The big payoff -->
       <div class="calc-payoff">
@@ -1410,7 +1410,7 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
       <button class="chat-close-btn" onclick="toggleChat()">✕</button>
     </div>
     <div class="chat-messages" id="chat-messages">
-      <div class="chat-msg ai">Hi! I'm the ListDirect AI assistant — powered by real AI. Ask me anything about buying, selling, fees, the cashback program, or how the platform works. 🏠</div>
+      <div class="chat-msg ai">Hi! I'm the ListDirect AI assistant — powered by real AI. Ask me anything about buying, selling, fees, the closing rebate program, or how the platform works. 🏠</div>
     </div>
     <div class="chat-quick" id="chat-quick">
       <button class="chat-quick-btn" onclick="quickAsk('What are your fees and how does pricing work?')">💰 Fees</button>
@@ -3033,7 +3033,7 @@ function renderAgents() {
         </div>
       </div>
       <div class="agent-cashback-badge">
-        <div class="acb-label">💰 Cashback Offer</div>
+        <div class="acb-label">💰 Closing Rebate</div>
         <div class="acb-val">${a.cashback} at closing</div>
       </div>
       <button class="btn-agent" onclick="window.location.href='listdirect-agents.html?agent=${i}'">Request This Agent →</button>`;
