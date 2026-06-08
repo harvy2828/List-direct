@@ -2639,7 +2639,7 @@ function openListingModal(l) {
       const isCA = l.currency === 'CAD' || (l.zip && /^[A-Z][0-9][A-Z]/i.test((l.zip||'').trim()));
       const ldFee = Math.round(price * 0.01);
       let tradFee = isCA ? Math.round(Math.min(price,100000)*0.0644 + Math.max(0,price-100000)*0.023) : Math.round(price*0.06);
-      let tradLabel = isCA ? 'Traditional agent (BC rate)' : 'Traditional agent (~6%)';
+      let tradLabel = isCA ? 'Traditional agent (BC rate)' : 'Traditional agents (up to 6%)';
       const savings = tradFee - ldFee;
       const cur = isCA ? 'CAD' : 'USD';
       const fmt = n => '$' + n.toLocaleString() + ' ' + cur;
@@ -3111,7 +3111,7 @@ function updateCalc() {
     tradPctLabel = 'BC Rate';
   } else {
     trad = Math.round(price * 0.06);  // US: 6%
-    tradPctLabel = '6%';
+    tradPctLabel = 'up to 6%';
   }
   
   const agentGross = trad;
