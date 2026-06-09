@@ -1048,8 +1048,8 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
     <div class="search-box">
       <!-- Country toggle -->
       <div class="search-country-row">
-        <button class="country-btn" id="btn-ca" onclick="setCountry('ca',this)">🇨🇦 Canada</button>
-        <button class="country-btn active" id="btn-us" onclick="setCountry('us',this)">🇺🇸 United States</button>
+        <button class="country-btn active" id="btn-ca" onclick="setCountry('ca',this)">🇨🇦 Canada</button>
+        <button class="country-btn" id="btn-us" onclick="setCountry('us',this)">🇺🇸 United States</button>
         <span class="country-hint" id="country-hint">Searching US cities & ZIP codes</span>
       </div>
       <div class="search-top-row">
@@ -1667,7 +1667,7 @@ function seededRand(seed) {
 // ═══════════════════════════════════════════
 // COUNTRY TOGGLE
 // ═══════════════════════════════════════════
-let searchCountry = 'us';
+let searchCountry = 'ca';
 
 function setCountry(code, btn) {
   searchCountry = code;
@@ -3303,7 +3303,7 @@ document.addEventListener('keydown', e => { if (e.key==='Escape') { closeModal()
 // ═══════════════════════════════════════════
 // AI TOOLS — SWITCH TABS
 // ═══════════════════════════════════════════
-let mqCountry = 'us';
+let mqCountry = 'ca';
 
 function setMQCountry(c) {
   mqCountry = c;
@@ -4160,7 +4160,7 @@ function openMessageSellerBtn(btn) {
 }
 
 // ── Calculator Country Toggle ─────────────────────────────────
-let calcCountry = 'us'; // default Canada
+let calcCountry = 'ca'; // default Canada
 
 function setCalcCountry(country) {
   calcCountry = country;
