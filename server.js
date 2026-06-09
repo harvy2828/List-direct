@@ -263,6 +263,29 @@ app.post('/api/listings', async (req, res) => {
         <a href="https://listdirect.ai/admin.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">View Admin →</a>
       `)
     }).catch(() => {});
+
+    // Send confirmation email to seller
+    const sellerUser = await supabase.auth.admin?.getUserById(user.id).catch(() => null);
+    const sellerEmail = sellerUser?.data?.user?.email;
+    if (sellerEmail) {
+      const now = new Date();
+      const ts = now.toLocaleDateString('en-CA', {month:'short',day:'numeric'}) + ' ' + now.toLocaleTimeString('en-CA', {hour:'2-digit',minute:'2-digit',hour12:true});
+      await sendEmail({
+        to: sellerEmail,
+        subject: '🎉 Your listing is live on ListDirect! · ' + ts,
+        html: emailWrap(`
+          <h2 style="color:#3ef07a;margin:0 0 8px">Your listing is live! 🎉</h2>
+          <p style="color:#7a9480;margin:0 0 20px">Congratulations — your home is now listed on ListDirect and visible to buyers.</p>
+          <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin-bottom:16px">
+            <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Address:</strong> ${listing.address}</p>
+            <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Price:</strong> $${parseInt(listing.price||0).toLocaleString()}</p>
+            <p style="color:#e8f0e9;margin:0"><strong style="color:#3ef07a">Platform fee:</strong> 1% at closing only</p>
+          </div>
+          <a href="https://listdirect.ai/dashboard.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">View My Listing →</a>
+        `)
+      }).catch(() => {});
+    }
+
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
