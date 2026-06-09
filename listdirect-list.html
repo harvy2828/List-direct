@@ -232,6 +232,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
   <meta name="twitter:description" content="List your home for sale in minutes. AI writes your description, prices your home, and reviews every offer. Free to list — pay only 1% when your home sells. Available across Canada and the USA."/>
   <meta name="robots" content="index, follow"/>
   <link rel="canonical" href="https://listdirect.ai/listdirect-list.html"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@6.6.6/css/flag-icons.min.css"/>
 </head>
 <body>
 
@@ -281,10 +282,25 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
       </div>
       <div class="ff" id="ff-country">
         <label>Country</label>
-        <select id="s1-country">
-          <option value="us">&#x1F1FA;&#x1F1F8; United States</option>
-          <option value="ca">&#x1F1E8;&#x1F1E6; Canada</option>
+        <select id="s1-country" style="display:none">
+          <option value="us">United States</option>
+          <option value="ca">Canada</option>
         </select>
+        <div id="s1-country-custom" style="position:relative">
+          <div id="s1-country-selected" onclick="toggleS1Country()" style="display:flex;align-items:center;gap:8px;background:#1a2b1e;border:1px solid #1f2d22;border-radius:10px;padding:10px 14px;cursor:pointer;font-size:0.9rem;color:#e8f0e9">
+            <span class="fi fi-us" style="border-radius:2px;font-size:1em"></span>
+            <span id="s1-country-label">United States</span>
+            <span style="margin-left:auto;color:#7a9480">▾</span>
+          </div>
+          <div id="s1-country-options" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#1a2b1e;border:1px solid #1f2d22;border-radius:10px;z-index:100;overflow:hidden">
+            <div onclick="setS1Country('us','United States')" style="display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;font-size:0.9rem;color:#e8f0e9">
+              <span class="fi fi-us" style="border-radius:2px;font-size:1em"></span> United States
+            </div>
+            <div onclick="setS1Country('ca','Canada')" style="display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;font-size:0.9rem;color:#e8f0e9">
+              <span class="fi fi-ca" style="border-radius:2px;font-size:1em"></span> Canada
+            </div>
+          </div>
+        </div>
       </div>
       <div class="ff">
         <label>How would you like to sell?</label>
@@ -1361,6 +1377,23 @@ async function signInAndPublish() {
 <script>
 </script>
 </body>
-<script>window.mapsLoaded = function(){};</script>
+<script>
+window.mapsLoaded = function(){};
+function toggleS1Country() {
+  const opts = document.getElementById('s1-country-options');
+  opts.style.display = opts.style.display === 'none' ? 'block' : 'none';
+}
+function setS1Country(value, label) {
+  document.getElementById('s1-country').value = value;
+  document.getElementById('s1-country-label').textContent = label;
+  const sel = document.getElementById('s1-country-selected');
+  sel.querySelector('.fi').className = 'fi fi-' + value;
+  document.getElementById('s1-country-options').style.display = 'none';
+}
+document.addEventListener('click', function(e) {
+  const c = document.getElementById('s1-country-custom');
+  if (c && !c.contains(e.target)) document.getElementById('s1-country-options').style.display = 'none';
+});
+</script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPZTUV42nEZj5Tgf592P0E99dcp74cB3A&callback=mapsLoaded" async defer></script>
 </html>
