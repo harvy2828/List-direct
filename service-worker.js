@@ -1,4 +1,4 @@
-const CACHE_NAME = 'listdirect-v2';
+const CACHE_NAME = 'listdirect-v3';
 const ASSETS = [
   '/',
   '/index.html',
