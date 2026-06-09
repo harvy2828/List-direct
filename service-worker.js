@@ -1,7 +1,5 @@
-const CACHE_NAME = 'listdirect-v3';
+const CACHE_NAME = 'listdirect-v4';
 const ASSETS = [
-  '/',
-  '/index.html',
   '/icon-192.png',
   '/icon-512.png',
   '/manifest.json'
@@ -26,18 +24,18 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
 
-  // Only cache our own origin's static assets — never external APIs or Google
+  // Never cache HTML files — always fetch fresh from network
+  if (url.pathname.endsWith('.html') || url.pathname === '/') return;
+
+  // Never cache API calls or external requests
   if (e.request.method !== 'GET') return;
-  if (url.origin !== self.location.origin) return; // skip Google Maps, Bridge, Rentcast etc.
-  if (url.pathname.startsWith('/api/')) return; // skip our own API calls
+  if (url.origin !== self.location.origin) return;
+  if (url.pathname.startsWith('/api/')) return;
+
+  // Only cache icons and manifest
+  if (!url.pathname.match(/\.(png|ico|json)$/)) return;
 
   e.respondWith(
-    fetch(e.request)
-      .then(res => {
-        const clone = res.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
-        return res;
-      })
-      .catch(() => caches.match(e.request))
+    caches.match(e.request).then(cached => cached || fetch(e.request))
   );
 });
