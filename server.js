@@ -132,28 +132,31 @@ app.post('/api/auth/signup', async (req, res) => {
         `
       });
     } else {
-      // Email to new regular user - welcome
+      // Welcome email to new regular user
+      const firstName = req.body.full_name ? req.body.full_name.split(' ')[0] : 'there';
       await sendEmail({
         to: req.body.email,
-        subject: 'Welcome to ListDirect! 🏡',
-        html: `
-          <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a0f0d;color:#e8f0e9;border-radius:12px;padding:32px">
-            <h1 style="color:#3ef07a;font-size:2rem;margin-bottom:4px">Welcome to ListDirect!</h1>
-            <p style="color:#7a9480;margin-bottom:24px">You're one step closer to saving thousands on your home sale.</p>
-            <p style="color:#e8f0e9">Hi ${req.body.full_name || 'there'},</p>
-            <p style="color:#7a9480">Your account is almost ready. Please confirm your email to get started.</p>
-            <p style="color:#7a9480;margin-top:16px">Once confirmed you can:</p>
-            <ul style="color:#7a9480;line-height:2">
-              <li>List your home for just 1% at closing</li>
-              <li>Use our AI pricing and listing tools</li>
-              <li>Browse certified agents with guaranteed cashback</li>
-            </ul>
-            <div style="margin-top:24px;text-align:center">
-              <a href="https://listdirect.ai/dashboard.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">Go to My Account →</a>
-            </div>
-            <p style="color:#3d5240;font-size:0.8rem;margin-top:32px;text-align:center">Questions? Email us at infolistdirect@gmail.com</p>
+        subject: 'Welcome to ListDirect — Real Savings. Real Simple. 🏡',
+        html: emailWrap(`
+          <h2 style="color:#3ef07a;margin:0 0 4px">Welcome to ListDirect, ${firstName}! 🎉</h2>
+          <p style="color:#7a9480;margin:0 0 20px">You just made one of the smartest decisions a homeowner can make. We're glad you're here.</p>
+          <div style="background:#1a3d28;border:1px solid rgba(62,240,122,0.3);border-radius:12px;padding:20px;margin-bottom:20px;text-align:center">
+            <p style="color:#7a9480;margin:0 0 4px;font-size:0.85rem">On a $600K home, you pay 1% at closing — saving you</p>
+            <div style="font-family:'Georgia',serif;font-size:2.2rem;font-weight:900;color:#3ef07a">$15,000+</div>
+            <p style="color:#7a9480;margin:4px 0 0;font-size:0.85rem">vs. a traditional agent</p>
           </div>
-        `
+          <p style="color:#e8f0e9;margin:0 0 8px">Here's everything you can do right now:</p>
+          <ul style="color:#7a9480;line-height:2;margin:0 0 12px;padding-left:20px">
+            <li>📋 <strong style="color:#e8f0e9">List your home</strong> — AI writes your listing, prices your home, explains every offer</li>
+            <li>📊 <strong style="color:#e8f0e9">Get an AI price estimate</strong> — instant market analysis for your area</li>
+            <li>🤝 <strong style="color:#e8f0e9">Find a certified agent</strong> — guaranteed closing rebate at closing</li>
+            <li>🔍 <strong style="color:#e8f0e9">Search listings</strong> — browse homes across Canada & the USA</li>
+          </ul>
+          <p style="color:#3ef07a;font-weight:700;margin:0 0 20px">The power is in your hands. 💪</p>
+          <a href="https://listdirect.ai/dashboard.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-bottom:20px">Go to My Account →</a>
+          <p style="color:#7a9480;font-size:0.85rem;margin:0">Questions? Reply to this email or reach us at infolistdirect@gmail.com</p>
+          <p style="color:#7a9480;font-size:0.85rem;margin:8px 0 0">— The ListDirect Team</p>
+        `)
       });
     }
     

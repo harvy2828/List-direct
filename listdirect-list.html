@@ -912,6 +912,13 @@ document.getElementById('listing-form').addEventListener('submit', async functio
       });
       const data = await res.json();
       if (!res.ok) {
+        if (data.error === 'Invalid token' || data.error === 'Not authenticated') {
+          // Token expired — save listing as pending and redirect to login
+          localStorage.setItem('ld_pending_listing', JSON.stringify(listingData));
+          alert('Your session expired. Please log in again — your listing is saved and will publish automatically after you sign in.');
+          window.location.href = '/dashboard.html';
+          return;
+        }
         alert('Error saving listing: ' + (data.error || 'Unknown error. Please try again.'));
         btn.textContent = '🚀 Submit My Listing — Go Live!';
         btn.disabled = false;
