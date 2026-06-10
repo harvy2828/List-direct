@@ -878,7 +878,28 @@ document.getElementById('listing-form').addEventListener('submit', async functio
   btn.textContent = 'Submitting…';
   btn.disabled = true;
 
-  const token = localStorage.getItem('ld_token');
+  // Silently refresh token before submitting
+  let token = localStorage.getItem('ld_token');
+  const refreshToken = localStorage.getItem('ld_refresh_token');
+  if (token && refreshToken) {
+    try {
+      const refreshRes = await fetch('/api/auth/refresh', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: refreshToken })
+      });
+      if (refreshRes.ok) {
+        const refreshData = await refreshRes.json();
+        if (refreshData.session?.access_token) {
+          token = refreshData.session.access_token;
+          localStorage.setItem('ld_token', token);
+          if (refreshData.session.refresh_token) {
+            localStorage.setItem('ld_refresh_token', refreshData.session.refresh_token);
+          }
+        }
+      }
+    } catch(e) { /* silent fail - use existing token */ }
+  }
   
   // Gather all listing data
   const listingData = {
