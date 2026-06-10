@@ -915,11 +915,11 @@ app.patch('/api/listings/:id', async (req, res) => {
       .from('listings')
       .update(updates)
       .eq('id', id)
-      .eq('user_id', user.id) // make sure user owns this listing
-      .select()
-      .single();
+      .eq('user_id', user.id)
+      .select();
     if (error) return res.status(400).json({ error: error.message });
-    res.json(data);
+    if (!data || data.length === 0) return res.status(404).json({ error: 'Listing not found or not yours' });
+    res.json(data[0]);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
