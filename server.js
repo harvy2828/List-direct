@@ -268,8 +268,7 @@ app.post('/api/listings', async (req, res) => {
     }).catch(() => {});
 
     // Send confirmation email to seller
-    const sellerUser = await supabase.auth.admin?.getUserById(user.id).catch(() => null);
-    const sellerEmail = sellerUser?.data?.user?.email;
+    const sellerEmail = user.email;
     if (sellerEmail) {
       const now = new Date();
       const ts = now.toLocaleDateString('en-CA', {month:'short',day:'numeric'}) + ' ' + now.toLocaleTimeString('en-CA', {hour:'2-digit',minute:'2-digit',hour12:true});
