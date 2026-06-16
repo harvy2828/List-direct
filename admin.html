@@ -318,19 +318,20 @@ function renderTab(tab) {
 
 // ── Agent Actions ─────────────────────────────────────────────
 async function approveAgent(id) {
-  await updateAgent(id, { approved: true, rejected: false });
-  showToast('✅ Agent approved! They are now live on the agents page.', 'success');
+  const ok = await updateAgent(id, { approved: true, rejected: false });
+  if (ok) showToast('✅ Agent approved! They are now live on the agents page.', 'success');
+  else showToast('❌ Approval failed. Please try again.', 'error');
 }
 
 async function unapproveAgent(id) {
-  await updateAgent(id, { approved: false });
-  showToast('Agent unapproved.', 'error');
+  const ok = await updateAgent(id, { approved: false });
+  if (ok) showToast('Agent unapproved.', 'error');
 }
 
 async function rejectAgent(id) {
   if (!confirm('Are you sure you want to reject this agent?')) return;
-  await updateAgent(id, { approved: false, rejected: true });
-  showToast('Agent rejected.', 'error');
+  const ok = await updateAgent(id, { approved: false, rejected: true });
+  if (ok) showToast('Agent rejected.', 'error');
 }
 
 async function updateAgent(id, updates) {
@@ -343,6 +344,12 @@ async function updateAgent(id, updates) {
     });
     if (res.ok) {
       await loadAgents();
+      return true;
+    } else {
+      const data = await res.json();
+      showToast('Error: ' + (data.error || 'Update failed'), 'error');
+      return false;
+    }
     } else {
       showToast('Update failed. Please try again.', 'error');
     }

@@ -1316,7 +1316,7 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
       </div>
     </div>
 
-    <div class="agents-grid" id="agents-grid"></div>
+    <div class="agents-grid" id="agents-grid"><div style="text-align:center;color:var(--muted);padding:32px;font-size:0.9rem">Loading agents...</div></div>
     <div class="view-all-row" style="margin-top:32px">
       <a href="agent-portal.html" class="btn-outline" style="display:inline-flex;text-decoration:none">Join as a Certified Agent →</a>
     </div>
@@ -4105,6 +4105,40 @@ document.addEventListener('click', function(e) {
   const c = document.getElementById('p-country-custom');
   if (c && !c.contains(e.target)) document.getElementById('p-country-options').style.display = 'none';
 });
+
+// Load approved agents on main page
+fetch('/api/agents')
+  .then(r => r.json())
+  .then(data => {
+    const agents = data.agents || [];
+    const grid = document.getElementById('agents-grid');
+    if (!grid) return;
+    if (!agents.length) {
+      grid.innerHTML = '<div style="text-align:center;color:var(--muted);padding:32px;font-size:0.9rem">Our certified agent network is growing. Check back soon!</div>';
+      return;
+    }
+    grid.innerHTML = agents.map(a => `
+      <div class="agent-card" style="cursor:pointer" onclick="window.location.href='listdirect-agents.html'">
+        <div class="ac-top">
+          <div class="ac-avatar" style="background-image:url('${a.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(a.full_name||'Agent')}&background=131A16&color=3ef07a&size=128`}');background-size:cover;background-position:center"></div>
+          <div>
+            <div class="ac-stars">★★★★★</div>
+            <div class="ac-name">${a.full_name || 'Agent'}</div>
+            <div class="ac-loc">📍 ${a.location || '—'}</div>
+          </div>
+        </div>
+        <div class="ac-cashback">
+          <span class="ac-cb-label">💰 Closing Rebate</span>
+          <span class="ac-cb-val">${a.cashback_offer || '1'}%</span>
+        </div>
+        <button class="ac-btn" onclick="event.stopPropagation();window.location.href='listdirect-agents.html'">View Agent →</button>
+      </div>
+    `).join('');
+  })
+  .catch(() => {
+    const grid = document.getElementById('agents-grid');
+    if (grid) grid.innerHTML = '';
+  });
 
 window.initGooglePlacesSearch = function() {
   // Called as Google Maps API callback — initialize Places autocomplete

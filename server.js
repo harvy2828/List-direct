@@ -658,7 +658,12 @@ app.patch('/api/admin/agents/:id', async (req, res) => {
   const { id } = req.params;
   const updates = req.body;
   try {
-    const { error } = await supabase
+    // Use service role key to bypass RLS for admin operations
+    const adminClient = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY
+    );
+    const { error } = await adminClient
       .from('profiles')
       .update(updates)
       .eq('id', id);
