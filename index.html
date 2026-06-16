@@ -1302,7 +1302,7 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
 
     <!-- AGENT CITY SEARCH -->
     <div style="max-width:480px;margin:0 auto 40px;display:flex;gap:10px">
-      <input id="agent-city-search" type="text" placeholder="Search by city or state..." oninput="filterAgentCards()" style="flex:1;background:var(--card);border:1px solid var(--border);border-radius:50px;padding:14px 20px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.95rem;outline:none">
+      <input id="agent-city-search" type="text" placeholder="Search by city..." style="flex:1;background:var(--card);border:1px solid var(--border);border-radius:50px;padding:14px 20px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.95rem;outline:none">
     </div>
 
     <!-- AGENT CARDS -->
@@ -4000,6 +4000,24 @@ function initGooglePlaces() {
         const city = place.address_components?.find(c => c.types.includes('locality'))?.long_name || place.name;
         document.getElementById('search-input').value = city;
         setTimeout(runSearch, 200);
+      }
+    });
+  }
+
+  // Agent city search autocomplete
+  const agentCityInput = document.getElementById('agent-city-search');
+  if (agentCityInput && !agentCityInput.dataset.acInit) {
+    agentCityInput.dataset.acInit = '1';
+    const agentAC = new google.maps.places.Autocomplete(agentCityInput, {
+      types: ['(cities)'],
+      fields: ['name', 'address_components']
+    });
+    agentAC.addListener('place_changed', () => {
+      const place = agentAC.getPlace();
+      if (place.name) {
+        const city = place.address_components?.find(c => c.types.includes('locality'))?.long_name || place.name;
+        agentCityInput.value = city;
+        filterAgentCards();
       }
     });
   }
