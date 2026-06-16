@@ -4022,8 +4022,27 @@ function initGooglePlaces() {
     });
   }
 
+  // Agent city search autocomplete
+  const agentCityEl = document.getElementById('agent-city-search');
+  if (agentCityEl && !agentCityEl.dataset.acInit) {
+    agentCityEl.dataset.acInit = '1';
+    const agentAC = new google.maps.places.Autocomplete(agentCityEl, {
+      types: ['(cities)'],
+      fields: ['name', 'address_components']
+    });
+    agentAC.addListener('place_changed', () => {
+      const place = agentAC.getPlace();
+      if (place.name) {
+        const city = place.address_components?.find(c => c.types.includes('locality'))?.long_name || place.name;
+        agentCityEl.value = city;
+        filterAgentCards();
+      }
+    });
+  }
+
   // Reinitialize on every focus to prevent stale state
-  [heroInput, searchInput].forEach(input => {
+  const agentCityInput = document.getElementById('agent-city-search');
+  [heroInput, searchInput, agentCityInput].forEach(input => {
     if (!input) return;
     input.addEventListener('focus', () => {
       if (!window.google || !window.google.maps) return;
