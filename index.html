@@ -1316,6 +1316,11 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
       </div>
     </div>
 
+    <!-- AGENT CITY SEARCH -->
+    <div style="max-width:480px;margin:0 auto 32px;position:relative">
+      <input id="agent-city-search" type="text" placeholder="Search agents by city..." style="width:100%;background:var(--card);border:1px solid var(--border);border-radius:50px;padding:14px 22px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.95rem;outline:none;box-sizing:border-box">
+    </div>
+
     <div class="agents-grid" id="agents-grid"></div>
     <div class="view-all-row" style="margin-top:32px">
       <a href="agent-portal.html" class="btn-outline" style="display:inline-flex;text-decoration:none">Join as a Certified Agent →</a>
@@ -1608,6 +1613,7 @@ function formatSqftInput(el) {
 // (Verified listings now in LD_VERIFIED above — AI generates market listings dynamically)
 
 const AGENTS = [];
+let ALL_AGENTS = [];
 
 // Load approved agents from API
 fetch('/api/agents')
@@ -1615,7 +1621,7 @@ fetch('/api/agents')
   .then(data => {
     const agents = data.agents || [];
     agents.forEach(a => {
-      AGENTS.push({
+      const agentObj = {
         name: a.full_name || a.name || 'Agent',
         loc: a.location || '—',
         specialty: a.specialty || 'Real Estate',
@@ -1627,11 +1633,26 @@ fetch('/api/agents')
         phone: a.phone || '',
         email: a.email || '',
         license: a.license_number || ''
-      });
+      };
+      AGENTS.push(agentObj);
+      ALL_AGENTS.push(agentObj);
     });
     renderAgents();
   })
   .catch(() => renderAgents());
+
+function filterAgentsByCity() {
+  const q = (document.getElementById('agent-city-search')?.value || '').toLowerCase().trim();
+  AGENTS.length = 0;
+  if (!q) {
+    ALL_AGENTS.forEach(a => AGENTS.push(a));
+  } else {
+    ALL_AGENTS.filter(a =>
+      a.loc.toLowerCase().includes(q) || a.name.toLowerCase().includes(q)
+    ).forEach(a => AGENTS.push(a));
+  }
+  renderAgents();
+}
 
 const FAQS = [
   {q:"How does the 1% platform fee work?",a:"The 1% fee is collected at closing — there is no upfront cost to list your home. The only additional costs are your closing attorney or notary (typically $1,000–$2,000). No hidden fees, ever."},
@@ -3989,6 +4010,23 @@ function initGooglePlaces() {
         setTimeout(runSearch, 200);
       }
     });
+  }
+
+  // Agent city search autocomplete
+  const agentCitySearch = document.getElementById('agent-city-search');
+  if (agentCitySearch && !agentCitySearch.dataset.acInit) {
+    agentCitySearch.dataset.acInit = '1';
+    const agentAC = new google.maps.places.Autocomplete(agentCitySearch, {
+      types: ['(cities)'],
+      fields: ['name', 'address_components']
+    });
+    agentAC.addListener('place_changed', () => {
+      const place = agentAC.getPlace();
+      const city = place.address_components?.find(c => c.types.includes('locality'))?.long_name || place.name || '';
+      agentCitySearch.value = city;
+      filterAgentsByCity();
+    });
+    agentCitySearch.addEventListener('input', () => { if (!agentCitySearch.value) filterAgentsByCity(); });
   }
 
   // Reinitialize on every focus to prevent stale state

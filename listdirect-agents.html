@@ -315,30 +315,25 @@ function renderAgents() {
       <div class="ac-top">
         <div class="ac-avatar" style="background-image:url('${a.photo}');background-size:cover;background-position:center"></div>
         <div>
-          <div class="ac-stars">${'★'.repeat(Math.round(parseFloat(a.rating)))} <span style="color:var(--muted);font-size:0.72rem">(${a.reviews} reviews)</span></div>
+          <div class="ac-stars">★★★★★</div>
           <div class="ac-name">${a.name}</div>
           <div class="ac-loc">📍 ${a.loc}</div>
           <div style="font-size:0.72rem;color:var(--green);font-weight:600;margin-top:2px">${a.specialty}</div>
         </div>
       </div>
-      <p style="font-size:0.8rem;color:var(--muted);line-height:1.6;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border)">${a.bio}</p>
-      <div class="ac-stats">
-        <div class="ac-stat"><span class="ac-stat-val">${a.sales}</span><div class="ac-stat-lbl">Homes Sold</div></div>
-        <div class="ac-stat"><span class="ac-stat-val">${a.years} yrs</span><div class="ac-stat-lbl">Experience</div></div>
-      </div>
+      ${a.bio ? `<p style="font-size:0.8rem;color:var(--muted);line-height:1.6;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border)">${a.bio}</p>` : ''}
       <div style="font-size:0.76rem;color:var(--muted);margin-bottom:12px;display:flex;flex-direction:column;gap:4px">
-        <div>🪪 <strong style="color:var(--text)">License:</strong> ${a.license}</div>
-        <div>🗣️ <strong style="color:var(--text)">Languages:</strong> ${a.languages}</div>
-        <div>🏅 <strong style="color:var(--text)">Designations:</strong> ${a.designations}</div>
+        ${a.years ? `<div>🗓️ <strong style="color:var(--text)">Experience:</strong> ${a.years} years</div>` : ''}
+        ${a.license ? `<div>🪪 <strong style="color:var(--text)">License:</strong> ${a.license}</div>` : ''}
+        ${a.phone ? `<div>📞 <strong style="color:var(--text)">Phone:</strong> ${a.phone}</div>` : ''}
       </div>
       <div class="ac-cashback">
-        <span class="ac-cb-label">💰 Cashback Offer</span>
+        <span class="ac-cb-label">💰 Closing Rebate</span>
         <span class="ac-cb-val">${a.cashback} at closing</span>
       </div>
-      <button class="ac-select-btn" onclick="selectAgent(${i})">Select This Agent</button>
+      <button class="ac-select-btn" onclick="selectAgent(${i})">Request This Agent →</button>
       <div class="ac-verified">✅ ListDirect Certified</div>
     `;
-    card.addEventListener('click', () => selectAgent(i));
     grid.appendChild(card);
   });
 }
@@ -409,6 +404,24 @@ document.getElementById('agent-form').addEventListener('submit', async function(
         message: document.getElementById('f-notes')?.value || ''
       })
     });
+
+    // If a specific agent was selected, also notify that agent directly
+    if (selectedAgent && agentEmail && agentEmail !== 'infolistdirect@gmail.com') {
+      await fetch('/api/notify/agent-request', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          agent_name: agentName,
+          agent_email: agentEmail,
+          seller_name: sellerName,
+          seller_email: sellerEmail,
+          seller_phone: sellerPhone,
+          seller_address: sellerAddress,
+          seller_price: sellerPrice,
+          cashback: cashback
+        })
+      }).catch(() => {});
+    }
 
     document.getElementById('agent-form').style.display = 'none';
     const successCashback = document.getElementById('success-cashback');
