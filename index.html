@@ -1300,14 +1300,6 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
     <h2 class="section-title">Work with a certified agent<br>and <em style="font-style:normal;color:var(--green)">still save money</em></h2>
     <p class="section-sub">Every agent in our network has agreed to guaranteed closing rebate at closing. Our network is growing across Canada and the United States.</p>
 
-    <!-- AGENT CITY SEARCH -->
-    <div style="max-width:480px;margin:0 auto 32px;position:relative">
-      <input id="agent-city-search" type="text" placeholder="Search agents by city..." style="width:100%;background:var(--card);border:1px solid var(--border);border-radius:50px;padding:14px 20px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.95rem;outline:none;box-sizing:border-box">
-    </div>
-
-    <!-- AGENT CARDS -->
-    <div class="agents-grid" id="agents-grid" style="margin-bottom:48px"></div>
-
     <!-- REQUEST AN AGENT FORM -->
     <div style="background:var(--card);border:1px solid rgba(245,200,66,0.25);border-radius:20px;padding:32px;max-width:560px;margin:0 auto 48px;text-align:left">
       <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--gold);margin-bottom:8px">🤝 Request a Certified Agent</div>
@@ -3999,22 +3991,6 @@ function initGooglePlaces() {
     });
   }
 
-  // Agent city search — same pattern as main search
-  const agentSearchInput = document.getElementById('agent-city-search');
-  if (agentSearchInput && !agentSearchInput.dataset.acInit) {
-    agentSearchInput.dataset.acInit = '1';
-    const agentAC = new google.maps.places.Autocomplete(agentSearchInput, {
-      types: ['(cities)'],
-      fields: ['name', 'address_components']
-    });
-    agentAC.addListener('place_changed', () => {
-      const place = agentAC.getPlace();
-      const city = place.address_components?.find(c => c.types.includes('locality'))?.long_name || place.name || '';
-      agentSearchInput.value = city;
-      filterAgentCards();
-    });
-  }
-
   // Reinitialize on every focus to prevent stale state
   [heroInput, searchInput].forEach(input => {
     if (!input) return;
@@ -4129,48 +4105,6 @@ document.addEventListener('click', function(e) {
   const c = document.getElementById('p-country-custom');
   if (c && !c.contains(e.target)) document.getElementById('p-country-options').style.display = 'none';
 });
-
-// ── Agent Directory ───────────────────────────────────────────
-let allApprovedAgents = [];
-
-function renderAgentGrid(list) {
-  const grid = document.getElementById('agents-grid');
-  if (!grid) return;
-  if (!list.length) {
-    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:48px 24px">
-      <div style="font-size:2.5rem;margin-bottom:12px">🤝</div>
-      <div style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900;color:var(--white);margin-bottom:8px">No agents found in that area yet</div>
-      <div style="color:var(--muted);font-size:0.9rem">Fill out the form below and we'll match you with an agent.</div>
-    </div>`;
-    return;
-  }
-  grid.innerHTML = list.map(a => `
-    <div class="agent-card" onclick="window.location.href='listdirect-agents.html'">
-      <div class="ac-top">
-        <div class="ac-avatar" style="background-image:url('${a.avatar_url||`https://ui-avatars.com/api/?name=${encodeURIComponent(a.full_name||'Agent')}&background=131A16&color=3ef07a&size=128`}');background-size:cover;background-position:center"></div>
-        <div>
-          <div class="ac-stars">★★★★★</div>
-          <div class="ac-name">${a.full_name||'Agent'}</div>
-          <div class="ac-loc">📍 ${a.location||'—'}</div>
-        </div>
-      </div>
-      <div class="ac-cashback"><span class="ac-cb-label">💰 Closing Rebate</span><span class="ac-cb-val">${a.cashback_offer||'1'}%</span></div>
-      <button class="ac-btn" onclick="event.stopPropagation();window.location.href='listdirect-agents.html'" style="width:100%;margin-top:12px">View Agent →</button>
-    </div>
-  `).join('');
-}
-
-function filterAgentCards() {
-  const q = (document.getElementById('agent-city-search')?.value||'').toLowerCase().trim();
-  renderAgentGrid(!q ? allApprovedAgents : allApprovedAgents.filter(a =>
-    (a.location||'').toLowerCase().includes(q) || (a.full_name||'').toLowerCase().includes(q)
-  ));
-}
-
-fetch('/api/agents').then(r=>r.json()).then(d=>{
-  allApprovedAgents = d.agents||[];
-  renderAgentGrid(allApprovedAgents);
-}).catch(()=>renderAgentGrid([]));
 
 window.initGooglePlacesSearch = function() {
   // Called as Google Maps API callback — initialize Places autocomplete
