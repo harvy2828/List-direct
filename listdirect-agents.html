@@ -424,6 +424,7 @@ document.getElementById('agent-form').addEventListener('submit', async function(
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
+          agent_id: selectedAgent.id,
           agent_name: agentName,
           agent_email: agentEmail,
           seller_name: sellerName,

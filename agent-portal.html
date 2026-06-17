@@ -924,10 +924,52 @@ function showDashboard() {
           .then(r => r.json()).then(listings => {
             document.getElementById('stat-active').textContent = Array.isArray(listings) ? listings.length : 0;
           }).catch(() => {});
+        loadLeads();
         document.getElementById('prof-cashback').value = cashback;
         setTimeout(checkShowAgreement, 500);
       }).catch(() => { setTimeout(checkShowAgreement, 500); });
   }
+}
+
+// ── Load Leads ────────────────────────────────────────────────
+function loadLeads() {
+  const token = localStorage.getItem('ld_agent_token');
+  if (!token) return;
+  fetch('/api/leads/mine', { headers: { 'Authorization': 'Bearer ' + token } })
+    .then(r => r.json())
+    .then(d => {
+      const leads = d.leads || [];
+      const list = document.getElementById('leads-list');
+      const statLeads = document.getElementById('stat-leads');
+      const newBadge = document.getElementById('new-leads-count');
+      if (statLeads) statLeads.textContent = leads.length;
+      if (newBadge) {
+        if (leads.length > 0) { newBadge.style.display = 'inline-block'; newBadge.textContent = leads.length; }
+        else newBadge.style.display = 'none';
+      }
+      if (!list) return;
+      if (!leads.length) {
+        list.innerHTML = `<div class="empty-state"><div class="empty-icon">📥</div><div class="empty-title">No leads yet</div><div class="empty-sub">When sellers request you through ListDirect, their details will appear here</div></div>`;
+        return;
+      }
+      list.innerHTML = leads.map(l => {
+        const date = l.created_at ? new Date(l.created_at).toLocaleDateString('en-CA', {month:'short',day:'numeric',year:'numeric'}) : '';
+        return `<div style="background:#141c16;border:1px solid #1f2d22;border-radius:14px;padding:20px;margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+            <div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:900;color:#fff">${l.seller_name || 'Seller'}</div>
+            <div style="font-size:0.7rem;color:#7a9480">${date}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:0.85rem">
+            ${l.seller_email ? `<div style="color:#e8f0e9">📧 <a href="mailto:${l.seller_email}" style="color:#3ef07a;text-decoration:none">${l.seller_email}</a></div>` : ''}
+            ${l.seller_phone ? `<div style="color:#e8f0e9">📞 <a href="tel:${l.seller_phone}" style="color:#3ef07a;text-decoration:none">${l.seller_phone}</a></div>` : ''}
+            ${l.seller_address ? `<div style="color:#e8f0e9">📍 ${l.seller_address}</div>` : ''}
+            ${l.seller_price ? `<div style="color:#3ef07a;font-weight:600">💰 ${l.seller_price}</div>` : ''}
+          </div>
+          <a href="mailto:${l.seller_email}" style="display:inline-block;margin-top:14px;background:#3ef07a;color:#0a0f0d;padding:10px 22px;border-radius:50px;text-decoration:none;font-weight:700;font-size:0.85rem">Contact Seller →</a>
+        </div>`;
+      }).join('');
+    })
+    .catch(() => {});
 }
 
 // ── Panels ────────────────────────────────────────────────────

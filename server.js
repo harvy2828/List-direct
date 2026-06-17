@@ -637,6 +637,29 @@ app.get('/api/agents', async (req, res) => {
   }
 });
 
+// ── Agent: Get my leads ───────────────────────────────────────
+app.get('/api/leads/mine', async (req, res) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Not authenticated' });
+  try {
+    const { data: { user } } = await supabase.auth.getUser(token);
+    if (!user) return res.status(401).json({ error: 'Invalid token' });
+    const leadClient = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY
+    );
+    const { data, error } = await leadClient
+      .from('leads')
+      .select('*')
+      .eq('agent_id', user.id)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    res.json({ leads: data || [] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 // ── Admin: Get All Agents ─────────────────────────────────────
 app.get('/api/admin/agents', async (req, res) => {
@@ -828,8 +851,24 @@ app.get('/api/admin/payments', async (req, res) => {
 
 // ── Notify: Agent Request ─────────────────────────────────────
 app.post('/api/notify/agent-request', async (req, res) => {
-  const { agent_name, agent_email, seller_name, seller_email, seller_phone, seller_address, seller_price, cashback } = req.body;
+  const { agent_id, agent_name, agent_email, seller_name, seller_email, seller_phone, seller_address, seller_price, cashback } = req.body;
   try {
+    // Save the lead to the database so the agent sees it in their portal
+    if (agent_id) {
+      const leadClient = createClient(
+        process.env.SUPABASE_URL,
+        process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY
+      );
+      await leadClient.from('leads').insert({
+        agent_id,
+        seller_name: seller_name || '',
+        seller_email: seller_email || '',
+        seller_phone: seller_phone || '',
+        seller_address: seller_address || '',
+        seller_price: seller_price || '',
+        status: 'new'
+      }).then(() => {}).catch(() => {});
+    }
     // Email to admin
     await sendEmail({
       to: 'infolistdirect@gmail.com',
