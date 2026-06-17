@@ -104,7 +104,7 @@ app.post('/api/auth/signup', async (req, res) => {
     });
     if (error) return res.status(400).json({ error: error.message });
 
-    // Save profile details to profiles table
+    // Save full profile details to profiles table (especially for agents)
     if (data.user) {
       await supabase.from('profiles').upsert({
         id: data.user.id,
@@ -119,7 +119,7 @@ app.post('/api/auth/signup', async (req, res) => {
         cashback_offer: cashback_offer || '1',
         bio: bio || null,
         approved: false
-      });
+      }).select();
     }
     
     // Send notification emails on signup
@@ -676,12 +676,7 @@ app.patch('/api/admin/agents/:id', async (req, res) => {
   const { id } = req.params;
   const updates = req.body;
   try {
-    // Use service role key to bypass RLS for admin operations
-    const adminClient = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY
-    );
-    const { error } = await adminClient
+    const { error } = await supabase
       .from('profiles')
       .update(updates)
       .eq('id', id);
