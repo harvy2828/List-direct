@@ -106,11 +106,14 @@ app.post('/api/auth/signup', async (req, res) => {
 
     // Save full profile details to profiles table (especially for agents)
     if (data.user) {
-      await supabase.from('profiles').upsert({
+      const adminClient = createClient(
+        process.env.SUPABASE_URL,
+        process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY
+      );
+      await adminClient.from('profiles').upsert({
         id: data.user.id,
         full_name,
         role: role || 'buyer',
-        email,
         phone: phone || null,
         license_number: license_number || null,
         location: location || null,
@@ -119,7 +122,7 @@ app.post('/api/auth/signup', async (req, res) => {
         cashback_offer: cashback_offer || '1',
         bio: bio || null,
         approved: false
-      }).select();
+      });
     }
     
     // Send notification emails on signup
@@ -676,7 +679,11 @@ app.patch('/api/admin/agents/:id', async (req, res) => {
   const { id } = req.params;
   const updates = req.body;
   try {
-    const { error } = await supabase
+    const adminClient = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY
+    );
+    const { error } = await adminClient
       .from('profiles')
       .update(updates)
       .eq('id', id);
