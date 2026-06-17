@@ -318,7 +318,7 @@ function renderTab(tab) {
 
 // ── Agent Actions ─────────────────────────────────────────────
 async function approveAgent(id) {
-  const ok = await updateAgent(id, { approved: true, rejected: false });
+  const ok = await updateAgent(id, { approved: true });
   if (ok) showToast('✅ Agent approved! They are now live on the agents page.', 'success');
   else showToast('❌ Approval failed. Please try again.', 'error');
 }
@@ -330,7 +330,7 @@ async function unapproveAgent(id) {
 
 async function rejectAgent(id) {
   if (!confirm('Are you sure you want to reject this agent?')) return;
-  const ok = await updateAgent(id, { approved: false, rejected: true });
+  const ok = await updateAgent(id, { approved: false });
   if (ok) showToast('Agent rejected.', 'error');
 }
 
@@ -344,16 +344,19 @@ async function updateAgent(id, updates) {
     });
     if (res.ok) {
       await loadAgents();
+      showLoading(false);
       return true;
     } else {
-      const data = await res.json();
-      showToast('Error: ' + (data.error || 'Update failed'), 'error');
+      const d = await res.json().catch(() => ({}));
+      showToast('Update failed: ' + (d.error || 'Unknown error'), 'error');
+      showLoading(false);
       return false;
     }
   } catch(e) {
     showToast('Connection error.', 'error');
+    showLoading(false);
+    return false;
   }
-  showLoading(false);
 }
 
 function copyEmail(email) {
