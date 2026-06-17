@@ -2239,7 +2239,7 @@ function renderListings(list) {
       : l.mls ? '<div class="listing-tag tag-mls">MLS®</div>'
       : '<div class="listing-tag tag-market">📊 Market Est.</div>';
 
-    const crownHTML = l.verified ? '<div class="verified-crown">👑 ListDirect Verified</div>' : '';
+    const crownHTML = l.verified ? (l.listing === 'agent' ? '<div class="verified-crown" style="background:var(--gold);color:#1a1200">🤝 Certified Agent Listing</div>' : '<div class="verified-crown">👑 ListDirect Verified</div>') : '';
 
     card.innerHTML = `
       <div class="listing-img">
@@ -2638,6 +2638,8 @@ function openListingModal(l) {
         ? '<div style="background:rgba(10,60,120,0.85);color:#a8d4ff;font-size:0.7rem;font-weight:800;padding:4px 12px;border-radius:50px">MLS® Listing</div>'
         : l.us
         ? '<div style="background:rgba(60,60,80,0.9);color:#b0b0c8;font-size:0.7rem;font-weight:800;padding:4px 12px;border-radius:50px">Market Listing</div>'
+        : l.listing === 'agent'
+        ? '<div style="background:var(--gold);color:#1a1200;font-size:0.7rem;font-weight:800;padding:4px 12px;border-radius:50px">🤝 Certified Agent Listing</div>'
         : '<div style="background:var(--green);color:var(--bg);font-size:0.7rem;font-weight:800;padding:4px 12px;border-radius:50px">👑 ListDirect Verified</div>'}
     </div>
     <div class="lm-addr">📍 ${l.addr}, ${l.city}${l.state ? ", " + l.state : ""} ${l.zip}</div>
@@ -2677,17 +2679,32 @@ function openListingModal(l) {
         : '<div style="background:var(--greenlow);border:1px solid rgba(62,240,122,0.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.88rem;color:var(--green);font-weight:600">\ud83d\ude80 Direct Listing \u2014 1% platform fee, no agent commission</div>';
       const price = l.price || 0;
       const isCA = l.currency === 'CAD' || (l.zip && /^[A-Z][0-9][A-Z]/i.test((l.zip||'').trim()));
-      const ldFee = Math.round(price * 0.01);
-      let tradFee = isCA ? Math.round(Math.min(price,100000)*0.0644 + Math.max(0,price-100000)*0.023) : Math.round(price*0.06);
-      let tradLabel = isCA ? 'Traditional agent (BC rate)' : 'Traditional agents (up to 6%)';
-      const savings = tradFee - ldFee;
       const cur = isCA ? 'CAD' : 'USD';
       const fmt = n => '$' + n.toLocaleString() + ' ' + cur;
-      const breakdown = '<div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:16px;margin-bottom:20px">' +
-        '<div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;color:#7a9480;margin-bottom:12px">\ud83d\udca1 Cost Breakdown</div>' +
-        '<div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:#7a9480;font-size:0.88rem">ListDirect fee (1%)</span><span style="color:#3ef07a;font-weight:700">' + fmt(ldFee) + '</span></div>' +
-        '<div style="display:flex;justify-content:space-between;margin-bottom:12px"><span style="color:#7a9480;font-size:0.88rem">' + tradLabel + '</span><span style="color:#e85454;font-weight:700;text-decoration:line-through">' + fmt(tradFee) + '</span></div>' +
-        '<div style="border-top:1px solid #1f2d22;padding-top:10px;display:flex;justify-content:space-between"><span style="color:#e8f0e9;font-weight:700">Seller saves</span><span style="color:#3ef07a;font-size:1.2rem;font-weight:900">' + fmt(savings) + '</span></div></div>';
+      let breakdown;
+      if (l.listing === 'agent') {
+        // Agent listing: show agent commission and what seller gets back as rebate
+        const rebatePct = parseFloat((l.cashback || '1').replace('%','')) || 1;
+        const agentComm = Math.round(price * 0.05);
+        const rebateAmt = Math.round(price * (rebatePct/100));
+        const netCost = agentComm - rebateAmt;
+        breakdown = '<div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:16px;margin-bottom:20px">' +
+          '<div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;color:#7a9480;margin-bottom:12px">\ud83e\udd1d Certified Agent Breakdown</div>' +
+          '<div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:#7a9480;font-size:0.88rem">Agent commission (5%)</span><span style="color:#e8f0e9;font-weight:700">' + fmt(agentComm) + '</span></div>' +
+          '<div style="display:flex;justify-content:space-between;margin-bottom:12px"><span style="color:#7a9480;font-size:0.88rem">Your closing rebate (' + rebatePct + '%)</span><span style="color:#f5c842;font-weight:700">+ ' + fmt(rebateAmt) + '</span></div>' +
+          '<div style="border-top:1px solid #1f2d22;padding-top:10px;display:flex;justify-content:space-between"><span style="color:#e8f0e9;font-weight:700">You get back at closing</span><span style="color:#f5c842;font-size:1.2rem;font-weight:900">' + fmt(rebateAmt) + '</span></div></div>';
+      } else {
+        // Direct listing: show 1% vs traditional savings
+        const ldFee = Math.round(price * 0.01);
+        let tradFee = isCA ? Math.round(Math.min(price,100000)*0.0644 + Math.max(0,price-100000)*0.023) : Math.round(price*0.06);
+        let tradLabel = isCA ? 'Traditional agent (BC rate)' : 'Traditional agents (up to 6%)';
+        const savings = tradFee - ldFee;
+        breakdown = '<div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:16px;margin-bottom:20px">' +
+          '<div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;color:#7a9480;margin-bottom:12px">\ud83d\udca1 Cost Breakdown</div>' +
+          '<div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:#7a9480;font-size:0.88rem">ListDirect fee (1%)</span><span style="color:#3ef07a;font-weight:700">' + fmt(ldFee) + '</span></div>' +
+          '<div style="display:flex;justify-content:space-between;margin-bottom:12px"><span style="color:#7a9480;font-size:0.88rem">' + tradLabel + '</span><span style="color:#e85454;font-weight:700;text-decoration:line-through">' + fmt(tradFee) + '</span></div>' +
+          '<div style="border-top:1px solid #1f2d22;padding-top:10px;display:flex;justify-content:space-between"><span style="color:#e8f0e9;font-weight:700">Seller saves</span><span style="color:#3ef07a;font-size:1.2rem;font-weight:900">' + fmt(savings) + '</span></div></div>';
+      }
       const btns = '<div class="lm-btns">' +
         '<button class="lm-btn-primary" onclick="openMsgSellerCurrent()">\ud83d\udcac Message Seller</button>' +
         '<button class="lm-btn-outline" onclick="openOfferCurrent()">\ud83d\udcb0 Make an Offer</button></div>';
