@@ -3105,6 +3105,18 @@ function renderAgents() {
       <button class="btn-agent" onclick="window.location.href='listdirect-agents.html?agent=${a.id}'">Request This Agent →</button>`;
     grid.appendChild(card);
   });
+
+  // Always add a recruitment card so new agents can join
+  const recruitCard = document.createElement('div');
+  recruitCard.className = 'agent-card';
+  recruitCard.style.cssText = 'border:2px dashed rgba(62,240,122,0.3);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:280px';
+  recruitCard.innerHTML = `
+    <div style="font-size:2.5rem;margin-bottom:14px">🤝</div>
+    <div style="font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:900;color:var(--white);margin-bottom:10px">Are You a Licensed Agent?</div>
+    <div style="font-size:0.84rem;color:var(--muted);line-height:1.6;margin-bottom:18px;max-width:240px">Join our certified network — no monthly fees, guaranteed leads, referral fee only when you close.</div>
+    <a href="agent-portal.html" style="background:var(--green);color:#0a0f0d;padding:11px 28px;border-radius:50px;font-weight:700;font-size:0.88rem;text-decoration:none;font-family:'DM Sans',sans-serif">Apply to Join →</a>
+  `;
+  grid.appendChild(recruitCard);
 }
 
 function toggleMpBio(i) {
