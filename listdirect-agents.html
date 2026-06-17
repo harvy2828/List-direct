@@ -288,6 +288,16 @@ fetch('/api/agents')
   })
   .catch(() => renderAgents());
 
+function toggleBio(i) {
+  const preview = document.getElementById('bio-preview-' + i);
+  const full = document.getElementById('bio-full-' + i);
+  const btn = document.getElementById('bio-btn-' + i);
+  const expanded = full.style.display === 'block';
+  preview.style.display = expanded ? '-webkit-box' : 'none';
+  full.style.display = expanded ? 'none' : 'block';
+  btn.textContent = expanded ? 'Read more ▾' : 'Close ▴';
+}
+
 let selectedAgent = null;
 
 function renderAgents() {
@@ -321,12 +331,13 @@ function renderAgents() {
           <div style="font-size:0.72rem;color:var(--green);font-weight:600;margin-top:2px">${a.specialty}</div>
         </div>
       </div>
-      ${a.bio ? `<p style="font-size:0.8rem;color:var(--muted);line-height:1.6;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border)">${a.bio}</p>` : ''}
-      <div style="font-size:0.76rem;color:var(--muted);margin-bottom:12px;display:flex;flex-direction:column;gap:4px">
-        ${a.years ? `<div>🗓️ <strong style="color:var(--text)">Experience:</strong> ${a.years} years</div>` : ''}
-        ${a.license ? `<div>🪪 <strong style="color:var(--text)">License:</strong> ${a.license}</div>` : ''}
-        ${a.phone ? `<div>📞 <strong style="color:var(--text)">Phone:</strong> ${a.phone}</div>` : ''}
-      </div>
+      ${a.bio ? `
+        <div style="margin:12px 0;padding-bottom:12px;border-bottom:1px solid var(--border)">
+          <p class="ac-bio-preview" id="bio-preview-${i}" style="font-size:0.82rem;color:var(--muted);line-height:1.6;margin:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">${a.bio}</p>
+          <p class="ac-bio-full" id="bio-full-${i}" style="font-size:0.82rem;color:var(--muted);line-height:1.6;margin:0;display:none">${a.bio}</p>
+          <button onclick="toggleBio(${i})" id="bio-btn-${i}" style="background:none;border:none;color:var(--green);font-size:0.78rem;font-weight:600;cursor:pointer;padding:4px 0;font-family:'DM Sans',sans-serif">Read more ▾</button>
+        </div>` : ''}
+      ${a.years ? `<div style="font-size:0.78rem;color:var(--muted);margin-bottom:8px">🗓️ <strong style="color:var(--text)">${a.years} years</strong> of experience</div>` : ''}
       <div class="ac-cashback">
         <span class="ac-cb-label">💰 Closing Rebate</span>
         <span class="ac-cb-val">${a.cashback} at closing</span>
@@ -404,6 +415,24 @@ document.getElementById('agent-form').addEventListener('submit', async function(
         message: document.getElementById('f-notes')?.value || ''
       })
     });
+
+    // If specific agent selected, also notify that agent directly
+    if (selectedAgent && agentEmail && agentEmail !== 'infolistdirect@gmail.com') {
+      await fetch('/api/notify/agent-request', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          agent_name: agentName,
+          agent_email: agentEmail,
+          seller_name: sellerName,
+          seller_email: sellerEmail,
+          seller_phone: sellerPhone,
+          seller_address: sellerAddress,
+          seller_price: sellerPrice,
+          cashback: cashback
+        })
+      }).catch(() => {});
+    }
 
     // If a specific agent was selected, also notify that agent directly
     if (selectedAgent && agentEmail && agentEmail !== 'infolistdirect@gmail.com') {
