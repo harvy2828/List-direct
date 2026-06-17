@@ -3057,6 +3057,7 @@ function renderAgents() {
       </div>`;
     return;
   }
+  grid.innerHTML = '';
   AGENTS.forEach((a, i) => {
     const card = document.createElement('div');
     card.className = 'agent-card';
