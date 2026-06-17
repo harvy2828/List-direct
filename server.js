@@ -96,13 +96,31 @@ app.post('/api/claude', async (req, res) => {
 
 // ── Auth: Sign Up ─────────────────────────────────────────────
 app.post('/api/auth/signup', async (req, res) => {
-  const { email, password, full_name, role } = req.body;
+  const { email, password, full_name, role, phone, license_number, location, specialty, years_experience, cashback_offer, bio } = req.body;
   try {
     const { data, error } = await supabase.auth.signUp({
       email, password,
       options: { data: { full_name, role: role || 'buyer' } }
     });
     if (error) return res.status(400).json({ error: error.message });
+
+    // Save profile details to profiles table
+    if (data.user) {
+      await supabase.from('profiles').upsert({
+        id: data.user.id,
+        full_name,
+        role: role || 'buyer',
+        email,
+        phone: phone || null,
+        license_number: license_number || null,
+        location: location || null,
+        specialty: specialty || null,
+        years_experience: years_experience || null,
+        cashback_offer: cashback_offer || '1',
+        bio: bio || null,
+        approved: false
+      });
+    }
     
     // Send notification emails on signup
     const notifyRole = role;
