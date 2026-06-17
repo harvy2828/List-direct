@@ -3062,7 +3062,9 @@ function renderAgents() {
     const card = document.createElement('div');
     card.className = 'agent-card';
     card.style.transitionDelay = (i*70)+'ms';
+    card.style.position = 'relative';
     card.innerHTML = `
+      <div style="position:absolute;top:12px;right:12px;background:var(--green);color:#0a0f0d;font-size:0.62rem;font-weight:700;padding:3px 8px;border-radius:50px;letter-spacing:0.05em">✅ CERTIFIED</div>
       <div class="agent-top">
         <div class="agent-avatar" style="background-image:url('${a.photo}');background-size:cover;background-position:center;border:2px solid var(--border)"></div>
         <div class="agent-info">
@@ -3072,6 +3074,12 @@ function renderAgents() {
           <div style="font-size:0.72rem;color:var(--green);font-weight:600;margin-top:2px">${a.specialty}</div>
         </div>
       </div>
+      ${a.bio ? `
+        <div style="margin:14px 0;padding-bottom:14px;border-bottom:1px solid var(--border)">
+          <p id="mp-bio-preview-${i}" style="font-size:0.8rem;color:var(--muted);line-height:1.6;margin:0;max-height:4.8em;overflow:hidden">${a.bio}</p>
+          <p id="mp-bio-full-${i}" style="font-size:0.8rem;color:var(--muted);line-height:1.6;margin:0;display:none">${a.bio}</p>
+          <button onclick="toggleMpBio(${i})" id="mp-bio-btn-${i}" style="background:none;border:none;color:var(--green);font-size:0.76rem;font-weight:600;cursor:pointer;padding:4px 0;font-family:'DM Sans',sans-serif">Read more ▾</button>
+        </div>` : ''}
       <div class="agent-cashback-badge">
         <div class="acb-label">💰 Closing Rebate</div>
         <div class="acb-val">${a.cashback} at closing</div>
@@ -3079,6 +3087,16 @@ function renderAgents() {
       <button class="btn-agent" onclick="window.location.href='listdirect-agents.html?agent=${i}'">Request This Agent →</button>`;
     grid.appendChild(card);
   });
+}
+
+function toggleMpBio(i) {
+  const preview = document.getElementById('mp-bio-preview-' + i);
+  const full = document.getElementById('mp-bio-full-' + i);
+  const btn = document.getElementById('mp-bio-btn-' + i);
+  const expanded = full.style.display === 'block';
+  preview.style.display = expanded ? 'block' : 'none';
+  full.style.display = expanded ? 'none' : 'block';
+  btn.textContent = expanded ? 'Read more ▾' : 'Close ▴';
 }
 
 // ═══════════════════════════════════════════
