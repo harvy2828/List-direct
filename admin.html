@@ -350,9 +350,6 @@ async function updateAgent(id, updates) {
       showToast('Error: ' + (data.error || 'Update failed'), 'error');
       return false;
     }
-    } else {
-      showToast('Update failed. Please try again.', 'error');
-    }
   } catch(e) {
     showToast('Connection error.', 'error');
   }
