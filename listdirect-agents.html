@@ -293,7 +293,7 @@ function toggleBio(i) {
   const full = document.getElementById('bio-full-' + i);
   const btn = document.getElementById('bio-btn-' + i);
   const expanded = full.style.display === 'block';
-  preview.style.display = expanded ? '-webkit-box' : 'none';
+  preview.style.display = expanded ? 'block' : 'none';
   full.style.display = expanded ? 'none' : 'block';
   btn.textContent = expanded ? 'Read more ▾' : 'Close ▴';
 }
@@ -334,8 +334,8 @@ function renderAgents() {
       </div>
       ${a.bio ? `
         <div style="margin:12px 0;padding-bottom:12px;border-bottom:1px solid var(--border)">
-          <p class="ac-bio-preview" id="bio-preview-${i}" style="font-size:0.82rem;color:var(--muted);line-height:1.6;margin:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">${a.bio}</p>
-          <p class="ac-bio-full" id="bio-full-${i}" style="font-size:0.82rem;color:var(--muted);line-height:1.6;margin:0;display:none">${a.bio}</p>
+          <p id="bio-preview-${i}" style="font-size:0.82rem;color:var(--muted);line-height:1.6;margin:0;max-height:4.8em;overflow:hidden">${a.bio}</p>
+          <p id="bio-full-${i}" style="font-size:0.82rem;color:var(--muted);line-height:1.6;margin:0;display:none">${a.bio}</p>
           <button onclick="toggleBio(${i})" id="bio-btn-${i}" style="background:none;border:none;color:var(--green);font-size:0.78rem;font-weight:600;cursor:pointer;padding:4px 0;font-family:'DM Sans',sans-serif">Read more ▾</button>
         </div>` : ''}
       ${a.years ? `<div style="font-size:0.78rem;color:var(--muted);margin-bottom:8px">🗓️ <strong style="color:var(--text)">${a.years} years</strong> of experience</div>` : ''}
