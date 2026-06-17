@@ -1562,6 +1562,7 @@ async function submitAgentListing() {
         description: desc || 'Listed by certified ListDirect agent.',
         seller_name: name,
         listing_path: 'agent',
+        cashback_offer: (document.getElementById('dash-cashback-rate')?.textContent || '1%').replace('%',''),
         photos: photoUrls
       })
     });

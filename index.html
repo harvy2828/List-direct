@@ -1931,7 +1931,7 @@ async function fetchPlatformListings(query, beds, maxPrice) {
       img2: l.photos?.[1] || null,
       img3: l.photos?.[2] || null,
       allPhotos: l.photos || [],
-      cashback: l.listing_path === 'agent' ? '1%' : null,
+      cashback: l.listing_path === 'agent' ? ((l.cashback_offer || '1') + '%') : null,
       desc: l.description || '',
       lat: l.lat || l.latitude || null,
       lng: l.lng || l.longitude || null,

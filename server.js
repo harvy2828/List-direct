@@ -264,7 +264,8 @@ app.post('/api/listings', async (req, res) => {
       description: body.description || '',
       photos: body.photos || [],
       status: 'active',
-      listing_path: body.listing_path || 'direct'
+      listing_path: body.listing_path || 'direct',
+      cashback_offer: body.cashback_offer || null
     };
     // Use user-scoped client so RLS policies recognize the authenticated user
     const userClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
