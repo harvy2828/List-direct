@@ -661,6 +661,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
                 <div class="cob-label">Your Minimum Cashback to Sellers</div>
                 <div class="cob-input-row">
                   <select id="prof-cashback" style="background:var(--bg2);border:1px solid rgba(245,200,66,0.3);color:var(--gold);padding:10px 16px;border-radius:10px;font-size:1rem;font-weight:700;font-family:'DM Sans',sans-serif;outline:none">
+                    <option value="0.5">0.5%</option>
+                    <option value="0.75">0.75%</option>
                     <option value="1">1%</option>
                     <option value="1.25">1.25%</option>
                     <option value="1.5">1.5%</option>
@@ -1562,7 +1564,7 @@ async function submitAgentListing() {
         description: desc || 'Listed by certified ListDirect agent.',
         seller_name: name,
         listing_path: 'agent',
-        cashback_offer: (document.getElementById('dash-cashback-rate')?.textContent || '1%').replace('%',''),
+        cashback_offer: (document.getElementById('prof-cashback')?.value || document.getElementById('dash-cashback-rate')?.textContent?.replace('%','') || '1'),
         photos: photoUrls
       })
     });
