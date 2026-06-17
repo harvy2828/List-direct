@@ -114,6 +114,7 @@ app.post('/api/auth/signup', async (req, res) => {
         id: data.user.id,
         full_name,
         role: role || 'buyer',
+        email,
         phone: phone || null,
         license_number: license_number || null,
         location: location || null,

@@ -270,6 +270,7 @@ fetch('/api/agents')
     const agents = data.agents || [];
     agents.forEach(a => {
       AGENTS.push({
+        id: a.id || '',
         name: a.full_name || a.name || 'Agent',
         loc: a.location || '—',
         specialty: a.specialty || 'Real Estate',
@@ -435,24 +436,6 @@ document.getElementById('agent-form').addEventListener('submit', async function(
       }).catch(() => {});
     }
 
-    // If a specific agent was selected, also notify that agent directly
-    if (selectedAgent && agentEmail && agentEmail !== 'infolistdirect@gmail.com') {
-      await fetch('/api/notify/agent-request', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          agent_name: agentName,
-          agent_email: agentEmail,
-          seller_name: sellerName,
-          seller_email: sellerEmail,
-          seller_phone: sellerPhone,
-          seller_address: sellerAddress,
-          seller_price: sellerPrice,
-          cashback: cashback
-        })
-      }).catch(() => {});
-    }
-
     document.getElementById('agent-form').style.display = 'none';
     const successCashback = document.getElementById('success-cashback');
     if (successCashback) successCashback.textContent = '1%';
@@ -464,14 +447,24 @@ document.getElementById('agent-form').addEventListener('submit', async function(
   }
 });
 
-// Auto-select agent from URL param
+// Auto-select agent from URL param (by ID, waits for agents to load)
 const urlAgent = new URLSearchParams(location.search).get('agent');
-if (urlAgent !== null) {
-  const idx = parseInt(urlAgent);
-  if (!isNaN(idx) && idx >= 0 && idx < AGENTS.length) {
-    setTimeout(() => selectAgent(idx), 300);
+function trySelectFromUrl(attempts) {
+  if (!urlAgent) return;
+  if (!AGENTS.length && attempts > 0) {
+    setTimeout(() => trySelectFromUrl(attempts - 1), 300);
+    return;
+  }
+  const idx = AGENTS.findIndex(a => a.id === urlAgent);
+  if (idx >= 0) {
+    selectAgent(idx);
+    setTimeout(() => {
+      const sec = document.getElementById('request-section');
+      if (sec) window.scrollTo({ top: sec.offsetTop - 20, behavior: 'smooth' });
+    }, 400);
   }
 }
+trySelectFromUrl(10);
 
 // renderAgents called after agents load from API
 </script>

@@ -1624,6 +1624,7 @@ fetch('/api/agents')
     const agents = data.agents || [];
     agents.forEach(a => {
       const agentObj = {
+        id: a.id || '',
         name: a.full_name || a.name || 'Agent',
         loc: a.location || '—',
         specialty: a.specialty || 'Real Estate',
@@ -3084,7 +3085,7 @@ function renderAgents() {
         <div class="acb-label">💰 Closing Rebate</div>
         <div class="acb-val">${a.cashback} at closing</div>
       </div>
-      <button class="btn-agent" onclick="window.location.href='listdirect-agents.html?agent=${i}'">Request This Agent →</button>`;
+      <button class="btn-agent" onclick="window.location.href='listdirect-agents.html?agent=${a.id}'">Request This Agent →</button>`;
     grid.appendChild(card);
   });
 }
