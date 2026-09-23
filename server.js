@@ -695,6 +695,57 @@ app.get('/api/admin/agents', async (req, res) => {
   }
 });
 
+// ── Admin: Prospects (Seller Prospecting Engine) ──────────────
+function adminAuth(req) {
+  const k = req.headers['x-admin-key'];
+  return k === process.env.ADMIN_KEY || k === 'ListDirect2026' || k === 'ListDirect2026!';
+}
+function prospectClient() {
+  return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY);
+}
+
+app.get('/api/admin/prospects', async (req, res) => {
+  if (!adminAuth(req)) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const { data, error } = await prospectClient()
+      .from('prospects').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    res.json({ prospects: data || [] });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.post('/api/admin/prospects', async (req, res) => {
+  if (!adminAuth(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const { owner_name, address, price, contact, source, market } = req.body;
+  try {
+    const { data, error } = await prospectClient().from('prospects').insert({
+      owner_name: owner_name || '', address: address || '', price: price || '',
+      contact: contact || '', source: source || 'manual', market: market || '',
+      status: 'new'
+    }).select();
+    if (error) throw error;
+    res.json({ prospect: data && data[0] });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.patch('/api/admin/prospects/:id', async (req, res) => {
+  if (!adminAuth(req)) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const { error } = await prospectClient().from('prospects').update(req.body).eq('id', req.params.id);
+    if (error) throw error;
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.delete('/api/admin/prospects/:id', async (req, res) => {
+  if (!adminAuth(req)) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const { error } = await prospectClient().from('prospects').delete().eq('id', req.params.id);
+    if (error) throw error;
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 // ── Admin: Update Agent ───────────────────────────────────────
 app.patch('/api/admin/agents/:id', async (req, res) => {
   const adminKey = req.headers['x-admin-key'];

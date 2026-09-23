@@ -172,6 +172,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
       <button class="tab" id="tab-payments" onclick="showTab('payments', this)">💰 Payments</button>
       <button class="tab" id="tab-listings" onclick="loadAdminListings(this)">🏠 Listings</button>
       <button class="tab" id="tab-users" onclick="loadAdminUsers(this)">👥 Users</button>
+      <button class="tab" id="tab-prospects" onclick="showTab('prospects', this)">🎯 Prospects</button>
     </div>
 
     <div class="agents-list" id="agents-list">
@@ -273,6 +274,7 @@ function showTab(tab, btn) {
 function renderTab(tab) {
   let filtered = allAgents;
   if (tab === 'payments') { loadPayments(); return; }
+  if (tab === 'prospects') { loadProspects(); return; }
   if (tab === 'pending') filtered = allAgents.filter(a => !a.approved && !a.rejected);
   if (tab === 'approved') filtered = allAgents.filter(a => a.approved);
   if (tab === 'rejected') filtered = allAgents.filter(a => a.rejected);
@@ -357,6 +359,135 @@ async function updateAgent(id, updates) {
     showLoading(false);
     return false;
   }
+}
+
+// ── Prospects (Seller Prospecting Engine) ─────────────────────
+let allProspects = [];
+
+async function loadProspects() {
+  const list = document.getElementById('agents-list');
+  list.innerHTML = `<div class="empty-state"><div class="empty-icon">🎯</div><div class="empty-title">Loading prospects...</div></div>`;
+  try {
+    const res = await fetch('/api/admin/prospects', { headers: { 'x-admin-key': ADMIN_PASSWORD } });
+    const data = await res.json();
+    allProspects = data.prospects || [];
+  } catch(e) { allProspects = []; }
+  renderProspects();
+}
+
+function renderProspects() {
+  const list = document.getElementById('agents-list');
+  const addForm = `
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px">
+      <div style="font-weight:700;color:var(--white);margin-bottom:14px">🎯 Add a Seller Prospect (San Antonio, TX)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <input id="pr-name" placeholder="Owner name" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--white)">
+        <input id="pr-address" placeholder="Property address" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--white)">
+        <input id="pr-price" type="number" placeholder="Asking price (e.g. 375000)" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--white)">
+        <input id="pr-contact" placeholder="Email or phone" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--white)">
+        <input id="pr-source" placeholder="Source (FSBO.com, Craigslist...)" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--white)">
+      </div>
+      <button class="btn-approve" onclick="addProspect()">+ Add Prospect</button>
+    </div>`;
+
+  if (!allProspects.length) {
+    list.innerHTML = addForm + `<div class="empty-state"><div class="empty-icon">🎯</div><div class="empty-title">No prospects yet</div><div class="empty-sub">Add a seller prospect above, or the sourcing script will feed them in automatically once connected</div></div>`;
+    return;
+  }
+
+  const cards = allProspects.map(p => {
+    const price = parseInt(p.price) || 0;
+    const ldFee = Math.round(price * 0.01);
+    const tradFee = Math.round(price * 0.06);
+    const savings = tradFee - ldFee;
+    const fmt = n => '$' + n.toLocaleString();
+    return `
+    <div class="agent-card" style="border-left:3px solid var(--green)">
+      <div class="ac-top">
+        <div class="ac-info">
+          <div class="ac-name">${p.owner_name || 'Owner'}</div>
+          <div class="ac-loc">📍 ${p.address || '—'}</div>
+          <div class="ac-email">📇 ${p.contact || '—'}</div>
+        </div>
+        <span class="status-badge ${p.status==='contacted'?'badge-approved':'badge-pending'}">${p.status || 'new'}</span>
+      </div>
+      <div class="ac-details">
+        <div class="ac-detail"><div class="ac-detail-label">Asking Price</div><div class="ac-detail-val">${fmt(price)}</div></div>
+        <div class="ac-detail"><div class="ac-detail-label">They'd Save</div><div class="ac-detail-val" style="color:var(--green)">${fmt(savings)}</div></div>
+        <div class="ac-detail"><div class="ac-detail-label">Source</div><div class="ac-detail-val">${p.source || '—'}</div></div>
+        <div class="ac-detail"><div class="ac-detail-label">Added</div><div class="ac-detail-val">${p.created_at ? new Date(p.created_at).toLocaleDateString() : '—'}</div></div>
+      </div>
+      <div class="ac-actions">
+        <button class="btn-approve" onclick="draftOutreach('${p.id}')">✉️ Draft Outreach</button>
+        ${p.status !== 'contacted' ? `<button class="btn-unapprove" onclick="markContacted('${p.id}')">✓ Mark Contacted</button>` : ''}
+        <button class="btn-reject" onclick="deleteProspect('${p.id}')">🗑 Delete</button>
+      </div>
+      <div id="outreach-${p.id}" style="display:none;margin-top:12px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:0.85rem;color:var(--white);white-space:pre-wrap"></div>
+    </div>`;
+  }).join('');
+
+  list.innerHTML = addForm + cards;
+}
+
+async function addProspect() {
+  const body = {
+    owner_name: document.getElementById('pr-name').value.trim(),
+    address: document.getElementById('pr-address').value.trim(),
+    price: document.getElementById('pr-price').value.trim(),
+    contact: document.getElementById('pr-contact').value.trim(),
+    source: document.getElementById('pr-source').value.trim() || 'manual',
+    market: 'San Antonio, TX'
+  };
+  if (!body.address || !body.price) { showToast('Address and price required', 'error'); return; }
+  showLoading(true);
+  try {
+    const res = await fetch('/api/admin/prospects', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_PASSWORD },
+      body: JSON.stringify(body)
+    });
+    if (res.ok) { showToast('Prospect added', 'success'); await loadProspects(); }
+    else { const d = await res.json(); showToast('Error: ' + (d.error||'failed'), 'error'); }
+  } catch(e) { showToast('Connection error', 'error'); }
+  showLoading(false);
+}
+
+function draftOutreach(id) {
+  const p = allProspects.find(x => x.id === id);
+  if (!p) return;
+  const price = parseInt(p.price) || 0;
+  const savings = Math.round(price * 0.05);
+  const fmt = n => '$' + n.toLocaleString();
+  const firstName = (p.owner_name || '').split(' ')[0] || 'there';
+  const draft = `Subject: Selling your home? Keep ${fmt(savings)} more\n\nHi ${firstName},\n\nI saw your home at ${p.address} listed for sale by owner. Selling on your own is smart — and ListDirect can make it even easier while saving you thousands.\n\nWith a traditional agent charging 6%, you'd pay about ${fmt(Math.round(price*0.06))}. With ListDirect it's just 1% (${fmt(Math.round(price*0.01))}) — our AI handles pricing, your listing, and walks you through every offer. That's roughly ${fmt(savings)} back in your pocket.\n\nWant me to send you a free AI price estimate for your home? No obligation.\n\nHarvy Chahal\nFounder, ListDirect\nlistdirect.ai`;
+  const box = document.getElementById('outreach-' + id);
+  if (box) { box.style.display = 'block'; box.textContent = draft; }
+}
+
+async function markContacted(id) {
+  showLoading(true);
+  try {
+    await fetch('/api/admin/prospects/' + id, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_PASSWORD },
+      body: JSON.stringify({ status: 'contacted' })
+    });
+    await loadProspects();
+  } catch(e) {}
+  showLoading(false);
+}
+
+async function deleteProspect(id) {
+  if (!confirm('Delete this prospect?')) return;
+  showLoading(true);
+  try {
+    await fetch('/api/admin/prospects/' + id, {
+      method: 'DELETE',
+      headers: { 'x-admin-key': ADMIN_PASSWORD }
+    });
+    await loadProspects();
+  } catch(e) {}
+  showLoading(false);
 }
 
 function copyEmail(email) {
