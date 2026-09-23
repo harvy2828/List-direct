@@ -173,6 +173,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
       <button class="tab" id="tab-listings" onclick="loadAdminListings(this)">🏠 Listings</button>
       <button class="tab" id="tab-users" onclick="loadAdminUsers(this)">👥 Users</button>
       <button class="tab" id="tab-prospects" onclick="showTab('prospects', this)">🎯 Prospects</button>
+      <button class="tab" id="tab-buyers" onclick="showTab('buyers', this)">🏠 Buyers</button>
     </div>
 
     <div class="agents-list" id="agents-list">
@@ -275,6 +276,7 @@ function renderTab(tab) {
   let filtered = allAgents;
   if (tab === 'payments') { loadPayments(); return; }
   if (tab === 'prospects') { loadProspects(); return; }
+  if (tab === 'buyers') { loadBuyers(); return; }
   if (tab === 'pending') filtered = allAgents.filter(a => !a.approved && !a.rejected);
   if (tab === 'approved') filtered = allAgents.filter(a => a.approved);
   if (tab === 'rejected') filtered = allAgents.filter(a => a.rejected);
@@ -488,6 +490,43 @@ async function deleteProspect(id) {
     await loadProspects();
   } catch(e) {}
   showLoading(false);
+}
+
+// ── Buyers (Buyer Capture) ────────────────────────────────────
+async function loadBuyers() {
+  const list = document.getElementById('agents-list');
+  list.innerHTML = `<div class="empty-state"><div class="empty-icon">🏠</div><div class="empty-title">Loading buyer leads...</div></div>`;
+  let buyers = [];
+  try {
+    const res = await fetch('/api/admin/buyers', { headers: { 'x-admin-key': ADMIN_PASSWORD } });
+    const data = await res.json();
+    buyers = data.buyers || [];
+  } catch(e) {}
+  if (!buyers.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">🏠</div><div class="empty-title">No buyer leads yet</div><div class="empty-sub">When people use your calculator or mortgage qualifier and enter their email, they'll appear here</div></div>`;
+    return;
+  }
+  list.innerHTML = buyers.map(b => `
+    <div class="agent-card" style="border-left:3px solid var(--gold)">
+      <div class="ac-top">
+        <div class="ac-info">
+          <div class="ac-name">📧 ${b.email}</div>
+          <div class="ac-loc">🛠 ${b.tool === 'mortgage-qualifier' ? 'Mortgage Qualifier (Buyer)' : 'Savings Calculator (Seller)'}</div>
+        </div>
+        <span class="status-badge badge-pending">${b.status || 'new'}</span>
+      </div>
+      <div class="ac-details">
+        <div class="ac-detail"><div class="ac-detail-label">Price Range</div><div class="ac-detail-val">${b.price ? '$'+parseInt(b.price).toLocaleString() : '—'}</div></div>
+        <div class="ac-detail"><div class="ac-detail-label">Savings Shown</div><div class="ac-detail-val" style="color:var(--green)">${b.savings || '—'}</div></div>
+        <div class="ac-detail"><div class="ac-detail-label">Market</div><div class="ac-detail-val">${b.country === 'ca' ? 'Canada' : 'USA'}</div></div>
+        <div class="ac-detail"><div class="ac-detail-label">Captured</div><div class="ac-detail-val">${b.created_at ? new Date(b.created_at).toLocaleDateString() : '—'}</div></div>
+      </div>
+      <div class="ac-actions">
+        <button class="btn-unapprove" onclick="copyEmail('${b.email}')">📧 Copy Email</button>
+        <a href="mailto:${b.email}" style="text-decoration:none"><button class="btn-approve">✉️ Contact</button></a>
+      </div>
+    </div>
+  `).join('');
 }
 
 function copyEmail(email) {

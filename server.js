@@ -695,6 +695,60 @@ app.get('/api/admin/agents', async (req, res) => {
   }
 });
 
+// ── Buyer Capture (calculator/qualifier email opt-in) ─────────
+app.post('/api/buyer-capture', async (req, res) => {
+  const { email, tool, price, savings, country, qualified, location } = req.body;
+  if (!email || !email.includes('@')) return res.status(400).json({ error: 'Valid email required' });
+  try {
+    // Save the buyer prospect
+    const bClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY);
+    await bClient.from('buyer_prospects').insert({
+      email, tool: tool || '', price: price ? String(price) : '',
+      savings: savings || '', country: country || '', location: location || '',
+      status: 'new'
+    }).then(()=>{}).catch(()=>{});
+
+    // Send them their personalized breakdown
+    const cur = country === 'ca' ? 'CAD' : 'USD';
+    const p = parseInt(price) || 0;
+    const fmt = n => '$' + n.toLocaleString() + ' ' + cur;
+    let emailHtml;
+    if (tool === 'mortgage-qualifier') {
+      emailHtml = emailWrap(`
+        <h2 style="color:#3ef07a;margin:0 0 8px">Your home buying breakdown 🏡</h2>
+        <p style="color:#7a9480;margin:0 0 20px">Here's what you can do with ListDirect.</p>
+        <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin-bottom:16px">
+          ${qualified ? `<p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">You may qualify for:</strong> ${fmt(parseInt(qualified)||0)}</p>` : ''}
+          <p style="color:#e8f0e9;margin:0">As a buyer on ListDirect, you can browse thousands of listings and even qualify for a closing rebate on certain homes.</p>
+        </div>
+        <a href="https://listdirect.ai" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">Browse Listings →</a>
+      `);
+    } else {
+      emailHtml = emailWrap(`
+        <h2 style="color:#3ef07a;margin:0 0 8px">Your savings breakdown 💰</h2>
+        <p style="color:#7a9480;margin:0 0 20px">Here's what you'd keep by selling with ListDirect.</p>
+        <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin-bottom:16px">
+          <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">On a ${fmt(p)} home:</strong></p>
+          <p style="color:#e8f0e9;margin:0 0 6px">Traditional agent (up to 6%): ${fmt(Math.round(p*0.06))}</p>
+          <p style="color:#e8f0e9;margin:0 0 6px">ListDirect (1%): ${fmt(Math.round(p*0.01))}</p>
+          <p style="color:#3ef07a;font-weight:700;margin:8px 0 0">You keep about ${savings || fmt(Math.round(p*0.05))} more.</p>
+        </div>
+        <a href="https://listdirect.ai/listdirect-list.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">Start My Listing →</a>
+      `);
+    }
+    await sendEmail({ to: email, subject: tool === 'mortgage-qualifier' ? 'Your ListDirect home buying breakdown 🏡' : 'Your ListDirect savings breakdown 💰', html: emailHtml }).catch(()=>{});
+
+    // Notify admin of new buyer lead
+    await sendEmail({
+      to: 'infolistdirect@gmail.com',
+      subject: '🎯 New Buyer Lead — ' + email,
+      html: emailWrap(`<h2 style="color:#3ef07a">New Buyer/Seller Lead</h2><p style="color:#e8f0e9">Email: ${email}<br>Tool: ${tool}<br>Price: ${fmt(p)}<br>Savings shown: ${savings||'—'}</p>`)
+    }).catch(()=>{});
+
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 // ── Admin: Prospects (Seller Prospecting Engine) ──────────────
 function adminAuth(req) {
   const k = req.headers['x-admin-key'];
@@ -711,6 +765,16 @@ app.get('/api/admin/prospects', async (req, res) => {
       .from('prospects').select('*').order('created_at', { ascending: false });
     if (error) throw error;
     res.json({ prospects: data || [] });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.get('/api/admin/buyers', async (req, res) => {
+  if (!adminAuth(req)) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const { data, error } = await prospectClient()
+      .from('buyer_prospects').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    res.json({ buyers: data || [] });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 

@@ -1229,6 +1229,20 @@ Or ask a question like: 'What does an appraisal gap clause mean for me as a sell
         <div class="cwi-label">With that savings you could…</div>
         <div class="cwi-items" id="cwi-items"></div>
       </div>
+
+      <!-- Email capture -->
+      <div id="calc-email-box" style="position:relative;background:var(--card);border:1px solid rgba(62,240,122,0.3);border-radius:14px;padding:20px;margin-top:20px">
+        <button onclick="document.getElementById('calc-email-box').style.display='none'" style="position:absolute;top:10px;right:12px;background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;line-height:1">✕</button>
+        <div id="calc-email-prompt">
+          <div style="font-weight:700;color:var(--white);margin-bottom:4px">📧 Want this full breakdown emailed to you?</div>
+          <div style="font-size:0.85rem;color:var(--muted);margin-bottom:12px">Get your savings report and a free next step — no obligation.</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <input id="calc-email-input" type="email" placeholder="you@email.com" style="flex:1;min-width:200px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:0.9rem">
+            <button onclick="sendCalcEmail()" style="background:var(--green);color:#0a0f0d;border:none;padding:12px 24px;border-radius:10px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.9rem">Email Me →</button>
+          </div>
+        </div>
+        <div id="calc-email-done" style="display:none;color:var(--green);font-weight:600;text-align:center;padding:8px">✓ Sent! Check your inbox for your savings breakdown.</div>
+      </div>
     </div>
   </div>
 </div>
@@ -3208,6 +3222,28 @@ function updateCalc() {
       items.appendChild(div);
     });
   }
+}
+
+async function sendCalcEmail() {
+  const email = (document.getElementById('calc-email-input').value || '').trim();
+  if (!email || !email.includes('@')) { alert('Please enter a valid email'); return; }
+  const price = parseInt(document.getElementById('home-price-slider').value);
+  const savings = document.getElementById('calc-savings').textContent;
+  try {
+    await fetch('/api/buyer-capture', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email,
+        tool: 'savings-calculator',
+        price: price,
+        savings: savings,
+        country: (typeof calcCountry !== 'undefined' ? calcCountry : 'us')
+      })
+    });
+  } catch(e) {}
+  document.getElementById('calc-email-prompt').style.display = 'none';
+  document.getElementById('calc-email-done').style.display = 'block';
 }
 
 function setCalcPrice(val, btn) {
