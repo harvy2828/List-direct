@@ -714,14 +714,19 @@ app.post('/api/buyer-capture', async (req, res) => {
     const fmt = n => '$' + n.toLocaleString() + ' ' + cur;
     let emailHtml;
     if (tool === 'mortgage-qualifier') {
+      const breakdownHtml = (req.body.breakdown || '')
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/\n/g,'<br>');
       emailHtml = emailWrap(`
-        <h2 style="color:#3ef07a;margin:0 0 8px">Your home buying breakdown 🏡</h2>
-        <p style="color:#7a9480;margin:0 0 20px">Here's what you can do with ListDirect.</p>
-        <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin-bottom:16px">
-          ${qualified ? `<p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">You may qualify for:</strong> ${fmt(parseInt(qualified)||0)}</p>` : ''}
-          <p style="color:#e8f0e9;margin:0">As a buyer on ListDirect, you can browse thousands of listings and even qualify for a closing rebate on certain homes.</p>
+        <h2 style="color:#3ef07a;margin:0 0 8px">Your mortgage qualification breakdown 🏡</h2>
+        <p style="color:#7a9480;margin:0 0 20px">Here's the full assessment from your ListDirect qualifier:</p>
+        ${breakdownHtml ? `<div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin-bottom:16px;color:#e8f0e9;line-height:1.7;font-size:0.9rem">${breakdownHtml}</div>` : `<div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin-bottom:16px"><p style="color:#e8f0e9;margin:0">Your full assessment is on our site.</p></div>`}
+        <div style="background:#1a3d28;border:1px solid rgba(62,240,122,0.3);border-radius:12px;padding:16px;margin-bottom:16px">
+          <p style="color:#3ef07a;font-weight:700;margin:0 0 4px">💰 Buyer bonus</p>
+          <p style="color:#e8f0e9;margin:0;font-size:0.9rem">As a buyer through ListDirect, you can get a closing rebate on certain listings — thousands back in your pocket.</p>
         </div>
         <a href="https://listdirect.ai" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">Browse Listings →</a>
+        <p style="color:#7a9480;font-size:0.75rem;margin:16px 0 0;line-height:1.5">This is general guidance only, not a mortgage approval or financial advice. Always consult a licensed mortgage broker for an official assessment.</p>
       `);
     } else {
       emailHtml = emailWrap(`

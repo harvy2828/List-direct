@@ -3463,6 +3463,7 @@ async function sendMQEmail() {
   const email = (document.getElementById('mq-email-input').value || '').trim();
   if (!email || !email.includes('@')) { alert('Please enter a valid email'); return; }
   const price = document.getElementById('mq-price').value.replace(/[^0-9]/g,'') || '0';
+  const breakdown = (document.getElementById('qualifier-output')?.innerText || '').trim();
   try {
     await fetch('/api/buyer-capture', {
       method: 'POST',
@@ -3471,7 +3472,7 @@ async function sendMQEmail() {
         email,
         tool: 'mortgage-qualifier',
         price: parseInt(price),
-        qualified: parseInt(price),
+        breakdown: breakdown,
         country: (typeof mqCountry !== 'undefined' ? mqCountry : 'us')
       })
     });
