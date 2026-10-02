@@ -809,8 +809,15 @@ app.post('/api/admin/prospects/craigslist', async (req, res) => {
   if (!adminAuth(req)) return res.status(401).json({ error: 'Unauthorized' });
   try {
     const url = 'https://sanantonio.craigslist.org/search/reo?format=rss';
-    const r = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ListDirect/1.0)' } });
-    if (!r.ok) return res.status(502).json({ error: 'Craigslist returned ' + r.status });
+    const r = await fetch(url, { headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      'Accept-Language': 'en-US,en;q=0.9',
+      'Accept-Encoding': 'gzip, deflate, br',
+      'Connection': 'keep-alive',
+      'Upgrade-Insecure-Requests': '1'
+    } });
+    if (!r.ok) return res.status(502).json({ error: 'Craigslist returned ' + r.status + ' — they are blocking automated access. Use the CSV import route instead.' });
     const xml = await r.text();
     // Parse RSS items
     const items = [];
