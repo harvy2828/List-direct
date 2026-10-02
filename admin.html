@@ -390,6 +390,13 @@ function renderProspects() {
         <input id="pr-source" placeholder="Source (FSBO.com, Craigslist...)" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--white)">
       </div>
       <button class="btn-approve" onclick="addProspect()">+ Add Prospect</button>
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <button class="btn-unapprove" onclick="fetchCraigslist()">🔄 Fetch from Craigslist</button>
+        <label class="btn-unapprove" style="cursor:pointer;margin:0">📄 Import CSV
+          <input type="file" id="pr-csv" accept=".csv" style="display:none" onchange="importCSV(this)">
+        </label>
+        <span style="font-size:0.78rem;color:var(--muted)">CSV columns: owner_name, address, price, contact, source</span>
+      </div>
     </div>`;
 
   if (!allProspects.length) {
@@ -452,6 +459,76 @@ async function addProspect() {
     else { const d = await res.json(); showToast('Error: ' + (d.error||'failed'), 'error'); }
   } catch(e) { showToast('Connection error', 'error'); }
   showLoading(false);
+}
+
+async function fetchCraigslist() {
+  showLoading(true);
+  try {
+    const res = await fetch('/api/admin/prospects/craigslist', {
+      method: 'POST', headers: { 'x-admin-key': ADMIN_PASSWORD }
+    });
+    const d = await res.json();
+    if (res.ok) {
+      showToast(d.added ? `✓ Added ${d.added} Craigslist prospects` : (d.note || 'No new listings found'), d.added ? 'success' : 'error');
+      await loadProspects();
+    } else {
+      showToast('Error: ' + (d.error || 'failed'), 'error');
+    }
+  } catch(e) { showToast('Connection error', 'error'); }
+  showLoading(false);
+}
+
+function importCSV(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    const text = e.target.result;
+    const lines = text.split(/\r?\n/).filter(l => l.trim());
+    if (lines.length < 2) { showToast('CSV is empty', 'error'); return; }
+    // Parse header
+    const parseLine = (line) => {
+      const out = []; let cur = ''; let inQ = false;
+      for (let i=0;i<line.length;i++){
+        const ch = line[i];
+        if (ch === '"') { inQ = !inQ; }
+        else if (ch === ',' && !inQ) { out.push(cur); cur=''; }
+        else cur += ch;
+      }
+      out.push(cur);
+      return out.map(s => s.trim().replace(/^"|"$/g,''));
+    };
+    const headers = parseLine(lines[0]).map(h => h.toLowerCase().replace(/\s+/g,'_'));
+    const find = (row, names) => {
+      for (const n of names) { const idx = headers.indexOf(n); if (idx>-1 && row[idx]) return row[idx]; }
+      return '';
+    };
+    const prospects = [];
+    for (let i=1;i<lines.length;i++){
+      const row = parseLine(lines[i]);
+      prospects.push({
+        owner_name: find(row, ['owner_name','name','owner','first_name','fullname','full_name']),
+        address: find(row, ['address','property_address','property','street','location']),
+        price: find(row, ['price','asking_price','list_price','listprice']).replace(/[^0-9]/g,''),
+        contact: find(row, ['contact','email','phone','phone_number','email_address']),
+        source: find(row, ['source']) || 'CSV import'
+      });
+    }
+    showLoading(true);
+    try {
+      const res = await fetch('/api/admin/prospects/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json', 'x-admin-key': ADMIN_PASSWORD },
+        body: JSON.stringify({ prospects })
+      });
+      const d = await res.json();
+      if (res.ok) { showToast(`✓ Imported ${d.added} prospects`, 'success'); await loadProspects(); }
+      else showToast('Error: ' + (d.error||'failed'), 'error');
+    } catch(err) { showToast('Import failed', 'error'); }
+    showLoading(false);
+    input.value = '';
+  };
+  reader.readAsText(file);
 }
 
 function draftOutreach(id) {

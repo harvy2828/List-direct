@@ -783,6 +783,66 @@ app.get('/api/admin/buyers', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// Bulk import prospects (from CSV)
+app.post('/api/admin/prospects/bulk', async (req, res) => {
+  if (!adminAuth(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const rows = Array.isArray(req.body.prospects) ? req.body.prospects : [];
+  if (!rows.length) return res.status(400).json({ error: 'No rows' });
+  try {
+    const clean = rows.slice(0, 500).map(r => ({
+      owner_name: (r.owner_name || '').toString().slice(0,200),
+      address: (r.address || '').toString().slice(0,300),
+      price: (r.price || '').toString().slice(0,50),
+      contact: (r.contact || '').toString().slice(0,200),
+      source: (r.source || 'CSV import').toString().slice(0,100),
+      market: (r.market || 'San Antonio, TX').toString().slice(0,100),
+      status: 'new'
+    })).filter(r => r.address || r.contact);
+    const { data, error } = await prospectClient().from('prospects').insert(clean).select();
+    if (error) throw error;
+    res.json({ added: (data || []).length });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Fetch FSBO prospects from Craigslist San Antonio (real estate by owner)
+app.post('/api/admin/prospects/craigslist', async (req, res) => {
+  if (!adminAuth(req)) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const url = 'https://sanantonio.craigslist.org/search/reo?format=rss';
+    const r = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ListDirect/1.0)' } });
+    if (!r.ok) return res.status(502).json({ error: 'Craigslist returned ' + r.status });
+    const xml = await r.text();
+    // Parse RSS items
+    const items = [];
+    const itemBlocks = xml.split('<item');
+    for (let i = 1; i < itemBlocks.length && items.length < 50; i++) {
+      const block = itemBlocks[i];
+      const titleMatch = block.match(/<title>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/title>/s);
+      const linkMatch = block.match(/<link>(.*?)<\/link>/s) || block.match(/rdf:resource="(.*?)"/);
+      let title = titleMatch ? titleMatch[1].trim() : '';
+      const link = linkMatch ? linkMatch[1].trim() : '';
+      // Extract price from title if present ($xxx,xxx)
+      const priceMatch = title.match(/\$([0-9,]{4,})/);
+      const price = priceMatch ? priceMatch[1].replace(/,/g,'') : '';
+      // Clean title of price for address/name
+      title = title.replace(/\$[0-9,]+/,'').trim();
+      if (title) items.push({
+        owner_name: '',
+        address: title.slice(0,300),
+        price: price,
+        contact: link,
+        source: 'Craigslist',
+        market: 'San Antonio, TX',
+        status: 'new'
+      });
+    }
+    if (!items.length) return res.json({ added: 0, note: 'No listings found (Craigslist may have changed format or blocked the request)' });
+    const { data, error } = await prospectClient().from('prospects').insert(items).select();
+    if (error) throw error;
+    res.json({ added: (data || []).length });
+  } catch (err) { res.status(500).json({ error: 'Craigslist fetch failed: ' + err.message }); }
+});
+
 app.post('/api/admin/prospects', async (req, res) => {
   if (!adminAuth(req)) return res.status(401).json({ error: 'Unauthorized' });
   const { owner_name, address, price, contact, source, market } = req.body;
