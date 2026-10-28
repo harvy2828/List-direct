@@ -478,6 +478,33 @@ async function fetchCraigslist() {
   showLoading(false);
 }
 
+// Build owner name from my+plus columns (Owner First/Last Name) or fallbacks
+function buildName(row, find) {
+  const first = find(row, ['owner_first_name','first_name']);
+  const last = find(row, ['owner_last_name','last_name']);
+  if (first || last) return (first + ' ' + last).trim();
+  return find(row, ['owner_name1','owner_name','name','owner','fullname','full_name','basic_name1']);
+}
+// Build address from Address + City + State + Zip
+function buildAddress(row, find) {
+  const a = find(row, ['address','property_address','street','unparsedaddress']);
+  const city = find(row, ['city']);
+  const state = find(row, ['state']);
+  const zip = find(row, ['zip','postal_code','postalcode']);
+  let out = a;
+  if (city) out += (out ? ', ' : '') + city;
+  if (state) out += (out ? ', ' : '') + state;
+  if (zip) out += ' ' + zip;
+  return out.trim();
+}
+// Pick best contact — prefer email, then phone (my+plus augmented fields)
+function buildContact(row, find) {
+  const email = find(row, ['augmented_email_1_1','augmented_email_1_2','augmented_email_2_1','email','email_address']);
+  const phone = find(row, ['contact_phone','augmented_phone_1_1','user_phone_1','basic_phone1','phone','phone_number']);
+  if (email && phone) return email + ' · ' + phone;
+  return email || phone || '';
+}
+
 function importCSV(input) {
   const file = input.files[0];
   if (!file) return;
@@ -507,11 +534,11 @@ function importCSV(input) {
     for (let i=1;i<lines.length;i++){
       const row = parseLine(lines[i]);
       prospects.push({
-        owner_name: find(row, ['owner_name','name','owner','first_name','fullname','full_name']),
-        address: find(row, ['address','property_address','property','street','location']),
-        price: find(row, ['price','asking_price','list_price','listprice']).replace(/[^0-9]/g,''),
-        contact: find(row, ['contact','email','phone','phone_number','email_address']),
-        source: find(row, ['source']) || 'CSV import'
+        owner_name: buildName(row, find),
+        address: buildAddress(row, find),
+        price: find(row, ['price','asking_price','list_price','listprice','estimated_value']).replace(/[^0-9]/g,''),
+        contact: buildContact(row, find),
+        source: find(row, ['source']) || 'my+plus leads'
       });
     }
     showLoading(true);
