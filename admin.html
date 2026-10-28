@@ -586,15 +586,16 @@ function copyDraft(id) {
   const toLine = emailMatch ? ('To: ' + emailMatch[0] + '\n') : '';
   const draft = `${toLine}Subject: Hi ${firstName}\n\nHi ${firstName},\n\nI noticed you're selling your home on your own — nice work taking it on yourself.\n\nI run a service that helps people in your spot sell for a fraction of the usual agent commission, and I thought it might be worth a quick chat. No pressure at all.\n\nWould you be open to me sending over a few details? Happy to answer any questions too.\n\nBest,\nHarvy Chahal`;
   navigator.clipboard.writeText(draft).then(() => {
-    showToast('✓ Draft copied — paste into Gmail', 'success');
+    showToast('✓ Draft copied as plain text — paste into Gmail', 'success');
   }).catch(() => {
+    // Fallback: use a plain textarea (no dark styling) so manual copy is clean
     const box = document.getElementById('outreach-' + id);
-    if (box) { box.style.display = 'block'; box.textContent = draft; }
-    showToast('Copy failed — draft shown below, copy manually', 'error');
+    if (box) {
+      box.style.display = 'block';
+      box.innerHTML = '<textarea readonly style="width:100%;min-height:200px;background:#fff;color:#000;border:1px solid #ccc;border-radius:8px;padding:10px;font-family:Arial,sans-serif;font-size:0.85rem">' + draft.replace(/</g,'&lt;') + '</textarea><div style="font-size:0.75rem;color:var(--muted);margin-top:6px">Tap inside, select all, copy</div>';
+    }
+    showToast('Tap the box below, select all, and copy', 'error');
   });
-  // Also show it so they can see/edit
-  const box = document.getElementById('outreach-' + id);
-  if (box) { box.style.display = 'block'; box.textContent = draft; }
 }
 
 function draftOutreach(id) {
