@@ -584,7 +584,7 @@ function copyDraft(id) {
   const firstName = (p.owner_name || '').split(' ')[0] || 'there';
   const emailMatch = (p.contact || '').match(/[\w.+-]+@[\w-]+\.[\w.-]+/);
   const toLine = emailMatch ? ('To: ' + emailMatch[0] + '\n') : '';
-  const draft = `${toLine}Subject: Selling your home? Keep ${fmt(savings)} more\n\nHi ${firstName},\n\nI came across your home${p.address ? ' at ' + p.address : ''} listed for sale by owner. Selling on your own is a smart move — and I wanted to reach out because ListDirect can make it even easier while saving you thousands.\n\nWith a traditional agent at 6%, you'd pay around ${fmt(Math.round(price*0.06))}. With ListDirect it's just 1% (${fmt(Math.round(price*0.01))}) — our AI handles your pricing, writes your listing, and walks you through every offer. That's roughly ${fmt(savings)} staying in your pocket.\n\nWould you be open to a free AI price estimate for your home? No cost, no obligation — just reply and I'll send it over.\n\nBest,\nHarvy Chahal\nFounder, ListDirect\nlistdirect.ai`;
+  const draft = `${toLine}Subject: Hi ${firstName}\n\nHi ${firstName},\n\nI noticed you're selling your home on your own — nice work taking it on yourself.\n\nI run a service that helps people in your spot sell for a fraction of the usual agent commission, and I thought it might be worth a quick chat. No pressure at all.\n\nWould you be open to me sending over a few details? Happy to answer any questions too.\n\nBest,\nHarvy Chahal`;
   navigator.clipboard.writeText(draft).then(() => {
     showToast('✓ Draft copied — paste into Gmail', 'success');
   }).catch(() => {
