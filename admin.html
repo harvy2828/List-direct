@@ -428,7 +428,7 @@ function renderProspects() {
         <div class="ac-detail"><div class="ac-detail-label">Added</div><div class="ac-detail-val">${p.created_at ? new Date(p.created_at).toLocaleDateString() : '—'}</div></div>
       </div>
       <div class="ac-actions">
-        <button class="btn-approve" onclick="draftOutreach('${p.id}')">✉️ Draft Outreach</button>
+        <button class="btn-approve" onclick="draftOutreach('${p.id}')">✉️ Send Outreach Email</button>
         ${p.status !== 'contacted' ? `<button class="btn-unapprove" onclick="markContacted('${p.id}')">✓ Mark Contacted</button>` : ''}
         <button class="btn-reject" onclick="deleteProspect('${p.id}')">🗑 Delete</button>
       </div>
@@ -577,13 +577,28 @@ async function clearAllProspects() {
 function draftOutreach(id) {
   const p = allProspects.find(x => x.id === id);
   if (!p) return;
-  const price = parseInt(p.price) || 0;
-  const savings = Math.round(price * 0.05);
-  const fmt = n => '$' + n.toLocaleString();
-  const firstName = (p.owner_name || '').split(' ')[0] || 'there';
-  const draft = `Subject: Selling your home? Keep ${fmt(savings)} more\n\nHi ${firstName},\n\nI saw your home at ${p.address} listed for sale by owner. Selling on your own is smart — and ListDirect can make it even easier while saving you thousands.\n\nWith a traditional agent charging 6%, you'd pay about ${fmt(Math.round(price*0.06))}. With ListDirect it's just 1% (${fmt(Math.round(price*0.01))}) — our AI handles pricing, your listing, and walks you through every offer. That's roughly ${fmt(savings)} back in your pocket.\n\nWant me to send you a free AI price estimate for your home? No obligation.\n\nHarvy Chahal\nFounder, ListDirect\nlistdirect.ai`;
+  // Extract an email from the contact field (may be "email · phone")
+  const emailMatch = (p.contact || '').match(/[\w.+-]+@[\w-]+\.[\w.-]+/);
   const box = document.getElementById('outreach-' + id);
-  if (box) { box.style.display = 'block'; box.textContent = draft; }
+  if (!emailMatch) {
+    if (box) { box.style.display = 'block'; box.innerHTML = '<span style="color:var(--gold)">⚠️ No email on file for this prospect — reach out by phone instead.</span>'; }
+    return;
+  }
+  const email = emailMatch[0];
+  if (!confirm('Send a branded ListDirect email to ' + email + '?')) return;
+  if (box) { box.style.display = 'block'; box.textContent = 'Sending…'; }
+  fetch('/api/admin/prospects/send-outreach', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_PASSWORD },
+    body: JSON.stringify({ id: p.id, email, owner_name: p.owner_name, address: p.address, price: p.price })
+  }).then(r => r.json()).then(d => {
+    if (d.ok) {
+      if (box) box.innerHTML = '<span style="color:var(--green)">✓ Email sent to ' + email + '</span>';
+      loadProspects();
+    } else {
+      if (box) box.innerHTML = '<span style="color:var(--red)">Error: ' + (d.error||'failed') + '</span>';
+    }
+  }).catch(() => { if (box) box.innerHTML = '<span style="color:var(--red)">Connection error</span>'; });
 }
 
 async function markContacted(id) {

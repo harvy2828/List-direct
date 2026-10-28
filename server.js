@@ -873,6 +873,44 @@ app.patch('/api/admin/prospects/:id', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+app.post('/api/admin/prospects/send-outreach', async (req, res) => {
+  if (!adminAuth(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const { id, email, owner_name, address, price } = req.body;
+  if (!email || !email.includes('@')) return res.status(400).json({ error: 'No valid email' });
+  try {
+    const p = parseInt((price||'').toString().replace(/[^0-9]/g,'')) || 0;
+    const fmt = n => '$' + n.toLocaleString();
+    const savings = Math.round(p * 0.05);
+    const firstName = (owner_name || '').split(' ')[0] || 'there';
+    const html = emailWrap(`
+      <h2 style="color:#3ef07a;margin:0 0 6px">Selling your home? Keep ${fmt(savings)} more 💰</h2>
+      <p style="color:#7a9480;margin:0 0 20px">Hi ${firstName}, I saw your home listed for sale by owner${address ? ' at ' + address : ''}.</p>
+      <p style="color:#e8f0e9;margin:0 0 16px;line-height:1.6">Selling on your own is smart — and ListDirect makes it even easier while saving you thousands. Our AI handles your pricing, writes your listing, and walks you through every offer.</p>
+      <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin-bottom:20px">
+        <p style="color:#7a9480;margin:0 0 4px;font-size:0.85rem">On your ${fmt(p)} home</p>
+        <p style="color:#e8f0e9;margin:0 0 6px">Traditional agent (6%): <strong>${fmt(Math.round(p*0.06))}</strong></p>
+        <p style="color:#e8f0e9;margin:0 0 6px">ListDirect (1%): <strong style="color:#3ef07a">${fmt(Math.round(p*0.01))}</strong></p>
+        <p style="color:#3ef07a;font-weight:700;margin:8px 0 0;font-size:1.1rem">You keep about ${fmt(savings)} more.</p>
+      </div>
+      <a href="https://listdirect.ai" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block;margin-bottom:16px">Get a Free AI Price Estimate →</a>
+      <p style="color:#7a9480;font-size:0.85rem;margin:0">No obligation — just reply to this email with any questions.</p>
+      <p style="color:#7a9480;font-size:0.85rem;margin:8px 0 0">— Harvy Chahal, Founder, ListDirect</p>
+      <div style="border-top:1px solid #1f2d22;margin-top:20px;padding-top:14px">
+        <p style="color:#3a4d3e;font-size:0.72rem;line-height:1.5;margin:0">You received this because your property was listed publicly for sale by owner. ListDirect, 10265 238A St, Maple Ridge, BC, Canada. If you'd prefer not to receive these, just reply "unsubscribe" and we won't contact you again.</p>
+      </div>
+    `);
+    await sendEmail({
+      to: email,
+      subject: `Selling your home? Keep ${fmt(savings)} more`,
+      html,
+      reply_to: 'infolistdirect@gmail.com'
+    });
+    // Mark contacted
+    if (id) await prospectClient().from('prospects').update({ status: 'contacted' }).eq('id', id).then(()=>{}).catch(()=>{});
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 app.delete('/api/admin/prospects/clear', async (req, res) => {
   if (!adminAuth(req)) return res.status(401).json({ error: 'Unauthorized' });
   try {
