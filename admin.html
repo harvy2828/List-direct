@@ -584,7 +584,7 @@ function copyDraft(id) {
   const firstName = (p.owner_name || '').split(' ')[0] || 'there';
   const emailMatch = (p.contact || '').match(/[\w.+-]+@[\w-]+\.[\w.-]+/);
   const toLine = emailMatch ? ('To: ' + emailMatch[0] + '\n') : '';
-  const draft = `${toLine}Subject: Hi ${firstName}\n\nHi ${firstName},\n\nI noticed you're selling your home on your own — nice work taking it on yourself.\n\nI run a service that helps people in your spot sell for a fraction of the usual agent commission, and I thought it might be worth a quick chat. No pressure at all.\n\nWould you be open to me sending over a few details? Happy to answer any questions too.\n\nBest,\nHarvy Chahal`;
+  const draft = `${toLine}Subject: Hi ${firstName}\n\nHi ${firstName},\n\nI noticed you're selling your home on your own — nice work taking it on yourself.\n\nI run a service that helps people in your spot sell for a fraction of the usual agent commission, and I thought it might be worth a quick chat. No pressure at all.\n\nWould you be open to me sending over a few details? Happy to answer any questions too.\n\nBest,\nHarvy Chahal\nFounder, ListDirect\nlistdirect.ai`;
   // Always show a plain white textarea — tap, select all, copy. No encoding, no mailto.
   const box = document.getElementById('outreach-' + id);
   if (box) {
