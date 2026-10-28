@@ -428,7 +428,8 @@ function renderProspects() {
         <div class="ac-detail"><div class="ac-detail-label">Added</div><div class="ac-detail-val">${p.created_at ? new Date(p.created_at).toLocaleDateString() : '—'}</div></div>
       </div>
       <div class="ac-actions">
-        <button class="btn-approve" onclick="draftOutreach('${p.id}')">✉️ Send Outreach Email</button>
+        <button class="btn-approve" onclick="draftOutreach('${p.id}')">✉️ Send Branded</button>
+        <button class="btn-unapprove" onclick="copyDraft('${p.id}')">📋 Copy Text (send from Gmail)</button>
         ${p.status !== 'contacted' ? `<button class="btn-unapprove" onclick="markContacted('${p.id}')">✓ Mark Contacted</button>` : ''}
         <button class="btn-reject" onclick="deleteProspect('${p.id}')">🗑 Delete</button>
       </div>
@@ -572,6 +573,28 @@ async function clearAllProspects() {
     await loadProspects();
   } catch(e) { showToast('Connection error', 'error'); }
   showLoading(false);
+}
+
+function copyDraft(id) {
+  const p = allProspects.find(x => x.id === id);
+  if (!p) return;
+  const price = parseInt(p.price) || 0;
+  const savings = Math.round(price * 0.05);
+  const fmt = n => '$' + n.toLocaleString();
+  const firstName = (p.owner_name || '').split(' ')[0] || 'there';
+  const emailMatch = (p.contact || '').match(/[\w.+-]+@[\w-]+\.[\w.-]+/);
+  const toLine = emailMatch ? ('To: ' + emailMatch[0] + '\n') : '';
+  const draft = `${toLine}Subject: Selling your home? Keep ${fmt(savings)} more\n\nHi ${firstName},\n\nI came across your home${p.address ? ' at ' + p.address : ''} listed for sale by owner. Selling on your own is a smart move — and I wanted to reach out because ListDirect can make it even easier while saving you thousands.\n\nWith a traditional agent at 6%, you'd pay around ${fmt(Math.round(price*0.06))}. With ListDirect it's just 1% (${fmt(Math.round(price*0.01))}) — our AI handles your pricing, writes your listing, and walks you through every offer. That's roughly ${fmt(savings)} staying in your pocket.\n\nWould you be open to a free AI price estimate for your home? No cost, no obligation — just reply and I'll send it over.\n\nBest,\nHarvy Chahal\nFounder, ListDirect\nlistdirect.ai`;
+  navigator.clipboard.writeText(draft).then(() => {
+    showToast('✓ Draft copied — paste into Gmail', 'success');
+  }).catch(() => {
+    const box = document.getElementById('outreach-' + id);
+    if (box) { box.style.display = 'block'; box.textContent = draft; }
+    showToast('Copy failed — draft shown below, copy manually', 'error');
+  });
+  // Also show it so they can see/edit
+  const box = document.getElementById('outreach-' + id);
+  if (box) { box.style.display = 'block'; box.textContent = draft; }
 }
 
 function draftOutreach(id) {
