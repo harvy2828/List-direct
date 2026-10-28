@@ -397,6 +397,7 @@ function renderProspects() {
         </label>
         <span style="font-size:0.78rem;color:var(--muted)">CSV columns: owner_name, address, price, contact, source</span>
       </div>
+      ${allProspects.length ? `<div style="margin-top:12px"><button class="btn-reject" onclick="clearAllProspects()">🗑 Clear All (${allProspects.length})</button></div>` : ''}
     </div>`;
 
   if (!allProspects.length) {
@@ -556,6 +557,21 @@ function importCSV(input) {
     input.value = '';
   };
   reader.readAsText(file);
+}
+
+async function clearAllProspects() {
+  if (!confirm('Delete ALL ' + allProspects.length + ' prospects? This cannot be undone.')) return;
+  showLoading(true);
+  try {
+    const res = await fetch('/api/admin/prospects/clear', {
+      method: 'DELETE', headers: { 'x-admin-key': ADMIN_PASSWORD }
+    });
+    const d = await res.json();
+    if (res.ok) showToast('✓ Cleared ' + (d.deleted || 0) + ' prospects', 'success');
+    else showToast('Error: ' + (d.error||'failed'), 'error');
+    await loadProspects();
+  } catch(e) { showToast('Connection error', 'error'); }
+  showLoading(false);
 }
 
 function draftOutreach(id) {

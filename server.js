@@ -873,6 +873,15 @@ app.patch('/api/admin/prospects/:id', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+app.delete('/api/admin/prospects/clear', async (req, res) => {
+  if (!adminAuth(req)) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const { data, error } = await prospectClient().from('prospects').delete().neq('id', '00000000-0000-0000-0000-000000000000').select();
+    if (error) throw error;
+    res.json({ deleted: (data || []).length });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 app.delete('/api/admin/prospects/:id', async (req, res) => {
   if (!adminAuth(req)) return res.status(401).json({ error: 'Unauthorized' });
   try {
