@@ -585,17 +585,13 @@ function copyDraft(id) {
   const emailMatch = (p.contact || '').match(/[\w.+-]+@[\w-]+\.[\w.-]+/);
   const toLine = emailMatch ? ('To: ' + emailMatch[0] + '\n') : '';
   const draft = `${toLine}Subject: Hi ${firstName}\n\nHi ${firstName},\n\nI noticed you're selling your home on your own — nice work taking it on yourself.\n\nI run a service that helps people in your spot sell for a fraction of the usual agent commission, and I thought it might be worth a quick chat. No pressure at all.\n\nWould you be open to me sending over a few details? Happy to answer any questions too.\n\nBest,\nHarvy Chahal`;
-  navigator.clipboard.writeText(draft).then(() => {
-    showToast('✓ Draft copied as plain text — paste into Gmail', 'success');
-  }).catch(() => {
-    // Fallback: use a plain textarea (no dark styling) so manual copy is clean
-    const box = document.getElementById('outreach-' + id);
-    if (box) {
-      box.style.display = 'block';
-      box.innerHTML = '<textarea readonly style="width:100%;min-height:200px;background:#fff;color:#000;border:1px solid #ccc;border-radius:8px;padding:10px;font-family:Arial,sans-serif;font-size:0.85rem">' + draft.replace(/</g,'&lt;') + '</textarea><div style="font-size:0.75rem;color:var(--muted);margin-top:6px">Tap inside, select all, copy</div>';
-    }
-    showToast('Tap the box below, select all, and copy', 'error');
-  });
+  // Always show a plain white textarea — tap, select all, copy. No encoding, no mailto.
+  const box = document.getElementById('outreach-' + id);
+  if (box) {
+    box.style.display = 'block';
+    const taId = 'ta-' + id;
+    box.innerHTML = '<div style="font-size:0.8rem;color:var(--white);margin-bottom:6px;font-weight:600">👇 Tap the box, Select All, Copy — then paste into Gmail:</div><textarea id="' + taId + '" style="width:100%;min-height:220px;background:#ffffff;color:#000000;border:1px solid #ccc;border-radius:8px;padding:12px;font-family:Arial,sans-serif;font-size:0.9rem;line-height:1.5">' + draft.replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</textarea><button onclick="(function(){var t=document.getElementById(\'' + taId + '\');t.focus();t.select();try{document.execCommand(\'copy\');showToast(\'✓ Copied! Paste into Gmail\',\'success\');}catch(e){showToast(\'Select all in the box and copy manually\',\'error\');}})()" style="margin-top:8px;background:var(--green);color:#0a0f0d;border:none;padding:10px 20px;border-radius:50px;font-weight:700;cursor:pointer;font-family:\'DM Sans\',sans-serif">📋 Copy to Clipboard</button>';
+  }
 }
 
 function draftOutreach(id) {
