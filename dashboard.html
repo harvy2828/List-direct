@@ -637,54 +637,59 @@ window.addEventListener('DOMContentLoaded', async () => {
   const token = localStorage.getItem('ld_token');
   if (token) {
     showLoading(true);
-    try {
-      const res = await fetch('/api/auth/me', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        // Redirect agents to their portal
-        const role = data.user?.user_metadata?.role;
-        if (role === 'agent') {
-          localStorage.removeItem('ld_token');
-          window.location.href = 'agent-portal.html';
-          return;
-        }
-        currentUser = data.user;
-        showDashboard();
-        loadMyListings();
-        loadFavorites();
-        loadInquiries();
-      } else {
-        // Try to refresh the token
-        const refreshToken = localStorage.getItem('ld_refresh_token');
-        if (refreshToken) {
-          try {
-            const refreshRes = await fetch('/api/auth/refresh', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ refresh_token: refreshToken })
-            });
-            if (refreshRes.ok) {
-              const refreshData = await refreshRes.json();
-              if (refreshData.session) {
-                localStorage.setItem('ld_token', refreshData.session.access_token);
-                localStorage.setItem('ld_refresh_token', refreshData.session.refresh_token);
-                window.location.reload();
-                return;
-              }
-            }
-          } catch(e) {}
-        }
-        localStorage.removeItem('ld_token');
-        localStorage.removeItem('ld_refresh_token');
-        showLoading(false);
-      }
-    } catch(e) {
-      showLoading(false);
-    }
+    const rendered = await initSession(token);
+    if (!rendered) showLoading(false);
   }
 });
+
+// Validate the session and render the dashboard.
+// If the access token has expired, refresh it SILENTLY (no page reload and
+// no login-form flash) and retry once, then render. Only falls back to the
+// login screen if there is no refresh token or the refresh genuinely fails.
+async function initSession(token) {
+  const renderFrom = (data) => {
+    const role = data.user?.user_metadata?.role;
+    if (role === 'agent') {
+      localStorage.removeItem('ld_token');
+      window.location.href = 'agent-portal.html';
+      return true;
+    }
+    currentUser = data.user;
+    showDashboard();
+    loadMyListings();
+    loadFavorites();
+    loadInquiries();
+    return true;
+  };
+  const clearTokens = () => {
+    localStorage.removeItem('ld_token');
+    localStorage.removeItem('ld_refresh_token');
+  };
+  try {
+    let res = await fetch('/api/auth/me', { headers: { 'Authorization': `Bearer ${token}` } });
+    if (res.ok) return renderFrom(await res.json());
+
+    // Access token likely expired — refresh quietly and retry in place.
+    const refreshToken = localStorage.getItem('ld_refresh_token');
+    if (!refreshToken) { clearTokens(); return false; }
+    const refreshRes = await fetch('/api/auth/refresh', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: refreshToken })
+    });
+    if (!refreshRes.ok) { clearTokens(); return false; }
+    const refreshData = await refreshRes.json();
+    if (!refreshData.session) { clearTokens(); return false; }
+    localStorage.setItem('ld_token', refreshData.session.access_token);
+    if (refreshData.session.refresh_token) localStorage.setItem('ld_refresh_token', refreshData.session.refresh_token);
+
+    res = await fetch('/api/auth/me', { headers: { 'Authorization': `Bearer ${refreshData.session.access_token}` } });
+    if (!res.ok) { clearTokens(); return false; }
+    return renderFrom(await res.json());
+  } catch (e) {
+    return false;
+  }
+}
 
 // ── Auth tabs ─────────────────────────────────────────────────
 function onRoleChange(sel) {
