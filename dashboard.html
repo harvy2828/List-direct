@@ -636,9 +636,24 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   const token = localStorage.getItem('ld_token');
   if (token) {
-    showLoading(true);
+    // Optimistic: if we already know who this user is, show the dashboard shell
+    // INSTANTLY (no login-screen flash) while we verify the token in the
+    // background. This removes the "login screen then dashboard" delay on a
+    // fresh page load.
+    const cachedUser = localStorage.getItem('ld_user');
+    if (cachedUser) {
+      try { currentUser = JSON.parse(cachedUser); showDashboard(); }
+      catch (e) { showLoading(true); }
+    } else {
+      showLoading(true);
+    }
     const rendered = await initSession(token);
-    if (!rendered) showLoading(false);
+    if (!rendered) {
+      // Session genuinely invalid — fall back to the login screen.
+      document.getElementById('auth-section').style.display = 'flex';
+      document.getElementById('dash-section').style.display = 'none';
+      showLoading(false);
+    }
   }
 });
 
@@ -655,6 +670,7 @@ async function initSession(token) {
       return true;
     }
     currentUser = data.user;
+    try { localStorage.setItem('ld_user', JSON.stringify(data.user)); } catch (e) {}
     showDashboard();
     loadMyListings();
     loadFavorites();
@@ -664,6 +680,7 @@ async function initSession(token) {
   const clearTokens = () => {
     localStorage.removeItem('ld_token');
     localStorage.removeItem('ld_refresh_token');
+    localStorage.removeItem('ld_user');
   };
   try {
     let res = await fetch('/api/auth/me', { headers: { 'Authorization': `Bearer ${token}` } });
@@ -827,6 +844,8 @@ async function handleSignOut() {
     }).catch(() => {});
   }
   localStorage.removeItem('ld_token');
+  localStorage.removeItem('ld_refresh_token');
+  localStorage.removeItem('ld_user');
   currentUser = null;
   document.getElementById('auth-section').style.display = 'flex';
   document.getElementById('dash-section').style.display = 'none';
