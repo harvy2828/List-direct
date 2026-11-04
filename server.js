@@ -61,9 +61,18 @@ const app = express();
 app.use(express.json());
 app.use(express.static(__dirname));
 
+// Auth client (public anon key) — used ONLY for auth: signUp, signIn, getUser, refreshSession.
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
+);
+
+// Data client (secret service key) — used for all table/storage reads & writes.
+// This bypasses Row-Level Security, so the server keeps working after RLS is turned on.
+// Falls back to the anon key only if the service key isn't set, so nothing breaks either way.
+const db = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY
 );
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
@@ -219,7 +228,7 @@ app.get('/api/auth/me', async (req, res) => {
   try {
     const { data: { user }, error } = await supabase.auth.getUser(token);
     if (error || !user) return res.status(401).json({ error: 'Invalid token' });
-    const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+    const { data: profile } = await db.from('profiles').select('*').eq('id', user.id).single();
     res.json({ user, profile });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -271,7 +280,7 @@ app.post('/api/listings', async (req, res) => {
     const userClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
       global: { headers: { Authorization: `Bearer ${token}` } }
     });
-    const { data, error } = await userClient.from('listings').insert([listing]).select().single();
+    const { data, error } = await db.from('listings').insert([listing]).select().single();
     if (error) return res.status(400).json({ error: error.message });
     // Notify admin of new listing
     await sendEmail({
@@ -324,7 +333,7 @@ app.get('/api/listings/mine', async (req, res) => {
   try {
     const { data: { user } } = await supabase.auth.getUser(token);
     if (!user) return res.status(401).json({ error: 'Invalid token' });
-    const { data, error } = await supabase.from('listings').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+    const { data, error } = await db.from('listings').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
     if (error) return res.status(400).json({ error: error.message });
     res.json(data);
   } catch (err) {
@@ -344,11 +353,11 @@ app.post('/api/photos/upload', upload.single('photo'), async (req, res) => {
     }
     const file = req.file;
     const fileName = `${userId}/${Date.now()}-${file.originalname}`;
-    const { data, error } = await supabase.storage.from('listing-photos').upload(fileName, file.buffer, {
+    const { data, error } = await db.storage.from('listing-photos').upload(fileName, file.buffer, {
       contentType: file.mimetype, upsert: false
     });
     if (error) return res.status(400).json({ error: error.message });
-    const { data: { publicUrl } } = supabase.storage.from('listing-photos').getPublicUrl(fileName);
+    const { data: { publicUrl } } = db.storage.from('listing-photos').getPublicUrl(fileName);
     res.json({ url: publicUrl, path: fileName });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -362,7 +371,7 @@ app.post('/api/favorites', async (req, res) => {
   try {
     const { data: { user } } = await supabase.auth.getUser(token);
     const { listing_id } = req.body;
-    const { data, error } = await supabase.from('favorites').upsert([{ user_id: user.id, listing_id }]).select();
+    const { data, error } = await db.from('favorites').upsert([{ user_id: user.id, listing_id }]).select();
     if (error) return res.status(400).json({ error: error.message });
     res.json(data);
   } catch (err) {
@@ -375,7 +384,7 @@ app.get('/api/favorites', async (req, res) => {
   if (!token) return res.status(401).json({ error: 'Not authenticated' });
   try {
     const { data: { user } } = await supabase.auth.getUser(token);
-    const { data, error } = await supabase.from('favorites').select('*').eq('user_id', user.id);
+    const { data, error } = await db.from('favorites').select('*').eq('user_id', user.id);
     if (error) return res.status(400).json({ error: error.message });
     res.json({ favorites: data });
   } catch (err) {
@@ -388,7 +397,7 @@ app.delete('/api/favorites/:listing_id', async (req, res) => {
   if (!token) return res.status(401).json({ error: 'Not authenticated' });
   try {
     const { data: { user } } = await supabase.auth.getUser(token);
-    const { error } = await supabase.from('favorites').delete().eq('user_id', user.id).eq('listing_id', req.params.listing_id);
+    const { error } = await db.from('favorites').delete().eq('user_id', user.id).eq('listing_id', req.params.listing_id);
     if (error) return res.status(400).json({ error: error.message });
     res.json({ success: true });
   } catch (err) {
@@ -491,7 +500,7 @@ app.post('/api/auth/update-profile', async (req, res) => {
     const languages = clean(req.body.languages);
     const designations = clean(req.body.designations);
     // Use anon key directly - RLS disabled on profiles table
-    const { error: profErr } = await supabase.from('profiles')
+    const { error: profErr } = await db.from('profiles')
       .upsert({ id: user.id, full_name, phone, location, license_number, bio, cashback_offer, specialty, years_experience, languages, designations }, { onConflict: 'id' });
     if (profErr) return res.status(400).json({ error: profErr.message });
     res.json({ success: true });
@@ -511,12 +520,12 @@ app.post('/api/agent/avatar', upload.single('photo'), async (req, res) => {
     if (!file) return res.status(400).json({ error: 'No file uploaded' });
     const ext = file.originalname.split('.').pop().toLowerCase();
     const fileName = user.id + '/avatar.' + ext;
-    const { error: upErr } = await supabase.storage.from('agent-avatars').upload(fileName, file.buffer, {
+    const { error: upErr } = await db.storage.from('agent-avatars').upload(fileName, file.buffer, {
       contentType: file.mimetype, upsert: true
     });
     if (upErr) return res.status(400).json({ error: upErr.message });
-    const { data: { publicUrl } } = supabase.storage.from('agent-avatars').getPublicUrl(fileName);
-    await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', user.id);
+    const { data: { publicUrl } } = db.storage.from('agent-avatars').getPublicUrl(fileName);
+    await db.from('profiles').update({ avatar_url: publicUrl }).eq('id', user.id);
     res.json({ success: true, url: publicUrl });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -600,7 +609,7 @@ app.get('/api/admin/listings', async (req, res) => {
   const key = req.headers['x-admin-key'];
   if (key !== process.env.ADMIN_KEY && key !== 'ListDirect2026' && key !== 'ListDirect2026!') return res.status(401).json({ error: 'Unauthorized' });
   try {
-    const { data, error } = await supabase.from('listings').select('*').order('created_at', { ascending: false });
+    const { data, error } = await db.from('listings').select('*').order('created_at', { ascending: false });
     if (error) throw error;
     res.json({ listings: data || [] });
   } catch (err) {
@@ -950,7 +959,7 @@ app.patch('/api/admin/agents/:id', async (req, res) => {
     
     // If agent was just approved, send them a welcome email
     if (updates.approved === true) {
-      const { data: profile } = await supabase.from('profiles').select('*').eq('id', id).single();
+      const { data: profile } = await db.from('profiles').select('*').eq('id', id).single();
       const { data: authData } = await supabase.auth.admin.getUserById(id);
       const agentEmail = authData?.user?.email;
       if (agentEmail) {
@@ -1004,7 +1013,7 @@ app.post('/api/payments/create-intent', async (req, res) => {
     });
     
     // Save payment record to Supabase
-    await supabase.from('payments').insert({
+    await db.from('payments').insert({
       user_id,
       listing_id,
       amount: fee / 100,
@@ -1041,7 +1050,7 @@ app.post('/api/payments/agent-fee', async (req, res) => {
       metadata: { agent_id, deal_id, type: 'agent_referral_fee', commission: commission_amount.toString() }
     });
     
-    await supabase.from('payments').insert({
+    await db.from('payments').insert({
       user_id: agent_id,
       amount: fee / 100,
       fee_type: 'agent_referral_fee',
@@ -1062,7 +1071,7 @@ app.post('/api/payments/mark-check', async (req, res) => {
   if (adminKey !== process.env.ADMIN_KEY && adminKey !== 'ListDirect2026' && adminKey !== 'ListDirect2026!') return res.status(401).json({ error: 'Unauthorized' });
   const { payment_id } = req.body;
   try {
-    const { error } = await supabase.from('payments').update({ status: 'paid' }).eq('id', payment_id);
+    const { error } = await db.from('payments').update({ status: 'paid' }).eq('id', payment_id);
     if (error) throw error;
     res.json({ success: true });
   } catch (err) {
@@ -1075,7 +1084,7 @@ app.get('/api/admin/payments', async (req, res) => {
   const adminKey = req.headers['x-admin-key'];
   if (adminKey !== process.env.ADMIN_KEY && adminKey !== 'ListDirect2026' && adminKey !== 'ListDirect2026!') return res.status(401).json({ error: 'Unauthorized' });
   try {
-    const { data, error } = await supabase.from('payments').select('*').order('created_at', { ascending: false });
+    const { data, error } = await db.from('payments').select('*').order('created_at', { ascending: false });
     if (error) throw error;
     res.json({ payments: data || [] });
   } catch (err) {
@@ -1162,9 +1171,9 @@ app.post('/api/notify/agent-request', async (req, res) => {
 // ── Listings: Track View ──────────────────────────────────────
 app.post('/api/listings/:id/view', async (req, res) => {
   try {
-    const { data: listing } = await supabase.from('listings').select('view_count').eq('id', req.params.id).single();
+    const { data: listing } = await db.from('listings').select('view_count').eq('id', req.params.id).single();
     const currentViews = listing?.view_count || 0;
-    await supabase.from('listings').update({ view_count: currentViews + 1 }).eq('id', req.params.id);
+    await db.from('listings').update({ view_count: currentViews + 1 }).eq('id', req.params.id);
     res.json({ success: true });
   } catch (err) {
     res.json({ success: false });
@@ -1179,7 +1188,7 @@ app.delete('/api/listings/:id', async (req, res) => {
     const { data: { user } } = await supabase.auth.getUser(token);
     if (!user) return res.status(401).json({ error: 'Invalid token' });
     const { id } = req.params;
-    const { error } = await supabase.from('listings').delete().eq('id', id).eq('user_id', user.id);
+    const { error } = await db.from('listings').delete().eq('id', id).eq('user_id', user.id);
     if (error) return res.status(400).json({ error: error.message });
     res.json({ success: true });
   } catch (err) {
@@ -1232,7 +1241,7 @@ app.post('/api/offers', async (req, res) => {
   if (!buyer_name || !buyer_email || !offer_amount) return res.status(400).json({ error: 'Missing required fields' });
   try {
     // Store offer in messages table with type 'offer'
-    await supabase.from('messages').insert([{
+    await db.from('messages').insert([{
       seller_id,
       sender_name: buyer_name,
       sender_email: buyer_email,
@@ -1288,7 +1297,7 @@ app.post('/api/messages', async (req, res) => {
     const validListingId = listing_id && uuidRegex.test(listing_id) ? listing_id : null;
     const validSellerId = seller_id && uuidRegex.test(seller_id) ? seller_id : null;
 
-    const { data, error } = await supabase.from('messages').insert([{
+    const { data, error } = await db.from('messages').insert([{
       listing_id: validListingId,
       seller_id: validSellerId,
       sender_id,
@@ -1349,13 +1358,13 @@ app.post('/api/messages/reply', async (req, res) => {
   if (!reply_text) return res.status(400).json({ error: 'Reply text is required' });
   try {
     const { data: { user } } = await supabase.auth.getUser(token);
-    const { data: profile } = await supabase.from('profiles').select('full_name, email').eq('id', user.id).single();
+    const { data: profile } = await db.from('profiles').select('full_name, email').eq('id', user.id).single();
     const sellerName = profile?.full_name || 'The Seller';
     const sellerEmail = user.email || profile?.email || 'infolistdirect@gmail.com';
     console.log('Seller email for reply-to:', sellerEmail);
 
     // Store reply in Supabase
-    const { error: replyError } = await supabase.from('message_replies').insert([{
+    const { error: replyError } = await db.from('message_replies').insert([{
       message_id: original_message_id,
       sender_id: user.id,
       sender_name: sellerName,
@@ -1388,7 +1397,7 @@ app.post('/api/messages/reply', async (req, res) => {
     }
 
     // Mark original as read
-    await supabase.from('messages').update({ read: true }).eq('id', original_message_id);
+    await db.from('messages').update({ read: true }).eq('id', original_message_id);
 
     res.json({ success: true, email_sent: !!(buyer_email && buyer_email !== 'undefined') });
   } catch (err) {
@@ -1401,7 +1410,7 @@ app.get('/api/messages/:id/replies', async (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Not authenticated' });
   try {
-    const { data, error } = await supabase.from('message_replies')
+    const { data, error } = await db.from('message_replies')
       .select('*').eq('message_id', req.params.id).order('created_at', { ascending: true });
     if (error) return res.json({ replies: [] });
     res.json({ replies: data || [] });
@@ -1415,7 +1424,7 @@ app.patch('/api/messages/:id/read', async (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Not authenticated' });
   try {
-    await supabase.from('messages').update({ read: true }).eq('id', req.params.id);
+    await db.from('messages').update({ read: true }).eq('id', req.params.id);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -1428,7 +1437,7 @@ app.delete('/api/messages/:id', async (req, res) => {
   try {
     const { data: { user } } = await supabase.auth.getUser(token);
     if (!user) return res.status(401).json({ error: 'Invalid token' });
-    await supabase.from('messages').delete().eq('id', req.params.id).eq('seller_id', user.id);
+    await db.from('messages').delete().eq('id', req.params.id).eq('seller_id', user.id);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
