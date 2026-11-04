@@ -59,6 +59,16 @@ async function sendEmail({ to, subject, html, reply_to, cc }) {
 
 const app = express();
 app.use(express.json());
+// Never cache HTML pages — always serve the freshest version so deploys take
+// effect immediately (prevents the browser/CDN from serving stale pages).
+app.use((req, res, next) => {
+  if (req.path === '/' || req.path.endsWith('.html')) {
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+  }
+  next();
+});
 app.use(express.static(__dirname));
 
 // Auth client (public anon key) — used ONLY for auth: signUp, signIn, getUser, refreshSession.
