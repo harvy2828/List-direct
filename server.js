@@ -634,7 +634,7 @@ app.get('/api/admin/users', async (req, res) => {
 // ── Get Certified Agents ──────────────────────────────────────
 app.get('/api/agents', async (req, res) => {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('profiles')
       .select('*')
       .eq('role', 'agent')
@@ -679,7 +679,7 @@ app.get('/api/admin/agents', async (req, res) => {
   }
   try {
     // Get all agent profiles with their auth email
-    const { data: profiles, error } = await supabase
+    const { data: profiles, error } = await db
       .from('profiles')
       .select('*')
       .eq('role', 'agent')
@@ -1220,7 +1220,7 @@ app.patch('/api/listings/:id', async (req, res) => {
       photos: body.photos,
       listing_path: body.listing_path
     };
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('listings')
       .update(updates)
       .eq('id', id)
@@ -1338,7 +1338,7 @@ app.get('/api/messages/inquiries', async (req, res) => {
   try {
     const { data: { user } } = await supabase.auth.getUser(token);
     if (!user) return res.status(401).json({ error: 'Invalid token' });
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('messages')
       .select('*')
       .eq('seller_id', user.id)
@@ -1449,7 +1449,7 @@ app.delete('/api/messages/:id', async (req, res) => {
 app.get('/api/listings/search', async (req, res) => {
   const { q, beds, maxPrice } = req.query;
   try {
-    let query = supabase
+    let query = db
       .from('listings')
       .select('*')
       .eq('status', 'active')
@@ -1477,11 +1477,11 @@ app.get('/api/listings/search', async (req, res) => {
 // ── Members: Count ────────────────────────────────────────────
 app.get('/api/members/count', async (req, res) => {
   try {
-    const { count: sellerCount } = await supabase
+    const { count: sellerCount } = await db
       .from('profiles')
       .select('*', { count: 'exact', head: true })
       .eq('role', 'seller');
-    const { count: agentCount } = await supabase
+    const { count: agentCount } = await db
       .from('profiles')
       .select('*', { count: 'exact', head: true })
       .eq('role', 'agent');
