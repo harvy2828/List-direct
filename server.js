@@ -782,15 +782,21 @@ app.post('/api/buyer-capture', async (req, res) => {
 // never embedded in admin.html and never sent on normal requests.
 const ADMIN_SESSION_MS = 8 * 60 * 60 * 1000; // 8 hours
 
+// The admin secret can be set in Render under either name — ADMIN_KEY or
+// ADMIN_PASSWORD — so you don't have to rename an existing variable.
+function adminSecret() {
+  return process.env.ADMIN_KEY || process.env.ADMIN_PASSWORD || '';
+}
+
 function mintAdminToken() {
-  const secret = process.env.ADMIN_KEY;
+  const secret = adminSecret();
   const exp = Date.now() + ADMIN_SESSION_MS;
   const sig = crypto.createHmac('sha256', secret).update(String(exp)).digest('hex');
   return `${exp}.${sig}`;
 }
 
 function adminAuth(req) {
-  const secret = process.env.ADMIN_KEY;
+  const secret = adminSecret();
   if (!secret) return false; // fail closed if no admin password is configured
   const tok = req.headers['x-admin-key'];
   if (!tok || typeof tok !== 'string' || tok.indexOf('.') === -1) return false;
@@ -807,7 +813,7 @@ function adminAuth(req) {
 }
 
 app.post('/api/admin/login', (req, res) => {
-  const secret = process.env.ADMIN_KEY;
+  const secret = adminSecret();
   if (!secret) return res.status(500).json({ error: 'Admin login is not configured.' });
   const password = (req.body && req.body.password) || '';
   // constant-time comparison of the submitted password against the secret
