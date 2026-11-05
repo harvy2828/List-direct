@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const multer = require('multer');
+const crypto = require('crypto');
 const { createClient } = require('@supabase/supabase-js');
 const Stripe = require('stripe');
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
@@ -594,7 +595,7 @@ app.post('/api/lead-capture', async (req, res) => {
 // ── Admin: Stats ─────────────────────────────────────────────
 app.get('/api/admin/stats', async (req, res) => {
   const key = req.headers['x-admin-key'];
-  if (key !== process.env.ADMIN_KEY && key !== 'ListDirect2026' && key !== 'ListDirect2026!') return res.status(401).json({ error: 'Unauthorized' });
+  if (!adminAuth(req)) return res.status(401).json({ error: 'Unauthorized' });
   try {
     const adminSupabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
     // Total users
@@ -617,7 +618,7 @@ app.get('/api/admin/stats', async (req, res) => {
 // ── Admin: All Listings ────────────────────────────
 app.get('/api/admin/listings', async (req, res) => {
   const key = req.headers['x-admin-key'];
-  if (key !== process.env.ADMIN_KEY && key !== 'ListDirect2026' && key !== 'ListDirect2026!') return res.status(401).json({ error: 'Unauthorized' });
+  if (!adminAuth(req)) return res.status(401).json({ error: 'Unauthorized' });
   try {
     const { data, error } = await db.from('listings').select('*').order('created_at', { ascending: false });
     if (error) throw error;
@@ -630,7 +631,7 @@ app.get('/api/admin/listings', async (req, res) => {
 // ── Admin: All Users ──────────────────────────────────────────
 app.get('/api/admin/users', async (req, res) => {
   const key = req.headers['x-admin-key'];
-  if (key !== process.env.ADMIN_KEY && key !== 'ListDirect2026' && key !== 'ListDirect2026!') return res.status(401).json({ error: 'Unauthorized' });
+  if (!adminAuth(req)) return res.status(401).json({ error: 'Unauthorized' });
   try {
     const adminSupabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
     const { data: { users }, error } = await adminSupabase.auth.admin.listUsers({ perPage: 1000 });
@@ -684,7 +685,7 @@ app.get('/api/leads/mine', async (req, res) => {
 // ── Admin: Get All Agents ─────────────────────────────────────
 app.get('/api/admin/agents', async (req, res) => {
   const adminKey = req.headers['x-admin-key'];
-  if (adminKey !== process.env.ADMIN_KEY && adminKey !== 'ListDirect2026' && adminKey !== 'ListDirect2026!') {
+  if (!adminAuth(req)) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
   try {
@@ -774,10 +775,48 @@ app.post('/api/buyer-capture', async (req, res) => {
 });
 
 // ── Admin: Prospects (Seller Prospecting Engine) ──────────────
-function adminAuth(req) {
-  const k = req.headers['x-admin-key'];
-  return k === process.env.ADMIN_KEY || k === 'ListDirect2026' || k === 'ListDirect2026!';
+// ── Admin auth (signed, expiring token — no password stored in the browser) ──
+// The admin password lives ONLY in process.env.ADMIN_KEY on the server.
+// /api/admin/login verifies it and hands back a short-lived signed token;
+// every admin endpoint validates that token here. The password itself is
+// never embedded in admin.html and never sent on normal requests.
+const ADMIN_SESSION_MS = 8 * 60 * 60 * 1000; // 8 hours
+
+function mintAdminToken() {
+  const secret = process.env.ADMIN_KEY;
+  const exp = Date.now() + ADMIN_SESSION_MS;
+  const sig = crypto.createHmac('sha256', secret).update(String(exp)).digest('hex');
+  return `${exp}.${sig}`;
 }
+
+function adminAuth(req) {
+  const secret = process.env.ADMIN_KEY;
+  if (!secret) return false; // fail closed if no admin password is configured
+  const tok = req.headers['x-admin-key'];
+  if (!tok || typeof tok !== 'string' || tok.indexOf('.') === -1) return false;
+  const [expStr, sig] = tok.split('.');
+  const exp = parseInt(expStr, 10);
+  if (!exp || Date.now() > exp) return false;
+  const expected = crypto.createHmac('sha256', secret).update(String(exp)).digest('hex');
+  if (!sig || sig.length !== expected.length) return false;
+  try {
+    return crypto.timingSafeEqual(Buffer.from(sig, 'hex'), Buffer.from(expected, 'hex'));
+  } catch (e) {
+    return false;
+  }
+}
+
+app.post('/api/admin/login', (req, res) => {
+  const secret = process.env.ADMIN_KEY;
+  if (!secret) return res.status(500).json({ error: 'Admin login is not configured.' });
+  const password = (req.body && req.body.password) || '';
+  // constant-time comparison of the submitted password against the secret
+  const a = Buffer.from(String(password));
+  const b = Buffer.from(String(secret));
+  const ok = a.length === b.length && crypto.timingSafeEqual(a, b);
+  if (!ok) return res.status(401).json({ error: 'Incorrect password' });
+  res.json({ token: mintAdminToken() });
+});
 function prospectClient() {
   return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY);
 }
@@ -951,7 +990,7 @@ app.delete('/api/admin/prospects/:id', async (req, res) => {
 // ── Admin: Update Agent ───────────────────────────────────────
 app.patch('/api/admin/agents/:id', async (req, res) => {
   const adminKey = req.headers['x-admin-key'];
-  if (adminKey !== process.env.ADMIN_KEY && adminKey !== 'ListDirect2026' && adminKey !== 'ListDirect2026!') {
+  if (!adminAuth(req)) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
   const { id } = req.params;
@@ -1078,7 +1117,7 @@ app.post('/api/payments/agent-fee', async (req, res) => {
 // ── Mark Check Payment ────────────────────────────────────────
 app.post('/api/payments/mark-check', async (req, res) => {
   const adminKey = req.headers['x-admin-key'];
-  if (adminKey !== process.env.ADMIN_KEY && adminKey !== 'ListDirect2026' && adminKey !== 'ListDirect2026!') return res.status(401).json({ error: 'Unauthorized' });
+  if (!adminAuth(req)) return res.status(401).json({ error: 'Unauthorized' });
   const { payment_id } = req.body;
   try {
     const { error } = await db.from('payments').update({ status: 'paid' }).eq('id', payment_id);
@@ -1092,7 +1131,7 @@ app.post('/api/payments/mark-check', async (req, res) => {
 // ── Get Payments (Admin) ──────────────────────────────────────
 app.get('/api/admin/payments', async (req, res) => {
   const adminKey = req.headers['x-admin-key'];
-  if (adminKey !== process.env.ADMIN_KEY && adminKey !== 'ListDirect2026' && adminKey !== 'ListDirect2026!') return res.status(401).json({ error: 'Unauthorized' });
+  if (!adminAuth(req)) return res.status(401).json({ error: 'Unauthorized' });
   try {
     const { data, error } = await db.from('payments').select('*').order('created_at', { ascending: false });
     if (error) throw error;

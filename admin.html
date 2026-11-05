@@ -186,39 +186,53 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 </div>
 
 <script>
-// ── Admin Password (change this to your own!) ─────────────────
-const ADMIN_PASSWORD = 'ListDirect2026!';
+// ── Admin session ─────────────────────────────────────────────
+// The password is NOT stored here. It's verified by the server, which returns
+// a short-lived signed token we keep only for this browser session.
+let adminKey = sessionStorage.getItem('ld_admin_key') || '';
 
 let allAgents = [];
 let currentTab = 'pending';
 
 // ── Login ─────────────────────────────────────────────────────
-function checkPassword() {
+async function checkPassword() {
   const pw = document.getElementById('admin-password').value;
-  if (pw === ADMIN_PASSWORD) {
-    sessionStorage.setItem('ld_admin', 'true');
+  try {
+    const res = await fetch('/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw })
+    });
+    if (!res.ok) { document.getElementById('login-error').classList.add('show'); return; }
+    const data = await res.json();
+    adminKey = data.token;
+    sessionStorage.setItem('ld_admin_key', adminKey);
+    document.getElementById('admin-password').value = '';
+    document.getElementById('login-error').classList.remove('show');
     document.getElementById('login-section').style.display = 'none';
     document.getElementById('admin-section').style.display = 'block';
     loadStats();
     loadAgents();
-  } else {
+  } catch (e) {
     document.getElementById('login-error').classList.add('show');
   }
 }
 
 function signOut() {
-  sessionStorage.removeItem('ld_admin');
+  sessionStorage.removeItem('ld_admin_key');
+  adminKey = '';
   document.getElementById('login-section').style.display = 'flex';
   document.getElementById('admin-section').style.display = 'none';
   document.getElementById('admin-password').value = '';
 }
 
-// Check if already logged in
+// Restore an existing admin session (the token is validated on the first request;
+// if it has expired, requests return 401 and we drop back to the login screen).
 window.addEventListener('DOMContentLoaded', () => {
-  if (sessionStorage.getItem('ld_admin') === 'true') {
-    loadStats();
+  if (adminKey) {
     document.getElementById('login-section').style.display = 'none';
     document.getElementById('admin-section').style.display = 'block';
+    loadStats();
     loadAgents();
   }
 });
@@ -226,7 +240,8 @@ window.addEventListener('DOMContentLoaded', () => {
 // ── Load Agents ───────────────────────────────────────────────
 async function loadStats() {
   try {
-    const res = await fetch('/api/admin/stats', { headers: { 'x-admin-key': ADMIN_PASSWORD } });
+    const res = await fetch('/api/admin/stats', { headers: { 'x-admin-key': adminKey } });
+    if (res.status === 401) { signOut(); return; }
     const d = await res.json();
     if (res.ok) {
       document.getElementById('stat-total-users').textContent = d.totalUsers || 0;
@@ -242,7 +257,7 @@ async function loadAgents() {
   showLoading(true);
   try {
     const res = await fetch('/api/admin/agents', {
-      headers: { 'x-admin-key': ADMIN_PASSWORD }
+      headers: { 'x-admin-key': adminKey }
     });
     const data = await res.json();
     allAgents = data.agents || [];
@@ -343,7 +358,7 @@ async function updateAgent(id, updates) {
   try {
     const res = await fetch(`/api/admin/agents/${id}`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_PASSWORD },
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
       body: JSON.stringify(updates)
     });
     if (res.ok) {
@@ -370,7 +385,7 @@ async function loadProspects() {
   const list = document.getElementById('agents-list');
   list.innerHTML = `<div class="empty-state"><div class="empty-icon">🎯</div><div class="empty-title">Loading prospects...</div></div>`;
   try {
-    const res = await fetch('/api/admin/prospects', { headers: { 'x-admin-key': ADMIN_PASSWORD } });
+    const res = await fetch('/api/admin/prospects', { headers: { 'x-admin-key': adminKey } });
     const data = await res.json();
     allProspects = data.prospects || [];
   } catch(e) { allProspects = []; }
@@ -454,7 +469,7 @@ async function addProspect() {
   try {
     const res = await fetch('/api/admin/prospects', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_PASSWORD },
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
       body: JSON.stringify(body)
     });
     if (res.ok) { showToast('Prospect added', 'success'); await loadProspects(); }
@@ -467,7 +482,7 @@ async function fetchCraigslist() {
   showLoading(true);
   try {
     const res = await fetch('/api/admin/prospects/craigslist', {
-      method: 'POST', headers: { 'x-admin-key': ADMIN_PASSWORD }
+      method: 'POST', headers: { 'x-admin-key': adminKey }
     });
     const d = await res.json();
     if (res.ok) {
@@ -547,7 +562,7 @@ function importCSV(input) {
     try {
       const res = await fetch('/api/admin/prospects/bulk', {
         method: 'POST',
-        headers: { 'Content-Type':'application/json', 'x-admin-key': ADMIN_PASSWORD },
+        headers: { 'Content-Type':'application/json', 'x-admin-key': adminKey },
         body: JSON.stringify({ prospects })
       });
       const d = await res.json();
@@ -565,7 +580,7 @@ async function clearAllProspects() {
   showLoading(true);
   try {
     const res = await fetch('/api/admin/prospects/clear', {
-      method: 'DELETE', headers: { 'x-admin-key': ADMIN_PASSWORD }
+      method: 'DELETE', headers: { 'x-admin-key': adminKey }
     });
     const d = await res.json();
     if (res.ok) showToast('✓ Cleared ' + (d.deleted || 0) + ' prospects', 'success');
@@ -609,7 +624,7 @@ function draftOutreach(id) {
   if (box) { box.style.display = 'block'; box.textContent = 'Sending…'; }
   fetch('/api/admin/prospects/send-outreach', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_PASSWORD },
+    headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
     body: JSON.stringify({ id: p.id, email, owner_name: p.owner_name, address: p.address, price: p.price })
   }).then(r => r.json()).then(d => {
     if (d.ok) {
@@ -626,7 +641,7 @@ async function markContacted(id) {
   try {
     await fetch('/api/admin/prospects/' + id, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_PASSWORD },
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
       body: JSON.stringify({ status: 'contacted' })
     });
     await loadProspects();
@@ -640,7 +655,7 @@ async function deleteProspect(id) {
   try {
     await fetch('/api/admin/prospects/' + id, {
       method: 'DELETE',
-      headers: { 'x-admin-key': ADMIN_PASSWORD }
+      headers: { 'x-admin-key': adminKey }
     });
     await loadProspects();
   } catch(e) {}
@@ -653,7 +668,7 @@ async function loadBuyers() {
   list.innerHTML = `<div class="empty-state"><div class="empty-icon">🏠</div><div class="empty-title">Loading buyer leads...</div></div>`;
   let buyers = [];
   try {
-    const res = await fetch('/api/admin/buyers', { headers: { 'x-admin-key': ADMIN_PASSWORD } });
+    const res = await fetch('/api/admin/buyers', { headers: { 'x-admin-key': adminKey } });
     const data = await res.json();
     buyers = data.buyers || [];
   } catch(e) {}
@@ -702,7 +717,7 @@ async function loadPayments() {
   const list = document.getElementById('agents-list');
   list.innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-title">Loading payments...</div></div>';
   try {
-    const res = await fetch('/api/admin/payments', { headers: { 'x-admin-key': ADMIN_PASSWORD } });
+    const res = await fetch('/api/admin/payments', { headers: { 'x-admin-key': adminKey } });
     const data = await res.json();
     const payments = data.payments || [];
     if (payments.length === 0) {
@@ -731,7 +746,7 @@ async function markCheckPaid(paymentId) {
   try {
     await fetch('/api/payments/mark-check', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_PASSWORD },
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
       body: JSON.stringify({ payment_id: paymentId })
     });
     showToast('✅ Payment marked as paid!', 'success');
@@ -748,7 +763,7 @@ async function loadAdminListings(btn) {
   const list = document.getElementById('agents-list');
   list.innerHTML = '<div style="color:var(--muted);padding:20px;text-align:center">Loading listings…</div>';
   try {
-    const res = await fetch('/api/admin/listings', { headers: { 'x-admin-key': ADMIN_PASSWORD } });
+    const res = await fetch('/api/admin/listings', { headers: { 'x-admin-key': adminKey } });
     const data = await res.json();
     const listings = data.listings || [];
     if (!listings.length) { list.innerHTML = '<div style="color:var(--muted);padding:20px;text-align:center">No listings yet</div>'; return; }
@@ -783,7 +798,7 @@ async function loadAdminUsers(btn) {
   const list = document.getElementById('agents-list');
   list.innerHTML = '<div style="color:var(--muted);padding:20px;text-align:center">Loading users…</div>';
   try {
-    const res = await fetch('/api/admin/users', { headers: { 'x-admin-key': ADMIN_PASSWORD } });
+    const res = await fetch('/api/admin/users', { headers: { 'x-admin-key': adminKey } });
     const data = await res.json();
     const users = data.users || [];
     if (!users.length) { list.innerHTML = '<div style="color:var(--muted);padding:20px;text-align:center">No users yet</div>'; return; }
