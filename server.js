@@ -2094,11 +2094,21 @@ app.get('/api/buyer/offers', async (req, res) => {
   const user = await getAuthUser(req);
   if (!user) return res.status(401).json({ error: 'Not authenticated' });
   try {
-    const { data, error } = await db.from('offers').select('*')
-      .or(`buyer_id.eq.${user.id},buyer_email.ilike.${user.email}`)
-      .order('created_at', { ascending: false });
-    if (error) throw error;
-    res.json({ offers: (data || []).map(offerForBuyer) });
+    // Match by buyer id AND by email (case-insensitive), then merge — robust
+    // whether the buyer was logged in at submit time or used their account email.
+    const results = [];
+    if (user.id) {
+      const r1 = await db.from('offers').select('*').eq('buyer_id', user.id);
+      if (r1.data) results.push(...r1.data);
+    }
+    if (user.email) {
+      const r2 = await db.from('offers').select('*').ilike('buyer_email', user.email);
+      if (r2.data) results.push(...r2.data);
+    }
+    const seen = {};
+    const merged = results.filter(o => (seen[o.id] ? false : (seen[o.id] = true)));
+    merged.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    res.json({ offers: merged.map(offerForBuyer) });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
