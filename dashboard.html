@@ -312,6 +312,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
             <div class="stat-card" onclick="showPanel('my-listings',null)" style="cursor:pointer" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border)'"><div class="sc-num" id="stat-views">—</div><div class="sc-label">Listing Views</div></div>
             <div class="stat-card" onclick="showPanel('inquiries',null)" style="cursor:pointer" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border)'"><div class="sc-num" id="stat-inquiries">—</div><div class="sc-label">Inquiries</div></div>
             <div class="stat-card" onclick="showPanel('offers',null);loadOffersPanel()" style="cursor:pointer" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border)'"><div class="sc-num" id="stat-offers">—</div><div class="sc-label">Offers</div></div>
+            <div class="stat-card" onclick="window.location.href='index.html?scroll=search'" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border)'"><div class="sc-num" style="font-size:1.8rem">🔍</div><div class="sc-label">Search Homes</div></div>
           </div>
 
           <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px">
@@ -527,8 +528,19 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
             <div class="panel-title" style="margin-bottom:0">Offers</div>
           </div>
           <div class="panel-sub">Review offers, set your private rules, and let the AI draft replies — nothing is sent to a buyer until you approve it.</div>
-          <div id="offers-picker"></div>
-          <div id="offers-detail" style="display:none"></div>
+
+          <!-- Offers YOU made (as a buyer) -->
+          <div id="made-offers-section">
+            <div style="font-weight:700;color:var(--white);margin:18px 0 4px">💰 Offers you've made</div>
+            <div id="my-made-offers"><div style="color:var(--muted);padding:8px 0">Loading…</div></div>
+          </div>
+
+          <!-- Offers RECEIVED on your listings -->
+          <div id="received-offers-section">
+            <div style="font-weight:700;color:var(--white);margin:26px 0 4px">📥 Offers on your listings</div>
+            <div id="offers-picker"></div>
+            <div id="offers-detail" style="display:none"></div>
+          </div>
         </div>
 
         <!-- SETTINGS PANEL -->
@@ -908,7 +920,55 @@ async function loadOfferCount() {
   } catch(e){}
 }
 
+// Offers the logged-in person has MADE as a buyer (shown on the main dashboard).
+async function loadMyMadeOffers() {
+  var el = document.getElementById('my-made-offers');
+  if (!el) return;
+  try {
+    var res = await fetch('/api/buyer/offers', { headers: offersAuth() });
+    if (!res.ok) { el.innerHTML = '<div style="color:var(--muted);padding:8px 0">—</div>'; return; }
+    var d = await res.json();
+    el.innerHTML = renderMadeOffers(d.offers || []);
+  } catch (e) { el.innerHTML = '<div style="color:var(--muted);padding:8px 0">Could not load.</div>'; }
+}
+
+function renderMadeOffers(offers) {
+  if (!offers.length) return '<div style="color:var(--muted);padding:8px 0;font-size:0.88rem">You haven\'t made any offers yet. Use 🔍 Search Homes to find a property and make an offer.</div>';
+  return offers.map(function(o){
+    var stMap = { accepted:['#3ef07a','✅ Accepted'], declined:['#e85454','Declined'], countered:['#5aa9ff','📩 Counter received'] };
+    var st = stMap[o.status] || ['#f5c842','⏳ Waiting for seller'];
+    var countered = (o.status==='countered' && o.seller_counter_price);
+    var canAct = (o.status!=='accepted' && o.status!=='declined');
+    var reply = '';
+    if (o.seller_message || o.seller_counter_price) {
+      reply = '<div style="background:rgba(90,169,255,0.08);border:1px solid rgba(90,169,255,0.3);border-radius:10px;padding:12px;margin:10px 0">' +
+        '<div style="font-size:0.74rem;color:#5aa9ff;font-weight:700;margin-bottom:5px">SELLER\'S REPLY'+(o.seller_counter_price?(' — counter at '+offMoney(o.seller_counter_price)):'')+'</div>' +
+        (o.seller_message?('<div style="font-size:0.86rem;color:var(--text)">'+offEsc(o.seller_message)+'</div>'):'') + '</div>';
+    }
+    var actions = '';
+    if (canAct) {
+      actions = '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">';
+      if (countered) actions += '<button class="btn-sm btn-sm-green" onclick="madeAcceptCounter(\''+o.id+'\')">✅ Accept counter ('+offMoney(o.seller_counter_price)+')</button>';
+      actions += '<button class="btn-sm btn-sm-outline" onclick="window.location.href=\'index.html?scroll=search\'">💰 New offer</button></div>';
+    }
+    return '<div class="my-listing-card" style="margin-bottom:12px">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div class="mlc-price">'+offMoney(o.price)+'</div>' +
+      '<span style="font-size:0.72rem;font-weight:700;color:'+st[0]+';border:1px solid '+st[0]+';border-radius:50px;padding:2px 10px">'+st[1]+'</span></div>' +
+      '<div style="font-size:0.84rem;color:var(--muted)">📍 '+offEsc(o.property||'')+'</div>' +
+      reply + actions + '</div>';
+  }).join('');
+}
+
+async function madeAcceptCounter(offerId) {
+  if (!confirm("Accept the seller's counter-offer?")) return;
+  try {
+    var res = await fetch('/api/offers/'+encodeURIComponent(offerId)+'/buyer-accept', { method:'POST', headers: offersAuth() });
+    if (res.ok) loadMyMadeOffers(); else alert('Could not accept.');
+  } catch (e) { alert('Connection error.'); }
+}
+
 async function loadOffersPanel() {
+  loadMyMadeOffers();
   const picker = document.getElementById('offers-picker');
   document.getElementById('offers-detail').style.display = 'none';
   picker.style.display = 'block';
