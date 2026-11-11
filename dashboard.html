@@ -1025,15 +1025,30 @@ function offField(label, id, value, type, ph) {
     '</div>';
 }
 
+// A money field that shows commas as you type (e.g. 1,000,000).
+function offMoneyField(label, id, value, ph) {
+  var shown = (value==null || value==='') ? '' : parseInt(value).toLocaleString();
+  return '<div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:140px">' +
+    '<label style="font-size:0.75rem;color:var(--muted)">'+label+'</label>' +
+    '<input id="'+id+'" type="text" inputmode="numeric" value="'+shown+'" placeholder="'+(ph||'')+'" oninput="formatRuleMoney(this)" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-size:0.95rem;font-family:\'DM Sans\',sans-serif;outline:none;box-sizing:border-box">' +
+    '</div>';
+}
+function formatRuleMoney(el) {
+  var digits = (el.value||'').replace(/[^\d]/g,'');
+  if (digits.length > 12) digits = digits.slice(0,12);
+  el.value = digits ? parseInt(digits).toLocaleString() : '';
+}
+function offMoneyVal(id) { var el=document.getElementById(id); return el ? (el.value||'').replace(/[^\d]/g,'') : ''; }
+
 function renderRulesForm(listingId, r) {
   r = r || {};
   return '<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px">' +
     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:1.1rem">🔒</span><strong style="color:var(--white)">Your private rules</strong></div>' +
     '<div style="font-size:0.82rem;color:var(--muted);margin-bottom:16px">Only you can see these. The AI uses them to draft replies. Buyers never see them.</div>' +
     '<div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px">' +
-      offField("Lowest price you'd accept","rule-min",r.min_price,"number","e.g. 580000") +
-      offField("Target price","rule-target",r.target_price,"number","e.g. 640000") +
-      offField("Minimum deposit","rule-deposit",r.min_deposit,"number","e.g. 20000") +
+      offMoneyField("Lowest price you'd accept","rule-min",r.min_price,"e.g. 580,000") +
+      offMoneyField("Target price","rule-target",r.target_price,"e.g. 640,000") +
+      offMoneyField("Minimum deposit","rule-deposit",r.min_deposit,"e.g. 20,000") +
     '</div>' +
     '<div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px">' +
       offField("Earliest closing","rule-earliest",r.earliest_close,"date","") +
@@ -1054,7 +1069,7 @@ function renderRulesForm(listingId, r) {
 
 async function saveOfferRules(listingId) {
   const body = {
-    min_price: offVal('rule-min'), target_price: offVal('rule-target'), min_deposit: offVal('rule-deposit'),
+    min_price: offMoneyVal('rule-min'), target_price: offMoneyVal('rule-target'), min_deposit: offMoneyVal('rule-deposit'),
     earliest_close: offVal('rule-earliest'), latest_close: offVal('rule-latest'),
     allowed_conditions: offVal('rule-conditions'), ai_notes: offVal('rule-notes')
   };
