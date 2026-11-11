@@ -293,6 +293,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
           <button class="dash-nav-item" onclick="window.location.href='index.html?scroll=ai-tools'"><span class="dni-icon">🤖</span> AI Tools</button>
           <button class="dash-nav-item" onclick="showPanel('saved',this)"><span class="dni-icon">❤️</span> Saved Homes</button>
           <button class="dash-nav-item" onclick="showPanel('inquiries',this)"><span class="dni-icon">💬</span> Inquiries <span id="inquiry-nav-badge" style="display:none;background:var(--red);color:white;font-size:0.65rem;font-weight:700;padding:2px 6px;border-radius:50px;margin-left:auto">0</span></button>
+          <button class="dash-nav-item" onclick="showPanel('offers',this);loadOffersPanel()"><span class="dni-icon">💰</span> Offers <span id="offers-nav-badge" style="display:none;background:var(--red);color:white;font-size:0.65rem;font-weight:700;padding:2px 6px;border-radius:50px;margin-left:auto">0</span></button>
           <button class="dash-nav-item" onclick="showPanel('settings',this)"><span class="dni-icon">⚙️</span> Settings</button>
           <button class="dash-nav-item" onclick="handleSignOut()" style="margin-top:8px;color:var(--red)"><span class="dni-icon">🚪</span> Sign Out</button>
         </div>
@@ -516,6 +517,17 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
               <button class="btn-sm btn-sm-green" onclick="window.location.href='index.html#search-section'">Browse Homes →</button>
             </div>
           </div>
+        </div>
+
+        <!-- OFFERS PANEL (AI Offer & Negotiation) -->
+        <div class="dash-panel" id="panel-offers">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
+            <button onclick="showPanel('overview',null)" style="background:none;border:1px solid var(--green);color:var(--green);padding:5px 12px;border-radius:50px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;flex-shrink:0">← Back</button>
+            <div class="panel-title" style="margin-bottom:0">Offers</div>
+          </div>
+          <div class="panel-sub">Review offers, set your private rules, and let the AI draft replies — nothing is sent to a buyer until you approve it.</div>
+          <div id="offers-picker"></div>
+          <div id="offers-detail" style="display:none"></div>
         </div>
 
         <!-- SETTINGS PANEL -->
@@ -871,6 +883,177 @@ function showDashboard() {
 }
 
 // ── Panels ────────────────────────────────────────────────────
+// ===== AI Offer & Negotiation (seller side) =====
+function offersAuth() {
+  const t = localStorage.getItem('ld_token');
+  return t ? { 'Authorization': 'Bearer ' + t } : {};
+}
+function offMoney(n){ return '$' + (parseInt(n||0)).toLocaleString(); }
+function offEsc(s){ return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function offVal(id){ var el=document.getElementById(id); return el?el.value:''; }
+
+async function loadOffersPanel() {
+  const picker = document.getElementById('offers-picker');
+  document.getElementById('offers-detail').style.display = 'none';
+  picker.style.display = 'block';
+  let listings = listingsCache;
+  if (!listings || !listings.length) {
+    try {
+      const res = await fetch('/api/listings/mine', { headers: offersAuth() });
+      if (res.ok) { listings = await res.json(); listingsCache = listings; }
+    } catch(e){}
+  }
+  if (!listings || !listings.length) {
+    picker.innerHTML = '<div class="empty-state"><div class="empty-icon">💰</div><div class="empty-title">No listings yet</div><div class="empty-sub">List a home first, then you can manage its offers here.</div></div>';
+    return;
+  }
+  picker.innerHTML = '<div class="panel-sub" style="margin-bottom:14px">Choose a listing to manage its offers:</div>' +
+    listings.map(function(l){
+      return '<div class="my-listing-card" style="flex-direction:row;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px">' +
+        '<div style="min-width:0"><div class="mlc-price">'+offMoney(l.price)+'</div>' +
+        '<div class="mlc-addr">📍 '+offEsc(l.address||'')+', '+offEsc(l.city||'')+'</div></div>' +
+        '<button class="btn-sm btn-sm-green" style="flex-shrink:0" onclick="openOffersForListing(\''+l.id+'\')">Manage Offers →</button>' +
+        '</div>';
+    }).join('');
+}
+
+async function openOffersForListing(listingId) {
+  showPanel('offers', null);
+  const picker = document.getElementById('offers-picker');
+  const detail = document.getElementById('offers-detail');
+  if (picker) picker.style.display = 'none';
+  detail.style.display = 'block';
+  detail.innerHTML = '<div style="color:var(--muted);padding:20px">Loading…</div>';
+  let rules = {}, offers = [];
+  try {
+    const rr = await fetch('/api/listings/'+encodeURIComponent(listingId)+'/offer-rules', { headers: offersAuth() });
+    if (rr.ok) { const d = await rr.json(); rules = d.rules || {}; }
+  } catch(e){}
+  try {
+    const or = await fetch('/api/seller/offers?listing_id='+encodeURIComponent(listingId), { headers: offersAuth() });
+    if (or.ok) { const d = await or.json(); offers = d.offers || []; }
+  } catch(e){}
+  detail.innerHTML =
+    '<button onclick="loadOffersPanel()" style="background:none;border:1px solid var(--green);color:var(--green);padding:5px 12px;border-radius:50px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:\'DM Sans\',sans-serif;margin-bottom:16px">← All listings</button>' +
+    renderRulesForm(listingId, rules) +
+    '<div class="panel-title" style="font-size:1.1rem;margin:24px 0 4px">Offers received</div>' +
+    '<div id="offers-list">' + renderSellerOffers(listingId, offers) + '</div>';
+}
+
+function offField(label, id, value, type, ph) {
+  return '<div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:140px">' +
+    '<label style="font-size:0.75rem;color:var(--muted)">'+label+'</label>' +
+    '<input id="'+id+'" type="'+(type||'number')+'" value="'+(value==null?'':offEsc(value))+'" placeholder="'+(ph||'')+'" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-size:0.9rem;font-family:\'DM Sans\',sans-serif;outline:none;box-sizing:border-box">' +
+    '</div>';
+}
+
+function renderRulesForm(listingId, r) {
+  r = r || {};
+  return '<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px">' +
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:1.1rem">🔒</span><strong style="color:var(--white)">Your private rules</strong></div>' +
+    '<div style="font-size:0.82rem;color:var(--muted);margin-bottom:16px">Only you can see these. The AI uses them to draft replies. Buyers never see them.</div>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px">' +
+      offField("Lowest price you'd accept","rule-min",r.min_price,"number","e.g. 580000") +
+      offField("Target price","rule-target",r.target_price,"number","e.g. 640000") +
+      offField("Minimum deposit","rule-deposit",r.min_deposit,"number","e.g. 20000") +
+    '</div>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px">' +
+      offField("Earliest closing","rule-earliest",r.earliest_close,"date","") +
+      offField("Latest closing","rule-latest",r.latest_close,"date","") +
+    '</div>' +
+    '<div style="display:flex;flex-direction:column;gap:4px;margin-bottom:12px">' +
+      '<label style="font-size:0.75rem;color:var(--muted)">Allowed conditions</label>' +
+      '<input id="rule-conditions" type="text" value="'+offEsc(r.allowed_conditions||'')+'" placeholder="e.g. financing, inspection — no long closings" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-size:0.9rem;font-family:\'DM Sans\',sans-serif;outline:none;box-sizing:border-box">' +
+    '</div>' +
+    '<div style="display:flex;flex-direction:column;gap:4px;margin-bottom:16px">' +
+      '<label style="font-size:0.75rem;color:var(--muted)">Notes for the AI</label>' +
+      '<textarea id="rule-notes" rows="2" placeholder="e.g. Be firm but polite. Prefer quick closings." style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-size:0.9rem;font-family:\'DM Sans\',sans-serif;outline:none;resize:none;box-sizing:border-box">'+offEsc(r.ai_notes||'')+'</textarea>' +
+    '</div>' +
+    '<button class="btn-sm btn-sm-green" onclick="saveOfferRules(\''+listingId+'\')">💾 Save private rules</button>' +
+    ' <span id="rules-saved" style="color:var(--green);font-size:0.82rem;margin-left:8px;display:none">Saved ✓</span>' +
+    '</div>';
+}
+
+async function saveOfferRules(listingId) {
+  const body = {
+    min_price: offVal('rule-min'), target_price: offVal('rule-target'), min_deposit: offVal('rule-deposit'),
+    earliest_close: offVal('rule-earliest'), latest_close: offVal('rule-latest'),
+    allowed_conditions: offVal('rule-conditions'), ai_notes: offVal('rule-notes')
+  };
+  try {
+    const res = await fetch('/api/listings/'+encodeURIComponent(listingId)+'/offer-rules', {
+      method:'PUT', headers: Object.assign({'Content-Type':'application/json'}, offersAuth()), body: JSON.stringify(body)
+    });
+    if (res.ok) { var s=document.getElementById('rules-saved'); if(s){s.style.display='inline'; setTimeout(function(){s.style.display='none';},2500);} }
+    else alert('Could not save rules.');
+  } catch(e){ alert('Connection error.'); }
+}
+
+function offStatusPill(s){
+  var map={new:['#f5c842','New'],ai_drafted:['#3ef07a','AI draft ready'],countered:['#5aa9ff','Counter sent'],accepted:['#3ef07a','Accepted'],declined:['#e85454','Declined']};
+  var m=map[s]||['#7a9480',s||''];
+  return '<span style="font-size:0.72rem;font-weight:700;color:'+m[0]+';border:1px solid '+m[0]+';border-radius:50px;padding:2px 10px">'+m[1]+'</span>';
+}
+
+function renderSellerOffers(listingId, offers) {
+  if (!offers.length) return '<div class="empty-state"><div class="empty-icon">💰</div><div class="empty-title">No offers yet</div><div class="empty-sub">When a buyer makes an offer, it shows here with an AI-suggested reply.</div></div>';
+  return offers.map(function(o){
+    var done = (o.status==='accepted'||o.status==='declined');
+    var ai = '';
+    if (o.ai_error && !o.ai_message) {
+      ai = '<div style="background:rgba(245,200,66,0.08);border:1px solid rgba(245,200,66,0.3);border-radius:12px;padding:14px;margin:12px 0">' +
+        '<div style="color:#f5c842;font-size:0.85rem;margin-bottom:8px">⚠️ The AI couldn\'t draft automatically.</div>' +
+        '<button class="btn-sm btn-sm-outline" onclick="offerAiDraft(\''+o.id+'\',\''+listingId+'\')">🤖 Let AI draft a reply</button></div>';
+    } else if (o.ai_message) {
+      ai = '<div style="background:var(--greenlow);border:1px solid rgba(62,240,122,0.25);border-radius:12px;padding:14px;margin:12px 0">' +
+        '<div style="font-size:0.78rem;color:var(--green);font-weight:700;margin-bottom:8px">🤖 AI SUGGESTION — '+String(o.ai_action||'').toUpperCase()+(o.ai_counter_price?(' at '+offMoney(o.ai_counter_price)):'')+'</div>' +
+        (o.ai_action==='counter'?('<label style="font-size:0.72rem;color:var(--muted)">Counter price (you can change it)</label>' +
+          '<input id="cp-'+o.id+'" type="number" value="'+(o.ai_counter_price||'')+'" style="width:100%;margin:4px 0 10px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-family:\'DM Sans\',sans-serif;outline:none;box-sizing:border-box">'):'') +
+        '<label style="font-size:0.72rem;color:var(--muted)">Message to buyer (editable)</label>' +
+        '<textarea id="cm-'+o.id+'" rows="3" style="width:100%;margin-top:4px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-family:\'DM Sans\',sans-serif;outline:none;resize:none;box-sizing:border-box">'+offEsc(o.ai_message)+'</textarea>' +
+        '</div>';
+    }
+    var actions = done ? '' :
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">' +
+        '<button class="btn-sm btn-sm-green" onclick="offerSend(\''+o.id+'\',\''+listingId+'\',\'counter\')">✅ Approve &amp; send counter</button>' +
+        '<button class="btn-sm btn-sm-outline" onclick="offerAccept(\''+o.id+'\',\''+listingId+'\')">🤝 Accept buyer\'s offer</button>' +
+        '<button class="btn-sm" style="background:rgba(232,84,84,0.15);border:1px solid rgba(232,84,84,0.3);color:var(--red)" onclick="offerSend(\''+o.id+'\',\''+listingId+'\',\'decline\')">✕ Decline</button>' +
+      '</div>';
+    return '<div class="my-listing-card" style="margin-bottom:14px">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div class="mlc-price">'+offMoney(o.price)+'</div>'+offStatusPill(o.status)+'</div>' +
+      '<div style="font-size:0.85rem;color:var(--muted)">From '+offEsc(o.buyer_name||'')+' · '+offEsc(o.buyer_email||'')+(o.buyer_phone?(' · '+offEsc(o.buyer_phone)):'')+'</div>' +
+      '<div style="font-size:0.82rem;color:var(--muted)">'+(o.deposit?('Deposit '+offMoney(o.deposit)+' · '):'')+(o.closing_date?('Closing '+offEsc(o.closing_date)+' · '):'')+(o.conditions?('Conditions: '+offEsc(o.conditions)):'No conditions')+'</div>' +
+      (o.buyer_message?('<div style="font-size:0.85rem;color:var(--text);margin-top:6px">"'+offEsc(o.buyer_message)+'"</div>'):'') +
+      ai + actions +
+      (done?('<div style="font-size:0.82rem;color:var(--muted);margin-top:10px">This offer is '+offEsc(o.status)+'.</div>'):'') +
+      '</div>';
+  }).join('');
+}
+
+async function offerSend(offerId, listingId, action) {
+  var body = { action: action };
+  if (action==='counter') { body.counter_price = offVal('cp-'+offerId); body.message = offVal('cm-'+offerId); }
+  if (action==='decline') { if(!confirm('Decline this offer?')) return; }
+  try {
+    var res = await fetch('/api/offers/'+encodeURIComponent(offerId)+'/send', { method:'POST', headers: Object.assign({'Content-Type':'application/json'}, offersAuth()), body: JSON.stringify(body) });
+    if (res.ok) openOffersForListing(listingId); else alert('Could not send.');
+  } catch(e){ alert('Connection error.'); }
+}
+async function offerAccept(offerId, listingId) {
+  if(!confirm("Accept this buyer's offer as-is?")) return;
+  try {
+    var res = await fetch('/api/offers/'+encodeURIComponent(offerId)+'/accept', { method:'POST', headers: offersAuth() });
+    if (res.ok) openOffersForListing(listingId); else alert('Could not accept.');
+  } catch(e){ alert('Connection error.'); }
+}
+async function offerAiDraft(offerId, listingId) {
+  try {
+    var res = await fetch('/api/offers/'+encodeURIComponent(offerId)+'/ai-draft', { method:'POST', headers: offersAuth() });
+    if (res.ok) openOffersForListing(listingId);
+    else { var d=await res.json().catch(function(){return{};}); alert('AI draft failed'+(d.error?': '+d.error:'')+'.'); }
+  } catch(e){ alert('Connection error.'); }
+}
+
 function showPanel(name, btn) {
   document.querySelectorAll('.dash-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.dash-nav-item').forEach(b => b.classList.remove('active'));
@@ -932,10 +1115,11 @@ async function loadMyListings() {
             <div class="mlc-status status-active">● Active</div>
           </div>
         </div>
-        <div class="mlc-actions" style="display:flex;gap:8px;width:100%">
-          <button class="btn-sm btn-sm-outline" style="flex:1" data-id="${l.id}" data-action="view" onclick="handleListingBtn(this)">👁 View</button>
-          <button class="btn-sm btn-sm-outline" style="flex:1" data-id="${l.id}" data-action="edit" onclick="handleListingBtn(this)">✏️ Edit</button>
-          <button class="btn-sm" style="flex:1;background:rgba(232,84,84,0.15);border:1px solid rgba(232,84,84,0.3);color:var(--red)" data-id="${l.id}" data-action="delete" onclick="handleListingBtn(this)">🗑 Delete</button>
+        <div class="mlc-actions" style="display:flex;gap:8px;width:100%;flex-wrap:wrap">
+          <button class="btn-sm btn-sm-outline" style="flex:1;min-width:80px" data-id="${l.id}" data-action="view" onclick="handleListingBtn(this)">👁 View</button>
+          <button class="btn-sm btn-sm-outline" style="flex:1;min-width:80px" data-id="${l.id}" data-action="edit" onclick="handleListingBtn(this)">✏️ Edit</button>
+          <button class="btn-sm" style="flex:1;min-width:80px;background:var(--greenlow);border:1px solid rgba(62,240,122,0.3);color:var(--green)" onclick="showPanel('offers',null);openOffersForListing('${l.id}')">💰 Offers</button>
+          <button class="btn-sm" style="flex:1;min-width:80px;background:rgba(232,84,84,0.15);border:1px solid rgba(232,84,84,0.3);color:var(--red)" data-id="${l.id}" data-action="delete" onclick="handleListingBtn(this)">🗑 Delete</button>
         </div>
       </div>`).join('');
   } catch(e) {}

@@ -1752,5 +1752,345 @@ app.get('/api/pricing-data', async (req, res) => {
   }
 });
 
+// ════════════════════════════════════════════════════════════════
+//  AI OFFER & NEGOTIATION ENGINE
+//  Safety model (all enforced server-side):
+//   1. Seller's private rules (offer_rules) are NEVER sent to buyers.
+//   2. The AI only DRAFTS. Nothing reaches the buyer until the seller sends it.
+//   3. The AI's counter can never be BELOW the seller's minimum (the seller
+//      may still type any number manually).
+//   4. If the AI's buyer-facing message mentions a private price, it's rewritten.
+//   5. Buyers only ever see their own offers, with AI-draft fields stripped.
+//   6. Every step is logged in offer_events.
+// ════════════════════════════════════════════════════════════════
+
+async function getAuthUser(req) {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return null;
+  try { const { data: { user } } = await supabase.auth.getUser(token); return user || null; }
+  catch (e) { return null; }
+}
+
+async function logOfferEvent(offerId, actor, event, detail) {
+  try { await db.from('offer_events').insert([{ offer_id: offerId, actor, event, detail: detail || {} }]); }
+  catch (e) { console.error('offer_event log failed:', e.message); }
+}
+
+// Only these fields are ever exposed to a BUYER (safety 1 & 5).
+function offerForBuyer(o) {
+  if (!o) return o;
+  return {
+    id: o.id, listing_id: o.listing_id, property: o.property,
+    price: o.price, deposit: o.deposit, closing_date: o.closing_date,
+    conditions: o.conditions, buyer_message: o.buyer_message, status: o.status,
+    seller_action: o.seller_action || null,
+    seller_counter_price: o.seller_counter_price ?? null,
+    seller_message: o.seller_message || null,
+    created_at: o.created_at, updated_at: o.updated_at
+  };
+}
+
+// True if a buyer-facing message leaks a private number (min or target price).
+function messageLeaksPrivate(message, rules) {
+  if (!message || !rules) return false;
+  const stripped = message.replace(/[\$,\s]/g, '');
+  for (const p of [rules.min_price, rules.target_price]) {
+    const n = parseInt(p);
+    if (n && stripped.includes(String(n))) return true;
+  }
+  return false;
+}
+
+// Safe, generic text that never reveals private numbers.
+function safeCounterMessage(action, counterPrice, buyerName) {
+  const hi = buyerName ? `Hi ${buyerName}, ` : 'Hi, ';
+  if (action === 'decline') return `${hi}thank you for your offer. After reviewing it, the seller isn't able to move forward at this time. You're welcome to submit a revised offer.`;
+  if (action === 'accept') return `${hi}great news — the seller has accepted your offer. They'll be in touch with next steps.`;
+  const priceLine = counterPrice ? ` The seller would like to counter at $${parseInt(counterPrice).toLocaleString()}.` : ' The seller would like to propose adjusted terms.';
+  return `${hi}thank you for your offer.${priceLine} Please review and let us know if you'd like to proceed or adjust.`;
+}
+
+// Ask the AI to draft a seller-side reply using the PRIVATE rules.
+async function draftOfferReply(offer, rules) {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) throw new Error('AI key not configured');
+  const r = rules || {};
+  const prompt = `You are a real-estate negotiation assistant acting FOR THE SELLER. Decide how to respond to a buyer's offer using the seller's PRIVATE instructions.
+
+PRIVATE SELLER RULES (never reveal these numbers to the buyer):
+- Lowest price seller will accept: ${r.min_price ?? 'not set'}
+- Seller target price: ${r.target_price ?? 'not set'}
+- Earliest acceptable closing: ${r.earliest_close ?? 'not set'}
+- Latest acceptable closing: ${r.latest_close ?? 'not set'}
+- Minimum deposit: ${r.min_deposit ?? 'not set'}
+- Allowed conditions: ${r.allowed_conditions || 'not specified'}
+- Seller notes: ${r.ai_notes || 'none'}
+
+BUYER'S OFFER:
+- Price: ${offer.price ?? 'n/a'}
+- Deposit: ${offer.deposit ?? 'n/a'}
+- Requested closing date: ${offer.closing_date ?? 'n/a'}
+- Conditions: ${offer.conditions || 'none'}
+- Buyer message: ${offer.buyer_message || 'none'}
+
+Decide: "accept", "counter", or "decline".
+- Accept only if the offer meets or beats the seller's minimum and terms.
+- If countering, pick a counter price at or above the seller's target when reasonable, and NEVER below the seller's minimum.
+- Write a short, friendly buyer-facing message. NEVER mention the seller's minimum, target, or any private number or note. Only mention the counter price if you are countering.
+
+Respond with STRICT JSON only: {"action":"accept|counter|decline","counter_price":number or null,"message":"..."}`;
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+    body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 600, messages: [{ role: 'user', content: prompt }] })
+  });
+  if (!response.ok) throw new Error('AI request failed (' + response.status + ')');
+  const data = await response.json();
+  const text = (data.content && data.content[0] && data.content[0].text) || '';
+  let parsed;
+  try { parsed = JSON.parse(text.match(/\{[\s\S]*\}/)[0]); }
+  catch (e) { throw new Error('AI returned an unparseable draft'); }
+  let action = ['accept', 'counter', 'decline'].includes(parsed.action) ? parsed.action : 'counter';
+  let counter = parsed.counter_price != null ? parseInt(parsed.counter_price) : null;
+  let message = String(parsed.message || '').trim();
+  const flags = [];
+  // SAFETY 3: AI counter can never be below the seller's minimum.
+  if (action === 'counter' && r.min_price != null && counter != null && counter < parseInt(r.min_price)) {
+    counter = parseInt(r.min_price); flags.push('counter_clamped_to_min');
+  }
+  if (action === 'counter' && (counter == null || isNaN(counter))) {
+    counter = r.target_price != null ? parseInt(r.target_price) : (r.min_price != null ? parseInt(r.min_price) : null);
+    flags.push('counter_defaulted');
+  }
+  // SAFETY 4: rewrite if the message leaks a private number.
+  if (messageLeaksPrivate(message, r)) { message = safeCounterMessage(action, counter, offer.buyer_name); flags.push('message_rewritten'); }
+  if (!message) { message = safeCounterMessage(action, counter, offer.buyer_name); flags.push('message_empty_defaulted'); }
+  return { action, counter_price: counter, message, flags };
+}
+
+async function listingOwner(listingId) {
+  try { const { data } = await db.from('listings').select('id,user_id,address,city').eq('id', listingId).single(); return data || null; }
+  catch (e) { return null; }
+}
+
+// ── Seller: get private offer rules for a listing ──────────────
+app.get('/api/listings/:id/offer-rules', async (req, res) => {
+  const user = await getAuthUser(req);
+  if (!user) return res.status(401).json({ error: 'Not authenticated' });
+  const listing = await listingOwner(req.params.id);
+  if (!listing || listing.user_id !== user.id) return res.status(403).json({ error: 'Not your listing' });
+  try {
+    const { data } = await db.from('offer_rules').select('*').eq('listing_id', req.params.id).single();
+    res.json({ rules: data || null });
+  } catch (e) { res.json({ rules: null }); }
+});
+
+// ── Seller: save private offer rules ───────────────────────────
+app.put('/api/listings/:id/offer-rules', async (req, res) => {
+  const user = await getAuthUser(req);
+  if (!user) return res.status(401).json({ error: 'Not authenticated' });
+  const listing = await listingOwner(req.params.id);
+  if (!listing || listing.user_id !== user.id) return res.status(403).json({ error: 'Not your listing' });
+  const b = req.body || {};
+  const num = v => (v === '' || v == null) ? null : (isNaN(parseInt(v)) ? null : parseInt(v));
+  const row = {
+    listing_id: req.params.id, seller_id: user.id,
+    min_price: num(b.min_price), target_price: num(b.target_price),
+    earliest_close: b.earliest_close || null, latest_close: b.latest_close || null,
+    min_deposit: num(b.min_deposit), allowed_conditions: b.allowed_conditions || null,
+    ai_notes: b.ai_notes || null, updated_at: new Date().toISOString()
+  };
+  try {
+    const { error } = await db.from('offer_rules').upsert(row, { onConflict: 'listing_id' });
+    if (error) return res.status(400).json({ error: error.message });
+    await logOfferEvent(null, 'seller', 'rules_updated', { listing_id: req.params.id });
+    res.json({ success: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── Buyer: submit an offer (auto-triggers an AI draft for the seller) ──
+app.post('/api/listings/:id/offers', async (req, res) => {
+  const listing = await listingOwner(req.params.id);
+  if (!listing) return res.status(404).json({ error: 'Listing not found' });
+  const user = await getAuthUser(req); // optional — buyers can be logged out
+  const b = req.body || {};
+  if (!b.buyer_name || !b.buyer_email || !b.price) return res.status(400).json({ error: 'Name, email and price are required' });
+  const num = v => (v === '' || v == null) ? null : (isNaN(parseInt(v)) ? null : parseInt(v));
+  const offerRow = {
+    listing_id: req.params.id, seller_id: listing.user_id,
+    buyer_id: user ? user.id : null,
+    buyer_name: b.buyer_name, buyer_email: b.buyer_email, buyer_phone: b.buyer_phone || null,
+    property: b.property || ((listing.address || '') + (listing.city ? ', ' + listing.city : '')),
+    price: num(b.price), deposit: num(b.deposit), closing_date: b.closing_date || null,
+    conditions: b.conditions || null, buyer_message: b.message || b.buyer_message || null,
+    status: 'new'
+  };
+  let offer;
+  try {
+    const { data, error } = await db.from('offers').insert([offerRow]).select().single();
+    if (error) return res.status(400).json({ error: error.message });
+    offer = data;
+  } catch (e) { return res.status(500).json({ error: e.message }); }
+  await logOfferEvent(offer.id, 'buyer', 'offer_submitted', { price: offer.price });
+
+  // Notify the seller by email (no AI content).
+  try {
+    const adminC = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY);
+    const { data: sa } = await adminC.auth.admin.getUserById(listing.user_id).catch(() => ({ data: null }));
+    const sellerEmail = sa?.user?.email;
+    const html = emailWrap(`
+      <h2 style="color:#3ef07a;margin:0 0 8px">💰 New Offer Received</h2>
+      <p style="color:#7a9480;margin:0 0 16px">A buyer submitted an offer on your listing. Your AI assistant has drafted a suggested reply — review it in your dashboard.</p>
+      <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin-bottom:16px">
+        <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Property:</strong> ${offerRow.property}</p>
+        <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Offer:</strong> $${parseInt(offer.price || 0).toLocaleString()}</p>
+        <p style="color:#e8f0e9;margin:0"><strong style="color:#3ef07a">From:</strong> ${offer.buyer_name}</p>
+      </div>
+      <a href="https://listdirect.ai/dashboard.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">Review in Dashboard →</a>`);
+    if (sellerEmail) await sendEmail({ to: sellerEmail, reply_to: offer.buyer_email, subject: `💰 New Offer — $${parseInt(offer.price || 0).toLocaleString()}`, html }).catch(() => {});
+  } catch (e) { /* email best-effort */ }
+
+  // AUTO AI DRAFT (safety 2). If it fails, the offer still stands and the
+  // seller gets a "Let AI draft a reply" button via ai_error.
+  try {
+    const { data: rules } = await db.from('offer_rules').select('*').eq('listing_id', req.params.id).single();
+    const draft = await draftOfferReply(offer, rules || {});
+    await db.from('offers').update({
+      ai_action: draft.action, ai_counter_price: draft.counter_price,
+      ai_message: draft.message, ai_error: null, status: 'ai_drafted', updated_at: new Date().toISOString()
+    }).eq('id', offer.id);
+    await logOfferEvent(offer.id, 'ai', 'ai_drafted', { action: draft.action, counter_price: draft.counter_price, flags: draft.flags });
+  } catch (e) {
+    await db.from('offers').update({ ai_error: e.message, updated_at: new Date().toISOString() }).eq('id', offer.id).catch(() => {});
+    await logOfferEvent(offer.id, 'system', 'ai_draft_failed', { error: e.message });
+  }
+
+  // Buyer only gets a confirmation — never the AI draft (safety 5).
+  res.json({ success: true, offer_id: offer.id });
+});
+
+// ── Seller: manual AI draft (backup if auto-draft failed) ──────
+app.post('/api/offers/:id/ai-draft', async (req, res) => {
+  const user = await getAuthUser(req);
+  if (!user) return res.status(401).json({ error: 'Not authenticated' });
+  try {
+    const { data: offer } = await db.from('offers').select('*').eq('id', req.params.id).single();
+    if (!offer) return res.status(404).json({ error: 'Offer not found' });
+    if (offer.seller_id !== user.id) return res.status(403).json({ error: 'Not your offer' });
+    const { data: rules } = await db.from('offer_rules').select('*').eq('listing_id', offer.listing_id).single();
+    const draft = await draftOfferReply(offer, rules || {});
+    await db.from('offers').update({
+      ai_action: draft.action, ai_counter_price: draft.counter_price,
+      ai_message: draft.message, ai_error: null,
+      status: offer.status === 'new' ? 'ai_drafted' : offer.status, updated_at: new Date().toISOString()
+    }).eq('id', offer.id);
+    await logOfferEvent(offer.id, 'ai', 'ai_drafted_manual', { action: draft.action, flags: draft.flags });
+    res.json({ success: true, ai_action: draft.action, ai_counter_price: draft.counter_price, ai_message: draft.message });
+  } catch (e) {
+    await logOfferEvent(req.params.id, 'system', 'ai_draft_failed', { error: e.message });
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ── Seller: list offers for my listings (full AI view) ─────────
+app.get('/api/seller/offers', async (req, res) => {
+  const user = await getAuthUser(req);
+  if (!user) return res.status(401).json({ error: 'Not authenticated' });
+  try {
+    let q = db.from('offers').select('*').eq('seller_id', user.id).order('created_at', { ascending: false });
+    if (req.query.listing_id) q = q.eq('listing_id', req.query.listing_id);
+    const { data, error } = await q;
+    if (error) throw error;
+    res.json({ offers: data || [] });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── Seller: approve & send (counter or decline) ────────────────
+app.post('/api/offers/:id/send', async (req, res) => {
+  const user = await getAuthUser(req);
+  if (!user) return res.status(401).json({ error: 'Not authenticated' });
+  const b = req.body || {};
+  const action = ['counter', 'decline'].includes(b.action) ? b.action : null;
+  if (!action) return res.status(400).json({ error: 'action must be counter or decline' });
+  try {
+    const { data: offer } = await db.from('offers').select('*').eq('id', req.params.id).single();
+    if (!offer) return res.status(404).json({ error: 'Offer not found' });
+    if (offer.seller_id !== user.id) return res.status(403).json({ error: 'Not your offer' });
+    const num = v => (v === '' || v == null) ? null : (isNaN(parseInt(v)) ? null : parseInt(v));
+    // Seller may type ANY number manually — the minimum clamp applies only to the AI.
+    const counterPrice = action === 'counter' ? num(b.counter_price) : null;
+    const message = (b.message && String(b.message).trim()) || safeCounterMessage(action, counterPrice, offer.buyer_name);
+    await db.from('offers').update({
+      seller_action: action, seller_counter_price: counterPrice, seller_message: message,
+      status: action === 'decline' ? 'declined' : 'countered', updated_at: new Date().toISOString()
+    }).eq('id', offer.id);
+    await logOfferEvent(offer.id, 'seller', action === 'decline' ? 'seller_declined' : 'seller_countered', { counter_price: counterPrice });
+    try {
+      const html = emailWrap(`
+        <h2 style="color:#3ef07a;margin:0 0 8px">${action === 'decline' ? 'Update on your offer' : '📩 You received a counter-offer'}</h2>
+        <div style="background:#141c16;border:1px solid #1f2d22;border-radius:12px;padding:20px;margin:12px 0">
+          <p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Property:</strong> ${offer.property || ''}</p>
+          ${counterPrice ? `<p style="color:#e8f0e9;margin:0 0 8px"><strong style="color:#3ef07a">Counter price:</strong> $${parseInt(counterPrice).toLocaleString()}</p>` : ''}
+          <p style="color:#e8f0e9;margin:0">${message}</p>
+        </div>
+        <a href="https://listdirect.ai/buyer-dashboard.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">View in Your Dashboard →</a>`);
+      if (offer.buyer_email) await sendEmail({ to: offer.buyer_email, subject: action === 'decline' ? 'Update on your offer' : 'You received a counter-offer', html }).catch(() => {});
+    } catch (e) {}
+    res.json({ success: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── Seller: accept the buyer's offer ───────────────────────────
+app.post('/api/offers/:id/accept', async (req, res) => {
+  const user = await getAuthUser(req);
+  if (!user) return res.status(401).json({ error: 'Not authenticated' });
+  try {
+    const { data: offer } = await db.from('offers').select('*').eq('id', req.params.id).single();
+    if (!offer) return res.status(404).json({ error: 'Offer not found' });
+    if (offer.seller_id !== user.id) return res.status(403).json({ error: 'Not your offer' });
+    const message = safeCounterMessage('accept', null, offer.buyer_name);
+    await db.from('offers').update({ seller_action: 'accept', seller_message: message, status: 'accepted', updated_at: new Date().toISOString() }).eq('id', offer.id);
+    await logOfferEvent(offer.id, 'seller', 'seller_accepted', { price: offer.price });
+    try {
+      const html = emailWrap(`<h2 style="color:#3ef07a;margin:0 0 8px">🎉 Your offer was accepted!</h2><p style="color:#7a9480;margin:0 0 16px">${message}</p><a href="https://listdirect.ai/buyer-dashboard.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">View in Your Dashboard →</a>`);
+      if (offer.buyer_email) await sendEmail({ to: offer.buyer_email, subject: '🎉 Your offer was accepted!', html }).catch(() => {});
+    } catch (e) {}
+    res.json({ success: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── Buyer: list my own offers (AI fields stripped — safety 5) ──
+app.get('/api/buyer/offers', async (req, res) => {
+  const user = await getAuthUser(req);
+  if (!user) return res.status(401).json({ error: 'Not authenticated' });
+  try {
+    const { data, error } = await db.from('offers').select('*')
+      .or(`buyer_id.eq.${user.id},buyer_email.eq.${user.email}`)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    res.json({ offers: (data || []).map(offerForBuyer) });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── Buyer: accept the seller's counter ─────────────────────────
+app.post('/api/offers/:id/buyer-accept', async (req, res) => {
+  const user = await getAuthUser(req);
+  if (!user) return res.status(401).json({ error: 'Not authenticated' });
+  try {
+    const { data: offer } = await db.from('offers').select('*').eq('id', req.params.id).single();
+    if (!offer) return res.status(404).json({ error: 'Offer not found' });
+    const mine = offer.buyer_id === user.id || (offer.buyer_email && user.email && offer.buyer_email.toLowerCase() === user.email.toLowerCase());
+    if (!mine) return res.status(403).json({ error: 'Not your offer' });
+    await db.from('offers').update({ status: 'accepted', updated_at: new Date().toISOString() }).eq('id', offer.id);
+    await logOfferEvent(offer.id, 'buyer', 'buyer_accepted_counter', { price: offer.seller_counter_price });
+    try {
+      const adminC = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY);
+      const { data: sa } = await adminC.auth.admin.getUserById(offer.seller_id).catch(() => ({ data: null }));
+      if (sa?.user?.email) await sendEmail({ to: sa.user.email, subject: '🎉 Buyer accepted your counter', html: emailWrap(`<h2 style="color:#3ef07a;margin:0 0 8px">🎉 Deal reached</h2><p style="color:#7a9480">${offer.buyer_name} accepted your counter on ${offer.property || 'your listing'}.</p>`) }).catch(() => {});
+    } catch (e) {}
+    res.json({ success: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`ListDirect running on port ${PORT}`));

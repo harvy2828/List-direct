@@ -2687,7 +2687,7 @@ function openMsgSellerCurrent() {
 }
 function openOfferCurrent() {
   const l = window._currentListing || {};
-  openOfferModalDirect(l.seller_id||'', (l.addr||'') + ', ' + (l.city||''), l.price||0);
+  openOfferModalDirect(l.seller_id||'', (l.addr||'') + ', ' + (l.city||''), l.price||0, l.id||'');
 }
 
 function openAgentModal() { document.getElementById('agent-modal').style.display='flex'; document.body.style.overflow='hidden'; }
@@ -2760,10 +2760,18 @@ function closeListingModalOutside(e) {
 // ═══════════════════════════════════════════
 let currentOfferSellerId = '';
 let currentOfferProperty = '';
+let currentOfferListingId = '';
 
-function openOfferModalDirect(sellerId, property, price) {
+function resetOfferExtras() {
+  const d = document.getElementById('offer-deposit'); if (d) d.value = '';
+  const c = document.getElementById('offer-closing'); if (c) c.value = '';
+  const cn = document.getElementById('offer-conditions'); if (cn) cn.value = '';
+}
+
+function openOfferModalDirect(sellerId, property, price, listingId) {
   currentOfferSellerId = sellerId;
   currentOfferProperty = property;
+  currentOfferListingId = listingId || '';
   document.getElementById('offer-property').textContent = '📍 ' + property;
   const p = parseInt(price) || 500000;
   document.getElementById('offer-slider').value = Math.min(p, 10000000);
@@ -2773,6 +2781,8 @@ function openOfferModalDirect(sellerId, property, price) {
   document.getElementById('offer-email').value = '';
   document.getElementById('offer-phone').value = '';
   document.getElementById('offer-message').value = '';
+  resetOfferExtras();
+  document.getElementById('offer-form-content').style.display = 'block';
   document.getElementById('offer-success').style.display = 'none';
   document.getElementById('offer-submit-btn').style.display = 'block';
   document.getElementById('offer-modal').style.display = 'flex';
@@ -2785,6 +2795,8 @@ function openOfferModal(btn) {
   const listingPrice = btn.dataset.price || '500000';
   currentOfferSellerId = sellerId;
   currentOfferProperty = property;
+  currentOfferListingId = btn.dataset.listingId || btn.dataset.listing || '';
+  resetOfferExtras();
   document.getElementById('offer-property').textContent = '📍 ' + property;
   // Set slider to listing price
   const price = parseInt(listingPrice) || 500000;
@@ -2823,6 +2835,9 @@ async function submitOffer() {
   const phone = document.getElementById('offer-phone').value.trim();
   const message = document.getElementById('offer-message').value.trim();
   const amount = parseInt(document.getElementById('offer-slider').value);
+  const deposit = (document.getElementById('offer-deposit') || {}).value || '';
+  const closing = (document.getElementById('offer-closing') || {}).value || '';
+  const conditions = ((document.getElementById('offer-conditions') || {}).value || '').trim();
 
   if (!name) { alert('Please enter your name'); return; }
   if (!email) { alert('Please enter your email'); return; }
@@ -2832,19 +2847,39 @@ async function submitOffer() {
   btn.disabled = true;
 
   try {
-    const res = await fetch('/api/offers', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        seller_id: currentOfferSellerId,
-        property: currentOfferProperty,
-        offer_amount: amount,
-        buyer_name: name,
-        buyer_email: email,
-        buyer_phone: phone,
-        message
-      })
-    });
+    let res;
+    if (currentOfferListingId) {
+      // New AI negotiation flow (tied to a real listing). Include the buyer's
+      // login token when available so the offer shows in their dashboard.
+      const token = localStorage.getItem('ld_token');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = 'Bearer ' + token;
+      res = await fetch('/api/listings/' + encodeURIComponent(currentOfferListingId) + '/offers', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          property: currentOfferProperty,
+          price: amount, deposit: deposit, closing_date: closing,
+          conditions: conditions, message: message,
+          buyer_name: name, buyer_email: email, buyer_phone: phone
+        })
+      });
+    } else {
+      // Legacy fallback (no listing id available) — unchanged behaviour.
+      res = await fetch('/api/offers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          seller_id: currentOfferSellerId,
+          property: currentOfferProperty,
+          offer_amount: amount,
+          buyer_name: name,
+          buyer_email: email,
+          buyer_phone: phone,
+          message
+        })
+      });
+    }
     if (res.ok) {
       document.getElementById('offer-form-content').style.display = 'none';
       document.getElementById('offer-success').style.display = 'block';
@@ -4570,6 +4605,15 @@ function heroQuickSearch(city) {
       <input id="offer-email" type="email" placeholder="Email Address *" style="background:#0d1510;border:1px solid #1f2d22;border-radius:10px;padding:12px 16px;color:#e8f0e9;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none">
       <input id="offer-phone" type="tel" placeholder="Phone Number (optional)" style="background:#0d1510;border:1px solid #1f2d22;border-radius:10px;padding:12px 16px;color:#e8f0e9;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none">
       <textarea id="offer-message" placeholder="Add a note to the seller (optional)..." rows="3" style="background:#0d1510;border:1px solid #1f2d22;border-radius:10px;padding:12px 16px;color:#e8f0e9;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none;resize:none"></textarea>
+    </div>
+
+    <!-- Offer terms (optional) -->
+    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px">
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <input id="offer-deposit" type="number" min="0" placeholder="Deposit amount (optional)" style="flex:1;min-width:150px;background:#0d1510;border:1px solid #1f2d22;border-radius:10px;padding:12px 16px;color:#e8f0e9;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none;box-sizing:border-box">
+        <input id="offer-closing" type="date" title="Preferred closing date" style="flex:1;min-width:150px;background:#0d1510;border:1px solid #1f2d22;border-radius:10px;padding:12px 16px;color:#e8f0e9;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none;box-sizing:border-box">
+      </div>
+      <input id="offer-conditions" type="text" placeholder="Conditions — e.g. financing, inspection (optional)" style="background:#0d1510;border:1px solid #1f2d22;border-radius:10px;padding:12px 16px;color:#e8f0e9;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none;box-sizing:border-box">
     </div>
 
     <div style="display:flex;gap:10px">
