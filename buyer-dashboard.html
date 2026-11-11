@@ -328,7 +328,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 
         <!-- MY OFFERS PANEL -->
         <div class="dash-panel" id="panel-offers">
-          <div class="panel-title">My Offers</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+            <div class="panel-title" style="margin-bottom:0">My Offers</div>
+            <button class="btn-sm btn-sm-green" style="flex-shrink:0" onclick="window.location.href='index.html#search-section'">🔍 Search Homes</button>
+          </div>
           <div class="panel-sub">Your offers and any counters from sellers. You can accept a counter or make a new offer.</div>
           <div id="buyer-offers-list"><div style="color:var(--muted);padding:20px">Loading…</div></div>
         </div>
@@ -573,7 +576,7 @@ function showDashboard(user) {
 // ===== My Offers (buyer side) — AI drafts are never sent here by the server =====
 function bofMoney(n){ return '$' + (parseInt(n||0)).toLocaleString(); }
 function bofEsc(s){ return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function bofAuth(){ var t=localStorage.getItem('ld_token'); return t?{'Authorization':'Bearer '+t}:{}; }
+function bofAuth(){ var t=localStorage.getItem('ld_buyer_token')||localStorage.getItem('ld_token'); return t?{'Authorization':'Bearer '+t}:{}; }
 
 async function loadBuyerOffers() {
   var el = document.getElementById('buyer-offers-list');

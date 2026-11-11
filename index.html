@@ -2823,6 +2823,18 @@ function updateOfferAmount(val) {
   document.getElementById('offer-amount-input').value = '';
 }
 
+// Live-format the "exact amount" box with commas as the buyer types,
+// and keep the big display + slider in sync.
+function formatOfferInput(el) {
+  var digits = (el.value || '').replace(/[^\d]/g, '');
+  if (digits.length > 8) digits = digits.slice(0, 8); // cap at 99,999,999
+  var n = parseInt(digits) || 0;
+  el.value = digits ? n.toLocaleString() : '';
+  document.getElementById('offer-amount-display').textContent = '$' + n.toLocaleString();
+  var slider = document.getElementById('offer-slider');
+  slider.value = Math.min(n, parseInt(slider.max) || 10000000);
+}
+
 function updateOfferSlider(val) {
   const v = Math.min(Math.max(parseInt(val) || 0, 0), 10000000);
   document.getElementById('offer-slider').value = v;
@@ -2834,7 +2846,9 @@ async function submitOffer() {
   const email = document.getElementById('offer-email').value.trim();
   const phone = document.getElementById('offer-phone').value.trim();
   const message = document.getElementById('offer-message').value.trim();
-  const amount = parseInt(document.getElementById('offer-slider').value);
+  var typedRaw = (document.getElementById('offer-amount-input').value || '').replace(/[^\d]/g, '');
+  var typedAmt = parseInt(typedRaw) || 0;
+  const amount = typedAmt > 0 ? typedAmt : parseInt(document.getElementById('offer-slider').value);
   const deposit = (document.getElementById('offer-deposit') || {}).value || '';
   const closing = (document.getElementById('offer-closing') || {}).value || '';
   const conditions = ((document.getElementById('offer-conditions') || {}).value || '').trim();
@@ -2851,7 +2865,7 @@ async function submitOffer() {
     if (currentOfferListingId) {
       // New AI negotiation flow (tied to a real listing). Include the buyer's
       // login token when available so the offer shows in their dashboard.
-      const token = localStorage.getItem('ld_token');
+      const token = localStorage.getItem('ld_buyer_token') || localStorage.getItem('ld_token');
       const headers = { 'Content-Type': 'application/json' };
       if (token) headers['Authorization'] = 'Bearer ' + token;
       res = await fetch('/api/listings/' + encodeURIComponent(currentOfferListingId) + '/offers', {
@@ -4596,7 +4610,7 @@ function heroQuickSearch(city) {
         </div>
       </div>
       <!-- Or type it in -->
-      <input type="number" id="offer-amount-input" placeholder="Or type exact amount..." min="0" max="10000000" oninput="updateOfferSlider(this.value)" style="width:100%;margin-top:8px;background:#0d1510;border:1px solid #1f2d22;border-radius:10px;padding:10px 14px;color:#e8f0e9;font-size:0.9rem;font-family:'DM Sans',sans-serif;box-sizing:border-box;outline:none">
+      <input type="text" inputmode="numeric" id="offer-amount-input" placeholder="Or type exact amount, e.g. 2,350,000" oninput="formatOfferInput(this)" style="width:100%;margin-top:8px;background:#0d1510;border:1px solid #1f2d22;border-radius:10px;padding:10px 14px;color:#e8f0e9;font-size:0.95rem;font-family:'DM Sans',sans-serif;box-sizing:border-box;outline:none">
     </div>
 
     <!-- Buyer Info -->

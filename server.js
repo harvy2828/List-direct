@@ -1846,7 +1846,7 @@ BUYER'S OFFER:
 Decide: "accept", "counter", or "decline".
 - Accept only if the offer meets or beats the seller's minimum and terms.
 - If countering, pick a counter price at or above the seller's target when reasonable, and NEVER below the seller's minimum.
-- Write a short, friendly buyer-facing message. NEVER mention the seller's minimum, target, or any private number or note. Only mention the counter price if you are countering.
+- Write a professional, courteous buyer-facing message of 2 to 4 full sentences. Acknowledge the buyer's offer, explain the seller's position in general terms, and invite next steps. You MAY reference the buyer's OWN offered price and say whether it is below or above what the seller is looking for, but NEVER reveal the seller's minimum, target, or any private number or note. Only state the counter price itself if you are countering.
 
 Respond with STRICT JSON only: {"action":"accept|counter|decline","counter_price":number or null,"message":"..."}`;
   const response = await fetch('https://api.anthropic.com/v1/messages', {
