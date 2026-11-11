@@ -908,13 +908,15 @@ function offVal(id){ var el=document.getElementById(id); return el?el.value:''; 
 
 async function loadOfferCount() {
   try {
-    var res = await fetch('/api/seller/offers', { headers: offersAuth() });
-    if (!res.ok) return;
-    var d = await res.json();
-    var offers = d.offers || [];
+    var all = {};
+    var r1 = await fetch('/api/seller/offers', { headers: offersAuth() });
+    if (r1.ok) { var d1 = await r1.json(); (d1.offers || []).forEach(function(o){ all[o.id] = o; }); }
+    var r2 = await fetch('/api/buyer/offers', { headers: offersAuth() });
+    if (r2.ok) { var d2 = await r2.json(); (d2.offers || []).forEach(function(o){ all[o.id] = o; }); }
+    var offers = Object.keys(all).map(function(k){ return all[k]; });
     var el = document.getElementById('stat-offers');
     if (el) el.textContent = offers.length;
-    var pending = offers.filter(function(o){ return o.status==='new' || o.status==='ai_drafted'; }).length;
+    var pending = offers.filter(function(o){ return o.status==='new' || o.status==='ai_drafted' || o.status==='countered'; }).length;
     var badge = document.getElementById('offers-nav-badge');
     if (badge) { if (pending>0){ badge.textContent = pending; badge.style.display='inline-block'; } else { badge.style.display='none'; } }
   } catch(e){}
