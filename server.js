@@ -1776,6 +1776,16 @@ async function logOfferEvent(offerId, actor, event, detail) {
   catch (e) { console.error('offer_event log failed:', e.message); }
 }
 
+// Keep the ListDirect owner in the loop on every step of a negotiation.
+const ADMIN_NOTIFY_EMAIL = process.env.ADMIN_NOTIFY_EMAIL || 'infolistdirect@gmail.com';
+async function notifyAdmin(subject, lines) {
+  try {
+    const html = emailWrap('<h2 style="color:#3ef07a;margin:0 0 10px">📋 Offer activity</h2>' +
+      (lines || []).map(function (l) { return '<p style="color:#e8f0e9;margin:0 0 6px">' + l + '</p>'; }).join(''));
+    await sendEmail({ to: ADMIN_NOTIFY_EMAIL, subject: '[ListDirect] ' + subject, html });
+  } catch (e) { /* best-effort */ }
+}
+
 // Only these fields are ever exposed to a BUYER (safety 1 & 5).
 function offerForBuyer(o) {
   if (!o) return o;
@@ -1965,6 +1975,14 @@ app.post('/api/listings/:id/offers', async (req, res) => {
     await logOfferEvent(offer.id, 'system', 'ai_draft_failed', { error: e.message });
   }
 
+  await notifyAdmin('New offer submitted', [
+    '<strong>Property:</strong> ' + (offer.property || ''),
+    '<strong>Buyer:</strong> ' + (offer.buyer_name || '') + ' (' + (offer.buyer_email || '') + ')',
+    '<strong>Offer price:</strong> $' + parseInt(offer.price || 0).toLocaleString(),
+    (offer.deposit ? '<strong>Deposit:</strong> $' + parseInt(offer.deposit).toLocaleString() : ''),
+    (offer.conditions ? '<strong>Conditions:</strong> ' + offer.conditions : '')
+  ].filter(Boolean));
+
   // Buyer only gets a confirmation — never the AI draft (safety 5).
   res.json({ success: true, offer_id: offer.id });
 });
@@ -2036,6 +2054,13 @@ app.post('/api/offers/:id/send', async (req, res) => {
         <a href="https://listdirect.ai/buyer-dashboard.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">View in Your Dashboard →</a>`);
       if (offer.buyer_email) await sendEmail({ to: offer.buyer_email, subject: action === 'decline' ? 'Update on your offer' : 'You received a counter-offer', html }).catch(() => {});
     } catch (e) {}
+    await notifyAdmin(action === 'decline' ? 'Seller declined an offer' : 'Seller sent a counter', [
+      '<strong>Property:</strong> ' + (offer.property || ''),
+      '<strong>Buyer:</strong> ' + (offer.buyer_name || '') + ' (' + (offer.buyer_email || '') + ')',
+      '<strong>Buyer offered:</strong> $' + parseInt(offer.price || 0).toLocaleString(),
+      (counterPrice ? '<strong>Seller counter:</strong> $' + parseInt(counterPrice).toLocaleString() : ''),
+      '<strong>Message sent:</strong> ' + message
+    ].filter(Boolean));
     res.json({ success: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -2055,6 +2080,11 @@ app.post('/api/offers/:id/accept', async (req, res) => {
       const html = emailWrap(`<h2 style="color:#3ef07a;margin:0 0 8px">🎉 Your offer was accepted!</h2><p style="color:#7a9480;margin:0 0 16px">${message}</p><a href="https://listdirect.ai/buyer-dashboard.html" style="background:#3ef07a;color:#0a0f0d;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;display:inline-block">View in Your Dashboard →</a>`);
       if (offer.buyer_email) await sendEmail({ to: offer.buyer_email, subject: '🎉 Your offer was accepted!', html }).catch(() => {});
     } catch (e) {}
+    await notifyAdmin('Seller ACCEPTED an offer', [
+      '<strong>Property:</strong> ' + (offer.property || ''),
+      '<strong>Buyer:</strong> ' + (offer.buyer_name || '') + ' (' + (offer.buyer_email || '') + ')',
+      '<strong>Accepted price:</strong> $' + parseInt(offer.price || 0).toLocaleString()
+    ]);
     res.json({ success: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -2065,7 +2095,7 @@ app.get('/api/buyer/offers', async (req, res) => {
   if (!user) return res.status(401).json({ error: 'Not authenticated' });
   try {
     const { data, error } = await db.from('offers').select('*')
-      .or(`buyer_id.eq.${user.id},buyer_email.eq.${user.email}`)
+      .or(`buyer_id.eq.${user.id},buyer_email.ilike.${user.email}`)
       .order('created_at', { ascending: false });
     if (error) throw error;
     res.json({ offers: (data || []).map(offerForBuyer) });
@@ -2088,6 +2118,11 @@ app.post('/api/offers/:id/buyer-accept', async (req, res) => {
       const { data: sa } = await adminC.auth.admin.getUserById(offer.seller_id).catch(() => ({ data: null }));
       if (sa?.user?.email) await sendEmail({ to: sa.user.email, subject: '🎉 Buyer accepted your counter', html: emailWrap(`<h2 style="color:#3ef07a;margin:0 0 8px">🎉 Deal reached</h2><p style="color:#7a9480">${offer.buyer_name} accepted your counter on ${offer.property || 'your listing'}.</p>`) }).catch(() => {});
     } catch (e) {}
+    await notifyAdmin('Buyer accepted the seller\'s counter', [
+      '<strong>Property:</strong> ' + (offer.property || ''),
+      '<strong>Buyer:</strong> ' + (offer.buyer_name || '') + ' (' + (offer.buyer_email || '') + ')',
+      '<strong>Agreed price:</strong> $' + parseInt(offer.seller_counter_price || offer.price || 0).toLocaleString()
+    ]);
     res.json({ success: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

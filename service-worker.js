@@ -1,4 +1,4 @@
-const CACHE_NAME = 'listdirect-v6';
+const CACHE_NAME = 'listdirect-v7';
 const ASSETS = [
   '/icon-192.png',
   '/icon-512.png',
