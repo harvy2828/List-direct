@@ -311,6 +311,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
             <div class="stat-card" onclick="showPanel('saved',null)" style="cursor:pointer" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border)'"><div class="sc-num" id="stat-saved">—</div><div class="sc-label">Saved Homes</div></div>
             <div class="stat-card" onclick="showPanel('my-listings',null)" style="cursor:pointer" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border)'"><div class="sc-num" id="stat-views">—</div><div class="sc-label">Listing Views</div></div>
             <div class="stat-card" onclick="showPanel('inquiries',null)" style="cursor:pointer" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border)'"><div class="sc-num" id="stat-inquiries">—</div><div class="sc-label">Inquiries</div></div>
+            <div class="stat-card" onclick="showPanel('offers',null);loadOffersPanel()" style="cursor:pointer" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border)'"><div class="sc-num" id="stat-offers">—</div><div class="sc-label">Offers</div></div>
           </div>
 
           <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px">
@@ -318,7 +319,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
             <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px">
               <div class="quick-actions-grid" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px">
                 <button class="btn-sm btn-sm-green" onclick="showPanel('new-listing',null)">➕ List a Home</button>
-                <button class="btn-sm btn-sm-outline" onclick="showPanel('offers',null);loadOffersPanel()">💰 Offers</button>
                 <button class="btn-sm btn-sm-outline" onclick="window.location.href='index.html?scroll=calculator'">💰 Savings Calc</button>
                 <button class="btn-sm btn-sm-outline" onclick="window.location.href='index.html?scroll=mortgage'">💵 Mortgage Calc</button>
                 <button class="btn-sm btn-sm-outline" onclick="window.location.href='index.html?scroll=search'">🔍 Search Homes</button>
@@ -688,6 +688,7 @@ async function initSession(token) {
     loadMyListings();
     loadFavorites();
     loadInquiries();
+    loadOfferCount();
     return true;
   };
   const clearTokens = () => {
@@ -892,6 +893,20 @@ function offersAuth() {
 function offMoney(n){ return '$' + (parseInt(n||0)).toLocaleString(); }
 function offEsc(s){ return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function offVal(id){ var el=document.getElementById(id); return el?el.value:''; }
+
+async function loadOfferCount() {
+  try {
+    var res = await fetch('/api/seller/offers', { headers: offersAuth() });
+    if (!res.ok) return;
+    var d = await res.json();
+    var offers = d.offers || [];
+    var el = document.getElementById('stat-offers');
+    if (el) el.textContent = offers.length;
+    var pending = offers.filter(function(o){ return o.status==='new' || o.status==='ai_drafted'; }).length;
+    var badge = document.getElementById('offers-nav-badge');
+    if (badge) { if (pending>0){ badge.textContent = pending; badge.style.display='inline-block'; } else { badge.style.display='none'; } }
+  } catch(e){}
+}
 
 async function loadOffersPanel() {
   const picker = document.getElementById('offers-picker');
